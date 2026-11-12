@@ -40,6 +40,8 @@ Examples:
 
 Title: `<type>: <concise title>` using the same allowed types, lowercase imperative wording, no scope or trailing period, and a maximum of 72 characters for the full title. Describe the whole PR.
 
+Every PR is assigned to `donkey-king-kong`.
+
 Follow [.github/pull_request_template.md](../.github/pull_request_template.md) in order:
 
 1. **Summary:** 3-7 outcome-focused bullets on what changed and why.

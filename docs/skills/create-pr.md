@@ -7,7 +7,7 @@ This is the PR-opening sub-step of [ship](ship.md). A request to "create pr", "o
 3. Run the full checks available for this feature (lint, format, types, tests, coverage, build and relevant migration checks). Record commands, results and any unavailable checks. Fix failures before opening a PR.
 4. Choose the type from `docs/conventions.md`; write a lowercase imperative title describing the whole PR, at most 72 characters.
 5. Using the commits, approved feature spec and `tasks.md`, fill every template section: 3-7 Summary bullets; Changes grouped by area with key files; Linked issue and spec; Testing with commands, results and coverage; Next steps with follow-ups, open questions, limitations and the next feature when clear; and the Checklist.
-6. Write the body to a temporary file outside the repository. If `gh` is installed and authenticated, run `gh pr create --title "<title>" --body-file <file> --base main`; output the PR URL.
-7. If `gh` is missing or unauthenticated, do not open a PR; output the complete title and body for Zack to paste.
+6. Write the body to a temporary file outside the repository. If `gh` is installed and authenticated, run `gh pr create --title "<title>" --body-file <file> --base main --assignee donkey-king-kong`; output the PR URL. If the PR already exists, run `gh pr edit <N> --add-assignee donkey-king-kong` instead. After creating or updating, verify with `gh pr view <N> --json assignees` that `donkey-king-kong` is listed. If absent, retry `gh pr edit <N> --add-assignee donkey-king-kong` once, verify again, and report if the assignee is still absent.
+7. If `gh` is missing or unauthenticated, do not open a PR; output the complete title and body for Zack to paste and remind him to assign `donkey-king-kong`.
 
 Return to ship for fresh review and the merge gate; this sub-step does not merge.

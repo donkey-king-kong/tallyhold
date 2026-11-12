@@ -25,7 +25,7 @@ For **each** numbered step below, emit `tool-start` before its real operation an
    # Run the local checks and verify their results here.
    python3 .trae/agent-flow/adapter.py tool-end --agent orchestrator --category Test --outcome succeeded
    ```
-3. **Open PR and inspect CI:** Publish the step start, follow [create-pr](create-pr.md) against `main` and record PR number `<N>`. Inspect `gh pr checks <N>`; confirm separately if the repo has no CI checks. Resolve failures before review; close the tool event after PR and CI inspection.
+3. **Open PR and inspect CI:** Publish the step start, follow [create-pr](create-pr.md) against `main` and record PR number `<N>`. For an existing PR, use its edit and assignee verification step. Inspect `gh pr checks <N>`; confirm separately if the repo has no CI checks. Resolve failures before review; close the tool event after PR and CI inspection.
    ```sh
    python3 .trae/agent-flow/adapter.py status --agent orchestrator --state working --activity "Opening PR and checking CI"
    python3 .trae/agent-flow/adapter.py tool-start --agent orchestrator --category Shell
@@ -58,7 +58,7 @@ For **each** numbered step below, emit `tool-start` before its real operation an
    ```
 
    For `CHANGES_REQUESTED`, substitute that verdict in both commands. For a failed review process, close the coordinator's tool with `--outcome failed`, publish `status --state blocked` and `complete --failed` with generic labels, then use the block procedure.
-5. **Resolve or escalate:** Publish the step start before committing and pushing `review.md`; a report-only commit does not invalidate the code review. For `CHANGES_REQUESTED`, the Implementer fixes findings, commits and pushes, local checks and CI run again, and step 4 starts a **new** Reviewer. Any subsequent code/test change requires another round. After three rounds with unresolved findings, follow the block procedure and report to Zack. Finish the tool event after the handoff; skip this step if there are no findings.
+5. **Resolve or escalate:** Publish the step start before committing and pushing `review.md`; a report-only commit does not invalidate the code review. After pushing PR updates, repeat the existing-PR assignee step in [create-pr](create-pr.md). For `CHANGES_REQUESTED`, the Implementer fixes findings, commits and pushes, local checks and CI run again, and step 4 starts a **new** Reviewer. Any subsequent code/test change requires another round. After three rounds with unresolved findings, follow the block procedure and report to Zack. Finish the tool event after the handoff; skip this step if there are no findings.
    ```sh
    python3 .trae/agent-flow/adapter.py status --agent orchestrator --state working --activity "Resolving review findings"
    python3 .trae/agent-flow/adapter.py tool-start --agent orchestrator --category Shell
