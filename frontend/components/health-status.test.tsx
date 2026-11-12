@@ -34,7 +34,9 @@ test("shows an unavailable state when the API responds with an error", async () 
 
   await renderHealthStatus();
 
-  expect((await screen.findByRole("alert")).textContent).toBe("API unavailable");
+  expect((await screen.findByRole("alert")).textContent).toBe(
+    "API unavailable",
+  );
 });
 
 test("shows an unavailable state when the API cannot be reached", async () => {
@@ -42,5 +44,7 @@ test("shows an unavailable state when the API cannot be reached", async () => {
 
   await renderHealthStatus();
 
-  expect((await screen.findByRole("alert")).textContent).toBe("API unavailable");
+  expect((await screen.findByRole("alert")).textContent).toBe(
+    "API unavailable",
+  );
 });
