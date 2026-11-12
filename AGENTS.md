@@ -14,7 +14,7 @@ Tallyhold ("All your brokers. One portfolio.") is a multi-user, read-only portfo
 - `backend/`: Python API (introduced in feature 001).
 - `frontend/`: Next.js client (introduced in feature 001).
 - `docs/spec.md`: product source of truth; `docs/architecture/`: diagram.
-- `docs/constitution.md`, `docs/adr/`, `docs/agents/`, `docs/specs/`: rules, decisions, roles and feature specs.
+- `docs/constitution.md`, `docs/conventions.md`, `docs/adr/`, `docs/agents/`, `docs/specs/`: rules, conventions, decisions, roles and feature specs.
 - `.github/`: issue/PR templates; CI starts in feature 001.
 - `.trae/`, `CLAUDE.md`: tool-specific pointers to these shared rules.
 
@@ -33,7 +33,7 @@ Tallyhold ("All your brokers. One portfolio.") is a multi-user, read-only portfo
 3. Reviewer checks against spec, plan and constitution (at most three rounds, then Zack); open a PR and pass CI.
 4. **Gate 2:** Zack reviews and merges. CD deploys staging; production deploys on a tagged release.
 
-Git is the only sync between Trae and Claude Code devices: pull before starting, push when stopping. One feature = one branch = one tool at a time. Use `feature/NNN-name` for feature work; `chore/name` for foundation/maintenance. Commit small, spec-linked changes with Conventional Commits (`type: summary`); only Zack merges. Agents never push to `main`.
+Git is the only sync between Trae and Claude Code devices: pull before starting, push when stopping. One feature = one branch = one tool at a time. Use `feature/NNN-name` for feature work; `chore/name` for foundation/maintenance. Every commit and PR follows [conventions](docs/conventions.md). To open a PR, follow [create-pr](docs/skills/create-pr.md). Only Zack merges; agents never push to `main`.
 
 ## Definition of done
 

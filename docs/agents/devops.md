@@ -11,8 +11,8 @@ Maintain CI/CD, Docker and environment configuration under approved feature plan
 
 ## Steps
 1. Confirm scope and required quality, migration and deployment checks.
-2. Make planned configuration changes on the feature branch and verify them without using credentials.
-3. Document required environment variable names using examples only; hand off for review.
+2. Make planned configuration changes on the feature branch and verify them without using credentials; commit each task following [commit cadence](../conventions.md#commit-cadence).
+3. Document required environment variable names using examples only; commit before handoff for review.
 
 ## Must not do
 Read or write secrets, commit live environment files, push to `main` or merge.

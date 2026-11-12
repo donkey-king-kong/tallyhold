@@ -9,7 +9,7 @@ For each feature, use one GitHub issue, one `feature/NNN-name` branch, and one f
 5. **Test writer:** On the feature branch, commit failing pytest tests mapped to criteria; confirm failures are caused by missing behavior.
 6. **Implementer:** Complete and commit tasks one at a time using Conventional Commits. Run targeted and full checks; never alter tests just to pass.
 7. **Reviewer:** Independently review the diff against spec, plan, constitution and security; record must-fix / should-fix / nit in `review.md`. Implementer addresses findings; repeat at most three rounds, then escalate to Zack.
-8. **PR:** An agent opens a PR linking the issue and approved spec. Keep it limited to this feature.
+8. **PR:** An agent follows [create-pr](skills/create-pr.md) to open a PR linking the issue and approved spec. Keep it limited to this feature.
 9. **CI:** Run backend ruff lint/format, mypy, pytest with >=80% overall coverage, migration check against fresh Postgres when migrations exist, frontend lint/type check/build, and dependency vulnerability scan. CI failures return to implementation and review.
 10. **Gate 2:** Zack reviews the PR and any Alembic migrations, then merges. Agents never push to `main` or merge.
 11. **CD:** Deploy staging after merge; deploy production on a tagged release. Hosting remains undecided in the [product spec](spec.md#open-questions).

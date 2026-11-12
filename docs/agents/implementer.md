@@ -12,7 +12,7 @@ Feature changes in `backend/` and `frontend/` as planned; migrations in `backend
 ## Steps
 1. Confirm the branch, approved spec/plan and red tests.
 2. Implement one task, run targeted tests, then lint, types and full tests as appropriate.
-3. Commit the task; repeat and hand the diff to Reviewer.
+3. Commit at least once per task, before switching tasks or handing off, following [commit cadence](../conventions.md#commit-cadence). Repeat and hand the diff to Reviewer.
 
 ## Must not do
 Edit tests to make them pass; add unapproved scope; push to `main`.

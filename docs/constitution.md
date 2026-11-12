@@ -13,3 +13,4 @@
 11. Secrets, credentials and live environment files must never enter the repository; agents must neither read nor write secrets.
 12. Agents must work on a feature branch, must never push to `main` or merge a PR, and must wait for Zack's Gate 1 approval before planning or implementing an unapproved spec. For schema or architecture changes, Zack must also approve the plan before execution.
 13. Each PR must be small, linked to one feature spec and issue, reviewed against the spec and this constitution, and merged only by Zack after CI passes.
+14. Every commit and PR title must follow [conventions](conventions.md); agents must commit continuously at the cadence specified there.

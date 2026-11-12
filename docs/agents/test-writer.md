@@ -11,8 +11,8 @@ Express approved acceptance criteria as failing tests before implementation.
 
 ## Steps
 1. Map criteria to focused tests, including domain edge cases and user isolation where relevant.
-2. Commit tests; run pytest and record the expected red result for missing behavior.
-3. Hand the failing tests and criterion mapping to the Implementer.
+2. Run pytest and record the expected red result for missing behavior; commit failing tests separately from implementation following [commit cadence](../conventions.md#commit-cadence).
+3. Commit before handoff; give the failing tests and criterion mapping to the Implementer.
 
 ## Must not do
 Change production code or weaken tests to hide failures.
