@@ -9,7 +9,7 @@ test -f .agent-flow/session.json || python3 .trae/agent-flow/adapter.py init --s
 python3 .trae/agent-flow/adapter.py status --agent orchestrator --state working --activity "Starting ship run"
 ```
 
-1. **Confirm scope:** Use the feature branch and approved `docs/specs/NNN-name/{spec,plan,tasks}.md`; confirm Gate 1 and required plan approval. Stop and follow the block procedure below if either is missing. Publish:
+1. **Confirm scope:** Use the feature branch and approved `docs/specs/NNN-name/{spec,plan,tasks}.md`; confirm Gate 1 and required plan approval. If either is missing, publish the blocked status and report to Zack; label/comment only if a PR already exists. Publish:
    `python3 .trae/agent-flow/adapter.py status --agent orchestrator --state working --activity "Checking approved scope"`
 2. **Finish implementation:** Complete tasks and local checks, commit continuously and push before handoff. Leave no uncommitted changes. Publish:
    `python3 .trae/agent-flow/adapter.py status --agent orchestrator --state working --activity "Checking implementation and local tests"`
@@ -39,9 +39,9 @@ python3 .trae/agent-flow/adapter.py status --agent orchestrator --state working 
    ```
 
    For `CHANGES_REQUESTED`, substitute that verdict in both commands. For a failed review process, publish `status --state blocked` and `complete --failed` with generic labels, then use the block procedure.
-5. **Resolve or escalate:** The coordinator commits and pushes `review.md` after each round. For `CHANGES_REQUESTED`, the Implementer fixes findings, commits and pushes, local checks and CI run again, and step 4 starts a **new** Reviewer. After three rounds with unresolved findings, follow the block procedure and report to Zack. Publish:
+5. **Resolve or escalate:** The coordinator commits and pushes `review.md` after each round; a report-only commit does not invalidate the code review. For `CHANGES_REQUESTED`, the Implementer fixes findings, commits and pushes, local checks and CI run again, and step 4 starts a **new** Reviewer. Any subsequent code/test change requires another round. After three rounds with unresolved findings, follow the block procedure and report to Zack. Publish:
    `python3 .trae/agent-flow/adapter.py status --agent orchestrator --state working --activity "Resolving review findings"`
-6. **Check merge gate:** Confirm the latest `review.md` and PR comment match, the final line is the latest verdict, the reviewed PR diff is current, and all approved spec/plan/migration requirements are met. Verify **all** merge conditions: latest `review.md` ends with `VERDICT: APPROVE`; zero must-fix and zero should-fix findings remain; local checks pass; CI is green (or the repo has no CI checks yet); the PR has neither `needs-human` nor `pause` label; and `gh pr diff <N> --name-only` does **not** include `docs/constitution.md`. A missing/stale report, unreviewed commit, pending or failed check, or unknown CI state fails the gate. Publish:
+6. **Check merge gate:** Confirm the latest `review.md` and PR comment match, the final line is the latest verdict, the reviewed code diff is current, and all approved spec/plan/migration requirements are met. Inspect `tail -n 1 docs/specs/NNN-name/review.md`, the **latest round's** findings, `gh pr checks <N>`, `gh pr view <N> --json labels,statusCheckRollup`, and `gh pr diff <N> --name-only`. Verify **all** merge conditions: latest `review.md` ends with `VERDICT: APPROVE`; zero must-fix and zero should-fix findings remain; local checks pass; CI is green (or the repo has no CI checks yet); the PR has neither `needs-human` nor `pause` label; and the PR diff does **not** include `docs/constitution.md`. A missing/stale report, unreviewed code/test commit, pending or failed check, or unknown CI state fails the gate. Publish:
    `python3 .trae/agent-flow/adapter.py status --agent orchestrator --state working --activity "Verifying all merge conditions"`
 7. **Automated merge:** Only after **every** condition in step 6 passes, publish and merge. Then check out and pull `main`:
 
@@ -53,7 +53,7 @@ python3 .trae/agent-flow/adapter.py status --agent orchestrator --state working 
    python3 .trae/agent-flow/adapter.py complete --agent orchestrator --summary "PR merged and main updated"
    ```
 
-   If **any** condition fails, do not merge. Add the `needs-human` label (create the label if the repository has not defined it), comment the specific reason with `gh pr comment <N>`, and report to Zack. This includes PRs modifying `docs/constitution.md`; Zack alone merges those after review. Publish the block and outcome:
+   If **any** condition fails, do not merge. Create the `needs-human` label with `gh label create needs-human --color D93F0B --description "Requires Zack review"` **only if missing**; then add it, comment the specific reason and report to Zack. This includes PRs modifying `docs/constitution.md`; Zack alone merges those after review. Publish the block and outcome:
 
    ```sh
    python3 .trae/agent-flow/adapter.py status --agent orchestrator --state blocked --activity "Merge blocked; Zack review required"

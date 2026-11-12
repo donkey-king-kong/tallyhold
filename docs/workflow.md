@@ -32,6 +32,7 @@ flowchart LR
     T --> M[Implementer: passing tests] --> PR[Pull request] --> CI[CI checks]
     CI -->|Fail| M
     CI -->|Pass| R[Fresh Reviewer subagent: max 3 rounds]
+    CI -->|No CI configured yet| R
     R -->|Changes| M
     R -->|Unresolved after 3| E[needs-human: Zack]
     R -->|APPROVE| G2{Gate 2: all ship checks pass?}
