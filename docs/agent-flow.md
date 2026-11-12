@@ -27,6 +27,10 @@ Alternatively navigate to the repository root, then open `.agent-flow/`.
 The installed Agent Flow 0.9.4 supports this JSONL connection. The
 `agentVisualizer.eventLogPath` setting does not activate the watcher; select
 the file in the panel. Keep the panel connected while publishing events.
+If the graph is off-screen, press Shift+F (uppercase `F`) while focused on
+the panel, or double-click the canvas, to fit all nodes. The review-mode reset
+button restarts playback, not the camera. The extension exposes no layout or
+node-style setting.
 For another independent session, choose a different local `--root` directory
 and watch its `agent-flow-events.jsonl`; `init` refuses to overwrite a previous
 session. Do not delete or prune logs to start another session.
@@ -34,14 +38,18 @@ session. Do not delete or prune logs to start another session.
 ## Report work
 
 The parent agent initializes the session and reports its own milestones.
-Register a child **when it actually starts**, then publish transitions and
-broad tool activity; complete both child and parent when they finish:
+`status` reactivates an agent that completed an earlier run in the same stream.
+Register a child **when it actually starts**, publish transitions, and put
+`tool-start` **before real work** and `tool-end` **after it finishes** (use
+`--outcome failed` if it fails). Complete children and parent only after their
+real work ends, while the panel is connected:
 
 ```bash
 python3 .trae/agent-flow/adapter.py status --agent orchestrator --state working --activity "Coordinating work"
 python3 .trae/agent-flow/adapter.py start --agent test_writer --parent orchestrator --task "Write tests"
 python3 .trae/agent-flow/adapter.py status --agent test_writer --state working --activity "Checking acceptance criteria"
 python3 .trae/agent-flow/adapter.py tool-start --agent test_writer --category Test
+# Run the tests here; do not close the tool call until the command finishes.
 python3 .trae/agent-flow/adapter.py tool-end --agent test_writer --category Test --outcome succeeded
 python3 .trae/agent-flow/adapter.py complete --agent test_writer --parent orchestrator --summary "Tests written"
 python3 .trae/agent-flow/adapter.py complete --agent orchestrator --summary "Work finished"
@@ -54,6 +62,18 @@ a distinct short ID. A child may report its own events; a parent may report
 start and finish after receiving confirmation. A fresh Reviewer must **not**
 receive this document, events, or the implementer's conversation as inputs;
 the coordinator may report Reviewer lifecycle events externally.
+
+The hexagon is an **agent node** created by `agent_spawn`; it needs neither a
+child nor a tool call. `tool_call_start` increments its tool count, with
+`tool_call_end` closing the activity. Agent Flow calculates "alive" time while
+the agent is active **in its running animation**, not from the gap between
+historical JSONL timestamps. If a completed stream is ingested in one batch,
+the node can remain transparent and show `0.0s` even when timestamps span
+minutes; scrub Review playback to the active interval and connect before the
+next live run. Never delay or fabricate events just to inflate these metrics.
+Tokens stay `0k` because the adapter has no authoritative token usage and
+reports no invented token cost. These display values are not a measure of
+actual work done by Trae.
 
 The JSONL contains timestamps, agent IDs, parent relationships, short
 activities, broad tool categories, and outcomes. Heartbeat snapshots are in
