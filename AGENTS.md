@@ -47,6 +47,6 @@ Git is the only sync between Trae and Claude Code devices: pull before starting,
 
 ## Commands
 
-- Backend install, run, lint, type check and test: **TBD — added in feature 001**.
-- Frontend install, run, lint, type check, test and build: **TBD — added in feature 001**.
-- Local Docker Compose and CI: **TBD — added in feature 001**.
+- Backend (`backend/`): `uv sync --locked --group dev`; `uv run uvicorn app.main:app --reload`; `uv run ruff check .`; `uv run ruff format --check .`; `uv run mypy app`; `uv run lint-imports`; `uv run pytest --cov=app --cov-fail-under=80`.
+- Frontend (`frontend/`): `npm ci`; `npm run dev`; `npm run lint`; `npm run typecheck`; `npm test`; `npm run build`.
+- Local stack: `docker compose up --build -d`, `docker compose ps`, `curl --fail http://localhost:8000/api/v1/health`. See [README](README.md) for migrations, security scans and local TLS trust.

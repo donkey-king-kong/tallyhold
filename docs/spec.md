@@ -282,7 +282,7 @@ Suggested split: Claude Code for Planner, Architect and Reviewer; Trae for Test 
 10. **Gate 2:** [Ship](skills/ship.md) merges only when review, local checks, CI (or confirmed no CI yet), labels and constitution-diff gates all pass. Zack alone merges constitution-changing PRs; failures are labeled `needs-human` and reported to him.
 11. CD deploys to staging; production deploy on a tagged release.
 
-**CI checks on every pull request:** ruff lint and format check, mypy, pytest with a coverage floor (80% to start, higher for the domain layer), Alembic migration check against a fresh Postgres, frontend lint, type check and build, and a dependency vulnerability scan.
+**CI checks on every pull request:** ruff lint and format check, strict mypy across the backend, import-linter module/layer contracts, pytest with a coverage floor (80% to start, higher for the domain layer), Alembic upgrade/downgrade against fresh Postgres, frontend lint, type check, Vitest and build, gitleaks secret scanning, pip-audit and a production npm dependency audit.
 
 **Repository guardrails:** `main` is not branch-protected on GitHub for now, so the rules are enforced by the constitution and agent instructions: agents work only on feature branches, never push directly to `main`, and never touch secrets. Agents merge only through the ship procedure; Zack merges changes to the constitution.
 
