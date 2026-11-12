@@ -54,6 +54,18 @@ class AdapterTests(unittest.TestCase):
             self.store.init("next-run", "Another run")
         self.assertEqual(self.store.events.read_bytes(), before)
 
+    def test_new_work_reactivates_completed_orchestrator(self) -> None:
+        self.store.init("local-run", "Initial run")
+        self.store.complete("orchestrator", None, "Initial run finished", False)
+        self.store.status("orchestrator", "working", "Starting another run")
+
+        events = self.events()
+        self.assertEqual([event["type"] for event in events[-2:]], ["agent_spawn", "message"])
+        self.assertEqual(events[-2]["payload"]["name"], "orchestrator")
+        self.assertTrue(events[-2]["payload"]["isMain"])
+        self.assertEqual(json.loads((self.store.heartbeats / "orchestrator.json").read_text())["status"],
+                         "working")
+
     def test_publish_requires_session(self) -> None:
         with self.assertRaisesRegex(ValueError, "run init"):
             self.store.status("orchestrator", "working", "Starting")
