@@ -8,6 +8,7 @@ Tallyhold ("All your brokers. One portfolio.") is a multi-user, read-only portfo
 2. [Product spec](docs/spec.md) for product and architecture decisions; it wins over summaries elsewhere.
 3. For a feature, read `docs/specs/NNN-name/spec.md`, then the approved `plan.md` and `tasks.md` when present.
 4. Read [workflow](docs/workflow.md) for handoffs and the relevant [role](docs/agents/) before acting in that role.
+5. Use the [skills index](docs/skills/README.md) to find role-specific procedures when their triggers apply.
 
 ## Repo map
 
