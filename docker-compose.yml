@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: tallyhold
+      POSTGRES_DB: tallyhold
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "127.0.0.1:55432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tallyhold -d tallyhold"]
+      interval: 2s
+      timeout: 2s
+      retries: 15
+
+  api:
+    build:
+      context: ./backend
+      secrets:
+        - local_ca
+    environment:
+      DATABASE_URL: postgresql+psycopg://tallyhold@db:5432/tallyhold
+      FRONTEND_ORIGIN: http://localhost:3000
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8000:8000"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"
+      interval: 2s
+      timeout: 2s
+      retries: 15
+
+secrets:
+  local_ca:
+    file: ${TALLYHOLD_CA_CERT:-/etc/ssl/cert.pem}
