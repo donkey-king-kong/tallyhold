@@ -11,6 +11,7 @@ Feature changes in `backend/` and `frontend/` as planned; migrations in `backend
 
 ## Steps
 1. Confirm the branch, approved spec/plan and red tests.
+   Use [tdd](../../.claude/skills/tdd/SKILL.md) for GREEN then REFACTOR after the Test writer's committed RED handoff.
 2. Implement one task, run targeted tests, then lint, types and full tests as appropriate.
 3. Commit at least once per task, before switching tasks or handing off, following [commit cadence](../conventions.md#commit-cadence). Repeat and hand the diff to Reviewer.
 

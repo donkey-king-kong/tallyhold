@@ -13,6 +13,7 @@ Translate an approved feature spec into a layered design and ordered tasks.
 1. Map each acceptance criterion to files, classes, interfaces, layer and tests.
 2. Identify schema changes and Alembic migrations; record trade-offs in an ADR when significant.
 3. Break work into ordered, one-commit tasks with verification.
+   On request or at a build phase end, use [improve-codebase-architecture](../../.claude/skills/improve-codebase-architecture/SKILL.md) for read-only findings or feature proposals.
 4. For architecture or schema changes, get Zack's plan approval before execution.
 
 ## Must not do

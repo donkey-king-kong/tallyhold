@@ -11,6 +11,7 @@ Check a feature diff against its contract and rules, independently of its author
 
 ## Steps
 1. Check each criterion, layer boundary, test, migration and security implication against the diff.
+   On request or at a build phase end, use [improve-codebase-architecture](../../.claude/skills/improve-codebase-architecture/SKILL.md) for read-only findings, not code changes.
 2. Classify actionable findings; send fixes to Implementer and verify them in the next round.
 3. After at most three rounds, escalate unresolved findings to Zack.
 

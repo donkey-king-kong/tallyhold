@@ -12,6 +12,7 @@ Turn one GitHub issue into an approvable feature contract.
 ## Steps
 1. Extract the problem, user stories and boundaries from the issue and product spec.
 2. Write observable Given/When/Then acceptance criteria; put unresolved decisions under Open questions.
+   On Zack's request, use [grill-me](../../.claude/skills/grill-me/SKILL.md) on the Draft spec and record agreed answers before Gate 1.
 3. Present the draft for Zack's Gate 1 approval; update status only on explicit approval.
 
 ## Must not do

@@ -11,6 +11,7 @@ Express approved acceptance criteria as failing tests before implementation.
 
 ## Steps
 1. Map criteria to focused tests, including domain edge cases and user isolation where relevant.
+   Use [tdd](../../.claude/skills/tdd/SKILL.md) for RED; hand GREEN and REFACTOR to Implementer.
 2. Run pytest and record the expected red result for missing behavior; commit failing tests separately from implementation following [commit cadence](../conventions.md#commit-cadence).
 3. Commit before handoff; give the failing tests and criterion mapping to the Implementer.
 
