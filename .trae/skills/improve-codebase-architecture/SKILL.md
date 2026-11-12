@@ -1,6 +1,6 @@
 ---
 name: improve-codebase-architecture
-description: Analyze code architecture without code changes. Use when the Architect or Reviewer is asked, or at a build phase end.
+description: Analyze code architecture without code changes. Use when the Architect is asked, or at a build phase end.
 disable-model-invocation: true
 ---
 

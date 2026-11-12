@@ -10,12 +10,12 @@ For each feature, use one GitHub issue, one `feature/NNN-name` branch, and one f
 5. **Test writer:** On the feature branch, commit failing pytest tests mapped to criteria; confirm failures are caused by missing behavior.
 6. **Implementer:** Complete and commit tasks one at a time using Conventional Commits. Run targeted and full checks; never alter tests just to pass.
    Use [tdd](../.claude/skills/tdd/SKILL.md) across the RED Test writer handoff and the GREEN/REFACTOR Implementer work, in separate commits.
-7. **Reviewer:** Independently review the diff against spec, plan, constitution and security; record must-fix / should-fix / nit in `review.md`. Implementer addresses findings; repeat at most three rounds, then escalate to Zack.
-8. **PR:** An agent follows [create-pr](skills/create-pr.md) to open a PR linking the issue and approved spec. Keep it limited to this feature.
-9. **CI:** Run backend ruff lint/format, mypy, pytest with >=80% overall coverage, migration check against fresh Postgres when migrations exist, frontend lint/type check/build, and dependency vulnerability scan. CI failures return to implementation and review.
-10. **Gate 2:** Zack reviews the PR and any Alembic migrations, then merges. Agents never push to `main` or merge.
+7. **PR:** An agent follows [create-pr](skills/create-pr.md) to open a PR linking the issue and approved spec. Keep it limited to this feature.
+8. **CI:** Run backend ruff lint/format, mypy, pytest with >=80% overall coverage, migration check against fresh Postgres when migrations exist, frontend lint/type check/build, and dependency vulnerability scan. CI failures return to implementation.
+9. **Reviewer:** Follow [ship](skills/ship.md) step 4: a brand-new subagent reviews the PR diff with only the permitted evidence and posts `review.md` plus an identical PR comment. Each round uses a new subagent; Implementer fixes findings, at most three rounds before escalating to Zack.
+10. **Gate 2:** Zack reviews the PR and any Alembic migrations; merge only if CI passes and the latest `review.md` ends in `VERDICT: APPROVE`. Agents never push to `main` or merge.
 11. **CD:** Deploy staging after merge; deploy production on a tagged release. Hosting remains undecided in the [product spec](spec.md#open-questions).
-    On request or at a build phase end, Architect or Reviewer may use [improve-codebase-architecture](../.claude/skills/improve-codebase-architecture/SKILL.md) for read-only findings and feature proposals.
+    On request or at a build phase end, Architect may use [improve-codebase-architecture](../.claude/skills/improve-codebase-architecture/SKILL.md) for read-only findings and feature proposals.
 
 Suggested tool assignment: Claude Code CLI for Planner, Architect and Reviewer; Trae for Test writer and Implementer. This keeps the reviewing model different from the coding model. DevOps can use either tool, on the feature's branch during its exclusive turn.
 
@@ -29,11 +29,11 @@ flowchart LR
     GP -->|Yes| PA[Zack approves plan]
     GP -->|No| T[Test writer: failing tests]
     PA --> T
-    T --> M[Implementer: passing tests] --> R[Reviewer: max 3 rounds]
+    T --> M[Implementer: passing tests] --> PR[Pull request] --> CI[CI checks]
+    CI -->|Fail| M
+    CI -->|Pass| R[Fresh Reviewer subagent: max 3 rounds]
     R -->|Changes| M
     R -->|Unresolved after 3| E[Escalate to Zack]
-    R -->|Ready| PR[Pull request] --> CI[CI checks]
-    CI -->|Fail| M
-    CI -->|Pass| G2{Gate 2: Zack reviews and merges}
+    R -->|APPROVE| G2{Gate 2: Zack reviews and merges}
     G2 --> CD[CD: staging; tagged release to production]
 ```

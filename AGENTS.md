@@ -4,7 +4,7 @@ Tallyhold ("All your brokers. One portfolio.") is a multi-user, read-only portfo
 
 ## Read first
 
-1. [Constitution](docs/constitution.md) for non-negotiable rules.
+1. [Constitution](docs/constitution.md) for non-negotiable rules. Exception: a fresh Reviewer reads only [its permitted inputs](docs/agents/reviewer.md).
 2. [Product spec](docs/spec.md) for product and architecture decisions; it wins over summaries elsewhere.
 3. For a feature, read `docs/specs/NNN-name/spec.md`, then the approved `plan.md` and `tasks.md` when present.
 4. Read [workflow](docs/workflow.md) for handoffs and the relevant [role](docs/agents/) before acting in that role.
@@ -31,7 +31,7 @@ Tallyhold ("All your brokers. One portfolio.") is a multi-user, read-only portfo
 
 1. GitHub issue -> Planner drafts feature `spec.md` -> **Gate 1:** Zack approves the spec. For schema or architecture changes, Zack also approves the plan before execution.
 2. Architect writes `plan.md` and `tasks.md`; Test writer commits failing tests; Implementer makes them pass.
-3. Reviewer checks against spec, plan and constitution (at most three rounds, then Zack); open a PR and pass CI.
+3. Open a PR, pass CI, then delegate each review round to a fresh subagent using [ship](docs/skills/ship.md) (at most three rounds, then Zack).
 4. **Gate 2:** Zack reviews and merges. CD deploys staging; production deploys on a tagged release.
 
 Git is the only sync between Trae and Claude Code devices: pull before starting, push when stopping. One feature = one branch = one tool at a time. Use `feature/NNN-name` for feature work; `chore/name` for foundation/maintenance. Every commit and PR follows [conventions](docs/conventions.md). To open a PR, follow [create-pr](docs/skills/create-pr.md). Only Zack merges; agents never push to `main`.

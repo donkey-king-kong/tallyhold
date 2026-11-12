@@ -263,7 +263,7 @@ Suggested split: Claude Code for Planner, Architect and Reviewer; Trae for Test 
 | Architect | Turns an approved spec into `plan.md`; checks layering, SOLID and schema | Plan, ADRs, migrations design | Write feature code |
 | Test writer | Writes failing pytest tests from the acceptance criteria | Tests | Change production code |
 | Implementer | Makes the tests pass, task by task, on a feature branch | Code, Alembic migrations | Edit tests to make them pass, push to `main` |
-| Reviewer | Reviews the diff against spec, plan, constitution and security | Review report, change requests | Approve its own changes |
+| Reviewer | Fresh subagent each round; reviews PR diff against spec, plan, constitution and security | Review report and identical PR comment | Edit code or tests, merge or review its own changes |
 | DevOps | Maintains CI/CD and environments | GitHub Actions, Dockerfiles | Touch secrets |
 
 **Flow for one feature:**
@@ -274,10 +274,10 @@ Suggested split: Claude Code for Planner, Architect and Reviewer; Trae for Test 
 4. Architect writes `plan.md` and `tasks.md`.
 5. Test writer commits failing tests on `feature/NNN-name`.
 6. Implementer works through `tasks.md` until the tests pass, committing with Conventional Commit messages.
-7. Reviewer checks the diff; change requests go back to step 6, at most 3 rounds before escalating to Zack.
-8. An agent opens a pull request linking the issue and spec.
-9. CI runs; a failure goes back to step 6.
-10. **Gate 2:** Zack reviews and merges.
+7. An agent opens a pull request linking the issue and spec.
+8. CI runs; a failure goes back to step 6.
+9. A brand-new Reviewer subagent checks the PR diff with [only its permitted inputs](agents/reviewer.md) and posts `review.md` and an identical PR comment. Every round starts a new subagent; change requests go back to step 6, at most 3 rounds before escalating to Zack.
+10. **Gate 2:** Zack reviews and merges only when CI passes and the latest review ends with `VERDICT: APPROVE`.
 11. CD deploys to staging; production deploy on a tagged release.
 
 **CI checks on every pull request:** ruff lint and format check, mypy, pytest with a coverage floor (80% to start, higher for the domain layer), Alembic migration check against a fresh Postgres, frontend lint, type check and build, and a dependency vulnerability scan.

@@ -12,7 +12,7 @@
 - `tdd/SKILL.md`: clarified the Test writer RED and Implementer GREEN/REFACTOR handoff, approved seam selection and separate Conventional Commits; added constitution/repo links and Python/pytest guidance.
 - `tdd/tests.md`: translated TypeScript/Jest examples to illustrative Python/pytest examples using Decimal; noted Vitest for frontend tests.
 - `tdd/mocking.md`: translated TypeScript examples to Python domain-interface/provider examples with infrastructure boundaries.
-- `improve-codebase-architecture/SKILL.md`: made its vocabulary self-contained, removed dependencies on other upstream skills and sub-agent requirements, limited use to read-only Architect/Reviewer analysis, and routed reports/proposals into `docs/specs/` and decisions through `docs/adr/`.
+- `improve-codebase-architecture/SKILL.md`: made its vocabulary self-contained, removed dependencies on other upstream skills and sub-agent requirements, limited use to read-only Architect analysis (Reviewer writes only `review.md`), and routed reports/proposals into `docs/specs/` and decisions through `docs/adr/`.
 - `improve-codebase-architecture/HTML-REPORT.md`: replaced temporary HTML/CDN JavaScript scaffolding with repository Markdown and Mermaid guidance; retained before/after diagrams, candidate strengths and a top recommendation.
 
 The `agents/openai.yaml` files and the MIT notice are unchanged upstream copies. Trae discovery wrappers live in `.trae/skills/` and point to these canonical Claude skill files; they are local integration files, not upstream copies.

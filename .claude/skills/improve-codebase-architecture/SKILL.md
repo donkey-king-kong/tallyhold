@@ -1,6 +1,6 @@
 ---
 name: improve-codebase-architecture
-description: Analyze architecture for deepening opportunities without code changes. Use when the Architect or Reviewer is asked, or at a build phase end.
+description: Analyze architecture for deepening opportunities without code changes. Use when the Architect is asked, or at a build phase end.
 disable-model-invocation: true
 ---
 
@@ -8,7 +8,7 @@ The [constitution](../../../docs/constitution.md) wins over this skill if instru
 
 # Improve Codebase Architecture
 
-Surface architectural friction and propose **deepening opportunities**: refactors that turn shallow modules into deep ones. The aim is testability and AI-navigability. This is read-only code analysis for the Architect or Reviewer on request or at the end of a build phase; write findings, not code.
+Surface architectural friction and propose **deepening opportunities**: refactors that turn shallow modules into deep ones. The aim is testability and AI-navigability. This is read-only code analysis for the Architect on request or at the end of a build phase; write findings, not code.
 
 Use the project's domain language and the shared design vocabulary:
 
