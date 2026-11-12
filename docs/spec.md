@@ -63,6 +63,8 @@ Arrows show who calls whom. Infrastructure points up because it implements inter
 
 **Modules** (vertical slices inside the monolith): `identity`, `accounts`, `instruments`, `transactions`, `importing`, `market_data` (prices, FX), `portfolio` (positions, valuation, metrics).
 
+Each business module lives under `backend/app/modules/<module>/` with its own `domain`, `application`, `infrastructure` and `presentation` packages. Cross-cutting code lives in `backend/app/shared/`; modules do not import other modules' internals. The public, user-data-free health route lives in the separate technical `backend/app/modules/system/presentation/` package, not in a business module.
+
 The principles this enforces: dependency inversion (services depend on interfaces), open/closed (new brokers, metrics and asset types are new classes), single responsibility (one class, one job), and the repository pattern (the domain never knows about SQL).
 
 ## Tech stack and hosting
@@ -212,7 +214,7 @@ Q_{new} = Q \times k \qquad C_{new} = C \qquad \bar{c}_{new} = \frac{\bar{c}}{k}
 
 ## API and UI structure
 
-The API is versioned REST under `/api/v1`, and every endpoint is scoped to the logged-in user.
+The API is versioned REST under `/api/v1`, and every endpoint is scoped to the logged-in user except the public `GET /api/v1/health` route, which returns no user data.
 
 | Endpoint | Purpose |
 | --- | --- |

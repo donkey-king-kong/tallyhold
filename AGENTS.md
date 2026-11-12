@@ -27,6 +27,7 @@ Tallyhold ("All your brokers. One portfolio.") is a multi-user, read-only portfo
 - Domain: pure Python entities and interfaces; no framework, DB or HTTP imports.
 - Infrastructure: SQLAlchemy repositories, importers and external clients implement domain interfaces; all external calls live here.
 - Modules: `identity`, `accounts`, `instruments`, `transactions`, `importing`, `market_data`, `portfolio`. Transactions are authoritative; positions are derived.
+- Layout: each business module owns `domain`, `application`, `infrastructure` and `presentation` packages under `backend/app/modules/<module>/`; `backend/app/shared/` contains cross-cutting code. Public health lives in the technical `backend/app/modules/system/presentation/` package, outside the seven business modules. Business modules do not import one another's internals.
 
 ## Work on a feature
 
