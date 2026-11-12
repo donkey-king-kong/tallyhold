@@ -11,16 +11,19 @@ From the Tallyhold root, initialize a session once:
 python3 .trae/agent-flow/adapter.py init --session-id tallyhold-run1 --task "Tallyhold work"
 ```
 
-If `.agent-flow/session.json` already exists (as it does after this machine's
-setup), skip `init` and publish to the existing stream.
+If `.agent-flow/session.json` already exists, skip `init` and publish to the
+existing stream. The coordinator checks this before each ship run.
 
 In Trae's Command Palette, run **Agent Flow: Open Agent Flow**, then select
-**Connect to Running Agent** and **Watch JSONL File**. Choose:
+**Connect to Running Agent** and **Watch JSONL File**. In this repository,
+choose:
 
 ```text
-/Users/bytedance/Desktop/tallyhold/.agent-flow/agent-flow-events.jsonl
+.agent-flow/agent-flow-events.jsonl
 ```
 
+On macOS, press Cmd+Shift+. in the file picker to show hidden folders.
+Alternatively navigate to the repository root, then open `.agent-flow/`.
 The installed Agent Flow 0.9.4 supports this JSONL connection. The
 `agentVisualizer.eventLogPath` setting does not activate the watcher; select
 the file in the panel. Keep the panel connected while publishing events.
@@ -64,6 +67,12 @@ events an agent publishes; missed calls and earlier Trae history cannot be
 reconstructed. Claude Code sessions may also appear via the extension's
 native integration, independently of this adapter. The adapter does not
 install extensions or alter Trae settings.
+
+Trae documents project [PreToolUse and PostToolUse hooks](https://docs.trae.ai/ide/hook-configuration-reference)
+for a defined set of tools. No hook is configured in this repo; its documented
+tool list does not guarantee coverage of every tool or subagent lifecycle.
+Any future hook bridge must emit metadata only and be verified in the running
+Trae version before replacing cooperative reporting.
 
 ## Check
 

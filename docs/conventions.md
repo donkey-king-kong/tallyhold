@@ -49,4 +49,4 @@ Follow [.github/pull_request_template.md](../.github/pull_request_template.md) i
 5. **Next steps:** follow-up tasks, open questions, limitations and the next feature if obvious.
 6. **Checklist:** commit format, tests, constitution, migrations when schema changed, and docs.
 
-For the opening procedure, use [create-pr](skills/create-pr.md). Only Zack merges.
+For "create pr", "open pr" or "ship", run [ship](skills/ship.md) end to end; [create-pr](skills/create-pr.md) is its PR-opening sub-step. Agents merge only when all ship gates pass; Zack merges constitution changes.

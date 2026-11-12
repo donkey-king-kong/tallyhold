@@ -60,9 +60,9 @@ class AdapterTests(unittest.TestCase):
         self.assertFalse(self.store.events.exists())
 
     def test_labels_redact_common_sensitive_values(self) -> None:
-        cleaned = label("Read /Users/example/private.txt person@example.com "
+        cleaned = label("Read /home/example/private.txt person@example.com "
                         "token=abc123 password=hunter2 Bearer xyz123")
-        for secret in ("/Users/example", "person@example.com", "abc123", "hunter2", "xyz123"):
+        for secret in ("/home/example", "person@example.com", "abc123", "hunter2", "xyz123"):
             self.assertNotIn(secret, cleaned)
 
 
