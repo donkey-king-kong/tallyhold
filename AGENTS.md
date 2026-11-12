@@ -1,6 +1,6 @@
 # Tallyhold agents
 
-Tallyhold ("All your brokers. One portfolio.") is a multi-user, read-only portfolio view for long-term investors across brokers. It is a learning project in OOP, SOLID, relational design and end-to-end delivery. Agents work from approved feature specs; Zack approves requirements and merges.
+Tallyhold ("All your brokers. One portfolio.") is a multi-user, read-only portfolio view for long-term investors across brokers. It is a learning project in OOP, SOLID, relational design and end-to-end delivery. Agents work from approved feature specs; Zack approves requirements and constitution-changing PR merges.
 
 ## Read first
 
@@ -9,7 +9,7 @@ Tallyhold ("All your brokers. One portfolio.") is a multi-user, read-only portfo
 3. For a feature, read `docs/specs/NNN-name/spec.md`, then the approved `plan.md` and `tasks.md` when present.
 4. Read [workflow](docs/workflow.md) for handoffs and the relevant [role](docs/agents/) before acting in that role.
 5. Use the [skills index](docs/skills/README.md) to find role-specific procedures when their triggers apply.
-6. For agent activity visualization, follow [Agent Flow](docs/agent-flow.md). Report generic lifecycle and tool-category events during work; a fresh Reviewer receives only its permitted inputs, so its coordinator reports lifecycle externally.
+6. Publish [Agent Flow](docs/agent-flow.md) events for every role start, step, completion and block; the coordinator reports fresh Reviewer lifecycle and verdict externally.
 
 ## Repo map
 
@@ -32,17 +32,17 @@ Tallyhold ("All your brokers. One portfolio.") is a multi-user, read-only portfo
 
 1. GitHub issue -> Planner drafts feature `spec.md` -> **Gate 1:** Zack approves the spec. For schema or architecture changes, Zack also approves the plan before execution.
 2. Architect writes `plan.md` and `tasks.md`; Test writer commits failing tests; Implementer makes them pass.
-3. Open a PR, pass CI, then delegate each review round to a fresh subagent using [ship](docs/skills/ship.md) (at most three rounds, then Zack).
-4. **Gate 2:** Zack reviews and merges. CD deploys staging; production deploys on a tagged release.
+3. **"create pr", "open pr", "ship" or "ship it": run [ship](docs/skills/ship.md) end to end**: [create-pr](docs/skills/create-pr.md) sub-step, checks, fresh Reviewer each round, fixes and merge gate (at most three rounds).
+4. **Gate 2:** The ship coordinator merges only if every gate passes; Zack merges constitution-changing PRs or resolves `needs-human`. CD deploys staging; production deploys on a tagged release.
 
-Git is the only sync between Trae and Claude Code devices: pull before starting, push when stopping. One feature = one branch = one tool at a time. Use `feature/NNN-name` for feature work; `chore/name` for foundation/maintenance. Every commit and PR follows [conventions](docs/conventions.md). To open a PR, follow [create-pr](docs/skills/create-pr.md). Only Zack merges; agents never push to `main`.
+Git is the only sync between Trae and Claude Code devices: pull before starting, push when stopping. One feature = one branch = one tool at a time. Use `feature/NNN-name` for feature work; `chore/name` for foundation/maintenance. Every commit and PR follows [conventions](docs/conventions.md). Agents never push directly to `main`; merge only through ship.
 
 ## Definition of done
 
 - Approved acceptance criteria pass; tests cover new behavior; overall coverage is at least 80%.
 - Lint, formatting, type checks and tests pass; migrations accompany schema changes.
 - Documentation and ADRs reflect changes; reviewer findings are resolved or escalated.
-- PR links issue and spec; CI passes; Zack completes Gate 2 before merge.
+- PR links issue and spec; ship gates pass before automated merge, or Zack resolves `needs-human` and constitution changes.
 
 ## Commands
 

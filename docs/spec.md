@@ -235,7 +235,7 @@ The API is versioned REST under `/api/v1`, and every endpoint is scoped to the l
 
 ## AI agent workflow: spec-driven development
 
-The build follows spec-driven development (SDD): a written, approved spec is the source of truth, and agents generate code, tests and reviews from it rather than from loose chat prompts. Zack approves at two gates; agents do everything between them.
+The build follows spec-driven development (SDD): a written, approved spec is the source of truth, and agents generate code, tests and reviews from it rather than from loose chat prompts. Zack approves requirements at Gate 1; Gate 2 is the automated ship merge gate, with Zack merging constitution changes and escalations.
 
 **Tools:** two tools work on this repo — Trae (GPT) on one device and Claude Code CLI on another. Rules and agent roles are written once in tool-neutral files; each tool gets a thin wrapper:
 
@@ -277,12 +277,12 @@ Suggested split: Claude Code for Planner, Architect and Reviewer; Trae for Test 
 7. An agent opens a pull request linking the issue and spec.
 8. CI runs; a failure goes back to step 6.
 9. A brand-new Reviewer subagent checks the PR diff with [only its permitted inputs](agents/reviewer.md) and posts `review.md` and an identical PR comment. Every round starts a new subagent; change requests go back to step 6, at most 3 rounds before escalating to Zack.
-10. **Gate 2:** Zack reviews and merges only when CI passes and the latest review ends with `VERDICT: APPROVE`.
+10. **Gate 2:** [Ship](skills/ship.md) merges only when review, local checks, CI (or confirmed no CI yet), labels and constitution-diff gates all pass. Zack alone merges constitution-changing PRs; failures are labeled `needs-human` and reported to him.
 11. CD deploys to staging; production deploy on a tagged release.
 
 **CI checks on every pull request:** ruff lint and format check, mypy, pytest with a coverage floor (80% to start, higher for the domain layer), Alembic migration check against a fresh Postgres, frontend lint, type check and build, and a dependency vulnerability scan.
 
-**Repository guardrails:** `main` is not branch-protected on GitHub for now, so the rules are enforced by the constitution and agent instructions: agents work only on feature branches, never push to or merge into `main`, and never touch secrets. Only Zack merges. Branch protection can be turned on later without changing the workflow.
+**Repository guardrails:** `main` is not branch-protected on GitHub for now, so the rules are enforced by the constitution and agent instructions: agents work only on feature branches, never push directly to `main`, and never touch secrets. Agents merge only through the ship procedure; Zack merges changes to the constitution.
 
 ## Build phases
 

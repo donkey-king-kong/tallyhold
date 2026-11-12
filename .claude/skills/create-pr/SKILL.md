@@ -1,6 +1,6 @@
 ---
 name: create-pr
-description: Open a pull request using the repo procedure. Use whenever opening a pull request.
+description: Open the pull request as the create-pr sub-step of the end-to-end ship procedure.
 ---
 
-Follow [the PR procedure](../../../docs/skills/create-pr.md) and [conventions](../../../docs/conventions.md).
+Within [ship](../../../docs/skills/ship.md), follow [the PR procedure](../../../docs/skills/create-pr.md) and [conventions](../../../docs/conventions.md). A direct "create pr" request triggers ship, not this sub-step alone.

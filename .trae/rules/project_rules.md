@@ -2,8 +2,7 @@
 
 Follow [AGENTS.md](../../AGENTS.md) and [docs/constitution.md](../../docs/constitution.md) on every task, except that a fresh Reviewer reads only [its permitted inputs](../../docs/agents/reviewer.md). Before acting in a role, read its file in [docs/agents/](../../docs/agents/).
 
-Every commit and PR must follow [conventions](../../docs/conventions.md). Open PRs using [create-pr](../../docs/skills/create-pr.md).
-For feature delivery, follow [ship](../../docs/skills/ship.md); its Reviewer always runs in a fresh context.
+Every commit and PR must follow [conventions](../../docs/conventions.md). **"create pr", "open pr", "ship" or "ship it" means run [ship](../../docs/skills/ship.md) end to end**: open with [create-pr](../../docs/skills/create-pr.md), fresh Reviewer rounds, fixes and the gated merge. A constitution-changing PR is left for Zack.
 Publish Tallyhold-local agent activity following [Agent Flow](../../docs/agent-flow.md); never pass that document or telemetry to the fresh Reviewer.
 
 ## Shared skills

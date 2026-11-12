@@ -11,6 +11,6 @@
 9. Domain and application code must pass mypy strict; backend code must pass ruff lint and format checks.
 10. Every database schema change must ship with an Alembic migration and be reviewed at Gate 2.
 11. Secrets, credentials and live environment files must never enter the repository; agents must neither read nor write secrets.
-12. Agents must work on a feature branch, must never push to `main` or merge a PR, and must wait for Zack's Gate 1 approval before planning or implementing an unapproved spec. For schema or architecture changes, Zack must also approve the plan before execution.
-13. Each PR must be small, linked to one feature spec and issue, reviewed against the spec and this constitution, and merged only by Zack after CI passes.
+12. Agents must work on a feature branch and wait for Zack's Gate 1 approval before planning or implementing an unapproved spec. For schema or architecture changes, Zack must also approve the plan before execution. Agents never push directly to `main`. Agents may merge a PR only by following [ship](skills/ship.md) when every merge condition in it is met. Changes to `docs/constitution.md` always require Zack to merge.
+13. Each PR must be small, linked to one feature spec and issue, and reviewed against the spec and this constitution. Merge only after the [ship](skills/ship.md) checks, with Zack merging PRs that modify this constitution.
 14. Every commit and PR title must follow [conventions](conventions.md); agents must commit continuously at the cadence specified there.

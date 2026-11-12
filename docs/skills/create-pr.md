@@ -1,6 +1,6 @@
 # Open a pull request
 
-Follow [commit and PR conventions](../conventions.md) and the [PR template](../../.github/pull_request_template.md).
+This is the PR-opening sub-step of [ship](ship.md). A request to "create pr", "open pr", "ship" or "ship it" starts ship end to end, including review and the gated merge. Follow [commit and PR conventions](../conventions.md) and the [PR template](../../.github/pull_request_template.md).
 
 1. Confirm the current branch is not `main` and targets `main`; stop if it is `main`.
 2. Confirm all work is committed, the working tree is clean, and the branch is pushed and up to date with its remote. Push outstanding commits before proceeding.
@@ -10,4 +10,4 @@ Follow [commit and PR conventions](../conventions.md) and the [PR template](../.
 6. Write the body to a temporary file outside the repository. If `gh` is installed and authenticated, run `gh pr create --title "<title>" --body-file <file> --base main`; output the PR URL.
 7. If `gh` is missing or unauthenticated, do not open a PR; output the complete title and body for Zack to paste.
 
-Never merge the PR.
+Return to ship for fresh review and the merge gate; this sub-step does not merge.
