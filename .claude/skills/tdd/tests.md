@@ -1,77 +1,64 @@
 # Good and Bad Tests
 
+Use pytest at public domain/application interfaces and FastAPI's test client at
+the HTTP boundary. Frontend behavior can use Vitest once configured.
+
 ## Good Tests
 
-**Integration-style**: Test through real interfaces, not mocks of internal parts.
+**Integration-style**: Test behavior through a public interface, not its internals.
 
-```typescript
-// GOOD: Tests observable behavior
-test("user can checkout with valid cart", async () => {
-  const cart = createCart();
-  cart.add(product);
-  const result = await checkout(cart, paymentMethod);
-  expect(result.status).toBe("confirmed");
-});
+```python
+from decimal import Decimal
+
+def test_buy_creates_position(portfolio):
+    portfolio.record_buy(symbol="AAPL", quantity=Decimal("2"))
+    assert portfolio.position_for("AAPL").quantity == Decimal("2")
 ```
 
 Characteristics:
 
-- Tests behavior users/callers care about
-- Uses public API only
+- Tests behavior callers care about
+- Uses the public interface only
 - Survives internal refactors
 - Describes WHAT, not HOW
-- One logical assertion per test
+- Keeps assertions focused on one behavior
 
 ## Bad Tests
 
-**Implementation-detail tests**: Coupled to internal structure.
+**Implementation-detail tests** couple to internal structure:
 
-```typescript
-// BAD: Tests implementation details
-test("checkout calls paymentService.process", async () => {
-  const mockPayment = jest.mock(paymentService);
-  await checkout(cart, payment);
-  expect(mockPayment.process).toHaveBeenCalledWith(cart.total);
-});
+```python
+# BAD: verifies an internal collaborator instead of the outcome
+def test_buy_calls_repository(portfolio, repository):
+    portfolio.record_buy(symbol="AAPL", quantity=Decimal("2"))
+    repository.save.assert_called_once()
 ```
 
-Red flags:
+Red flags: mocking your own collaborators, testing private methods, asserting
+call counts or order, or breaking after a behavior-preserving refactor.
 
-- Mocking internal collaborators
-- Testing private methods
-- Asserting on call counts/order
-- Test breaks when refactoring without behavior change
-- Test name describes HOW not WHAT
-- Verifying through external means instead of interface
+```python
+# BAD: bypasses the interface to verify a database side effect
+def test_create_account_saves_row(accounts, database):
+    accounts.create("Tiger")
+    assert database.query("SELECT count(*) FROM broker_accounts") == 1
 
-```typescript
-// BAD: Bypasses interface to verify
-test("createUser saves to database", async () => {
-  await createUser({ name: "Alice" });
-  const row = await db.query("SELECT * FROM users WHERE name = ?", ["Alice"]);
-  expect(row).toBeDefined();
-});
-
-// GOOD: Verifies through interface
-test("createUser makes user retrievable", async () => {
-  const user = await createUser({ name: "Alice" });
-  const retrieved = await getUser(user.id);
-  expect(retrieved.name).toBe("Alice");
-});
+# GOOD: verifies through the interface
+def test_create_account_is_retrievable(accounts):
+    account = accounts.create("Tiger")
+    assert accounts.get(account.id).name == "Tiger"
 ```
 
-**Tautological tests**: Expected value restates the implementation, so the test passes by construction.
+**Tautological tests** recompute expected values by the same algorithm:
 
-```typescript
-// BAD: Expected value is recomputed the way the code computes it
-test("calculateTotal sums line items", () => {
-  const items = [{ price: 10 }, { price: 5 }];
-  const expected = items.reduce((sum, i) => sum + i.price, 0);
-  expect(calculateTotal(items)).toBe(expected);
-});
+```python
+# BAD: expected value can share the production calculation's mistake
+expected = sum(quantity * price for quantity, price in buys)
+assert cost_basis(buys) == expected
 
-// GOOD: Expected value is an independent, known literal
-test("calculateTotal sums line items", () => {
-  expect(calculateTotal([{ price: 10 }, { price: 5 }])).toBe(15);
-});
+# GOOD: the worked example in docs/spec.md supplies an independent answer
+assert cost_basis(buys) == Decimal("2202")
 ```
+
+These are illustrative test shapes, not prescribed Tallyhold APIs; the approved
+feature plan defines actual interfaces and test locations.
