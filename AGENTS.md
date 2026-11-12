@@ -9,6 +9,7 @@ Tallyhold ("All your brokers. One portfolio.") is a multi-user, read-only portfo
 3. For a feature, read `docs/specs/NNN-name/spec.md`, then the approved `plan.md` and `tasks.md` when present.
 4. Read [workflow](docs/workflow.md) for handoffs and the relevant [role](docs/agents/) before acting in that role.
 5. Use the [skills index](docs/skills/README.md) to find role-specific procedures when their triggers apply.
+6. For agent activity visualization, follow [Agent Flow](docs/agent-flow.md). Report generic lifecycle and tool-category events during work; a fresh Reviewer receives only its permitted inputs, so its coordinator reports lifecycle externally.
 
 ## Repo map
 

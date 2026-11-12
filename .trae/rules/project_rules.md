@@ -4,6 +4,7 @@ Follow [AGENTS.md](../../AGENTS.md) and [docs/constitution.md](../../docs/consti
 
 Every commit and PR must follow [conventions](../../docs/conventions.md). Open PRs using [create-pr](../../docs/skills/create-pr.md).
 For feature delivery, follow [ship](../../docs/skills/ship.md); its Reviewer always runs in a fresh context.
+Publish Tallyhold-local agent activity following [Agent Flow](../../docs/agent-flow.md); never pass that document or telemetry to the fresh Reviewer.
 
 ## Shared skills
 

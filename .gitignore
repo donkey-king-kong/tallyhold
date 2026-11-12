@@ -22,6 +22,7 @@ coverage/
 # Local configuration
 .env*
 !.env.example
+.agent-flow/
 
 # Editors and OS
 .idea/
