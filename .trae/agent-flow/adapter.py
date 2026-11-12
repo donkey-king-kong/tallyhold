@@ -106,6 +106,15 @@ class Store:
 
     def status(self, agent: str, state: str, activity: str) -> None:
         self.initialized()
+        path = self.heartbeats / (identifier(agent) + ".json")
+        previous = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+        if previous.get("status") in ("completed", "failed"):
+            spawn = {"name": agent, "task": label(activity)}
+            if previous.get("parent_id"):
+                spawn["parent"] = identifier(previous["parent_id"])
+            elif agent == "orchestrator":
+                spawn["isMain"] = True
+            self.event("agent_spawn", spawn)
         self.heartbeat(agent, state, activity)
         if state == "waiting":
             self.event("permission_requested", {
