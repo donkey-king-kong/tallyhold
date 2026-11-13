@@ -2,7 +2,7 @@
 
 ## Assignment
 
-- Status: in_progress
+- Status: in_review
 - Owner actor: R-0009/planner-01
 - Role: Planner
 - Run: [R-0009](../runs/R-0009.md)
@@ -15,7 +15,7 @@
 - Branch / worktree: `feature/003-schema-repositories`
 - Worktree path: `../tallyhold-feature-003`
 - Issue / PR: issue #17; no PR requested
-- Updated: 2026-11-13T07:18:50Z
+- Updated: 2026-11-13T07:19:35Z
 
 ## Scope
 
@@ -33,23 +33,22 @@ and push, then stop at Gate 1 without architecture or implementation.
   PostgreSQL repository tests.
 - [x] Acceptance criteria are observable Given/When/Then statements.
 - [x] Feature 002 approval and merge are explicit prerequisites.
-- [ ] Draft spec and recovery records are checked, committed, and pushed.
-- [ ] Handoff stops at Gate 1 without planning or implementation.
+- [x] Draft spec and recovery records are checked, committed, and pushed.
+- [x] Handoff stops at Gate 1 without planning or implementation.
 
 ## Checkpoint
 
-- Last completed action: validated the Draft spec and authorized file scope
-  with a paragraph-aware check.
-- Evidence: `git diff --check` passed; exactly two authorized files changed;
-  Status is Draft; 24 Given/When/Then criteria were found; no plan or tasks
-  exist.
-- Worktree state: spec and ticket changes are uncommitted.
-- Remaining work: inspect the final diff, commit, and push.
+- Last completed action: committed and pushed the validated Draft spec and
+  recovery checkpoint.
+- Evidence: commit `bee1cb59fb4c7d08b8a5f15ae85375349803debf`
+  is present on `origin/feature/003-schema-repositories`.
+- Worktree state: this Gate 1 closeout checkpoint remains to commit and push.
+- Remaining work: Zack reviews the Draft at Gate 1.
 - Blocker / unblock action: none for drafting; architecture and implementation
   remain blocked on Feature 002 approval and merge plus Feature 003 Gate 1.
-- Next action: inspect the final diff and create the authorized documentation
-  commit.
-- Handoff recipient: Zack at Gate 1 after push.
+- Next action: Zack explicitly approves or requests changes to the Feature 003
+  Draft; do not create a plan, tasks, tests, migrations, or code meanwhile.
+- Handoff recipient: Zack at Gate 1.
 
 ## History
 
@@ -59,3 +58,4 @@ and push, then stop at Gate 1 without architecture or implementation.
 | 2026-11-13T07:17:24Z | R-0009/planner-01 | Drafted the Feature 003 spec with migration, repository, tenant-isolation, and real-PostgreSQL criteria | Validate the spec and confirm only the authorized files changed |
 | 2026-11-13T07:18:20Z | R-0009/planner-01 | Initial validation failed because its regex required unwrapped Given/When/Then lines; whitespace and file scope passed | Rerun a paragraph-aware criteria check |
 | 2026-11-13T07:18:50Z | R-0009/planner-01 | Paragraph-aware validation passed for two authorized files, Draft status, 24 criteria, whitespace, and absent plan/tasks | Inspect, commit, and push |
+| 2026-11-13T07:19:35Z | R-0009/planner-01 | Committed and pushed the validated Draft spec at `bee1cb5` | Commit and push this closeout checkpoint, then wait at Gate 1 |
