@@ -13,7 +13,7 @@
 - Branch / worktree: `feature/002-core-domain`
 - Worktree path: `../tallyhold-feature-002`
 - Issue / PR: issue #7; no PR requested
-- Updated: 2026-11-13T07:19:09Z
+- Updated: 2026-11-13T07:19:51Z
 
 ## Scope
 
@@ -34,15 +34,15 @@ Do not create a plan/tasks, tests, or production code before approval.
 
 ## Checkpoint
 
-- Last completed action: validated the revised Draft and ticket.
-- Evidence: Draft status and every requested entity/calculation are present; 25
-  Given/When/Then criteria are recorded; whitespace, diff, and changed-file
-  checks passed.
-- Worktree state: revised Draft is untracked; this ticket is modified.
-- Remaining work: commit and push the Draft and ticket, then stop at Gate 1.
+- Last completed action: committed the validated Draft and ticket.
+- Evidence: commit `c3ee358` (`docs: draft core domain contract`) contains only
+  `docs/specs/002-core-domain/spec.md` and this ticket.
+- Worktree state: this post-commit checkpoint is modified.
+- Remaining work: commit this checkpoint, push the branch, verify the remote,
+  and record the Gate 1 handoff.
 - Blocker / unblock action: none; product-spec differences remain explicit in
   the Draft for Gate 1.
-- Next action: commit the validated Draft and ticket.
+- Next action: commit this checkpoint and push the branch.
 - Handoff recipient: none while R-0002/planner-01 is active.
 
 ## History
@@ -56,3 +56,4 @@ Do not create a plan/tasks, tests, or production code before approval.
 | 2026-11-13T07:16:37Z | R-0002/planner-01 | Claimed the Planner assignment and reconciled its required sources | Replace the preserved Draft and flag product-spec conflicts for Gate 1 |
 | 2026-11-13T07:18:38Z | R-0002/planner-01 | Replaced the stale average-cost/provider Draft with the current pure-domain FIFO scope and explicit product conflicts | Validate the Draft and ticket, then commit and push |
 | 2026-11-13T07:19:09Z | R-0002/planner-01 | Validated Draft status, requested scope, Given/When/Then criteria, whitespace, and changed-file boundaries | Commit the Draft and ticket, then push |
+| 2026-11-13T07:19:51Z | R-0002/planner-01 | Initial commit command failed at shell parsing before Git ran; retried without bypassing hooks and committed the Draft as `c3ee358` | Commit this checkpoint, push, verify, and record Gate 1 handoff |
