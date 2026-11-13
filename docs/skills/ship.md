@@ -32,11 +32,24 @@ For **each** numbered step below, emit `tool-start` before its real operation an
    # Open the PR and inspect CI here.
    python3 .trae/agent-flow/adapter.py tool-end --agent orchestrator --category Shell --outcome succeeded
    ```
+   Before the first review, commit and push the final repository checkpoint with
+   the PR number, head SHA, CI result and exact next action. Freeze ticket, run
+   and roadmap files after this point. Later ship checkpoints use Agent Flow and
+   PR comments; never create a branch solely for lifecycle tracking.
+
 4. **Delegate independent review:** For every round `<R>` (1-3), the coordinator runs the following **before** dispatch. Start a brand-new reviewer subagent with only PR number, round, feature path and [Reviewer role](../agents/reviewer.md); never pass implementer chat, reasoning, telemetry or summaries. It obtains `gh pr diff <N>`, `gh pr checks <N>` and its permitted documents itself; on later rounds it reads the previous `review.md`. It writes only `docs/specs/NNN-name/review.md`, posts identical content with `gh pr comment <N> --body-file docs/specs/NNN-name/review.md`, and ends with `VERDICT: APPROVE` or `VERDICT: CHANGES_REQUESTED`.
 
+   CI is complete before dispatch. A Reviewer publishes no internal telemetry,
+   so Agent Flow can remain on `Reviewer active; CI already green` while it reads
+   permitted evidence, runs any useful local checks, writes the report and posts
+   the comment. This is isolated review work, not hidden CI. Do not invent
+   intermediate events.
+
    ```sh
+   head_sha="$(gh pr view <N> --json headRefOid --jq .headRefOid)"
+   gh pr comment <N> --body "Ship checkpoint: review round <R> started for \`$head_sha\`; coordinator CI is green. Agent Flow may remain Running while the isolated Reviewer works."
    python3 .trae/agent-flow/adapter.py start --agent reviewer_round_<R> --parent orchestrator --task "Independent PR review round <R>"
-   python3 .trae/agent-flow/adapter.py status --agent reviewer_round_<R> --state working --activity "Reviewing PR round <R>"
+   python3 .trae/agent-flow/adapter.py status --agent reviewer_round_<R> --state working --activity "Reviewer active; CI already green"
    python3 .trae/agent-flow/adapter.py tool-start --agent orchestrator --category Shell
    ```
 
@@ -55,17 +68,18 @@ For **each** numbered step below, emit `tool-start` before its real operation an
    python3 .trae/agent-flow/adapter.py tool-end --agent orchestrator --category Shell --outcome succeeded
    python3 .trae/agent-flow/adapter.py status --agent reviewer_round_<R> --state working --activity "Verdict: APPROVE"
    python3 .trae/agent-flow/adapter.py complete --agent reviewer_round_<R> --parent orchestrator --summary "Review round <R>: APPROVE"
+   gh pr comment <N> --body "Ship checkpoint: review round <R> completed for \`$head_sha\` with verdict APPROVE."
    ```
 
-   For `CHANGES_REQUESTED`, substitute that verdict in both commands. For a failed review process, close the coordinator's tool with `--outcome failed`, publish `status --state blocked` and `complete --failed` with generic labels, then use the block procedure.
-5. **Resolve or escalate:** Publish the step start before committing and pushing `review.md`; a report-only commit does not invalidate the code review. After pushing PR updates, repeat the existing-PR assignee step in [create-pr](create-pr.md). For `CHANGES_REQUESTED`, the Implementer fixes findings, commits and pushes, local checks and CI run again, and step 4 starts a **new** Reviewer. Any subsequent code/test change requires another round. After three rounds with unresolved findings, follow the block procedure and report to Zack. Finish the tool event after the handoff; skip this step if there are no findings.
+   For `CHANGES_REQUESTED`, substitute that verdict in both commands. For a failed review process, close the coordinator's tool with `--outcome failed`, publish `status --state blocked` and `complete --failed` with generic labels, comment the factual failure on the PR, then use the block procedure.
+5. **Resolve or escalate:** Publish the step start before committing `review.md`. For `APPROVE`, push the final report-only commit; it does not invalidate the reviewed code diff, but final-head CI must still pass. For `CHANGES_REQUESTED`, keep the report local while the Implementer fixes every finding, then commit the report and fixes and push them together so CI runs once for the new head. Separate report and fix commits are allowed, but send them in one push. Repeat the existing-PR assignee step in [create-pr](create-pr.md), run local checks and CI, then start step 4 with a **new** Reviewer. Any subsequent code/test change requires another round. After checks settle, comment `Ship checkpoint: review fixes pushed at <SHA>; coordinator CI is green; next review round pending.` After three rounds with unresolved findings, follow the block procedure and report to Zack. Finish the tool event after the handoff; skip fix handling when there are no findings.
    ```sh
    python3 .trae/agent-flow/adapter.py status --agent orchestrator --state working --activity "Resolving review findings"
    python3 .trae/agent-flow/adapter.py tool-start --agent orchestrator --category Shell
    # Commit the report; coordinate fixes, checks and push here.
    python3 .trae/agent-flow/adapter.py tool-end --agent orchestrator --category Shell --outcome succeeded
    ```
-6. **Check merge gate:** Publish the step start, then confirm the latest `review.md` and PR comment match, the final line is the latest verdict, the reviewed code diff is current, and all approved spec/plan/migration requirements are met. Inspect `tail -n 1 docs/specs/NNN-name/review.md`, the **latest round's** findings, `gh pr checks <N>`, `gh pr view <N> --json labels,statusCheckRollup`, and `gh pr diff <N> --name-only`. Verify **all** merge conditions: latest `review.md` ends with `VERDICT: APPROVE`; zero must-fix and zero should-fix findings remain; local checks pass; CI is green (or the repo has no CI checks yet); the PR has neither `needs-human` nor `pause` label; and the PR diff does **not** include `docs/constitution.md`. A missing/stale report, unreviewed code/test commit, pending or failed check, or unknown CI state fails the gate. Close the tool event after inspection; a failed condition blocks merge.
+6. **Check merge gate:** Publish the step start, then confirm the latest `review.md` and PR comment match, the final line is the latest verdict, the reviewed code diff is current, and all approved spec/plan/migration requirements are met. Inspect `tail -n 1 docs/specs/NNN-name/review.md`, the **latest round's** findings, `gh pr checks <N>`, `gh pr view <N> --json labels,statusCheckRollup`, and `gh pr diff <N> --name-only`. Verify **all** merge conditions: latest `review.md` ends with `VERDICT: APPROVE`; zero must-fix and zero should-fix findings remain; local checks pass; CI is green (or the repo has no CI checks yet); the PR has neither `needs-human` nor `pause` label; and the PR diff does **not** include `docs/constitution.md`. A missing/stale report, unreviewed code/test commit, pending or failed check, or unknown CI state fails the gate. Close the tool event after inspection; a failed condition blocks merge. When every condition passes, post `Ship checkpoint: merge gate passed for <SHA>; merge starting.` before merge.
    ```sh
    python3 .trae/agent-flow/adapter.py status --agent orchestrator --state working --activity "Verifying all merge conditions"
    python3 .trae/agent-flow/adapter.py tool-start --agent orchestrator --category Shell
@@ -80,6 +94,8 @@ For **each** numbered step below, emit `tool-start` before its real operation an
    gh pr merge <N> --merge --delete-branch
    git switch main
    git pull --ff-only origin main
+   merge_sha="$(gh pr view <N> --json mergeCommit --jq .mergeCommit.oid)"
+   gh pr comment <N> --body "Ship checkpoint: merged as \`$merge_sha\`; main updated and ship run complete."
    python3 .trae/agent-flow/adapter.py tool-end --agent orchestrator --category Shell --outcome succeeded
    python3 .trae/agent-flow/adapter.py complete --agent orchestrator --summary "PR merged and main updated"
    ```

@@ -12,9 +12,11 @@ Workers checkpoint results in their tickets; the coordinator handles read-only
 workers and fresh Reviewers without broadening their permitted inputs.
 
 Ship coordinators use the same recovery procedure before repeating PR operations,
-review dispatches, or merges. The ticket records the reviewed revision and
-remaining ship step, while [ship](skills/ship.md) remains the merge authority.
-An in-memory plan or chat summary alone is not a completed handoff.
+review dispatches, or merges. Before dispatch, the ticket records the reviewed
+revision and remaining ship step. Later checkpoints use factual PR comments and
+Agent Flow without creating tracking-only branches. [Ship](skills/ship.md)
+remains the merge authority; an in-memory plan or chat summary alone is not a
+completed handoff.
 
 ## Feature delivery
 

@@ -15,8 +15,10 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 | [T-0006](tickets/T-0006-ship-post-dispatch-tracking.md) | Ship PR #8 post-dispatch tracking | [R-0004](runs/R-0004.md) |
 | [T-0007](tickets/T-0007-end-recursive-closeout.md) | End recursive closeout branches and ship terminal history | [R-0005](runs/R-0005.md) |
 | [T-0008](tickets/T-0008-agent-flow-granularity.md) | Ship granular Agent Flow role telemetry | [R-0006](runs/R-0006.md) |
+| [T-0009](tickets/T-0009-comment-based-ship-tracking.md) | Replace ship-log branches with PR comments | [R-0008](runs/R-0008.md) |
 
-For PR #6 post-dispatch progress, follow T-0002's checkpoint branch/worktree.
+Historical PR #6 post-dispatch records remain in T-0002's checkpoint
+branch/worktree. Future ship runs use PR comments instead.
 
 `T-0004` and `R-0002` are reserved by the active feature 002 Draft on its
 separate feature branch; do not reuse those IDs if this branch lands first.
@@ -110,29 +112,22 @@ Before a review dispatch, save existing work under the applicable commit/push
 permissions. Before merge, reconcile the current head with the reviewed diff.
 Only the report-only exception explicitly allowed by [ship](../skills/ship.md)
 is exempt from that procedure; tracking edits are not implicitly exempt.
-To keep checkpoint writes from changing the reviewed snapshot, the coordinator
-prepares a separate maintenance branch/worktree for post-dispatch tracking and
-records its branch/location in the ticket before dispatch. It belongs to the
-same repository and coordinator, not a second implementation worker. Route later
-tracking-only updates there; keep the reviewed worktree clean. A new session
-checks that recorded location before resuming ship. Do not copy those updates
-into the reviewed head without reconciling review validity again.
+The final pre-dispatch checkpoint records the PR, head SHA, CI state and exact
+next action on the reviewed branch. From dispatch onward, freeze repository
+tracking files so checkpoint writes cannot change the reviewed snapshot.
 
-Record merge intent before the operation and check its actual outcome on resume.
-Post-merge tracking updates stay on the maintenance branch for a later PR, not
-a direct commit to `main`. Report its location and sync state in the handoff.
-Tracking never permits skipping the merge gate.
+Publish later coordinator checkpoints through Agent Flow and factual PR comments
+prefixed `Ship checkpoint:`. Record the reviewed head and CI state, review
+dispatch and verdict, fix head when applicable, merge-gate result, and actual
+merge commit. Comments do not alter the PR diff and remain available after
+merge. Never create a branch or worktree solely for post-dispatch tracking.
 
-A maintenance branch containing only post-dispatch tracking history may be
-designated terminal with Zack's explicit approval. Ship it through every normal
-review and merge gate, but do not create another branch solely to record that
-terminal PR's own review or merge. Before dispatch, its ticket and run must name
-the terminal exception and record the intended evidence. Afterward, the
-coordinator verifies the PR state, merge commit, CI, reviewed head, report and
-comment directly through GitHub; publishes the lifecycle through Agent Flow;
-and reports the result to Zack. GitHub and Agent Flow are the final evidence for
-that terminal operation. This exception prevents recursive closeout branches;
-it does not permit direct commits to `main` or bypass any ship gate.
+On recovery, inspect the PR comments and current GitHub state before repeating
+review, CI or merge operations. A merged PR plus its final ship comment is the
+authoritative post-dispatch completion evidence even when the frozen ticket
+still says `in_review`. A later substantive repository change uses a normal
+maintenance task and branch; lifecycle closeout alone does not. Tracking never
+permits skipping the merge gate.
 
 ## Storage and authority
 
@@ -141,9 +136,11 @@ it does not permit direct commits to `main` or bypass any ship gate.
   current execution status, evidence, and next actions.
 - Runs own session identity, agent roster, and handoff; the roadmap links features
   and priorities without duplicating their requirements.
-- Git-tracked Markdown is the durable record. [Agent Flow](../agent-flow.md)
-  remains optional to recovery, though publishing its events is still required.
-  Its private runtime logs are not copied into these files.
+- Git-tracked Markdown is the durable record through review dispatch. After
+  dispatch, GitHub PR comments and state are the durable ship record. [Agent
+  Flow](../agent-flow.md) remains optional to recovery, though publishing its
+  events is still required. Its private runtime logs are not copied into files
+  or comments.
 - Local tickets need no external board. Existing required GitHub issue/PR links
   remain release references; offline work records unknown external status rather
   than assuming a passed gate.
