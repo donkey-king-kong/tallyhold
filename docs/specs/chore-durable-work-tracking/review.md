@@ -30,3 +30,31 @@ None.
 - `gh pr checks 10` reports `backend`, `frontend`, and `security` passing.
 
 VERDICT: CHANGES_REQUESTED
+
+## Round 2
+
+### Must-fix
+
+None.
+
+### Should-fix
+
+None.
+
+### Nit
+
+None.
+
+### Evidence
+
+- The round 1 finding is resolved:
+  `docs/specs/chore-durable-work-tracking/tasks.md:6` now marks T-0002
+  complete, consistent with the completed PR #9 records in this diff.
+- The terminal-history exception in `docs/work/README.md:125-135` still
+  requires every normal review and merge gate, forbids direct commits to
+  `main`, and limits the exception to avoiding another audit-only branch.
+- The diff remains documentation-only; it introduces no application layering,
+  database migration, test, or runtime security change.
+- `gh pr checks 10` reports `backend`, `frontend`, and `security` passing.
+
+VERDICT: APPROVE
