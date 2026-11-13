@@ -79,3 +79,39 @@ None.
 - The PR patch passes `git diff --check`.
 
 VERDICT: CHANGES_REQUESTED
+
+## Round 3
+
+### Must-fix
+
+None.
+
+### Should-fix
+
+None.
+
+### Nit
+
+None.
+
+### Evidence
+
+- The round 1 linked-worktree merge issue is fixed:
+  `docs/skills/ship.md:89-98` no longer switches to `main` from the linked
+  worktree, and `docs/skills/ship.md:110-121` performs cleanup from the main
+  repo using the actual worktree path and full branch name, with feature and
+  maintenance examples.
+- The round 1 workflow-step issue is fixed: `docs/workflow.md:23` points
+  post-merge cleanup to Gate 2 at Step 10 and covers feature and maintenance
+  worktrees.
+- The round 2 branch-deletion conflict is fixed:
+  `docs/skills/ship.md:94` merges without `--delete-branch`, then
+  `docs/skills/ship.md:114-116` pulls `main`, removes the linked worktree, and
+  deletes the local branch in that order.
+- The current diff satisfies the seven acceptance criteria, remains
+  documentation-only, and leaves `docs/agents/reviewer.md`, application code,
+  schema, and the constitution unchanged.
+- `gh pr checks 16` reports backend, frontend, and security passing.
+- The PR patch passes `git diff --check`.
+
+VERDICT: APPROVE
