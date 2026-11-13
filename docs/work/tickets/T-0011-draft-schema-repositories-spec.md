@@ -15,7 +15,7 @@
 - Branch / worktree: `feature/003-schema-repositories`
 - Worktree path: `../tallyhold-feature-003`
 - Issue / PR: issue #17; no PR requested
-- Updated: 2026-11-13T07:13:58Z
+- Updated: 2026-11-13T07:18:50Z
 
 ## Scope
 
@@ -29,27 +29,33 @@ and push, then stop at Gate 1 without architecture or implementation.
 
 - [x] Issue #17 has the requested title, `feature` label, scope, dependency,
   and assignee.
-- [ ] Draft spec covers migrations, repositories, user scoping, and real
+- [x] Draft spec covers migrations, repositories, user scoping, and real
   PostgreSQL repository tests.
-- [ ] Acceptance criteria are observable Given/When/Then statements.
-- [ ] Feature 002 approval and merge are explicit prerequisites.
+- [x] Acceptance criteria are observable Given/When/Then statements.
+- [x] Feature 002 approval and merge are explicit prerequisites.
 - [ ] Draft spec and recovery records are checked, committed, and pushed.
 - [ ] Handoff stops at Gate 1 without planning or implementation.
 
 ## Checkpoint
 
-- Last completed action: created issue #17 and the isolated Feature 003
-  worktree from merged `main`.
-- Evidence: `feature/003-schema-repositories` at `1f88780`; issue #17.
-- Worktree state: ticket and run records are uncommitted.
-- Remaining work: draft the spec, validate, commit, and push.
+- Last completed action: validated the Draft spec and authorized file scope
+  with a paragraph-aware check.
+- Evidence: `git diff --check` passed; exactly two authorized files changed;
+  Status is Draft; 24 Given/When/Then criteria were found; no plan or tasks
+  exist.
+- Worktree state: spec and ticket changes are uncommitted.
+- Remaining work: inspect the final diff, commit, and push.
 - Blocker / unblock action: none for drafting; architecture and implementation
   remain blocked on Feature 002 approval and merge plus Feature 003 Gate 1.
-- Next action: dispatch R-0009/planner-01 to draft the spec.
-- Handoff recipient: R-0009/planner-01.
+- Next action: inspect the final diff and create the authorized documentation
+  commit.
+- Handoff recipient: Zack at Gate 1 after push.
 
 ## History
 
 | UTC time | Actor | Event and observed result | Evidence / next action |
 | --- | --- | --- | --- |
 | 2026-11-13T07:13:58Z | R-0009/coordinator | Created issue #17, isolated worktree, Agent Flow session, and assignment | Planner drafts, validates, commits, pushes, and stops at Gate 1 |
+| 2026-11-13T07:17:24Z | R-0009/planner-01 | Drafted the Feature 003 spec with migration, repository, tenant-isolation, and real-PostgreSQL criteria | Validate the spec and confirm only the authorized files changed |
+| 2026-11-13T07:18:20Z | R-0009/planner-01 | Initial validation failed because its regex required unwrapped Given/When/Then lines; whitespace and file scope passed | Rerun a paragraph-aware criteria check |
+| 2026-11-13T07:18:50Z | R-0009/planner-01 | Paragraph-aware validation passed for two authorized files, Draft status, 24 criteria, whitespace, and absent plan/tasks | Inspect, commit, and push |
