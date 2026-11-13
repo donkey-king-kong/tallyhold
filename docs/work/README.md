@@ -17,6 +17,7 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 | [T-0008](tickets/T-0008-agent-flow-granularity.md) | Ship granular Agent Flow role telemetry | [R-0006](runs/R-0006.md) |
 | [T-0010](tickets/T-0010-parallel-worktrees.md) | Enable parallel feature worktrees | [R-0010](runs/R-0010.md) |
 | [T-0009](tickets/T-0009-comment-based-ship-tracking.md) | Replace ship-log branches with PR comments | [R-0008](runs/R-0008.md) |
+| [T-0011](tickets/T-0011-draft-schema-repositories-spec.md) | Draft Feature 003 schema and repositories spec | [R-0009](runs/R-0009.md) |
 
 Historical PR #6 post-dispatch records remain in T-0002's checkpoint
 branch/worktree. Future ship runs use PR comments instead.
