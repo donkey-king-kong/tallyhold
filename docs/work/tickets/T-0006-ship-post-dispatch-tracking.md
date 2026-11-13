@@ -12,7 +12,7 @@
 - Branch / worktree: `chore/checkpoint-closeout-ship-log`,
   sibling worktree `../tallyhold-checkpoint-closeout-ship-log`
 - Issue / PR: issue #5; [PR #9](https://github.com/donkey-king-kong/tallyhold/pull/9)
-- Updated: 2026-11-13T04:53:56Z
+- Updated: 2026-11-13T04:56:32Z
 
 ## Scope
 
@@ -33,21 +33,24 @@ feature 002 changes.
 
 ## Checkpoint
 
-- Last completed action: opened assigned PR #9 and verified backend, frontend,
-  and security CI passed on `96bbb21f556586db112649d7d7cc7ccf132875d9`.
+- Last completed action: froze PR #9 after final backend, frontend, and security
+  CI passed on `850f73ed8848fc490c46c49511371ef72111aec9`.
 - Evidence: backend lint/format/types/import contracts, 2 pytest tests with 100%
   coverage, pip-audit, frontend lint/format/types, 3 Vitest tests, build,
   production audit, 6 Agent Flow tests, gitleaks, actionlint, diff whitespace,
   and 36 changed-document links/anchors passed.
-- Worktree state: only this uncommitted PR/CI checkpoint.
-- Post-dispatch tracking plan: branch `chore/post-dispatch-ship-log`, sibling
-  worktree `../tallyhold-post-dispatch-ship-log`, created from the final
-  pre-review head after this checkpoint passes CI.
-- Remaining work: commit/push this checkpoint, freeze the final reviewed head,
-  prepare the separate worktree, obtain fresh review, verify gates, and merge.
+- Worktree state: PR branch clean and frozen; this checkpoint is uncommitted
+  only in the separate post-dispatch worktree.
+- Review snapshot: base `e60f5a01d10b9876a8ac410aef6d84765898c8f6`,
+  head `850f73ed8848fc490c46c49511371ef72111aec9`.
+- Post-dispatch tracking: branch `chore/post-dispatch-ship-log`, sibling
+  worktree `../tallyhold-post-dispatch-ship-log`; Agent Flow initialized there.
+  This ticket there is authoritative after review dispatch.
+- Remaining work: commit/push this snapshot, obtain fresh review, verify gates,
+  and merge.
 - Blocker / unblock action: none.
-- Next action: commit/push this checkpoint, wait for final CI, then create and
-  publish the post-dispatch tracking worktree before review.
+- Next action: commit/push this snapshot on the tracking branch, then dispatch a
+  fresh Reviewer with only PR #9, round 1, and the maintenance feature path.
 - Handoff recipient: R-0004/coordinator.
 
 ## History
@@ -57,3 +60,4 @@ feature 002 changes.
 | 2026-11-13T03:59:12Z | R-0004/coordinator | Claimed Zack's follow-up ship request after PR #8 merged | Create run/index records, commit, then synchronize main |
 | 2026-11-13T04:01:33Z | R-0004/coordinator | Synchronized merged `main`; full local checks passed on `876d98e` | Commit/push checkpoint, then open follow-up PR |
 | 2026-11-13T04:53:56Z | R-0004/coordinator | Opened assigned PR #9; backend, frontend, and security CI passed on `96bbb21` | Commit PR/CI checkpoint, then freeze final review head |
+| 2026-11-13T04:56:32Z | R-0004/coordinator | Final head `850f73e` passed all CI; published separate authoritative ship-log worktree | Commit snapshot there, keep PR branch frozen, then dispatch review |
