@@ -13,6 +13,7 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 | [T-0003](tickets/T-0003-review-work-tracking.md) | Independent review of PR #6 | [R-0001](runs/R-0001.md) |
 | [T-0005](tickets/T-0005-ship-tracking-closeout.md) | Ship checkpoint-only closeout history | [R-0003](runs/R-0003.md) |
 | [T-0006](tickets/T-0006-ship-post-dispatch-tracking.md) | Ship PR #8 post-dispatch tracking | [R-0004](runs/R-0004.md) |
+| [T-0007](tickets/T-0007-end-recursive-closeout.md) | End recursive closeout branches and ship terminal history | [R-0005](runs/R-0005.md) |
 
 For PR #6 post-dispatch progress, follow T-0002's checkpoint branch/worktree.
 
@@ -120,6 +121,17 @@ Record merge intent before the operation and check its actual outcome on resume.
 Post-merge tracking updates stay on the maintenance branch for a later PR, not
 a direct commit to `main`. Report its location and sync state in the handoff.
 Tracking never permits skipping the merge gate.
+
+A maintenance branch containing only post-dispatch tracking history may be
+designated terminal with Zack's explicit approval. Ship it through every normal
+review and merge gate, but do not create another branch solely to record that
+terminal PR's own review or merge. Before dispatch, its ticket and run must name
+the terminal exception and record the intended evidence. Afterward, the
+coordinator verifies the PR state, merge commit, CI, reviewed head, report and
+comment directly through GitHub; publishes the lifecycle through Agent Flow;
+and reports the result to Zack. GitHub and Agent Flow are the final evidence for
+that terminal operation. This exception prevents recursive closeout branches;
+it does not permit direct commits to `main` or bypass any ship gate.
 
 ## Storage and authority
 
