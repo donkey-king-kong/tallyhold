@@ -36,3 +36,46 @@ None.
 - The PR patch passes the whitespace check.
 
 VERDICT: CHANGES_REQUESTED
+
+## Round 2
+
+### Must-fix
+
+1. `docs/skills/ship.md:89-116` — The round 1 merge/cleanup finding is only
+   partially resolved. The procedure now avoids `git switch main`, uses the
+   actual worktree path and full branch name, and correctly runs final cleanup
+   from the main worktree. However, line 94 still runs
+   `gh pr merge <N> --merge --delete-branch` from the linked worktree.
+   `--delete-branch` directs GitHub CLI to delete the local branch after the
+   merge, but that branch remains checked out by the linked worktree until
+   lines 115-116 remove the worktree and delete the branch. This makes the
+   merge command conflict with the cleanup sequence it introduces. Merge
+   without local branch deletion from the linked worktree, then remove the
+   worktree before deleting the local branch from the main worktree; delete
+   the remote branch separately if the ship procedure still requires it.
+
+### Should-fix
+
+None.
+
+### Nit
+
+None.
+
+### Evidence
+
+- The round 1 maintenance-path issue is fixed:
+  `docs/skills/ship.md:110-121` parameterizes the actual worktree path and full
+  branch name and includes both feature and maintenance examples.
+- The round 1 workflow-step issue is fixed: `docs/workflow.md:23` now points
+  cleanup to the Gate 2 merge at Step 10 and requires cleanup from the main
+  worktree.
+- `docs/skills/ship.md:94` retains `--delete-branch` while
+  `docs/skills/ship.md:115-116` requires the linked worktree to be removed
+  before its local branch is deleted.
+- PR #16 remains documentation-only and does not modify
+  `docs/agents/reviewer.md`, application code, schema, or the constitution.
+- `gh pr checks 16` reports backend, frontend, and security passing.
+- The PR patch passes `git diff --check`.
+
+VERDICT: CHANGES_REQUESTED

@@ -91,7 +91,7 @@ For **each** numbered step below, emit `tool-start` before its real operation an
    ```sh
    python3 .trae/agent-flow/adapter.py status --agent orchestrator --state working --activity "Merging approved PR"
    python3 .trae/agent-flow/adapter.py tool-start --agent orchestrator --category Shell
-   gh pr merge <N> --merge --delete-branch
+   gh pr merge <N> --merge
    merge_sha="$(gh pr view <N> --json mergeCommit --jq .mergeCommit.oid)"
    gh pr comment <N> --body "Ship checkpoint: merged as \`$merge_sha\`; final worktree cleanup starting."
    python3 .trae/agent-flow/adapter.py tool-end --agent orchestrator --category Shell --outcome succeeded
