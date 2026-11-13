@@ -11,6 +11,7 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 | [T-0001](tickets/T-0001-durable-work-tracking.md) | Set up durable planning and agent accountability | [R-0001](runs/R-0001.md) |
 | [T-0002](tickets/T-0002-publish-work-tracking.md) | Publish and review durable tracking | [R-0001](runs/R-0001.md) |
 | [T-0003](tickets/T-0003-review-work-tracking.md) | Independent review of PR #6 | [R-0001](runs/R-0001.md) |
+| [T-0004](tickets/T-0004-draft-core-domain-spec.md) | Draft Feature 002 core domain spec | [R-0002](runs/R-0002.md) |
 | [T-0005](tickets/T-0005-ship-tracking-closeout.md) | Ship checkpoint-only closeout history | [R-0003](runs/R-0003.md) |
 | [T-0006](tickets/T-0006-ship-post-dispatch-tracking.md) | Ship PR #8 post-dispatch tracking | [R-0004](runs/R-0004.md) |
 | [T-0007](tickets/T-0007-end-recursive-closeout.md) | End recursive closeout branches and ship terminal history | [R-0005](runs/R-0005.md) |
