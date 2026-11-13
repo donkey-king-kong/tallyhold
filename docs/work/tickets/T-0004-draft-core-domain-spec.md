@@ -13,7 +13,7 @@
 - Branch / worktree: `feature/002-core-domain`
 - Worktree path: `../tallyhold-feature-002`
 - Issue / PR: issue #7; PR #18
-- Updated: 2026-11-13T08:35:07Z
+- Updated: 2026-11-13T08:38:40Z
 
 ## Scope
 
@@ -38,19 +38,18 @@ APIs, external imports, and frontend work.
 
 ## Checkpoint
 
-- Last completed action: fresh review round 1 requested two documentation
-  fixes; both are resolved locally with the review report.
+- Last completed action: fresh review round 2 verified the substantive fixes
+  and requested current-state wording for this ticket and run.
 - Evidence: `docs/specs/002-core-domain/spec.md` is Approved and records all
   eight Gate 1 decisions; `docs/spec.md` reflects the same product decisions.
-- Worktree state: PR head `9b776b1` has six passing checks; `review.md`,
-  remaining-basis formula, roadmap, and current checkpoints are modified.
-- Remaining work: validate and push the report and fixes together, rerun CI,
-  dispatch fresh review round 2, and apply the merge gate.
+- Worktree state: the branch contains the approved contract, both round-1
+  fixes, and review rounds 1-2; no production code is changed.
+- Remaining work: final-head CI, fresh review round 3, merge gate, and cleanup.
 - Blocker / unblock action: none for this documentation PR; implementation
   remains blocked until Zack approves the later architecture plan.
-- Next action: validate, commit, and push the report and fixes together, then
-  verify CI on the resulting head.
-- Handoff recipient: fresh Reviewer round 2 after green CI.
+- Next action: confirm CI on the round-2 checkpoint, then dispatch fresh
+  Reviewer round 3.
+- Handoff recipient: fresh Reviewer round 3 after green CI.
 
 ## History
 
@@ -70,3 +69,4 @@ APIs, external imports, and frontend work.
 | 2026-11-13T08:20:18Z | R-0011/coordinator | Validation passed after correcting two overly broad or duplicate tracking assertions | Commit and push when authorized, then assign Architect |
 | 2026-11-13T08:26:28Z | R-0011/coordinator | Pushed `15f0da0`, opened PR #18, verified assignment, and observed six passing CI checks | Commit this checkpoint, freeze tracking, verify final-head CI, and dispatch fresh review |
 | 2026-11-13T08:35:07Z | R-0011/coordinator | Round 1 returned two should-fix findings; reconciled partial-sell basis formulas and stale work records | Validate and push report plus fixes together, then rerun CI |
+| 2026-11-13T08:38:40Z | R-0011/coordinator | Round 2 verified substantive fixes and requested accurate current-state wording | Record round-2 state, rerun CI, then dispatch final round 3 |
