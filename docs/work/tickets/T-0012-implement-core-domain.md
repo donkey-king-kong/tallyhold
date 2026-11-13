@@ -3,8 +3,8 @@
 ## Assignment
 
 - Status: in_progress
-- Owner actor: R-0013/coordinator
-- Role: Architect
+- Owner actor: R-0013/test-writer-01
+- Role: Test writer
 - Run: [R-0013](../runs/R-0013.md)
 - Feature / task: [Feature 002](../../specs/002-core-domain/spec.md)
 - Authorization: Gate 1 approved 2026-11-13; Zack's 2026-11-13 mission
@@ -14,7 +14,7 @@
 - Branch / worktree: `feature/002-core-domain`
 - Worktree path: `../tallyhold-feature-002`
 - Issue / PR: issue #7; PR not created
-- Updated: 2026-11-13T09:15:10Z
+- Updated: 2026-11-13T09:15:55Z
 
 ## Scope
 
@@ -35,16 +35,15 @@ frontend work.
 
 ## Checkpoint
 
-- Last completed action: wrote and validated the Feature 002 architecture plan
-  and ordered task map.
-- Evidence: `docs/specs/002-core-domain/{plan,tasks}.md`; `git diff --check`
-  passed and AC1-AC10 plus all required interfaces/functions are mapped.
-- Worktree state: architecture and tracking files are ready to commit.
+- Last completed action: committed the validated architecture plan and tasks as
+  `bc1e167` and assigned the RED contract to the Test writer.
+- Evidence: clean worktree after `bc1e167`; Test writer assignment recorded.
+- Worktree state: clean at `bc1e167`.
 - Remaining work: RED tests, implementation, checks, and ship.
 - Blocker / unblock action: none. The requested `R-0010` was already allocated
   to unrelated active work, so the next unused run `R-0013` is used.
-- Next action: commit the architecture handoff, then switch to Test writer.
-- Handoff recipient: Test writer after the architecture commit.
+- Next action: add collecting tests for every AC and verify expected RED.
+- Handoff recipient: Implementer after the committed RED handoff.
 
 ## History
 
@@ -52,3 +51,4 @@ frontend work.
 | --- | --- | --- | --- |
 | 2026-11-13T09:13:44Z | R-0013/coordinator | Claimed the approved implementation scope as Architect in a new worktree | Write the plan and tasks; no plan gate is required |
 | 2026-11-13T09:15:10Z | R-0013/coordinator | Completed and validated the architecture plan and ordered tasks | Commit the architecture handoff, then begin RED |
+| 2026-11-13T09:15:55Z | R-0013/coordinator | Committed architecture as `bc1e167` and assigned the clean branch to the Test writer | Add and commit the complete RED contract |
