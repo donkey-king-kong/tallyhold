@@ -13,7 +13,7 @@
 - Branch / worktree: `chore/work-tracking-checkpoints`,
   sibling worktree `../tallyhold-work-tracking-checkpoints`
 - Issue / PR: issue #5; [PR #8](https://github.com/donkey-king-kong/tallyhold/pull/8)
-- Updated: 2026-11-13T03:24:48Z
+- Updated: 2026-11-13T03:27:13Z
 
 ## Scope
 
@@ -31,8 +31,8 @@ claiming an independent approval. Include this ship ticket and run for recovery.
 
 ## Checkpoint
 
-- Last completed action: opened assigned PR #8 and confirmed its first backend,
-  frontend, and security CI run passed.
+- Last completed action: froze PR #8 at `fe59a5f` after its final backend,
+  frontend, and security CI run passed; prepared separate post-dispatch tracking.
 - Evidence: branch initially had five unique pushed commits and was one commit
   behind main. Feature 002 remains isolated and uncommitted in the primary
   worktree. Backend lint/format/types/import contracts, 2 pytest tests with 100%
@@ -42,10 +42,16 @@ claiming an independent approval. Include this ship ticket and run for recovery.
 - Worktree state: this ticket/run addition is uncommitted.
 - Publication evidence: pre-review record commit `becd07a` pushed; PR #8 assigned
   to `donkey-king-kong` and linked to issue #5 and the approved maintenance spec.
-- Remaining work: commit/push this PR checkpoint, confirm final CI, prepare
-  post-dispatch tracking, fresh review, merge gates, and merge.
+- Review snapshot: base `56c87e25f2fec735694d4cf1a6ad56e01e7cfce6`,
+  head `fe59a5f9bfa5a1bd02cf4034480895a71d00f286`.
+- Post-dispatch tracking: branch `chore/checkpoint-closeout-ship-log`, sibling
+  worktree `../tallyhold-checkpoint-closeout-ship-log`. This ticket there is
+  authoritative after review dispatch; the PR worktree remains frozen except
+  for the report-only commit permitted by ship.
+- Remaining work: fresh review, report commit, merge gates, and merge.
 - Blocker / unblock action: none.
-- Next action: commit/push this checkpoint, confirm CI, and freeze the review head.
+- Next action: commit/push this separate tracking checkpoint, then dispatch a
+  fresh Reviewer with only PR #8, round 1, and the maintenance feature path.
 - Handoff recipient: R-0003/coordinator.
 
 ## History
@@ -55,3 +61,4 @@ claiming an independent approval. Include this ship ticket and run for recovery.
 | 2026-11-13T03:20:48Z | R-0003/coordinator | Claimed Zack's ship request; approved scope and clean branch confirmed; synchronized main | Run full checks before PR |
 | 2026-11-13T03:22:14Z | R-0003/coordinator | Full local checks passed after installing locked frontend dependencies in this worktree | Commit and push pre-review records |
 | 2026-11-13T03:24:48Z | R-0003/coordinator | PR #8 opened, assigned, and first CI run passed all three jobs | Push PR/CI checkpoint, then freeze review head |
+| 2026-11-13T03:27:13Z | R-0003/coordinator | Final head `fe59a5f` passed all CI; separate ship-log branch/worktree published | Record dispatch there, keep PR snapshot frozen |
