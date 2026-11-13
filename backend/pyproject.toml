@@ -1,0 +1,126 @@
+[project]
+name = "tallyhold-api"
+version = "0.1.0"
+description = "Tallyhold read-only portfolio API"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "alembic>=1.16,<2",
+    "fastapi>=0.115,<1",
+    "psycopg[binary]>=3.2,<4",
+    "sqlalchemy>=2,<3",
+    "uvicorn>=0.34,<1",
+]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.27,<1",
+    "import-linter>=2.5,<3",
+    "mypy>=1.15,<2",
+    "pip-audit>=2.9,<3",
+    "pytest>=8,<10",
+    "pytest-cov>=6,<8",
+    "ruff>=0.11,<1",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["app"]
+
+[tool.importlinter]
+root_package = "app"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "Business domains stay pure and do not depend on higher layers"
+type = "forbidden"
+source_modules = [
+    "app.modules.identity.domain",
+    "app.modules.accounts.domain",
+    "app.modules.instruments.domain",
+    "app.modules.transactions.domain",
+    "app.modules.importing.domain",
+    "app.modules.market_data.domain",
+    "app.modules.portfolio.domain",
+]
+forbidden_modules = [
+    "app.modules.identity.application",
+    "app.modules.identity.infrastructure",
+    "app.modules.identity.presentation",
+    "app.modules.accounts.application",
+    "app.modules.accounts.infrastructure",
+    "app.modules.accounts.presentation",
+    "app.modules.instruments.application",
+    "app.modules.instruments.infrastructure",
+    "app.modules.instruments.presentation",
+    "app.modules.transactions.application",
+    "app.modules.transactions.infrastructure",
+    "app.modules.transactions.presentation",
+    "app.modules.importing.application",
+    "app.modules.importing.infrastructure",
+    "app.modules.importing.presentation",
+    "app.modules.market_data.application",
+    "app.modules.market_data.infrastructure",
+    "app.modules.market_data.presentation",
+    "app.modules.portfolio.application",
+    "app.modules.portfolio.infrastructure",
+    "app.modules.portfolio.presentation",
+    "fastapi",
+    "pydantic",
+    "sqlalchemy",
+    "alembic",
+    "httpx",
+]
+
+[[tool.importlinter.contracts]]
+name = "Applications do not depend on infrastructure or presentation"
+type = "forbidden"
+source_modules = [
+    "app.modules.identity.application",
+    "app.modules.accounts.application",
+    "app.modules.instruments.application",
+    "app.modules.transactions.application",
+    "app.modules.importing.application",
+    "app.modules.market_data.application",
+    "app.modules.portfolio.application",
+]
+forbidden_modules = [
+    "app.modules.identity.infrastructure",
+    "app.modules.identity.presentation",
+    "app.modules.accounts.infrastructure",
+    "app.modules.accounts.presentation",
+    "app.modules.instruments.infrastructure",
+    "app.modules.instruments.presentation",
+    "app.modules.transactions.infrastructure",
+    "app.modules.transactions.presentation",
+    "app.modules.importing.infrastructure",
+    "app.modules.importing.presentation",
+    "app.modules.market_data.infrastructure",
+    "app.modules.market_data.presentation",
+    "app.modules.portfolio.infrastructure",
+    "app.modules.portfolio.presentation",
+]
+
+[[tool.importlinter.contracts]]
+name = "Business modules and system do not import each other"
+type = "independence"
+modules = [
+    "app.modules.identity",
+    "app.modules.accounts",
+    "app.modules.instruments",
+    "app.modules.transactions",
+    "app.modules.importing",
+    "app.modules.market_data",
+    "app.modules.portfolio",
+    "app.modules.system",
+]

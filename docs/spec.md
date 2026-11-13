@@ -63,6 +63,8 @@ Arrows show who calls whom. Infrastructure points up because it implements inter
 
 **Modules** (vertical slices inside the monolith): `identity`, `accounts`, `instruments`, `transactions`, `importing`, `market_data` (prices, FX), `portfolio` (positions, valuation, metrics).
 
+Each business module lives under `backend/app/modules/<module>/` with its own `domain`, `application`, `infrastructure` and `presentation` packages. Cross-cutting code lives in `backend/app/shared/`; modules do not import other modules' internals. The public, user-data-free health route lives in the separate technical `backend/app/modules/system/presentation/` package, not in a business module.
+
 The principles this enforces: dependency inversion (services depend on interfaces), open/closed (new brokers, metrics and asset types are new classes), single responsibility (one class, one job), and the repository pattern (the domain never knows about SQL).
 
 ## Tech stack and hosting
@@ -212,7 +214,7 @@ Q_{new} = Q \times k \qquad C_{new} = C \qquad \bar{c}_{new} = \frac{\bar{c}}{k}
 
 ## API and UI structure
 
-The API is versioned REST under `/api/v1`, and every endpoint is scoped to the logged-in user.
+The API is versioned REST under `/api/v1`, and every endpoint is scoped to the logged-in user except the public `GET /api/v1/health` route, which returns no user data.
 
 | Endpoint | Purpose |
 | --- | --- |
@@ -280,7 +282,7 @@ Suggested split: Claude Code for Planner, Architect and Reviewer; Trae for Test 
 10. **Gate 2:** [Ship](skills/ship.md) merges only when review, local checks, CI (or confirmed no CI yet), labels and constitution-diff gates all pass. Zack alone merges constitution-changing PRs; failures are labeled `needs-human` and reported to him.
 11. CD deploys to staging; production deploy on a tagged release.
 
-**CI checks on every pull request:** ruff lint and format check, mypy, pytest with a coverage floor (80% to start, higher for the domain layer), Alembic migration check against a fresh Postgres, frontend lint, type check and build, and a dependency vulnerability scan.
+**CI checks on every pull request:** ruff lint and format check, strict mypy across the backend, import-linter module/layer contracts, pytest with a coverage floor (80% to start, higher for the domain layer), Alembic upgrade/downgrade against fresh Postgres, frontend lint, type check, Vitest and build, gitleaks secret scanning, pip-audit and a production npm dependency audit.
 
 **Repository guardrails:** `main` is not branch-protected on GitHub for now, so the rules are enforced by the constitution and agent instructions: agents work only on feature branches, never push directly to `main`, and never touch secrets. Agents merge only through the ship procedure; Zack merges changes to the constitution.
 

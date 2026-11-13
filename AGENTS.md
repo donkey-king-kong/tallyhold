@@ -27,6 +27,7 @@ Tallyhold ("All your brokers. One portfolio.") is a multi-user, read-only portfo
 - Domain: pure Python entities and interfaces; no framework, DB or HTTP imports.
 - Infrastructure: SQLAlchemy repositories, importers and external clients implement domain interfaces; all external calls live here.
 - Modules: `identity`, `accounts`, `instruments`, `transactions`, `importing`, `market_data`, `portfolio`. Transactions are authoritative; positions are derived.
+- Layout: each business module owns `domain`, `application`, `infrastructure` and `presentation` packages under `backend/app/modules/<module>/`; `backend/app/shared/` contains cross-cutting code. Public health lives in the technical `backend/app/modules/system/presentation/` package, outside the seven business modules. Business modules do not import one another's internals.
 
 ## Work on a feature
 
@@ -46,6 +47,6 @@ Git is the only sync between Trae and Claude Code devices: pull before starting,
 
 ## Commands
 
-- Backend install, run, lint, type check and test: **TBD — added in feature 001**.
-- Frontend install, run, lint, type check, test and build: **TBD — added in feature 001**.
-- Local Docker Compose and CI: **TBD — added in feature 001**.
+- Backend (`backend/`): `uv sync --locked --group dev`; `uv run uvicorn app.main:app --reload`; `uv run ruff check .`; `uv run ruff format --check .`; `uv run mypy app`; `uv run lint-imports`; `uv run pytest --cov=app --cov-fail-under=80`.
+- Frontend (`frontend/`): `npm ci`; `npm run dev`; `npm run lint`; `npm run typecheck`; `npm test`; `npm run build`.
+- Local stack: `docker compose up --build -d`, `docker compose ps`, `curl --fail http://localhost:8000/api/v1/health`. See [README](README.md) for migrations, security scans and local TLS trust.
