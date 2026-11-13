@@ -17,12 +17,13 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 | [T-0008](tickets/T-0008-agent-flow-granularity.md) | Ship granular Agent Flow role telemetry | [R-0006](runs/R-0006.md) |
 | [T-0010](tickets/T-0010-parallel-worktrees.md) | Enable parallel feature worktrees | [R-0010](runs/R-0010.md) |
 | [T-0009](tickets/T-0009-comment-based-ship-tracking.md) | Replace ship-log branches with PR comments | [R-0008](runs/R-0008.md) |
+| [T-0004](tickets/T-0004-draft-core-domain-spec.md) | Approve the Feature 002 core domain contract | [R-0011](runs/R-0011.md) |
 
 Historical PR #6 post-dispatch records remain in T-0002's checkpoint
 branch/worktree. Future ship runs use PR comments instead.
 
-`T-0004` and `R-0002` are reserved by the active feature 002 Draft on its
-separate feature branch; do not reuse those IDs if this branch lands first.
+`T-0004`, `R-0002`, and `R-0011` belong to Feature 002 on its separate feature
+branch; do not reuse those IDs if this branch lands first.
 
 Open the ticket for authoritative status, ownership, and next action.
 Completed tickets remain in this index; split an archive index when it grows.
