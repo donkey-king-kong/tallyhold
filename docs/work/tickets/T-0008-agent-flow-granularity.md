@@ -17,7 +17,7 @@
 - Post-dispatch tracking: `chore/agent-flow-granularity-ship-log` /
   `/Users/bytedance/Desktop/tallyhold-agent-flow-granularity-ship-log`
 - Issue / PR: issue #11; PR #12
-- Updated: 2026-11-13T05:37:01Z
+- Updated: 2026-11-13T05:41:26Z
 
 ## Scope
 
@@ -40,16 +40,17 @@ instructions.
 
 ## Checkpoint
 
-- Last completed action: froze PR #12 at `3ac1119` and confirmed backend,
-  frontend, and security CI passed for that head.
-- Evidence: GitHub head `3ac11192d266f45c7716b60d5c712126ee48ca1a`;
-  merge state `CLEAN`; assignee `donkey-king-kong`; three successful CI jobs.
-- Worktree state: PR worktree clean; this ship-log checkpoint is uncommitted.
-- Remaining work: commit and push this checkpoint, dispatch fresh review, record
-  its verdict, and apply the merge gate.
+- Last completed action: recorded the preferred review process's refused API
+  connection and launched a fresh-context fallback Reviewer.
+- Evidence: first attempt returned no report or verdict; R-0006/reviewer-02
+  launched successfully with the restricted PR #12 round 1 brief.
+- Worktree state: PR worktree reserved for `review.md`; this ship-log checkpoint
+  is uncommitted.
+- Remaining work: receive and verify the verdict, commit the report under the
+  ship exception, and apply the merge gate.
 - Blocker / unblock action: none.
-- Next action: commit and push this ship-log checkpoint, then launch a fresh
-  restricted Reviewer for PR #12 round 1 at `3ac1119`.
+- Next action: receive the fallback Reviewer result and verify its report and PR
+  comment match.
 - Handoff recipient: fresh Reviewer after PR creation.
 
 ## History
@@ -60,3 +61,4 @@ instructions.
 | 2026-11-13T05:32:45Z | R-0006/coordinator | Completed full local verification with all checks green | Commit the checked maintenance artifacts |
 | 2026-11-13T05:34:43Z | R-0006/coordinator | Committed `91f7a16`, pushed, and opened assigned PR #12; CI started | Freeze the final review head and prepare recorded post-dispatch tracking worktree |
 | 2026-11-13T05:37:01Z | R-0006/coordinator | Froze final head `3ac1119`; backend, frontend, and security CI passed | Dispatch fresh Reviewer round 1 with restricted inputs |
+| 2026-11-13T05:41:26Z | R-0006/coordinator | Headless Claude review failed before verdict; fresh-context fallback launched | Wait for round 1 report and verify identical PR comment |
