@@ -12,7 +12,7 @@
 - Branch / worktree: `chore/checkpoint-closeout-ship-log`,
   sibling worktree `../tallyhold-checkpoint-closeout-ship-log`
 - Issue / PR: issue #5; [PR #9](https://github.com/donkey-king-kong/tallyhold/pull/9)
-- Updated: 2026-11-13T05:00:41Z
+- Updated: 2026-11-13T05:01:49Z
 
 ## Scope
 
@@ -50,11 +50,14 @@ feature 002 changes.
   as background command `0d82bb8ac62f72038f480ee45d485b8e`;
   observed PID `44424`. It exited `1` at `2026-11-13T05:00:41Z` with API
   `ECONNREFUSED` before producing a PR #9 report, comment, or verdict.
-- Remaining work: launch fresh isolated Trae fallback review, verify and commit
-  its report, then verify gates and merge.
+- Fallback dispatch: fresh isolated Trae Reviewer launched at
+  `2026-11-13T05:01:49Z` with native ID
+  `arun_6af699b20405b3a179ddd926`.
+- Remaining work: await fallback review, verify and commit its report, then
+  verify gates and merge.
 - Blocker / unblock action: none.
-- Next action: commit/push this failure checkpoint, then launch a fresh isolated
-  Trae fallback Reviewer for PR #9 round 1.
+- Next action: await the fallback Reviewer, then verify `review.md`, the
+  identical PR comment, and final verdict.
 - Handoff recipient: R-0004/coordinator.
 
 ## History
@@ -67,3 +70,4 @@ feature 002 changes.
 | 2026-11-13T04:56:32Z | R-0004/coordinator | Final head `850f73e` passed all CI; published separate authoritative ship-log worktree | Commit snapshot there, keep PR branch frozen, then dispatch review |
 | 2026-11-13T04:57:28Z | R-0004/coordinator | Launched actual fresh Claude Reviewer round 1 from frozen PR worktree | Command `0d82bb8ac62f72038f480ee45d485b8e`, PID `44424`; await result |
 | 2026-11-13T05:00:41Z | R-0004/coordinator | Claude Reviewer exited before review with API `ECONNREFUSED`; no PR #9 report, comment, or verdict exists | Commit failure, then launch fresh Trae fallback |
+| 2026-11-13T05:01:49Z | R-0004/coordinator | Launched fresh isolated Trae fallback Reviewer for PR #9 round 1 | Native ID `arun_6af699b20405b3a179ddd926`; await result |
