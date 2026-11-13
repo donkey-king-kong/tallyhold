@@ -161,12 +161,15 @@ infrastructure must implement.
 
 ## Architecture dependencies and questions
 
-1. Which exact entities and repository interfaces are present in the approved,
-   merged Feature 002 contract? Feature 003 architecture remains blocked until
-   that contract merges.
+1. Feature 002 merged through PR #18. Its approved contract defines `User`,
+   `Broker`, `Account`, `Instrument`, `Transaction`, `Position`, `Money`, and
+   `CostBasisStrategy`, but explicitly defines no database ports or repository
+   interfaces. Under AC1, Feature 003 architecture remains blocked until an
+   approved domain follow-up supplies the repository interfaces required by
+   issue #17.
 2. Which database constraints enforce cross-user relationship integrity in
    addition to mandatory repository scoping? The architecture plan must propose
-   this after both prerequisite approvals.
+   this after the repository-interface blocker is resolved.
 
 ## Gate 1 decision
 
