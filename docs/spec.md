@@ -174,10 +174,19 @@ The dashboard shows five metrics, each computable for the whole portfolio or one
 V_{base} = V_{local} \times r_{local \to base}
 ```
 
-**Total invested (cost basis, average cost method).** Each buy costs its shares times price, plus fees. Adding every buy gives what the user paid in. Spreading that over the shares held gives the average cost per share. Example: 10 at $100 + $1 fee and 10 at $120 + $1 fee → C = 1,001 + 1,201 = $2,202, and $2,202 / 20 = $110.10 per share.
+**Total invested (remaining cost basis, average cost method).** Each buy adds
+its shares times price, plus fees, to the holding's cost basis. A partial sell
+removes the sold quantity at the average unit cost immediately before the sale.
+Example: 10 at $100 + $1 fee and 10 at $120 + $1 fee gives $2,202 over 20
+shares, or $110.10 per share. Selling 5 shares consumes $550.50 of basis and
+leaves $1,651.50 over 15 shares.
 
 ```math
-C = \sum_i (q_i \, p_i + f_i) \qquad \bar{c} = \frac{C}{Q}
+C_{after\ buy} = C + q_b p_b + f_b
+\qquad
+C_{after\ sell} = C - q_s \frac{C}{Q}
+\qquad
+\bar{c} = \frac{C}{Q}
 ```
 
 **Total value.** What the holding would fetch today is shares held times today's closing price: 20 × $130 = $2,600.
@@ -186,7 +195,11 @@ C = \sum_i (q_i \, p_i + f_i) \qquad \bar{c} = \frac{C}{Q}
 MV = Q \times P_{close}
 ```
 
-**Unrealised gain/loss.** The gain is what selling now would return minus what was paid in; the percentage compares that gain to the money put in: $2,600 − $2,202 = $398, and $398 / $2,202 = 18.1%.
+**Unrealised gain/loss.** The gain is what selling the remaining holding now
+would return minus its remaining cost basis; the percentage compares that gain
+to the remaining basis. Before any sale in the example, $2,600 - $2,202 = $398,
+and $398 / $2,202 = 18.1%. After a partial sale, both market value and `C` use
+only the quantity still held.
 
 ```math
 PL = MV - C \qquad PL\% = \frac{MV - C}{C}

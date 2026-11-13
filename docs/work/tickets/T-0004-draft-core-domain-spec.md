@@ -13,7 +13,7 @@
 - Branch / worktree: `feature/002-core-domain`
 - Worktree path: `../tallyhold-feature-002`
 - Issue / PR: issue #7; PR #18
-- Updated: 2026-11-13T08:26:28Z
+- Updated: 2026-11-13T08:35:07Z
 
 ## Scope
 
@@ -38,19 +38,19 @@ APIs, external imports, and frontend work.
 
 ## Checkpoint
 
-- Last completed action: committed and pushed the approved contract, opened PR
-  #18, and confirmed all six GitHub Actions checks passed.
+- Last completed action: fresh review round 1 requested two documentation
+  fixes; both are resolved locally with the review report.
 - Evidence: `docs/specs/002-core-domain/spec.md` is Approved and records all
   eight Gate 1 decisions; `docs/spec.md` reflects the same product decisions.
-- Worktree state: approval commit `15f0da0` pushed; this final pre-review
-  checkpoint is the only pending change.
-- Remaining work: commit and push this checkpoint, freeze tracking files, run a
-  fresh review, and apply the merge gate.
+- Worktree state: PR head `9b776b1` has six passing checks; `review.md`,
+  remaining-basis formula, roadmap, and current checkpoints are modified.
+- Remaining work: validate and push the report and fixes together, rerun CI,
+  dispatch fresh review round 2, and apply the merge gate.
 - Blocker / unblock action: none for this documentation PR; implementation
   remains blocked until Zack approves the later architecture plan.
-- Next action: commit and push this final checkpoint, verify CI on the resulting
-  head, then dispatch fresh Reviewer round 1.
-- Handoff recipient: fresh Reviewer round 1 with restricted inputs.
+- Next action: validate, commit, and push the report and fixes together, then
+  verify CI on the resulting head.
+- Handoff recipient: fresh Reviewer round 2 after green CI.
 
 ## History
 
@@ -69,3 +69,4 @@ APIs, external imports, and frontend work.
 | 2026-11-13T08:20:18Z | R-0011/coordinator | Recorded Zack's Gate 1 approval and revised the feature and product contracts to average cost behind `CostBasisStrategy` | Validate the approved contract, then hand off to Architect |
 | 2026-11-13T08:20:18Z | R-0011/coordinator | Validation passed after correcting two overly broad or duplicate tracking assertions | Commit and push when authorized, then assign Architect |
 | 2026-11-13T08:26:28Z | R-0011/coordinator | Pushed `15f0da0`, opened PR #18, verified assignment, and observed six passing CI checks | Commit this checkpoint, freeze tracking, verify final-head CI, and dispatch fresh review |
+| 2026-11-13T08:35:07Z | R-0011/coordinator | Round 1 returned two should-fix findings; reconciled partial-sell basis formulas and stale work records | Validate and push report plus fixes together, then rerun CI |
