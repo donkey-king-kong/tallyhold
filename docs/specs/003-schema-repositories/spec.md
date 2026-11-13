@@ -2,7 +2,7 @@
 
 ## Status
 
-Draft
+Approved — Gate 1, 2026-11-13
 
 Issue: [#17](https://github.com/donkey-king-kong/tallyhold/issues/17)
 
@@ -159,14 +159,18 @@ infrastructure must implement.
 - PostgreSQL Row Level Security policies; repository user scoping is required
   here, while RLS remains a later defense in depth
 
-## Open questions
+## Architecture dependencies and questions
 
 1. Which exact entities and repository interfaces are present in the approved,
-   merged Feature 002 contract? The current Feature 002 Draft is not authority
-   for implementation.
+   merged Feature 002 contract? Feature 003 architecture remains blocked until
+   that contract merges.
 2. Which database constraints enforce cross-user relationship integrity in
    addition to mandatory repository scoping? The architecture plan must propose
    this after both prerequisite approvals.
-3. Does Feature 003 include PostgreSQL Row Level Security policies, or are they
-   deferred to the authentication and accounts phase? This Draft treats RLS as
-   out of scope pending Zack's decision.
+
+## Gate 1 decision
+
+Zack approved this contract as drafted on 2026-11-13. PostgreSQL Row Level
+Security is deferred to the authentication and accounts phase; Feature 003
+still requires repository-level user scoping and the approved relational
+isolation criteria.

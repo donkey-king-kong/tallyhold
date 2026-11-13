@@ -2,20 +2,20 @@
 
 ## Assignment
 
-- Status: in_review
-- Owner actor: R-0009/planner-01
+- Status: done
+- Owner actor: R-0012/coordinator
 - Role: Planner
-- Run: [R-0009](../runs/R-0009.md)
+- Run: [R-0012](../runs/R-0012.md)
 - Feature / task:
   [003 Draft spec](../../specs/003-schema-repositories/spec.md)
-- Authorization: Zack requested issue creation, Planner Draft, commit, and push,
-  followed by a stop at Gate 1 on 2026-11-13.
+- Authorization: Zack approved Gate 1 as drafted and deferred PostgreSQL RLS to
+  the authentication and accounts phase on 2026-11-13.
 - Dependencies: Feature 002 spec approval and merge; issue
   [#7](https://github.com/donkey-king-kong/tallyhold/issues/7)
 - Branch / worktree: `feature/003-schema-repositories`
 - Worktree path: `../tallyhold-feature-003`
 - Issue / PR: issue #17; no PR requested
-- Updated: 2026-11-13T07:21:13Z
+- Updated: 2026-11-13T08:20:19Z
 
 ## Scope
 
@@ -35,20 +35,22 @@ and push, then stop at Gate 1 without architecture or implementation.
 - [x] Feature 002 approval and merge are explicit prerequisites.
 - [x] Draft spec and recovery records are checked, committed, and pushed.
 - [x] Handoff stops at Gate 1 without planning or implementation.
+- [x] Gate 1 approval and the RLS deferral are recorded.
 
 ## Checkpoint
 
-- Last completed action: committed and pushed the validated Draft spec and
-  recovery checkpoint.
-- Evidence: local and `origin/feature/003-schema-repositories` both resolved to
-  `4714c04`; Draft commit is `bee1cb5`.
-- Worktree state: clean before the coordinator closeout checkpoint.
-- Remaining work: Zack reviews the Draft at Gate 1.
-- Blocker / unblock action: none for drafting; architecture and implementation
-  remain blocked on Feature 002 approval and merge plus Feature 003 Gate 1.
-- Next action: Zack explicitly approves or requests changes to the Feature 003
-  Draft; do not create a plan, tasks, tests, migrations, or code meanwhile.
-- Handoff recipient: Zack at Gate 1.
+- Last completed action: validated the approved status, RLS deferral, dependency
+  boundary, tracking links, and whitespace.
+- Evidence: `docs/specs/003-schema-repositories/spec.md` is Approved and retains
+  repository-level user scoping while listing RLS as out of scope.
+- Worktree state: uncommitted approval and tracking updates.
+- Remaining work: commit and push this approval checkpoint; Feature 003
+  architecture still waits for Feature 002 to merge.
+- Blocker / unblock action: Feature 002 must merge before Feature 003
+  architecture begins, as required by AC1.
+- Next action: commit and push the validated approval checkpoint when
+  authorized, then wait for Feature 002 to merge.
+- Handoff recipient: Feature 003 Architect after Feature 002 merges.
 
 ## History
 
@@ -60,3 +62,5 @@ and push, then stop at Gate 1 without architecture or implementation.
 | 2026-11-13T07:18:50Z | R-0009/planner-01 | Paragraph-aware validation passed for two authorized files, Draft status, 24 criteria, whitespace, and absent plan/tasks | Inspect, commit, and push |
 | 2026-11-13T07:19:35Z | R-0009/planner-01 | Committed and pushed the validated Draft spec at `bee1cb5` | Commit and push this closeout checkpoint, then wait at Gate 1 |
 | 2026-11-13T07:21:13Z | R-0009/coordinator | Verified clean remote parity at `4714c04`, completed the Planner lifecycle, and accepted the Gate 1 handoff | Await Zack; no architecture or implementation |
+| 2026-11-13T08:20:19Z | R-0012/coordinator | Recorded Zack's Gate 1 approval and RLS deferral | Validate and commit; wait for Feature 002 merge before architecture |
+| 2026-11-13T08:20:19Z | R-0012/coordinator | Validation passed for approved status, RLS scope, dependency boundary, tracking links, and whitespace | Commit and push when authorized; do not start architecture before Feature 002 merges |
