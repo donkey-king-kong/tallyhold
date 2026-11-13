@@ -2,7 +2,7 @@
 
 ## Status
 
-Draft
+Approved — Gate 1, 2026-11-13
 
 Issue: [#7](https://github.com/donkey-king-kong/tallyhold/issues/7)
 
@@ -11,16 +11,17 @@ Issue: [#7](https://github.com/donkey-king-kong/tallyhold/issues/7)
 Tallyhold needs a pure-Python domain contract before persistence, APIs, or UI
 are built. Transactions must remain authoritative, positions must be derived,
 and monetary calculations must be deterministic and currency-safe. Without
-that contract, later layers could disagree about ownership, FIFO lot
-consumption, cost basis, profit and loss, or portfolio weights.
+that contract, later layers could disagree about ownership, cost-basis
+consumption, profit and loss, or portfolio weights.
 
 ## User stories
 
 - As a long-term investor, I want my holdings and cost basis derived from
   transactions so that editable positions cannot contradict transaction
   history.
-- As an investor who sells holdings, I want FIFO realised and unrealised profit
-  and loss so that sold and remaining lots have deterministic costs.
+- As an investor who sells holdings, I want realised and unrealised profit and
+  loss under the configured cost-basis strategy so that sold and remaining
+  holdings have deterministic costs.
 - As an investor, I want portfolio weights based on current position values so
   that I can see each holding's share of a portfolio.
 - As a developer, I want the core rules represented by pure domain objects so
@@ -46,8 +47,13 @@ This feature defines these pure Python domain objects:
   non-negative fee `Money`. Price and fee currency must equal the instrument
   currency.
 - `Position` is an immutable result derived for one account and instrument. It
-  contains remaining quantity, FIFO cost-basis `Money`, and the remaining FIFO
-  lots. It is never accepted as authoritative input.
+  contains remaining quantity and cost-basis `Money`. It is never accepted as
+  authoritative input.
+- `CostBasisStrategy` is a pure domain interface that derives positions and
+  per-sale realised results from ordered transactions. Alternative methods are
+  added by implementing this interface rather than changing callers.
+- `AverageCostStrategy` is the concrete Feature 002 implementation of
+  `CostBasisStrategy`. FIFO, LIFO, and strategy selection are deferred.
 
 Calculations consume domain objects and explicit in-memory current prices.
 They neither obtain data nor define ports to databases, HTTP services, market
@@ -59,19 +65,32 @@ All quantities, prices, fees, percentages, and monetary amounts use `Decimal`;
 `float` is rejected. Calculations preserve exact Decimal results without
 presentation rounding.
 
-### FIFO cost basis and positions
+### Average cost basis and positions
 
 Transactions are processed in ascending date order and preserve supplied order
-on the same date. Each BUY creates a FIFO lot:
+on the same date. Before a transaction, let `Q` be the held quantity and `C` be
+its total cost basis. Each BUY updates both totals:
 
 ```text
-lot basis = quantity * unit price + buy fee
+buy cost = quantity * unit price + buy fee
+Q after buy = Q + quantity
+C after buy = C + buy cost
 ```
 
-A SELL consumes the oldest remaining lot first and may consume part of a lot.
-The consumed cost basis is proportional for a partially consumed lot. A sale
-that exceeds the available quantity fails. A fully sold position is omitted
-from open positions; a later BUY starts a new FIFO history.
+A SELL may consume all or part of the holding at the average unit cost
+immediately before that sale:
+
+```text
+average unit cost = C / Q
+consumed basis = sell quantity * average unit cost
+Q after sell = Q - sell quantity
+C after sell = C - consumed basis
+```
+
+A sale that exceeds the available quantity fails. A sale of the full remaining
+quantity consumes the full remaining basis, avoiding a residual from repeating
+decimals. A fully sold position is omitted from open positions; a later BUY
+starts a new average-cost history.
 
 ### Realised and unrealised profit and loss
 
@@ -79,15 +98,17 @@ For each SELL:
 
 ```text
 net proceeds = quantity * unit price - sell fee
-realised P&L = net proceeds - FIFO basis consumed
+realised P&L = net proceeds - cost basis consumed
 ```
 
-Aggregate realised P&L is the exact sum of sale results in their transaction
-currency. For each open position and an explicitly supplied current price:
+The strategy returns the cost basis consumed and realised P&L for each sale.
+Aggregate realised P&L is the exact sum of those sale results in their
+transaction currency, without period or account filters in Feature 002. For
+each open position and an explicitly supplied current price:
 
 ```text
 market value = remaining quantity * current price
-unrealised P&L = market value - remaining FIFO basis
+unrealised P&L = market value - remaining cost basis
 ```
 
 The current price must use the instrument currency. This feature does not fetch
@@ -137,58 +158,72 @@ being added without an explicit conversion performed outside this feature.
 - Given zero or negative quantity or unit price, or a negative fee, when
   Transaction creation is attempted, then it fails.
 
-### AC3: FIFO derives positions and cost basis
+### AC3: Average cost derives positions and supports partial sells
 
 - Given a BUY of 10 shares at USD 100 with a USD 10 fee followed by a BUY of 10
   shares at USD 120 with a USD 10 fee, when the position is derived, then it has
-  20 shares, two ordered FIFO lots, and exactly USD 2,220 cost basis.
-- Given those lots, when 15 shares are sold, then all 10 shares from the first
-  lot and 5 shares from the second lot are consumed, leaving 5 shares with
-  exactly USD 605 cost basis.
+  20 shares, an average unit cost of exactly USD 111, and exactly USD 2,220
+  cost basis.
+- Given that position, when 15 shares are sold, then exactly USD 1,665 of basis
+  is consumed and 5 shares remain with exactly USD 555 cost basis.
 - Given any position, when a SELL quantity exceeds the quantity held at that
   point in the ordered history, then derivation fails.
-- Given a SELL that consumes every remaining lot, when positions are derived,
-  then no open Position is returned for that account and instrument.
+- Given a SELL that consumes the entire remaining quantity, when positions are
+  derived, then the full remaining basis is consumed and no open Position is
+  returned for that account and instrument.
 - Given a fully sold holding followed by a later BUY, when positions are
-  derived, then the later BUY starts a new FIFO history.
+  derived, then the later BUY starts a new average-cost history.
 
-### AC4: Ordering is deterministic
+### AC4: Cost-basis behavior is pluggable
+
+- Given ordered transactions, when a caller requests positions and realised
+  results, then it depends on the `CostBasisStrategy` interface rather than the
+  concrete average-cost implementation.
+- Given `AverageCostStrategy`, when it is used through `CostBasisStrategy`, then
+  it produces the average-cost results specified in AC3, AC6, and AC7.
+- Given a future FIFO, LIFO, or other implementation, when it conforms to
+  `CostBasisStrategy`, then callers require no behavior-specific changes.
+
+### AC5: Ordering is deterministic
 
 - Given transactions supplied out of trade-date order, when a position is
   derived, then they are processed in ascending trade-date order.
 - Given multiple transactions on the same trade date, when a position is
   derived, then their supplied list order is preserved.
 
-### AC5: Realised P&L uses consumed FIFO basis
+### AC6: Realised P&L uses average cost
 
-- Given the AC3 lots and a SELL of 15 shares at USD 150 with a USD 15 fee, when
-  realised P&L is calculated, then net proceeds are exactly USD 2,235, consumed
-  FIFO basis is exactly USD 1,615, and realised P&L is exactly USD 620.
+- Given the AC3 position and a SELL of 15 shares at USD 150 with a USD 15 fee,
+  when realised P&L is calculated, then net proceeds are exactly USD 2,235,
+  consumed average-cost basis is exactly USD 1,665, and realised P&L is exactly
+  USD 570.
+- Given a sale, when realised P&L is calculated, then its net proceeds,
+  consumed basis, and realised P&L are returned as that sale's result.
 - Given multiple sales in one currency, when aggregate realised P&L is
   calculated, then it equals the exact sum of each sale's realised P&L.
 - Given realised results in different currencies, when aggregation is
   attempted, then it fails rather than silently combining currencies.
 
-### AC6: Unrealised P&L uses remaining FIFO basis
+### AC7: Unrealised P&L uses remaining average-cost basis
 
 - Given the remaining 5-share position from AC3 and an explicit current price
   of USD 130, when unrealised P&L is calculated, then market value is exactly
-  USD 650 and unrealised P&L is exactly USD 45.
+  USD 650 and unrealised P&L is exactly USD 95.
 - Given a current price in a currency different from the instrument currency,
   when unrealised P&L is calculated, then it fails.
 
-### AC7: Portfolio weights use comparable market values
+### AC8: Portfolio weights are per instrument
 
-- Given open positions worth USD 650 and USD 350, when portfolio weights are
-  calculated, then their exact weights are `Decimal("0.65")` and
-  `Decimal("0.35")` and sum to `Decimal("1")`.
+- Given open instrument positions worth USD 650 and USD 350, when portfolio
+  weights are calculated, then their exact per-instrument weights are
+  `Decimal("0.65")` and `Decimal("0.35")` and sum to `Decimal("1")`.
 - Given no open positions or a zero total market value, when weights are
   calculated, then an empty result is returned.
 - Given position market values in different currencies, when weights are
   calculated, then the calculation fails rather than adding incomparable
   values.
 
-### AC8: The domain remains pure
+### AC9: The domain remains pure
 
 - Given the feature's domain source, when its imports are inspected, then it
   imports no database, ORM, API, frontend, HTTP, market-data, FX, or other
@@ -198,6 +233,13 @@ being added without an explicit conversion performed outside this feature.
   dependency is invoked.
 - Given any domain calculation, when it returns a result, then the result
   preserves exact Decimal values without display rounding.
+
+### AC10: Transaction scope is BUY and SELL only
+
+- Given a BUY or SELL type, when a Feature 002 Transaction is created, then the
+  type is accepted subject to AC2's invariants.
+- Given a DIVIDEND, SPLIT, or any other transaction type, when Feature 002
+  Transaction creation is attempted, then it fails as unsupported.
 
 ## Out of scope
 
@@ -211,42 +253,23 @@ being added without an explicit conversion performed outside this feature.
   isolation enforcement
 - Currency conversion, live valuation, dividends, stock splits, deposits,
   withdrawals, tax reporting, and cash balances
-- Plans, task breakdowns, tests, and implementation before Gate 1 approval
+- FIFO, LIFO, user-selectable cost-basis methods, period or account filters for
+  realised P&L, and portfolio weights grouped by anything other than instrument
+- Remaining MVP metrics outside unrealised P&L and per-instrument weights;
+  total value, total invested, and dividends are deferred to later features
+- Tests and implementation before approval of the Feature 002 architecture plan
 
-## Gate 1 product-spec conflicts
+## Gate 1 decisions
 
-Issue #7 intentionally requests behavior that conflicts with the current
-product source of truth. Gate 1 must explicitly resolve these differences; this
-Draft does not silently override `docs/spec.md`.
+Zack approved this contract on 2026-11-13 with these binding decisions:
 
-1. The product spec names `AverageCost` as the MVP cost-basis method and defers
-   FIFO until Phase 5; issue #7 requires FIFO now.
-2. The product spec limits MVP sells to whole-position sells and defers partial
-   sells; deterministic FIFO lot consumption in this Draft includes partial
-   sells.
-3. The product spec's five MVP metrics include total value, total invested,
-   unrealised gain/loss, allocation, and dividends, but not realised P&L. Issue
-   #7 requires realised P&L and portfolio weights without the other metrics.
-4. The product spec names `BrokerAccount` as a core domain entity, while issue
-   #7 requires separate `User`, `Broker`, and `Account` entities.
-5. The product spec's Phase 1 calls for average-cost calculations and tests for
-   every formula in the product spec. Issue #7 instead narrows this feature to
-   FIFO, realised and unrealised P&L, and portfolio weights.
-
-Gate 1 approval must state whether issue #7 supersedes these product-spec
-statements for Feature 002 and whether `docs/spec.md` needs a follow-up update
-before architecture or implementation.
-
-## Open questions
-
-1. Does `Transaction` support only BUY and SELL in Feature 002, or must the pure
-   entity also represent the product spec's DIVIDEND and SPLIT types even though
-   their calculations are outside issue #7?
-2. Is transaction date plus supplied order an acceptable deterministic
-   tie-breaker, or must each transaction carry an explicit sequence or timestamp?
-3. Must portfolio weights be returned only per instrument, or also grouped by
-   account, broker, asset type, and currency?
-4. Should realised P&L be returned per sale as well as in aggregate, and what
-   reporting period or account filters are required?
-5. Should this feature define pure domain interfaces for alternative cost-basis
-   methods, or is a concrete FIFO calculation sufficient for the current issue?
+1. Feature 002 implements average cost behind `CostBasisStrategy`; FIFO, LIFO,
+   and other strategies remain future implementations.
+2. Partial sells and automatically calculated realised P&L are in scope.
+3. `User`, `Broker`, and `Account` are separate entities.
+4. Transactions support BUY and SELL only.
+5. Trade date plus supplied list order is the deterministic ordering rule.
+6. Portfolio weights are returned per instrument only.
+7. Realised P&L is returned per sale and in aggregate, without period or
+   account filters.
+8. Dividends and the remaining MVP metrics are deferred to later features.

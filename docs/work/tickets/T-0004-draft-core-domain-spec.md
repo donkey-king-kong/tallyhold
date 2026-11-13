@@ -2,26 +2,26 @@
 
 ## Assignment
 
-- Status: in_review
-- Owner actor: R-0002/planner-01
+- Status: done
+- Owner actor: R-0011/coordinator
 - Role: Planner
-- Run: [R-0002](../runs/R-0002.md)
+- Run: [R-0011](../runs/R-0011.md)
 - Feature: [002 Draft spec](../../specs/002-core-domain/spec.md)
-- Authorization: Zack requested the revised Planner Draft, commit, and push,
-  followed by a stop at Gate 1 on 2026-11-13.
+- Authorization: Zack approved Gate 1 and supplied binding conflict and open-
+  question decisions on 2026-11-13.
 - Dependencies: issue [#7](https://github.com/donkey-king-kong/tallyhold/issues/7)
 - Branch / worktree: `feature/002-core-domain`
 - Worktree path: `../tallyhold-feature-002`
 - Issue / PR: issue #7; no PR requested
-- Updated: 2026-11-13T07:21:13Z
+- Updated: 2026-11-13T08:20:18Z
 
 ## Scope
 
 Draft the pure-domain feature contract requested in issue #7. Cover User,
-Broker, Account, Position, Transaction, Instrument, Decimal Money, FIFO cost
-basis, unrealised and realised P&L, and portfolio weights. Exclude persistence,
-APIs, external imports, and frontend work. Commit and push, then stop at Gate 1.
-Do not create a plan/tasks, tests, or production code before approval.
+Broker, Account, Position, Transaction, Instrument, Decimal Money, pluggable
+cost-basis behavior with average cost for Feature 002, partial sells, unrealised
+and realised P&L, and per-instrument portfolio weights. Exclude persistence,
+APIs, external imports, and frontend work.
 
 ## Acceptance
 
@@ -31,21 +31,26 @@ Do not create a plan/tasks, tests, or production code before approval.
 - [x] Scope is pure domain only and explicit exclusions are recorded.
 - [x] Draft spec and recovery records are checked, committed, and pushed.
 - [x] Handoff stops at Gate 1 without planning or implementation.
+- [x] Gate 1 decisions replace FIFO-specific requirements with average cost
+  behind `CostBasisStrategy` and resolve every recorded open question.
+- [x] Approved status and the reconciled product contract are recorded before
+  architecture begins.
 
 ## Checkpoint
 
-- Last completed action: pushed and verified the validated Draft and recovery
-  checkpoint on the feature branch.
-- Evidence: local and `origin/feature/002-core-domain` both resolved to
-  `9025295`; Draft commit is `c3ee358`.
-- Worktree state: clean before the coordinator closeout checkpoint.
-- Remaining work: Zack's Gate 1 review; no plan, tasks, tests, code, or PR may
-  start before explicit approval and resolution of the recorded conflicts.
-- Blocker / unblock action: Gate 1 approval is required; Zack must decide
-  whether issue #7 supersedes the conflicting product-spec statements.
-- Next action: Zack reviews the Draft's product-spec conflicts and either
-  requests revisions or explicitly approves the spec.
-- Handoff recipient: Zack.
+- Last completed action: validated the approved average-cost contract, product
+  spec reconciliation, tracking links, calculations, and whitespace.
+- Evidence: `docs/specs/002-core-domain/spec.md` is Approved and records all
+  eight Gate 1 decisions; `docs/spec.md` reflects the same product decisions.
+- Worktree state: uncommitted approval, feature-spec, product-spec, and tracking
+  updates.
+- Remaining work: commit and push the approval update, then Architect creates
+  `plan.md` and `tasks.md`.
+- Blocker / unblock action: implementation remains blocked until Zack approves
+  the architecture plan because this feature changes architecture.
+- Next action: commit and push the validated approval checkpoint when
+  authorized, then assign the Feature 002 Architect.
+- Handoff recipient: Feature 002 Architect after validation and commit.
 
 ## History
 
@@ -61,3 +66,5 @@ Do not create a plan/tasks, tests, or production code before approval.
 | 2026-11-13T07:19:51Z | R-0002/planner-01 | Initial commit command failed at shell parsing before Git ran; retried without bypassing hooks and committed the Draft as `c3ee358` | Commit this checkpoint, push, verify, and record Gate 1 handoff |
 | 2026-11-13T07:20:20Z | R-0002/planner-01 | Pushed through `e57a740` and verified local/remote parity; all Planner acceptance items are complete | Zack reviews and resolves the explicit conflicts at Gate 1; no downstream work before approval |
 | 2026-11-13T07:21:13Z | R-0002/coordinator | Verified clean remote parity at `9025295`, completed the Planner lifecycle, and accepted the Gate 1 handoff | Await Zack; no architecture or implementation |
+| 2026-11-13T08:20:18Z | R-0011/coordinator | Recorded Zack's Gate 1 approval and revised the feature and product contracts to average cost behind `CostBasisStrategy` | Validate the approved contract, then hand off to Architect |
+| 2026-11-13T08:20:18Z | R-0011/coordinator | Validation passed after correcting two overly broad or duplicate tracking assertions | Commit and push when authorized, then assign Architect |

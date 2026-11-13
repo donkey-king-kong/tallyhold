@@ -2,7 +2,7 @@
 
 *All your brokers. One portfolio.*
 
-Last updated: 2026-11-12 · Owner: Zack
+Last updated: 2026-11-13 · Owner: Zack
 
 ## Overview
 
@@ -36,7 +36,7 @@ The MVP covers US stocks and ETFs, entered by CSV upload or by hand. Everything 
 | Currencies | Any currency stored; hardcoded FX rates | Live rates from Frankfurter |
 | Data entry | Canonical CSV import, manual entry, bulk edit/delete | Broker-specific importers, IBKR Flex sync, Tiger OpenAPI |
 | Quantities | Whole shares in the UI; decimal in the DB | Fractional shares |
-| Selling | Whole-position sells | Partial sells with selectable cost basis method |
+| Selling | Partial sells using average cost | Selectable FIFO, LIFO, and other cost-basis strategies |
 | Corporate actions | Manual SPLIT entry | Auto-detected splits |
 | Dividends | DIVIDEND transaction, total received | Dividend calendar, withholding tax breakdown |
 | Cash | Not tracked | DEPOSIT / WITHDRAWAL, cash balances |
@@ -58,7 +58,7 @@ Arrows show who calls whom. Infrastructure points up because it implements inter
 
 1. **Presentation:** Next.js frontend; FastAPI routers and Pydantic request/response schemas. No business logic.
 2. **Application (services):** use cases such as `ImportService`, `PortfolioService`, `ValuationService`, `MetricsService`. Orchestrates the domain and repositories.
-3. **Domain:** entities (`Transaction`, `Instrument`, `Position`, `BrokerAccount`) and interfaces (`Importer`, `PriceProvider`, `FxRateProvider`, `Metric`, `CostBasisMethod`, `ValuationStrategy`). Pure Python, no framework or DB imports, fully unit-testable.
+3. **Domain:** entities (`User`, `Broker`, `Account`, `Transaction`, `Instrument`, `Position`) and interfaces (`Importer`, `PriceProvider`, `FxRateProvider`, `Metric`, `CostBasisStrategy`, `ValuationStrategy`). Pure Python, no framework or DB imports, fully unit-testable.
 4. **Infrastructure:** SQLAlchemy repositories, Alembic migrations, CSV importers, yfinance and Frankfurter clients, Supabase auth verification.
 
 **Modules** (vertical slices inside the monolith): `identity`, `accounts`, `instruments`, `transactions`, `importing`, `market_data` (prices, FX), `portfolio` (positions, valuation, metrics).
@@ -108,10 +108,10 @@ Transactions are the single source of truth; positions, values and metrics are a
 | Prices | `PriceProvider` | `YFinancePriceProvider` | Paid feeds, SGX-specific sources |
 | FX | `FxRateProvider` | `HardcodedFxProvider` | `FrankfurterFxProvider` |
 | Ticker formats | `SymbolMapper` (per price provider) | US tickers as-is | SGX `D05` → `D05.SI` |
-| Cost basis | `CostBasisMethod` | `AverageCost` | `Fifo`, user-selectable |
+| Cost basis | `CostBasisStrategy` | `AverageCostStrategy` | FIFO, LIFO, user-selectable strategies |
 | Metrics | `Metric` | 5 core metrics | XIRR, benchmark comparison, value over time |
 
-**Core entities:** `User`, `BrokerAccount` (a user's account at one broker, with its currency), `Exchange`, `Instrument`, `Transaction` (BUY, SELL, DIVIDEND, SPLIT now; FEE, DEPOSIT, WITHDRAWAL later), `Position` (derived), `PriceQuote`, `FxRate`.
+**Core entities:** `User`, `Broker`, `Account` (a user's account at one broker, with its currency), `Exchange`, `Instrument`, `Transaction`, `Position` (derived), `PriceQuote`, `FxRate`. Feature 002 supports BUY and SELL transactions only; dividends, splits, fees, deposits, and withdrawals require later feature contracts.
 
 **Rules the agents must follow:**
 
@@ -210,7 +210,13 @@ D_{net} = D_{gross} - T_{withheld}
 Q_{new} = Q \times k \qquad C_{new} = C \qquad \bar{c}_{new} = \frac{\bar{c}}{k}
 ```
 
-**Sells (MVP).** A SELL closes the whole position. Partial sells are later work: they need the cost basis method (average cost by default, FIFO selectable), which is why it is already a user setting.
+**Sells and realised P&L (MVP).** A SELL may close all or part of a position.
+Average cost is the concrete MVP strategy behind `CostBasisStrategy`. Immediately
+before a sale, the disposed basis is the sold quantity times the holding's
+average unit cost. Net proceeds subtract the sell fee; realised P&L is net
+proceeds minus disposed basis. Feature 002 returns this result per sale and in
+aggregate, without period or account filters. FIFO, LIFO, and user selection are
+later strategy implementations.
 
 ## API and UI structure
 
@@ -291,11 +297,15 @@ Suggested split: Claude Code for Planner, Architect and Reviewer; Trae for Test 
 Each phase ends with a deployable app; each feature inside it goes through the two-gate flow above.
 
 1. **Phase 0, foundations:** constitution, `AGENTS.md`, agent role files, spec templates, then feature 001 (backend and frontend skeletons, Docker Compose, CI). Done when a pull request with a trivial change passes CI.
-2. **Phase 1, core domain:** domain entities and interfaces, schema and migrations, average cost calculator, unit tests for every formula in this spec. No UI yet.
+2. **Phase 1, core domain:** Feature 002 delivers pure domain entities,
+   `CostBasisStrategy` with average cost, partial sells, per-sale and aggregate
+   realised P&L, unrealised P&L, and per-instrument portfolio weights. Schema,
+   migrations, dividends, and remaining MVP metrics are separate later
+   features. No UI yet.
 3. **Phase 2, auth and accounts:** Google login via Supabase, `identities`, broker account CRUD.
 4. **Phase 3, transactions and import:** manual entry, canonical CSV import with preview, dedupe and undo, bulk edit.
 5. **Phase 4, dashboard MVP:** yfinance prices, hardcoded FX, the five metrics, overview and per-account pages, first deploy. First real use.
-6. **Phase 5, expansion:** value-over-time chart, Frankfurter FX, SGX support, broker-specific importers, partial sells with FIFO option, XIRR.
+6. **Phase 5, expansion:** value-over-time chart, Frankfurter FX, SGX support, broker-specific importers, selectable FIFO and other cost-basis strategies, XIRR.
 7. **Phase 6+:** fixed income (SSBs, T-bills), IBKR Flex sync, options.
 
 ## Decisions log
@@ -303,6 +313,10 @@ Each phase ends with a deployable app; each feature inside it goes through the t
 - Product and repo name: **Tallyhold** (`donkey-king-kong/tallyhold`).
 - Agent tools: Trae (GPT) and Claude Code CLI, with tool-neutral rules in `AGENTS.md`.
 - No GitHub branch protection for now; enforced by the constitution.
+- Feature 002 uses average cost behind `CostBasisStrategy`, supports partial
+  sells, calculates realised P&L, and models `User`, `Broker`, and `Account`
+  separately. Dividends and remaining MVP metrics are deferred to later
+  features.
 
 ## Open questions
 
