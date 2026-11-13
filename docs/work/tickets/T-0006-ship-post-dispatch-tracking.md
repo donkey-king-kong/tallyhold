@@ -12,7 +12,7 @@
 - Branch / worktree: `chore/checkpoint-closeout-ship-log`,
   sibling worktree `../tallyhold-checkpoint-closeout-ship-log`
 - Issue / PR: issue #5; [PR #9](https://github.com/donkey-king-kong/tallyhold/pull/9)
-- Updated: 2026-11-13T05:02:43Z
+- Updated: 2026-11-13T05:05:16Z
 
 ## Scope
 
@@ -56,11 +56,15 @@ feature 002 changes.
 - Review result: fallback Reviewer approved with no findings; `review.md` and
   PR comment `https://github.com/donkey-king-kong/tallyhold/pull/9#issuecomment-6844626889`
   match byte-for-byte.
-- Remaining work: commit/push the permitted report-only change, then verify
-  every merge gate and merge.
+- Merge gate: report-only head `c44c9c4c6b2884471dd13b8c34ed29c7505dc82f`
+  passed backend, frontend, and security CI; report/comment equality, findings,
+  labels, assignee, reviewed delta, constitution exclusion, and mergeability
+  checks all passed.
+- Merge intent: merge PR #9 now, then update the clean sibling `main` worktree
+  without touching feature 002.
+- Remaining work: execute and verify the merge.
 - Blocker / unblock action: none.
-- Next action: commit and push `review.md` on the PR branch, wait for CI, then
-  verify every merge condition.
+- Next action: merge PR #9 and verify remote PR/main state.
 - Handoff recipient: R-0004/coordinator.
 
 ## History
@@ -75,3 +79,4 @@ feature 002 changes.
 | 2026-11-13T05:00:41Z | R-0004/coordinator | Claude Reviewer exited before review with API `ECONNREFUSED`; no PR #9 report, comment, or verdict exists | Commit failure, then launch fresh Trae fallback |
 | 2026-11-13T05:01:49Z | R-0004/coordinator | Launched fresh isolated Trae fallback Reviewer for PR #9 round 1 | Native ID `arun_6af699b20405b3a179ddd926`; await result |
 | 2026-11-13T05:02:43Z | R-0004/coordinator | Fallback Reviewer approved with no findings; report and PR comment match exactly | Commit report-only change, then verify merge gate |
+| 2026-11-13T05:05:16Z | R-0004/coordinator | All ship gates passed for report-only head `c44c9c4`; recorded merge intent | Merge PR #9 and verify remote state |
