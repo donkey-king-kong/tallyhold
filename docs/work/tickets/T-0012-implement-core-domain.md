@@ -14,7 +14,7 @@
 - Branch / worktree: `feature/002-core-domain`
 - Worktree path: `../tallyhold-feature-002`
 - Issue / PR: issue #7; PR not created
-- Updated: 2026-11-13T09:21:32Z
+- Updated: 2026-11-13T09:22:30Z
 
 ## Scope
 
@@ -35,19 +35,19 @@ frontend work.
 
 ## Checkpoint
 
-- Last completed action: added the complete Feature 002 RED contract at the
-  approved public seams and verified collection and missing-behavior failures.
+- Last completed action: committed the complete Feature 002 RED contract as
+  `aafbf74` after verifying collection and missing-behavior failures.
 - Evidence: `uv run pytest --collect-only -q tests/domain` collected 56 tests;
   `uv run pytest -q --tb=no tests/domain` reported 53 expected missing-behavior
   failures and 3 purity-baseline passes; Ruff lint and format checks pass.
-- Worktree state: RED tests, completed task checkbox, and this checkpoint are
-  uncommitted on `feature/002-core-domain`.
-- Remaining work: commit RED, then implementation, full checks, and ship.
+- Worktree state: RED is committed at `aafbf74`; this post-commit checkpoint is
+  the only pending change on `feature/002-core-domain`.
+- Remaining work: implementation, full checks, and ship.
 - Blocker / unblock action: none. The requested `R-0010` was already allocated
   to unrelated active work, so the next unused run `R-0013` is used.
-- Next action: commit `test: add failing core domain contract`, then the
-  coordinator records the Test writer completion and assigns the Implementer.
-- Handoff recipient: coordinator for Implementer assignment after RED commit.
+- Next action: coordinator records Test writer completion in `R-0013`, assigns
+  the Implementer, and starts the Money and owned entities GREEN task.
+- Handoff recipient: coordinator for Implementer assignment.
 
 ## History
 
@@ -61,3 +61,4 @@ frontend work.
 | 2026-11-13T09:19:31Z | R-0013/test-writer-01 | Retry again stopped before pytest because the preceding telemetry close still used the relative adapter path | Use absolute adapter paths for the complete wrapper and run collection |
 | 2026-11-13T09:21:32Z | R-0013/test-writer-01 | Corrected three Ruff-only line-wrap findings; one later validation wrapper also stopped before checks from the same relative adapter-path error | Absolute-path reruns passed Ruff lint and format |
 | 2026-11-13T09:21:32Z | R-0013/test-writer-01 | Completed AC1-AC10 and five-repository RED coverage at planned seams | 56 collected; 53 missing-behavior failures, 3 purity passes; commit RED next |
+| 2026-11-13T09:22:30Z | R-0013/test-writer-01 | Committed the verified RED contract as `aafbf74` without production changes | Coordinator records completion and assigns the first GREEN task |
