@@ -13,7 +13,7 @@
 - Branch / worktree: `chore/work-tracking-checkpoints`,
   sibling worktree `../tallyhold-work-tracking-checkpoints`
 - Issue / PR: issue #5; [PR #8](https://github.com/donkey-king-kong/tallyhold/pull/8)
-- Updated: 2026-11-13T03:27:13Z
+- Updated: 2026-11-13T03:48:34Z
 
 ## Scope
 
@@ -39,7 +39,7 @@ claiming an independent approval. Include this ship ticket and run for recovery.
   coverage, pip-audit, frontend lint/format/types, 3 Vitest tests, build,
   production audit, 6 Agent Flow tests, gitleaks, actionlint, diff whitespace,
   and 41 local documentation links passed. Claude Code 2.1.322 is authenticated.
-- Worktree state: this ticket/run addition is uncommitted.
+- Worktree state: clean ship-log branch pushed through `db29bb1`.
 - Publication evidence: pre-review record commit `becd07a` pushed; PR #8 assigned
   to `donkey-king-kong` and linked to issue #5 and the approved maintenance spec.
 - Review snapshot: base `56c87e25f2fec735694d4cf1a6ad56e01e7cfce6`,
@@ -48,10 +48,12 @@ claiming an independent approval. Include this ship ticket and run for recovery.
   worktree `../tallyhold-checkpoint-closeout-ship-log`. This ticket there is
   authoritative after review dispatch; the PR worktree remains frozen except
   for the report-only commit permitted by ship.
-- Remaining work: fresh review, report commit, merge gates, and merge.
+- Dispatch evidence: the first lifecycle intent was interrupted before any
+  reviewer process launched; PR #8 has no report or review comment.
+- Remaining work: actual fresh review, report commit, merge gates, and merge.
 - Blocker / unblock action: none.
-- Next action: commit/push this separate tracking checkpoint, then dispatch a
-  fresh Reviewer with only PR #8, round 1, and the maintenance feature path.
+- Next action: commit/push this corrected checkpoint, then launch a fresh
+  Reviewer process with only PR #8, round 1, and the maintenance feature path.
 - Handoff recipient: R-0003/coordinator.
 
 ## History
@@ -62,3 +64,4 @@ claiming an independent approval. Include this ship ticket and run for recovery.
 | 2026-11-13T03:22:14Z | R-0003/coordinator | Full local checks passed after installing locked frontend dependencies in this worktree | Commit and push pre-review records |
 | 2026-11-13T03:24:48Z | R-0003/coordinator | PR #8 opened, assigned, and first CI run passed all three jobs | Push PR/CI checkpoint, then freeze review head |
 | 2026-11-13T03:27:13Z | R-0003/coordinator | Final head `fe59a5f` passed all CI; separate ship-log branch/worktree published | Record dispatch there, keep PR snapshot frozen |
+| 2026-11-13T03:48:34Z | R-0003/coordinator | Reconciled interrupted turn: no Claude process, report, or comment existed; initialized Agent Flow in authoritative ship-log worktree | Push correction, then launch actual fresh reviewer |
