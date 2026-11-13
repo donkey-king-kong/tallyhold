@@ -12,6 +12,7 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 | [T-0002](tickets/T-0002-publish-work-tracking.md) | Publish and review durable tracking | [R-0001](runs/R-0001.md) |
 | [T-0003](tickets/T-0003-review-work-tracking.md) | Independent review of PR #6 | [R-0001](runs/R-0001.md) |
 | [T-0005](tickets/T-0005-ship-tracking-closeout.md) | Ship checkpoint-only closeout history | [R-0003](runs/R-0003.md) |
+| [T-0006](tickets/T-0006-ship-post-dispatch-tracking.md) | Ship PR #8 post-dispatch tracking | [R-0004](runs/R-0004.md) |
 
 For PR #6 post-dispatch progress, follow T-0002's checkpoint branch/worktree.
 

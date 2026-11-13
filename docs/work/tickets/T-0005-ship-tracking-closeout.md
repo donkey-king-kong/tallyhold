@@ -2,7 +2,7 @@
 
 ## Assignment
 
-- Status: in_progress
+- Status: done
 - Owner actor: R-0003/coordinator
 - Role: ship coordinator
 - Run: [R-0003](../runs/R-0003.md)
@@ -13,7 +13,7 @@
 - Branch / worktree: `chore/work-tracking-checkpoints`,
   sibling worktree `../tallyhold-work-tracking-checkpoints`
 - Issue / PR: issue #5; [PR #8](https://github.com/donkey-king-kong/tallyhold/pull/8)
-- Updated: 2026-11-13T03:57:56Z
+- Updated: 2026-11-13T03:59:12Z
 
 ## Scope
 
@@ -26,8 +26,8 @@ claiming an independent approval. Include this ship ticket and run for recovery.
 - [x] Local documentation and repository checks pass.
 - [x] Assigned PR links issue #5 and the approved maintenance spec.
 - [x] Fresh review report and identical comment approve the current diff.
-- [ ] All ship gates pass and the PR merges without changing the constitution.
-- [ ] Primary `main` is updated without disturbing feature 002's worktree.
+- [x] All ship gates pass and the PR merges without changing the constitution.
+- [x] Primary `main` is updated without disturbing feature 002's worktree.
 
 ## Checkpoint
 
@@ -64,13 +64,14 @@ claiming an independent approval. Include this ship ticket and run for recovery.
   passed backend, frontend, and security CI; report/comment equality, findings,
   labels, assignee, reviewed delta, constitution exclusion, and mergeability
   checks all passed.
-- Merge intent: merge PR #8 now, then update `main` in its clean sibling
-  worktree without touching feature 002.
-- Remaining work: execute and verify the merge, then ship the post-dispatch
-  tracking branch authorized by Zack.
+- Merge result: PR #8 merged at `2026-11-13T03:58:38Z` as
+  `e60f5a01d10b9876a8ac410aef6d84765898c8f6`; the clean sibling `main`
+  worktree was fast-forwarded and feature 002 remained untouched.
+- Remaining work: none for this ticket. Follow-up publication is
+  [T-0006](T-0006-ship-post-dispatch-tracking.md).
 - Blocker / unblock action: none.
-- Next action: merge PR #8 and verify remote PR/main state.
-- Handoff recipient: R-0003/coordinator.
+- Next action: R-0004/coordinator ships T-0006.
+- Handoff recipient: R-0004/coordinator.
 
 ## History
 
@@ -86,3 +87,4 @@ claiming an independent approval. Include this ship ticket and run for recovery.
 | 2026-11-13T03:54:27Z | R-0003/coordinator | Launched fresh isolated Trae fallback Reviewer for PR #8 round 1 | Native ID `arun_6af689ed0405b3a179ddd804`; await actual result |
 | 2026-11-13T03:55:21Z | R-0003/coordinator | Fallback Reviewer approved with no findings; report and PR comment match exactly | Commit report-only change, then verify merge gate |
 | 2026-11-13T03:57:56Z | R-0003/coordinator | All ship merge gates passed for report-only head `945a308`; recorded merge intent | Merge PR #8 and verify remote state |
+| 2026-11-13T03:59:12Z | R-0003/coordinator | Verified PR #8 merged as `e60f5a0` and clean sibling `main` updated; feature 002 untouched | Complete T-0005; continue post-dispatch publication in T-0006/R-0004 |
