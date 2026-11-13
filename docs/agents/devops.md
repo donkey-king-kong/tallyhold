@@ -42,7 +42,10 @@ python3 .trae/agent-flow/adapter.py tool-start --agent devops --category Test
 # Run the specific validation for that configuration change.
 python3 .trae/agent-flow/adapter.py tool-end --agent devops --category Test --outcome succeeded
 python3 .trae/agent-flow/adapter.py tool-start --agent devops --category Shell
-# Inspect and commit the verified configuration task.
+# Inspect the verified configuration task.
+python3 .trae/agent-flow/adapter.py tool-end --agent devops --category Shell --outcome succeeded
+python3 .trae/agent-flow/adapter.py tool-start --agent devops --category Shell
+# Commit the verified configuration task.
 python3 .trae/agent-flow/adapter.py tool-end --agent devops --category Shell --outcome succeeded
 python3 .trae/agent-flow/adapter.py status --agent devops --state working --activity "Documenting and committing setup"
 python3 .trae/agent-flow/adapter.py tool-start --agent devops --category Edit
@@ -52,7 +55,10 @@ python3 .trae/agent-flow/adapter.py tool-start --agent devops --category Test
 # Run the final applicable configuration and documentation checks.
 python3 .trae/agent-flow/adapter.py tool-end --agent devops --category Test --outcome succeeded
 python3 .trae/agent-flow/adapter.py tool-start --agent devops --category Shell
-# Inspect and commit the final documentation before handoff.
+# Inspect the final documentation before handoff.
+python3 .trae/agent-flow/adapter.py tool-end --agent devops --category Shell --outcome succeeded
+python3 .trae/agent-flow/adapter.py tool-start --agent devops --category Shell
+# Commit the final documentation before handoff.
 python3 .trae/agent-flow/adapter.py tool-end --agent devops --category Shell --outcome succeeded
 python3 .trae/agent-flow/adapter.py complete --agent devops --parent orchestrator --summary "Automation handed off"
 python3 .trae/agent-flow/adapter.py status --agent devops --state blocked --activity "Automation setup blocked"
