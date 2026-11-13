@@ -2,7 +2,7 @@
 
 ## Assignment
 
-- Status: in_review
+- Status: done
 - Owner actor: R-0006/coordinator
 - Role: coordinator
 - Run: [R-0006](../runs/R-0006.md)
@@ -17,7 +17,7 @@
 - Post-dispatch tracking: `chore/agent-flow-granularity-ship-log` /
   `/Users/bytedance/Desktop/tallyhold-agent-flow-granularity-ship-log`
 - Issue / PR: issue #11; PR #12
-- Updated: 2026-11-13T05:49:42Z
+- Updated: 2026-11-13T05:51:33Z
 
 ## Scope
 
@@ -36,21 +36,21 @@ instructions.
 - [x] The maintenance branch is committed and pushed with assigned PR #12.
 - [x] A fresh Reviewer approves the final reviewed head with no actionable
   findings.
-- [ ] Every merge gate passes and the PR is merged into `main`.
+- [x] Every merge gate passes and the PR is merged into `main`.
 
 ## Checkpoint
 
-- Last completed action: verified every merge gate for report-only head
-  `7daa79d`; recorded intent to merge PR #12.
-- Evidence: parsed report/comment equality; latest verdict `APPROVE`; zero
-  actionable findings; local checks and three CI jobs pass; clean mergeable PR;
-  no blocking labels or constitution change.
-- Worktree state: PR worktree clean; this ship-log checkpoint is uncommitted.
-- Remaining work: commit and push merge intent, merge, and verify updated main.
+- Last completed action: merged PR #12 and fast-forwarded local `main`.
+- Evidence: merge commit `fc523cd532a4167ed7afc8dff09f265ddb1fc0a8`;
+  GitHub state `MERGED`; final backend, frontend, and security checks passed;
+  merged PR branch deleted remotely and locally.
+- Worktree state: ship-log closeout is uncommitted; merged PR worktree removed.
+- Remaining work: publish this post-dispatch tracking-only branch in a later
+  maintenance PR.
 - Blocker / unblock action: none.
-- Next action: commit and push this checkpoint, then merge PR #12 with branch
-  deletion and update the main worktree.
-- Handoff recipient: fresh Reviewer after PR creation.
+- Next action: commit and push this closeout; retain the ship-log branch for its
+  later tracking-only publication.
+- Handoff recipient: Zack for normal roadmap continuation.
 
 ## History
 
@@ -67,3 +67,4 @@ instructions.
 | 2026-11-13T05:46:40Z | R-0006/coordinator | Launched fresh-context Reviewer round 2 | Wait for verdict and verify report/comment identity |
 | 2026-11-13T05:47:59Z | R-0006/coordinator | Verified round 2 `APPROVE` for `4852145`; pushed report-only `7daa79d` | Wait for report-only CI, then check every merge gate |
 | 2026-11-13T05:49:42Z | R-0006/coordinator | Every merge gate passed; recorded merge intent for PR #12 | Commit intent, merge, and verify main |
+| 2026-11-13T05:51:33Z | R-0006/coordinator | PR #12 merged as `fc523cd`; main updated; PR branch deleted | Commit and push post-dispatch closeout on the ship-log branch |

@@ -6,7 +6,7 @@
 - [x] T-0008, coordinator: preserve Reviewer isolation, close the stale local
   Shell event, and verify role pair balance, links, whitespace, and adapter
   tests.
-- [ ] T-0008, coordinator: commit, push, open the assigned PR, run a fresh
+- [x] T-0008, coordinator: commit, push, open the assigned PR, run a fresh
   Reviewer, and apply every ship gate.
 
 Fresh Reviewers use only their permitted inputs. The ticket and run links are
