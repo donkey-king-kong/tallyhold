@@ -11,8 +11,12 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 | [T-0001](tickets/T-0001-durable-work-tracking.md) | Set up durable planning and agent accountability | [R-0001](runs/R-0001.md) |
 | [T-0002](tickets/T-0002-publish-work-tracking.md) | Publish and review durable tracking | [R-0001](runs/R-0001.md) |
 | [T-0003](tickets/T-0003-review-work-tracking.md) | Independent review of PR #6 | [R-0001](runs/R-0001.md) |
+| [T-0005](tickets/T-0005-ship-tracking-closeout.md) | Ship checkpoint-only closeout history | [R-0003](runs/R-0003.md) |
 
 For PR #6 post-dispatch progress, follow T-0002's checkpoint branch/worktree.
+
+`T-0004` and `R-0002` are reserved by the active feature 002 Draft on its
+separate feature branch; do not reuse those IDs if this branch lands first.
 
 Open the ticket for authoritative status, ownership, and next action.
 Completed tickets remain in this index; split an archive index when it grows.
