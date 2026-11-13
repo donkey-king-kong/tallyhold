@@ -13,7 +13,7 @@
 - Branch / worktree: `chore/work-tracking-checkpoints`,
   sibling worktree `../tallyhold-work-tracking-checkpoints`
 - Issue / PR: issue #5; [PR #8](https://github.com/donkey-king-kong/tallyhold/pull/8)
-- Updated: 2026-11-13T03:53:41Z
+- Updated: 2026-11-13T03:54:27Z
 
 ## Scope
 
@@ -54,11 +54,14 @@ claiming an independent approval. Include this ship ticket and run for recovery.
   `8fe0033ce12b2534638c269a3d30fb1d`; observed Claude PID `36614`. It exited
   `1` at `2026-11-13T03:53:41Z` with API `ECONNREFUSED` before producing a
   report, comment, or verdict.
-- Remaining work: fresh Trae fallback review, report verification and commit,
-  then merge gates and merge.
+- Fallback dispatch: fresh Trae Reviewer launched at
+  `2026-11-13T03:54:27Z` with native ID
+  `arun_6af689ed0405b3a179ddd804`.
+- Remaining work: await fallback review, verify and commit its report, then run
+  merge gates and merge.
 - Blocker / unblock action: none.
-- Next action: launch a brand-new isolated Trae fallback Reviewer with only PR
-  #8, round 1, the maintenance feature path, and Reviewer role instructions.
+- Next action: await the fallback Reviewer, then verify `review.md`, the
+  identical PR comment, and final verdict.
 - Handoff recipient: R-0003/coordinator.
 
 ## History
@@ -72,3 +75,4 @@ claiming an independent approval. Include this ship ticket and run for recovery.
 | 2026-11-13T03:48:34Z | R-0003/coordinator | Reconciled interrupted turn: no Claude process, report, or comment existed; initialized Agent Flow in authoritative ship-log worktree | Push correction, then launch actual fresh reviewer |
 | 2026-11-13T03:50:24Z | R-0003/coordinator | Launched fresh Claude Reviewer round 1; process observed running from frozen PR worktree | Command `8fe0033ce12b2534638c269a3d30fb1d`, PID `36614`; await actual result |
 | 2026-11-13T03:53:41Z | R-0003/coordinator | Claude Reviewer exited before review with API `ECONNREFUSED`; no report, comment, or verdict exists | Launch the ship procedure's fresh Trae fallback Reviewer |
+| 2026-11-13T03:54:27Z | R-0003/coordinator | Launched fresh isolated Trae fallback Reviewer for PR #8 round 1 | Native ID `arun_6af689ed0405b3a179ddd804`; await actual result |
