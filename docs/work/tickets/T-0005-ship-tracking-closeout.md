@@ -13,7 +13,7 @@
 - Branch / worktree: `chore/work-tracking-checkpoints`,
   sibling worktree `../tallyhold-work-tracking-checkpoints`
 - Issue / PR: issue #5; [PR #8](https://github.com/donkey-king-kong/tallyhold/pull/8)
-- Updated: 2026-11-13T03:50:24Z
+- Updated: 2026-11-13T03:53:41Z
 
 ## Scope
 
@@ -51,12 +51,14 @@ claiming an independent approval. Include this ship ticket and run for recovery.
 - Dispatch evidence: the first lifecycle intent was interrupted before any
   reviewer process launched. Round 1 was actually launched at
   `2026-11-13T03:50:24Z` as Trae background command
-  `8fe0033ce12b2534638c269a3d30fb1d`; observed Claude PID `36614`.
-- Remaining work: await the fresh review, verify and commit its report, then run
-  merge gates and merge.
+  `8fe0033ce12b2534638c269a3d30fb1d`; observed Claude PID `36614`. It exited
+  `1` at `2026-11-13T03:53:41Z` with API `ECONNREFUSED` before producing a
+  report, comment, or verdict.
+- Remaining work: fresh Trae fallback review, report verification and commit,
+  then merge gates and merge.
 - Blocker / unblock action: none.
-- Next action: wait for command `8fe0033ce12b2534638c269a3d30fb1d`
-  to exit, then verify its report, identical PR comment, and verdict.
+- Next action: launch a brand-new isolated Trae fallback Reviewer with only PR
+  #8, round 1, the maintenance feature path, and Reviewer role instructions.
 - Handoff recipient: R-0003/coordinator.
 
 ## History
@@ -69,3 +71,4 @@ claiming an independent approval. Include this ship ticket and run for recovery.
 | 2026-11-13T03:27:13Z | R-0003/coordinator | Final head `fe59a5f` passed all CI; separate ship-log branch/worktree published | Record dispatch there, keep PR snapshot frozen |
 | 2026-11-13T03:48:34Z | R-0003/coordinator | Reconciled interrupted turn: no Claude process, report, or comment existed; initialized Agent Flow in authoritative ship-log worktree | Push correction, then launch actual fresh reviewer |
 | 2026-11-13T03:50:24Z | R-0003/coordinator | Launched fresh Claude Reviewer round 1; process observed running from frozen PR worktree | Command `8fe0033ce12b2534638c269a3d30fb1d`, PID `36614`; await actual result |
+| 2026-11-13T03:53:41Z | R-0003/coordinator | Claude Reviewer exited before review with API `ECONNREFUSED`; no report, comment, or verdict exists | Launch the ship procedure's fresh Trae fallback Reviewer |
