@@ -14,6 +14,7 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 | [T-0005](tickets/T-0005-ship-tracking-closeout.md) | Ship checkpoint-only closeout history | [R-0003](runs/R-0003.md) |
 | [T-0006](tickets/T-0006-ship-post-dispatch-tracking.md) | Ship PR #8 post-dispatch tracking | [R-0004](runs/R-0004.md) |
 | [T-0007](tickets/T-0007-end-recursive-closeout.md) | End recursive closeout branches and ship terminal history | [R-0005](runs/R-0005.md) |
+| [T-0008](tickets/T-0008-agent-flow-granularity.md) | Ship granular Agent Flow role telemetry | [R-0006](runs/R-0006.md) |
 
 For PR #6 post-dispatch progress, follow T-0002's checkpoint branch/worktree.
 

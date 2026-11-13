@@ -21,19 +21,49 @@ role outputs below; return updates to the coordinator if running read-only.
 3. Commit before handoff; give the failing tests and criterion mapping to the Implementer.
 
 ## Agent Flow (mandatory)
-The coordinator ensures the session exists and publishes `start` before the Test writer begins. Publish one `status` at each numbered step, then `complete` on handoff:
+The coordinator ensures the session exists and publishes `start` before the
+Test writer begins. Keep every milestone `status`, and wrap each real operation
+in its own tool pair. Use `Read` for local sources, `Edit` for test or checkpoint
+changes, `Test` for every test, lint, or type-check command, `Shell` for git or
+other commands, and `Search` for web lookups. Split a step that uses multiple
+categories into multiple pairs; never publish an empty pair.
 
 ```sh
 python3 .trae/agent-flow/adapter.py start --agent test_writer --parent orchestrator --task "Write failing tests"
 python3 .trae/agent-flow/adapter.py status --agent test_writer --state working --activity "Mapping criteria to tests"
+python3 .trae/agent-flow/adapter.py tool-start --agent test_writer --category Read
+# Read approved criteria, plans, tasks, the ticket, and existing tests.
+python3 .trae/agent-flow/adapter.py tool-end --agent test_writer --category Read --outcome succeeded
+python3 .trae/agent-flow/adapter.py tool-start --agent test_writer --category Edit
+# Add focused tests and their acceptance-criterion mapping.
+python3 .trae/agent-flow/adapter.py tool-end --agent test_writer --category Edit --outcome succeeded
 python3 .trae/agent-flow/adapter.py status --agent test_writer --state working --activity "Running red tests"
+python3 .trae/agent-flow/adapter.py tool-start --agent test_writer --category Test
+# Run the targeted RED test command.
+python3 .trae/agent-flow/adapter.py tool-end --agent test_writer --category Test --outcome failed
+python3 .trae/agent-flow/adapter.py tool-start --agent test_writer --category Edit
+# Record that the expected failure is missing behavior, not a broken test.
+python3 .trae/agent-flow/adapter.py tool-end --agent test_writer --category Edit --outcome succeeded
 python3 .trae/agent-flow/adapter.py status --agent test_writer --state working --activity "Committing red tests"
+python3 .trae/agent-flow/adapter.py tool-start --agent test_writer --category Shell
+# Inspect the RED test changes before handoff.
+python3 .trae/agent-flow/adapter.py tool-end --agent test_writer --category Shell --outcome succeeded
+python3 .trae/agent-flow/adapter.py tool-start --agent test_writer --category Shell
+# Commit the RED test changes before handoff.
+python3 .trae/agent-flow/adapter.py tool-end --agent test_writer --category Shell --outcome succeeded
 python3 .trae/agent-flow/adapter.py complete --agent test_writer --parent orchestrator --summary "Red tests handed off"
 python3 .trae/agent-flow/adapter.py status --agent test_writer --state blocked --activity "Test writing blocked"
 python3 .trae/agent-flow/adapter.py complete --agent test_writer --parent orchestrator --summary "Test writing blocked" --failed
 ```
 
-Use the last two commands instead of successful completion when blocked; report tool categories per [Agent Flow](../agent-flow.md).
+Repeat a pair for every additional read, edit, check, command, or web lookup.
+Each distinct test, lint, or type-check invocation gets its own `Test` pair. If
+an operation fails, publish its matching `tool-end` with `--outcome failed`
+before continuing or using the final blocked commands. After an interruption,
+close the previously started operation as failed before starting another one.
+Labels remain generic metadata and never contain prompts, file contents,
+credentials, or sensitive data. Use the last two commands instead of successful
+completion when blocked.
 
 ## Must not do
 Change production code or weaken tests to hide failures.
