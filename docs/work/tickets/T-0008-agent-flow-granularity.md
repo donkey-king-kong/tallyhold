@@ -2,7 +2,7 @@
 
 ## Assignment
 
-- Status: in_progress
+- Status: in_review
 - Owner actor: R-0006/coordinator
 - Role: coordinator
 - Run: [R-0006](../runs/R-0006.md)
@@ -17,7 +17,7 @@
 - Post-dispatch tracking: `chore/agent-flow-granularity-ship-log` /
   `/Users/bytedance/Desktop/tallyhold-agent-flow-granularity-ship-log`
 - Issue / PR: issue #11; PR #12
-- Updated: 2026-11-13T05:34:43Z
+- Updated: 2026-11-13T05:37:01Z
 
 ## Scope
 
@@ -40,16 +40,16 @@ instructions.
 
 ## Checkpoint
 
-- Last completed action: committed and pushed the checked maintenance change,
-  then opened assigned PR #12.
-- Evidence: initial PR head `91f7a16`; backend, frontend, and security CI started;
-  assignee `donkey-king-kong` verified.
-- Worktree state: this final pre-review tracking checkpoint is uncommitted.
-- Remaining work: commit and push this checkpoint, freeze the review head, wait
-  for CI, dispatch fresh review, and apply the merge gate.
+- Last completed action: froze PR #12 at `3ac1119` and confirmed backend,
+  frontend, and security CI passed for that head.
+- Evidence: GitHub head `3ac11192d266f45c7716b60d5c712126ee48ca1a`;
+  merge state `CLEAN`; assignee `donkey-king-kong`; three successful CI jobs.
+- Worktree state: PR worktree clean; this ship-log checkpoint is uncommitted.
+- Remaining work: commit and push this checkpoint, dispatch fresh review, record
+  its verdict, and apply the merge gate.
 - Blocker / unblock action: none.
-- Next action: commit this checkpoint, create its recorded ship-log worktree from
-  the final head, push both branches, and wait for CI.
+- Next action: commit and push this ship-log checkpoint, then launch a fresh
+  restricted Reviewer for PR #12 round 1 at `3ac1119`.
 - Handoff recipient: fresh Reviewer after PR creation.
 
 ## History
@@ -59,3 +59,4 @@ instructions.
 | 2026-11-13T05:30:22Z | R-0006/coordinator | Claimed approved maintenance scope; isolated changes from Feature 002 and created issue #11 | Check artifacts, commit, push, and open PR |
 | 2026-11-13T05:32:45Z | R-0006/coordinator | Completed full local verification with all checks green | Commit the checked maintenance artifacts |
 | 2026-11-13T05:34:43Z | R-0006/coordinator | Committed `91f7a16`, pushed, and opened assigned PR #12; CI started | Freeze the final review head and prepare recorded post-dispatch tracking worktree |
+| 2026-11-13T05:37:01Z | R-0006/coordinator | Froze final head `3ac1119`; backend, frontend, and security CI passed | Dispatch fresh Reviewer round 1 with restricted inputs |
