@@ -5,6 +5,7 @@
 - Last checkpoint: UTC timestamp
 - Coordinator actor: R-NNNN/coordinator
 - Branch / starting HEAD:
+- Worktree: ../tallyhold-<branch-slug>
 - Prior run: link or none
 - Successor run: link or none; append on takeover
 - Scope: ticket links

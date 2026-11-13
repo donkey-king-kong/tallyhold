@@ -10,6 +10,7 @@
 - Authorization: approval source and date; distinguish scope from execution approval
 - Dependencies: ticket links or none
 - Branch / worktree: name and repository-relative identifier
+- Worktree path: ../tallyhold-<branch-slug>
 - Issue / PR: reference or not created
 - Updated: UTC timestamp
 

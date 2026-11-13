@@ -20,6 +20,7 @@ completed handoff.
 
 ## Feature delivery
 
+0. **Worktree:** Create an isolated worktree: `git worktree add ../tallyhold-NNN-name -b feature/NNN-name` (or `chore/name` for maintenance). All subsequent steps in this feature run from that worktree directory. After the branch merges (Step 11), run `git worktree remove ../tallyhold-NNN-name` from the main worktree and delete the local branch.
 1. **Issue:** Zack describes a feature and constraints on GitHub.
 2. **Planner:** Draft `spec.md` from the issue with user stories, Given/When/Then criteria, out-of-scope items and open questions.
    On Zack's request, use [grill-me](../.claude/skills/grill-me/SKILL.md) to resolve Draft-spec questions before Gate 1; only Zack approves.
@@ -37,7 +38,7 @@ completed handoff.
 
 Suggested tool assignment: Claude Code CLI for Planner, Architect and Reviewer; Trae for Test writer and Implementer. This keeps the reviewing model different from the coding model. DevOps can use either tool, on the feature's branch during its exclusive turn.
 
-Git is the only sync between devices: pull before starting, push when stopping. Only one tool may work on a branch at a time; hand off by pushing and then pulling on the other device. Never run both tools on the same branch concurrently. Zack owns Gate 1, required plan approvals and merges of constitution-changing PRs.
+Git is the only sync between devices: pull before starting, push when stopping. Only one tool may work on a given branch at a time; multiple branches in separate worktrees may run concurrently. Hand off by pushing and then pulling on the other device. Never run both tools on the same branch concurrently. Zack owns Gate 1, required plan approvals and merges of constitution-changing PRs.
 
 ```mermaid
 flowchart LR

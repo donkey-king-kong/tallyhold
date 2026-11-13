@@ -1,6 +1,6 @@
 # Ship a feature
 
-Follow [workflow](../workflow.md), [constitution](../constitution.md) and [conventions](../conventions.md). Zack approves specs and required plans; [create-pr](create-pr.md) is one step in this end-to-end procedure. Work from the repo root. Replace `<N>`, `<R>` and `NNN-name` with actual values.
+Follow [workflow](../workflow.md), [constitution](../constitution.md) and [conventions](../conventions.md). Zack approves specs and required plans; [create-pr](create-pr.md) is one step in this end-to-end procedure. Work from the worktree root (the directory created by `git worktree add`). Replace `<N>`, `<R>` and `NNN-name` with actual values.
 
 Before every run, confirm `.agent-flow/session.json` exists; initialize only when missing. Remind Zack to connect **Agent Flow: Open Agent Flow -> Connect to Running Agent -> Watch JSONL File** to `.agent-flow/agent-flow-events.jsonl`. Publish these events from the coordinator, not the fresh Reviewer:
 
@@ -108,3 +108,12 @@ For **each** numbered step below, emit `tool-start` before its real operation an
    gh pr comment <N> --body "Automated merge blocked: <specific reason>. Zack review required."
    python3 .trae/agent-flow/adapter.py complete --agent orchestrator --summary "Escalated to Zack" --failed
    ```
+
+**Final: Clean up worktree.** From the main repo directory, run:
+
+```sh
+git worktree remove ../tallyhold-NNN-name
+git branch -d feature/NNN-name
+```
+
+Pull main into the main worktree: `git pull origin main`.
