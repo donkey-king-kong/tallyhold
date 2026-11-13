@@ -45,3 +45,71 @@ None.
   security runs passing.
 
 VERDICT: CHANGES_REQUESTED
+
+## Round 2
+
+### Must-fix
+
+None.
+
+### Should-fix
+
+1. Round 1 finding 2 remains unresolved in two changed work records.
+   `docs/work/runs/R-0011.md:35-42` still says the round-1 report and fixes are
+   local, uncommitted work whose next action is to commit and push them.
+   `docs/work/tickets/T-0004-draft-core-domain-spec.md:41-52` repeats that stale
+   worktree state, remaining work, and next action. Those files, the report,
+   and the fixes are already present in the reviewed PR diff, and the latest
+   `gh pr checks 18` results pass. Update both records to describe the current
+   round-2 review state and the actual next action.
+
+### Nit
+
+None.
+
+### Evidence
+
+- Round 1 finding 1 is resolved in `docs/spec.md:178-205`: partial sells now
+  consume average-cost basis, and unrealised P&L uses only the remaining basis
+  and quantity.
+- The roadmap portion of Round 1 finding 2 is resolved at
+  `docs/work/roadmap.md:12`; it now records Gate 1 approval and PR review.
+- The PR diff remains documentation-only and introduces no code, schema,
+  migration, layering, or runtime security surface.
+- `gh pr checks 18` reports both backend runs, both frontend runs, and both
+  security runs passing.
+
+VERDICT: CHANGES_REQUESTED
+
+## Round 3
+
+### Must-fix
+
+None.
+
+### Should-fix
+
+None.
+
+### Nit
+
+None.
+
+### Evidence
+
+- Round 2 finding 1 is resolved. `docs/work/runs/R-0011.md:35-44` now records
+  review rounds 1-2 as completed, identifies final-head CI and round 3 as
+  outstanding, and directs the coordinator to confirm CI before dispatching
+  this review. `docs/work/tickets/T-0004-draft-core-domain-spec.md:41-52`
+  records the same current branch state, remaining work, and next action.
+- Round 1 finding 1 remains resolved in `docs/spec.md:178-205`: partial sells
+  consume average-cost basis, and unrealised P&L uses the remaining basis and
+  quantity.
+- The PR diff remains documentation-only and introduces no code, schema,
+  migration, layering, or runtime security surface. The approved Feature 002
+  contract remains internally consistent with its acceptance criteria and
+  defers planning and implementation.
+- `gh pr checks 18` reports both backend runs, both frontend runs, and both
+  security runs passing.
+
+VERDICT: APPROVE
