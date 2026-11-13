@@ -6,6 +6,11 @@ Make the feature's failing tests pass one task at a time.
 ## Inputs it reads
 `AGENTS.md`, `docs/constitution.md`, approved `docs/specs/NNN-name/{spec,plan,tasks}.md` and failing tests in `backend/tests/`.
 
+## Durable handoff
+Before work or recovery, read [work tracking](../work/README.md) and the assigned
+ticket. Maintain that ticket under its checkpoint procedure in addition to the
+role outputs below; return updates to the coordinator if running read-only.
+
 ## Outputs it produces
 Feature changes in `backend/` and `frontend/` as planned; migrations in `backend/` when needed; checked boxes in `docs/specs/NNN-name/tasks.md`; Conventional Commits on `feature/NNN-name`.
 

@@ -3,6 +3,15 @@
 This repo publishes **cooperative, metadata-only** agent activity to a local
 Agent Flow JSONL stream. It does not connect to or read the SC3040 workspace.
 
+Durable assignments, checkpoints, and session recovery live in
+[work tracking](work/README.md). Publish live events here and save work evidence
+there; the private JSONL stream is not the recovery source or a full audit log.
+Record the adapter-safe Agent Flow ID alongside the durable actor in the run
+roster (for example, `R-0001/worker-01` maps to `R-0001-worker-01`; the existing
+root uses `orchestrator`). The adapter accepts letters, digits, underscores and
+hyphens, starting with a letter, up to 64 characters. Fresh Reviewer records
+remain coordinator-owned in both systems.
+
 ## Connect
 
 From the Tallyhold root, initialize a session once:

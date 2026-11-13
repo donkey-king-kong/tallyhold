@@ -10,6 +10,10 @@ Tallyhold gives long-term investors a consolidated portfolio view across broker 
 
 Read the [product spec](docs/spec.md), [workflow](docs/workflow.md) and [agent entry point](AGENTS.md).
 
+For current priorities, ticket ownership, and session recovery, start at
+[work tracking](docs/work/README.md). The repo-local records include the
+[roadmap](docs/work/roadmap.md) and agent run history; no external board is needed.
+
 ## Run locally
 
 Install Python 3.12, [uv](https://docs.astral.sh/uv/), Node 24.19.0, npm and Docker Compose. The pins are in `backend/.python-version` and `frontend/.nvmrc`. The frontend runs on your host; Compose runs the API and disposable PostgreSQL only.

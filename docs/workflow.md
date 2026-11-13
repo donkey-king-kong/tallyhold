@@ -2,6 +2,22 @@
 
 For each feature, use one GitHub issue, one `feature/NNN-name` branch, and one feature directory `docs/specs/NNN-name/`. [Constitution](constitution.md) and [product spec](spec.md) govern all steps; [roles](agents/) define handoffs.
 
+## Durable handoffs
+
+Before starting or resuming any step, follow [work tracking](work/README.md).
+The coordinator links each independently owned assignment from feature tasks to
+a local ticket and records actual agents in the run roster before handing off.
+Local records supplement the required issue; no external project board is used.
+Workers checkpoint results in their tickets; the coordinator handles read-only
+workers and fresh Reviewers without broadening their permitted inputs.
+
+Ship coordinators use the same recovery procedure before repeating PR operations,
+review dispatches, or merges. The ticket records the reviewed revision and
+remaining ship step, while [ship](skills/ship.md) remains the merge authority.
+An in-memory plan or chat summary alone is not a completed handoff.
+
+## Feature delivery
+
 1. **Issue:** Zack describes a feature and constraints on GitHub.
 2. **Planner:** Draft `spec.md` from the issue with user stories, Given/When/Then criteria, out-of-scope items and open questions.
    On Zack's request, use [grill-me](../.claude/skills/grill-me/SKILL.md) to resolve Draft-spec questions before Gate 1; only Zack approves.

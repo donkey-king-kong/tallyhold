@@ -4,6 +4,12 @@ Tallyhold ("All your brokers. One portfolio.") is a multi-user, read-only portfo
 
 ## Read first
 
+**Session recovery:** On every new session, context recovery, or task assignment,
+read [work tracking](docs/work/README.md) and the relevant ticket before acting.
+Record ownership before work, checkpoint results and failures as they occur, and
+leave an exact next action before handoff. Fresh Reviewers keep their restricted
+inputs; the coordinator records their tickets and runs externally.
+
 1. [Constitution](docs/constitution.md) for non-negotiable rules. Exception: a fresh Reviewer reads only [its permitted inputs](docs/agents/reviewer.md).
 2. [Product spec](docs/spec.md) for product and architecture decisions; it wins over summaries elsewhere.
 3. For a feature, read `docs/specs/NNN-name/spec.md`, then the approved `plan.md` and `tasks.md` when present.
@@ -17,6 +23,7 @@ Tallyhold ("All your brokers. One portfolio.") is a multi-user, read-only portfo
 - `frontend/`: Next.js client (introduced in feature 001).
 - `docs/spec.md`: product source of truth; `docs/architecture/`: diagram.
 - `docs/constitution.md`, `docs/conventions.md`, `docs/adr/`, `docs/agents/`, `docs/specs/`: rules, conventions, decisions, roles and feature specs.
+- `docs/work/`: durable roadmap, ticket ownership, session records and recovery procedure.
 - `.github/`: issue/PR templates; CI starts in feature 001.
 - `.trae/`, `CLAUDE.md`: tool-specific pointers to these shared rules.
 
