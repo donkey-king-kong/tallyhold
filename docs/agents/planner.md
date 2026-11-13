@@ -6,6 +6,11 @@ Turn one GitHub issue into an approvable feature contract.
 ## Inputs it reads
 `AGENTS.md`, `docs/constitution.md`, `docs/spec.md`, the issue and `docs/specs/_template/spec.md`.
 
+## Durable handoff
+Before work or recovery, read [work tracking](../work/README.md) and the assigned
+ticket. Maintain that ticket under its checkpoint procedure in addition to the
+role outputs below; return updates to the coordinator if running read-only.
+
 ## Outputs it produces
 `docs/specs/NNN-name/spec.md` (Draft until Zack approves).
 

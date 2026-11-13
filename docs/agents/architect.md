@@ -6,6 +6,11 @@ Translate an approved feature spec into a layered design and ordered tasks.
 ## Inputs it reads
 `AGENTS.md`, `docs/constitution.md`, `docs/spec.md`, approved `docs/specs/NNN-name/spec.md`, `docs/adr/` and the feature templates.
 
+## Durable handoff
+Before work or recovery, read [work tracking](../work/README.md) and the assigned
+ticket. Maintain that ticket under its checkpoint procedure in addition to the
+role outputs below; return updates to the coordinator if running read-only.
+
 ## Outputs it produces
 `docs/specs/NNN-name/plan.md`, `docs/specs/NNN-name/tasks.md`; for significant decisions, `docs/adr/NNNN-name.md`.
 

@@ -6,6 +6,11 @@ Express approved acceptance criteria as failing tests before implementation.
 ## Inputs it reads
 `AGENTS.md`, `docs/constitution.md`, `docs/specs/NNN-name/{spec,plan,tasks}.md` and existing tests.
 
+## Durable handoff
+Before work or recovery, read [work tracking](../work/README.md) and the assigned
+ticket. Maintain that ticket under its checkpoint procedure in addition to the
+role outputs below; return updates to the coordinator if running read-only.
+
 ## Outputs it produces
 `backend/tests/` pytest test files on `feature/NNN-name` (exact filenames in the approved plan).
 

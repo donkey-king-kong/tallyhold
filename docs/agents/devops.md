@@ -6,6 +6,11 @@ Maintain CI/CD, Docker and environment configuration under approved feature plan
 ## Inputs it reads
 `AGENTS.md`, `docs/constitution.md`, `docs/spec.md`, approved `docs/specs/NNN-name/{spec,plan,tasks}.md` and existing CI/Docker configuration.
 
+## Durable handoff
+Before work or recovery, read [work tracking](../work/README.md) and the assigned
+ticket. Maintain that ticket under its checkpoint procedure in addition to the
+role outputs below; return updates to the coordinator if running read-only.
+
 ## Outputs it produces
 `.github/workflows/ci.yml`, `docker-compose.yml`, `backend/Dockerfile` and deployment configuration as specified by the approved plan.
 
