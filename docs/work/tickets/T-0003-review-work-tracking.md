@@ -1,13 +1,13 @@
 # T-0003: Independent review of work tracking, round 1
 
-- Status: in_progress
-- Owner actor: R-0001/reviewer-02
+- Status: blocked
+- Owner actor: unassigned; R-0001/reviewer-02 exited without a verdict
 - Role: fresh Reviewer; record maintained externally by R-0001/coordinator
 - Run: [R-0001](../runs/R-0001.md)
 - Scope: PR #6, round 1, `docs/specs/chore-durable-work-tracking/`
 - Authorization: ship review under Zack's PR creation request
 - Dependency: [T-0002](T-0002-publish-work-tracking.md), green local checks and CI
-- Updated: 2026-11-13T02:41:16Z
+- Updated: 2026-11-13T02:45:40Z
 
 ## Acceptance
 
@@ -20,13 +20,14 @@ may be supplied. This ticket is never passed to the Reviewer.
 - Intended dispatch: fresh Claude Code process, requested model Opus; no resume.
 - Native operation ID: `2104695a05440257c7a0e7624bf8e2fa`; exited with code 1:
   API connection refused (`ECONNREFUSED`). No evidence the model completed work.
-- Retry operation ID: `31c8854f356ec833b2d4c63ba1873cb9`; fresh process launched
-  with Opus requested. Process outcome and verdict pending.
+- Retry operation ID: `31c8854f356ec833b2d4c63ba1873cb9`; fresh process with Opus
+  requested exited 1 with the same API `ECONNREFUSED`; no report or verdict.
 - Intended review base: `6a106a832ed7f57fcf6bf1ce339a53741a8d18f3`.
 - Intended review head: `137a2bd8b6aed21dc77e88c1a448a60cbef8b97e`.
 - Report / comment / verdict: none.
-- Next action: await `R-0001/reviewer-02`, then verify report/comment and current
-  head. This remains round 1 because the first dispatch produced no review.
+- Next action: diagnose/restore Claude CLI API connectivity or arrange a permitted
+  fresh independent review before another dispatch. Both attempts exited; do not
+  resume either failed process or infer a verdict. Round 1 is still incomplete.
 - Escalation: PR #6 labeled `needs-human`; [block comment](https://github.com/donkey-king-kong/tallyhold/pull/6#issuecomment-6842176163).
 - Latest post-dispatch record: this path on `chore/work-tracking-checkpoints`
   in sibling worktree `../tallyhold-work-tracking-checkpoints`.
@@ -41,3 +42,4 @@ may be supplied. This ticket is never passed to the Reviewer.
 | 2026-11-13T02:39:04Z | R-0001/coordinator | Process exited 1 with API `ECONNREFUSED`; no report/comment/verdict produced; ownership released | Block recorded on PR #6; new independent dispatch required after connectivity is available |
 | 2026-11-13T02:41:16Z | R-0001/coordinator | Zack requested retry; both worktrees synchronized; PR base/head unchanged and CI green | Second dispatch planned with fresh actor; retain previous failure |
 | 2026-11-13T02:41:16Z | R-0001/coordinator | Fresh retry process launched | Operation `31c8854f356ec833b2d4c63ba1873cb9`; await actual outcome |
+| 2026-11-13T02:45:40Z | R-0001/coordinator | Retry exited 1 with API `ECONNREFUSED`; no report/verdict; released actor | [Retry escalation](https://github.com/donkey-king-kong/tallyhold/pull/6#issuecomment-6842269247); restore connectivity before further retry |
