@@ -1,13 +1,13 @@
 # T-0003: Independent review of work tracking, round 1
 
-- Status: blocked
+- Status: cancelled
 - Owner actor: unassigned; R-0001/reviewer-02 exited without a verdict
 - Role: fresh Reviewer; record maintained externally by R-0001/coordinator
 - Run: [R-0001](../runs/R-0001.md)
 - Scope: PR #6, round 1, `docs/specs/chore-durable-work-tracking/`
 - Authorization: ship review under Zack's PR creation request
 - Dependency: [T-0002](T-0002-publish-work-tracking.md), green local checks and CI
-- Updated: 2026-11-13T02:45:40Z
+- Updated: 2026-11-13T02:48:51Z
 
 ## Acceptance
 
@@ -25,9 +25,9 @@ may be supplied. This ticket is never passed to the Reviewer.
 - Intended review base: `6a106a832ed7f57fcf6bf1ce339a53741a8d18f3`.
 - Intended review head: `137a2bd8b6aed21dc77e88c1a448a60cbef8b97e`.
 - Report / comment / verdict: none.
-- Next action: diagnose/restore Claude CLI API connectivity or arrange a permitted
-  fresh independent review before another dispatch. Both attempts exited; do not
-  resume either failed process or infer a verdict. Round 1 is still incomplete.
+- Next action: none for pre-merge review of PR #6; Zack has merged it. This
+  assignment is cancelled as superseded, not approved. Diagnose Claude API
+  connectivity before future ship work; any retrospective review is a new task.
 - Escalation: PR #6 labeled `needs-human`; [block comment](https://github.com/donkey-king-kong/tallyhold/pull/6#issuecomment-6842176163).
 - Latest post-dispatch record: this path on `chore/work-tracking-checkpoints`
   in sibling worktree `../tallyhold-work-tracking-checkpoints`.
@@ -43,3 +43,4 @@ may be supplied. This ticket is never passed to the Reviewer.
 | 2026-11-13T02:41:16Z | R-0001/coordinator | Zack requested retry; both worktrees synchronized; PR base/head unchanged and CI green | Second dispatch planned with fresh actor; retain previous failure |
 | 2026-11-13T02:41:16Z | R-0001/coordinator | Fresh retry process launched | Operation `31c8854f356ec833b2d4c63ba1873cb9`; await actual outcome |
 | 2026-11-13T02:45:40Z | R-0001/coordinator | Retry exited 1 with API `ECONNREFUSED`; no report/verdict; released actor | [Retry escalation](https://github.com/donkey-king-kong/tallyhold/pull/6#issuecomment-6842269247); restore connectivity before further retry |
+| 2026-11-13T02:48:51Z | R-0001/coordinator | Confirmed Zack's manual merge of PR #6; pre-merge assignment cancelled | Both failed dispatches preserved; no independent verdict produced |

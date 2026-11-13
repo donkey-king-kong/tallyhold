@@ -2,8 +2,8 @@
 
 ## Assignment
 
-- Status: blocked
-- Owner actor: unassigned; R-0001/coordinator handed off after retry failed
+- Status: cancelled
+- Owner actor: unassigned; automated ship superseded by Zack's manual merge
 - Role: ship coordinator
 - Run: [R-0001](../runs/R-0001.md), same session resumed for publication
 - Feature: [maintenance spec](../../specs/chore-durable-work-tracking/spec.md)
@@ -12,11 +12,14 @@
 - Branch: `chore/durable-work-tracking`
 - Issue: [#5](https://github.com/donkey-king-kong/tallyhold/issues/5)
 - PR: [#6](https://github.com/donkey-king-kong/tallyhold/pull/6)
-- Updated: 2026-11-13T02:45:40Z
+- Updated: 2026-11-13T02:48:51Z
 
 ## Scope and acceptance
 
 Publish the documentation change through the existing ship workflow.
+
+Delivery is complete by Zack's merge, but automated ship did not satisfy its
+review gate. This ticket is cancelled rather than falsely marked gate-complete.
 
 - [x] Local quality and documentation checks pass.
 - [x] Implementation commits pushed and assigned PR links issue/spec.
@@ -25,7 +28,9 @@ Publish the documentation change through the existing ship workflow.
 
 ## Checkpoint
 
-- Last action: requested retry also failed with `ECONNREFUSED`; PR remains open.
+- Last action: verified PR #6 merged by `donkey-king-kong` at
+  `2026-11-13T02:47:21Z`, merge commit `56c87e25f2fec735694d4cf1a6ad56e01e7cfce6`.
+  Issue #5 is closed and primary local `main` is updated.
 - Evidence: PR head `137a2bd8b6aed21dc77e88c1a448a60cbef8b97e` remains clean and
   pushed; CI backend/frontend/security all pass. Claude Code 2.1.322 was
   authenticated but its headless operation exited 1 with `ECONNREFUSED`.
@@ -36,10 +41,10 @@ Publish the documentation change through the existing ship workflow.
   No migrations changed; local Docker/migration round-trip not rerun.
 - Publication evidence: commits `811041d`, `215e3fe`, `5a43e64`, and `137a2bd` pushed;
   PR #6 is assigned to `donkey-king-kong`. Backend/frontend/security CI passed.
-- Next action: diagnose/restore Claude API connectivity or arrange a permitted
-  fresh review via [T-0003](T-0003-review-work-tracking.md); retain `needs-human`
-  until the independent review and remaining merge gates pass.
-- Blocker: no independent review report, identical comment, or verdict.
+- Next action: no further merge action on PR #6. Include checkpoint-only history
+  in a future maintenance PR; address reviewer connectivity before future ship.
+- Unmet gate: no independent review report, identical comment, or verdict.
+  Human merge is observed evidence, not proof that this gate passed.
 - Escalation: [PR block comment](https://github.com/donkey-king-kong/tallyhold/pull/6#issuecomment-6842176163).
 - Post-dispatch tracking: branch `chore/work-tracking-checkpoints`, sibling
   worktree `../tallyhold-work-tracking-checkpoints`, created from this PR branch.
@@ -57,3 +62,4 @@ Publish the documentation change through the existing ship workflow.
 | 2026-11-13T02:39:04Z | R-0001/coordinator | Fresh review failed at API connection; no verdict or report; merge blocked and ownership released | PR #6 is open with green CI and `needs-human`; restore independent review before merge |
 | 2026-11-13T02:41:16Z | R-0001/coordinator | Reclaimed publication task on Zack's retry request; scope and checks unchanged | Retry independent review without bypassing merge gate |
 | 2026-11-13T02:45:40Z | R-0001/coordinator | Fresh retry again failed at API connection; no merge attempted | [Retry comment](https://github.com/donkey-king-kong/tallyhold/pull/6#issuecomment-6842269247); connectivity or alternative permitted review needed |
+| 2026-11-13T02:48:51Z | R-0001/coordinator | Zack reported merge; GitHub confirms manual merge at `56c87e2`; automated ship cancelled as superseded | Delivery complete; issue #5 closed; local main updated |
