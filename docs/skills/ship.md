@@ -86,18 +86,16 @@ For **each** numbered step below, emit `tool-start` before its real operation an
    # Inspect the review, PR diff, labels and check results here.
    python3 .trae/agent-flow/adapter.py tool-end --agent orchestrator --category Shell --outcome succeeded
    ```
-7. **Automated merge:** Only after **every** condition in step 6 passes, publish and merge. Then check out and pull `main`:
+7. **Automated merge:** Only after **every** condition in step 6 passes, publish and merge. Do not switch to `main` from the linked worktree; `main` is checked out in the main worktree and is updated during final cleanup:
 
    ```sh
    python3 .trae/agent-flow/adapter.py status --agent orchestrator --state working --activity "Merging approved PR"
    python3 .trae/agent-flow/adapter.py tool-start --agent orchestrator --category Shell
    gh pr merge <N> --merge --delete-branch
-   git switch main
-   git pull --ff-only origin main
    merge_sha="$(gh pr view <N> --json mergeCommit --jq .mergeCommit.oid)"
-   gh pr comment <N> --body "Ship checkpoint: merged as \`$merge_sha\`; main updated and ship run complete."
+   gh pr comment <N> --body "Ship checkpoint: merged as \`$merge_sha\`; final worktree cleanup starting."
    python3 .trae/agent-flow/adapter.py tool-end --agent orchestrator --category Shell --outcome succeeded
-   python3 .trae/agent-flow/adapter.py complete --agent orchestrator --summary "PR merged and main updated"
+   python3 .trae/agent-flow/adapter.py complete --agent orchestrator --summary "PR merged; final worktree cleanup follows"
    ```
 
    If **any** condition fails, do not merge. Create the `needs-human` label with `gh label create needs-human --color D93F0B --description "Requires Zack review"` **only if missing**; then add it, comment the specific reason and report to Zack. This includes PRs modifying `docs/constitution.md`; Zack alone merges those after review. Publish the block and outcome:
@@ -109,11 +107,15 @@ For **each** numbered step below, emit `tool-start` before its real operation an
    python3 .trae/agent-flow/adapter.py complete --agent orchestrator --summary "Escalated to Zack" --failed
    ```
 
-**Final: Clean up worktree.** From the main repo directory, run:
+**Final: Clean up worktree.** Let `<worktree-path>` be the sibling worktree
+path and `<branch>` its full branch name. From the main repo directory, run:
 
 ```sh
-git worktree remove ../tallyhold-NNN-name
-git branch -d feature/NNN-name
+git pull --ff-only origin main
+git worktree remove <worktree-path>
+git branch -d <branch>
 ```
 
-Pull main into the main worktree: `git pull origin main`.
+For example, Feature 002 uses `../tallyhold-feature-002` and
+`feature/002-core-domain`; this chore uses
+`../tallyhold-chore-parallel-worktrees` and `chore/parallel-worktrees`.

@@ -20,7 +20,7 @@ completed handoff.
 
 ## Feature delivery
 
-0. **Worktree:** Create an isolated worktree: `git worktree add ../tallyhold-NNN-name -b feature/NNN-name` (or `chore/name` for maintenance). All subsequent steps in this feature run from that worktree directory. After the branch merges (Step 11), run `git worktree remove ../tallyhold-NNN-name` from the main worktree and delete the local branch.
+0. **Worktree:** Create an isolated sibling worktree using the branch slug: `git worktree add ../tallyhold-<branch-slug> -b <branch>`. For example, use `../tallyhold-feature-002` with `feature/002-core-domain`, or `../tallyhold-chore-name` with `chore/name`. All subsequent steps run from that worktree. After the branch merges at Step 10, pull `main`, remove the feature or maintenance worktree by its actual path, and delete its full local branch name from the main worktree.
 1. **Issue:** Zack describes a feature and constraints on GitHub.
 2. **Planner:** Draft `spec.md` from the issue with user stories, Given/When/Then criteria, out-of-scope items and open questions.
    On Zack's request, use [grill-me](../.claude/skills/grill-me/SKILL.md) to resolve Draft-spec questions before Gate 1; only Zack approves.
