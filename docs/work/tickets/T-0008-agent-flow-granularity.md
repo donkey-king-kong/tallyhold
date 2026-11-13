@@ -14,8 +14,10 @@
   [#11](https://github.com/donkey-king-kong/tallyhold/issues/11)
 - Branch / worktree: `chore/agent-flow-granularity` /
   `/Users/bytedance/Desktop/tallyhold-agent-flow-granularity`
-- Issue / PR: issue #11; PR not created
-- Updated: 2026-11-13T05:32:45Z
+- Post-dispatch tracking: `chore/agent-flow-granularity-ship-log` /
+  `/Users/bytedance/Desktop/tallyhold-agent-flow-granularity-ship-log`
+- Issue / PR: issue #11; PR #12
+- Updated: 2026-11-13T05:34:43Z
 
 ## Scope
 
@@ -31,23 +33,23 @@ instructions.
   pairs and document failure and interruption closure.
 - [x] Existing milestone statuses remain and Reviewer is unchanged.
 - [x] Local role balance, link, whitespace, and adapter checks pass.
-- [ ] The maintenance branch is committed and pushed with an assigned PR.
+- [x] The maintenance branch is committed and pushed with assigned PR #12.
 - [ ] A fresh Reviewer approves the final reviewed head with no actionable
   findings.
 - [ ] Every merge gate passes and the PR is merged into `main`.
 
 ## Checkpoint
 
-- Last completed action: completed all local documentation, application, build,
-  security, and dependency checks.
-- Evidence: 34 balanced role pairs; six adapter tests; backend ruff, format,
-  mypy, import contracts and pytest at 100% coverage; frontend lint, format,
-  types, three tests and build; actionlint, gitleaks, both dependency audits,
-  71 Markdown files and whitespace all passed. Reviewer diff is empty.
-- Worktree state: uncommitted role, maintenance-spec, and tracking files.
-- Remaining work: commit, push, open PR, review, and merge.
+- Last completed action: committed and pushed the checked maintenance change,
+  then opened assigned PR #12.
+- Evidence: initial PR head `91f7a16`; backend, frontend, and security CI started;
+  assignee `donkey-king-kong` verified.
+- Worktree state: this final pre-review tracking checkpoint is uncommitted.
+- Remaining work: commit and push this checkpoint, freeze the review head, wait
+  for CI, dispatch fresh review, and apply the merge gate.
 - Blocker / unblock action: none.
-- Next action: commit and push the checked maintenance artifacts.
+- Next action: commit this checkpoint, create its recorded ship-log worktree from
+  the final head, push both branches, and wait for CI.
 - Handoff recipient: fresh Reviewer after PR creation.
 
 ## History
@@ -56,3 +58,4 @@ instructions.
 | --- | --- | --- | --- |
 | 2026-11-13T05:30:22Z | R-0006/coordinator | Claimed approved maintenance scope; isolated changes from Feature 002 and created issue #11 | Check artifacts, commit, push, and open PR |
 | 2026-11-13T05:32:45Z | R-0006/coordinator | Completed full local verification with all checks green | Commit the checked maintenance artifacts |
+| 2026-11-13T05:34:43Z | R-0006/coordinator | Committed `91f7a16`, pushed, and opened assigned PR #12; CI started | Freeze the final review head and prepare recorded post-dispatch tracking worktree |
