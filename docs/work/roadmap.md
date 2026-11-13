@@ -8,6 +8,7 @@ Ticket status and next actions live in the linked tickets, not this table.
 | --- | --- | --- |
 | Phase 0: foundations | Scaffold delivered | [Feature 001](../specs/001-project-scaffold/spec.md), [tasks](../specs/001-project-scaffold/tasks.md), [review](../specs/001-project-scaffold/review.md); PR #4 merged at `6a106a832ed7f57fcf6bf1ce339a53741a8d18f3` |
 | Current maintenance | Track through ticket | [T-0001: durable work tracking](tickets/T-0001-durable-work-tracking.md) |
+| Current maintenance | In progress | [T-0008: granular Agent Flow role telemetry](tickets/T-0008-agent-flow-granularity.md) |
 | Next: phase 1, core domain | Not started | Select a bounded feature, create issue and Draft spec, obtain Gate 1 and required plan approval |
 | Phase 2: auth and accounts | Future | Depends on core domain foundations; no implementation approval recorded |
 | Phase 3: transactions and import | Future | Depends on core domain and authenticated accounts |
