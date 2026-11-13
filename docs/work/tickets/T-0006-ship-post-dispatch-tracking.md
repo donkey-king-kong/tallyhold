@@ -2,7 +2,7 @@
 
 ## Assignment
 
-- Status: in_progress
+- Status: done
 - Owner actor: R-0004/coordinator
 - Role: ship coordinator
 - Run: [R-0004](../runs/R-0004.md)
@@ -12,7 +12,7 @@
 - Branch / worktree: `chore/checkpoint-closeout-ship-log`,
   sibling worktree `../tallyhold-checkpoint-closeout-ship-log`
 - Issue / PR: issue #5; [PR #9](https://github.com/donkey-king-kong/tallyhold/pull/9)
-- Updated: 2026-11-13T05:05:16Z
+- Updated: 2026-11-13T05:06:45Z
 
 ## Scope
 
@@ -28,8 +28,8 @@ feature 002 changes.
 - [x] Local checks and CI pass on an assigned PR linked to issue #5 and the
   approved maintenance spec.
 - [x] A fresh review report and identical comment approve the current diff.
-- [ ] Every ship gate passes and the follow-up PR merges.
-- [ ] Clean sibling `main` is updated without disturbing feature 002.
+- [x] Every ship gate passes and the follow-up PR merges.
+- [x] Clean sibling `main` is updated without disturbing feature 002.
 
 ## Checkpoint
 
@@ -62,10 +62,15 @@ feature 002 changes.
   checks all passed.
 - Merge intent: merge PR #9 now, then update the clean sibling `main` worktree
   without touching feature 002.
-- Remaining work: execute and verify the merge.
+- Merge result: PR #9 merged at `2026-11-13T05:06:18Z` as
+  `f63252a8788eca88bb13c76235b11598d28e8e95`. The merge command's local
+  checkout step reported that `main` was already assigned to its clean sibling;
+  remote state confirmed the merge, and that sibling then fast-forwarded.
+- Remaining work: none for this ticket.
 - Blocker / unblock action: none.
-- Next action: merge PR #9 and verify remote PR/main state.
-- Handoff recipient: R-0004/coordinator.
+- Next action: resume feature 002 only after Zack answers its remaining grill
+  questions.
+- Handoff recipient: waiting for Zack.
 
 ## History
 
@@ -80,3 +85,4 @@ feature 002 changes.
 | 2026-11-13T05:01:49Z | R-0004/coordinator | Launched fresh isolated Trae fallback Reviewer for PR #9 round 1 | Native ID `arun_6af699b20405b3a179ddd926`; await result |
 | 2026-11-13T05:02:43Z | R-0004/coordinator | Fallback Reviewer approved with no findings; report and PR comment match exactly | Commit report-only change, then verify merge gate |
 | 2026-11-13T05:05:16Z | R-0004/coordinator | All ship gates passed for report-only head `c44c9c4`; recorded merge intent | Merge PR #9 and verify remote state |
+| 2026-11-13T05:06:45Z | R-0004/coordinator | Verified PR #9 merged as `f63252a`; clean sibling `main` updated and feature 002 untouched | Complete T-0006; await Zack on feature 002 grill |
