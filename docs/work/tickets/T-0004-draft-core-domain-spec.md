@@ -2,9 +2,9 @@
 
 ## Assignment
 
-- Status: done
+- Status: in_review
 - Owner actor: R-0011/coordinator
-- Role: Planner
+- Role: ship coordinator
 - Run: [R-0011](../runs/R-0011.md)
 - Feature: [002 Draft spec](../../specs/002-core-domain/spec.md)
 - Authorization: Zack approved Gate 1 and supplied binding conflict and open-
@@ -12,8 +12,8 @@
 - Dependencies: issue [#7](https://github.com/donkey-king-kong/tallyhold/issues/7)
 - Branch / worktree: `feature/002-core-domain`
 - Worktree path: `../tallyhold-feature-002`
-- Issue / PR: issue #7; no PR requested
-- Updated: 2026-11-13T08:20:18Z
+- Issue / PR: issue #7; PR #18
+- Updated: 2026-11-13T08:26:28Z
 
 ## Scope
 
@@ -38,19 +38,19 @@ APIs, external imports, and frontend work.
 
 ## Checkpoint
 
-- Last completed action: validated the approved average-cost contract, product
-  spec reconciliation, tracking links, calculations, and whitespace.
+- Last completed action: committed and pushed the approved contract, opened PR
+  #18, and confirmed all six GitHub Actions checks passed.
 - Evidence: `docs/specs/002-core-domain/spec.md` is Approved and records all
   eight Gate 1 decisions; `docs/spec.md` reflects the same product decisions.
-- Worktree state: uncommitted approval, feature-spec, product-spec, and tracking
-  updates.
-- Remaining work: commit and push the approval update, then Architect creates
-  `plan.md` and `tasks.md`.
-- Blocker / unblock action: implementation remains blocked until Zack approves
-  the architecture plan because this feature changes architecture.
-- Next action: commit and push the validated approval checkpoint when
-  authorized, then assign the Feature 002 Architect.
-- Handoff recipient: Feature 002 Architect after validation and commit.
+- Worktree state: approval commit `15f0da0` pushed; this final pre-review
+  checkpoint is the only pending change.
+- Remaining work: commit and push this checkpoint, freeze tracking files, run a
+  fresh review, and apply the merge gate.
+- Blocker / unblock action: none for this documentation PR; implementation
+  remains blocked until Zack approves the later architecture plan.
+- Next action: commit and push this final checkpoint, verify CI on the resulting
+  head, then dispatch fresh Reviewer round 1.
+- Handoff recipient: fresh Reviewer round 1 with restricted inputs.
 
 ## History
 
@@ -68,3 +68,4 @@ APIs, external imports, and frontend work.
 | 2026-11-13T07:21:13Z | R-0002/coordinator | Verified clean remote parity at `9025295`, completed the Planner lifecycle, and accepted the Gate 1 handoff | Await Zack; no architecture or implementation |
 | 2026-11-13T08:20:18Z | R-0011/coordinator | Recorded Zack's Gate 1 approval and revised the feature and product contracts to average cost behind `CostBasisStrategy` | Validate the approved contract, then hand off to Architect |
 | 2026-11-13T08:20:18Z | R-0011/coordinator | Validation passed after correcting two overly broad or duplicate tracking assertions | Commit and push when authorized, then assign Architect |
+| 2026-11-13T08:26:28Z | R-0011/coordinator | Pushed `15f0da0`, opened PR #18, verified assignment, and observed six passing CI checks | Commit this checkpoint, freeze tracking, verify final-head CI, and dispatch fresh review |
