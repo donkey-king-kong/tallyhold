@@ -12,7 +12,7 @@
 - Branch / worktree: `chore/checkpoint-closeout-ship-log`,
   sibling worktree `../tallyhold-checkpoint-closeout-ship-log`
 - Issue / PR: issue #5; [PR #9](https://github.com/donkey-king-kong/tallyhold/pull/9)
-- Updated: 2026-11-13T04:57:28Z
+- Updated: 2026-11-13T05:00:41Z
 
 ## Scope
 
@@ -48,12 +48,13 @@ feature 002 changes.
   This ticket there is authoritative after review dispatch.
 - Review dispatch: fresh Claude Reviewer launched at `2026-11-13T04:57:28Z`
   as background command `0d82bb8ac62f72038f480ee45d485b8e`;
-  observed PID `44424`.
-- Remaining work: await fresh review, verify and commit its report, then verify
-  gates and merge.
+  observed PID `44424`. It exited `1` at `2026-11-13T05:00:41Z` with API
+  `ECONNREFUSED` before producing a PR #9 report, comment, or verdict.
+- Remaining work: launch fresh isolated Trae fallback review, verify and commit
+  its report, then verify gates and merge.
 - Blocker / unblock action: none.
-- Next action: await command `0d82bb8ac62f72038f480ee45d485b8e`,
-  then verify its report, identical PR comment, and final verdict.
+- Next action: commit/push this failure checkpoint, then launch a fresh isolated
+  Trae fallback Reviewer for PR #9 round 1.
 - Handoff recipient: R-0004/coordinator.
 
 ## History
@@ -65,3 +66,4 @@ feature 002 changes.
 | 2026-11-13T04:53:56Z | R-0004/coordinator | Opened assigned PR #9; backend, frontend, and security CI passed on `96bbb21` | Commit PR/CI checkpoint, then freeze final review head |
 | 2026-11-13T04:56:32Z | R-0004/coordinator | Final head `850f73e` passed all CI; published separate authoritative ship-log worktree | Commit snapshot there, keep PR branch frozen, then dispatch review |
 | 2026-11-13T04:57:28Z | R-0004/coordinator | Launched actual fresh Claude Reviewer round 1 from frozen PR worktree | Command `0d82bb8ac62f72038f480ee45d485b8e`, PID `44424`; await result |
+| 2026-11-13T05:00:41Z | R-0004/coordinator | Claude Reviewer exited before review with API `ECONNREFUSED`; no PR #9 report, comment, or verdict exists | Commit failure, then launch fresh Trae fallback |
