@@ -14,8 +14,8 @@
   [#7](https://github.com/donkey-king-kong/tallyhold/issues/7)
 - Branch / worktree: `feature/003-schema-repositories`
 - Worktree path: `../tallyhold-feature-003`
-- Issue / PR: issue #17; PR not yet opened
-- Updated: 2026-11-13T08:45:33Z
+- Issue / PR: issue #17; PR #19
+- Updated: 2026-11-13T08:47:57Z
 
 ## Scope
 
@@ -39,19 +39,19 @@ and push, then stop at Gate 1 without architecture or implementation.
 
 ## Checkpoint
 
-- Last completed action: merged Feature 002 into this branch and reconciled the
-  approved Feature 003 contract with the now-authoritative dependency.
+- Last completed action: opened PR #19, verified assignment, and confirmed all
+  six initial GitHub Actions checks passed.
 - Evidence: `docs/specs/003-schema-repositories/spec.md` is Approved and retains
   repository-level user scoping while listing RLS as out of scope.
-- Worktree state: approval commit `de3405e` and dependency merge `1d4caaa` are
-  pushed; dependency reconciliation and current tracking are local.
-- Remaining work: validate and commit this checkpoint, open the documentation
-  PR, complete ship review, and apply the merge gate.
+- Worktree state: the branch contains the approved contract, merged Feature 002
+  dependency, and recorded repository-interface blocker; no production code is
+  changed.
+- Remaining work: final-head CI, fresh review, merge gate, and cleanup.
 - Blocker / unblock action: Feature 003 architecture remains blocked because
   merged Feature 002 explicitly defines no repository interfaces; an approved
   domain follow-up must supply them.
-- Next action: validate, commit, and push this dependency checkpoint, then open
-  the Feature 003 documentation PR.
+- Next action: follow the frozen ship sequence: green checkpoint CI, fresh
+  review, then merge-gate evaluation.
 - Handoff recipient: fresh Reviewer after PR creation and green CI.
 
 ## History
@@ -67,3 +67,4 @@ and push, then stop at Gate 1 without architecture or implementation.
 | 2026-11-13T08:20:19Z | R-0012/coordinator | Recorded Zack's Gate 1 approval and RLS deferral | Validate and commit; wait for Feature 002 merge before architecture |
 | 2026-11-13T08:20:19Z | R-0012/coordinator | Validation passed for approved status, RLS scope, dependency boundary, tracking links, and whitespace | Commit and push when authorized; do not start architecture before Feature 002 merges |
 | 2026-11-13T08:45:33Z | R-0012/coordinator | Feature 002 merged through PR #18; its approved contract has no repository interfaces, activating Feature 003 AC1's blocker | Record blocker, ship approved contract, and do not start architecture |
+| 2026-11-13T08:47:57Z | R-0012/coordinator | Opened PR #19, verified assignment, and observed six passing initial checks | Freeze this checkpoint, confirm final-head CI, then dispatch fresh review |
