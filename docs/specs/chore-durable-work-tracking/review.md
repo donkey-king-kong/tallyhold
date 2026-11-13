@@ -1,4 +1,4 @@
-# Review
+# Review: PR #10
 
 ## Round 1
 
@@ -8,35 +8,53 @@ None.
 
 ### Should-fix
 
-None.
+1. Mark the durable work tracking publication task complete.
+   `docs/specs/chore-durable-work-tracking/tasks.md:6` still leaves T-0002
+   unchecked, even though this diff changes
+   `docs/work/tickets/T-0006-ship-post-dispatch-tracking.md:2` to `done` and
+   records that PR #9 passed every ship gate and merged. The feature task list
+   and the durable completion records therefore disagree about whether the
+   approved publication work is finished.
 
-### Nits
+### Nit
 
 None.
 
 ### Evidence
 
-- The PR is limited to durable work-tracking documentation and does not change
-  application code, schema, CI, the constitution, or merge gates, matching the
-  approved scope and out-of-scope boundaries
-  (`docs/work/README.md:15`, `docs/work/runs/R-0003.md:1-53`,
-  `docs/work/runs/R-0004.md:1-39`,
-  `docs/work/tickets/T-0005-ship-tracking-closeout.md:1-91`,
-  `docs/work/tickets/T-0006-ship-post-dispatch-tracking.md:1-59`).
-- The updated R-0003 record distinguishes the failed Claude launch from the
-  completed isolated fallback review, identifies both actors, records observed
-  evidence, closes the run, and links its successor
-  (`docs/work/runs/R-0003.md:3-24`, `docs/work/runs/R-0003.md:31-53`).
-- T-0005 preserves an append-only event history while recording the review
-  snapshot, failure, fallback, approval, merge gate, verified merge, and exact
-  successor action (`docs/work/tickets/T-0005-ship-tracking-closeout.md:28-79`,
-  `docs/work/tickets/T-0005-ship-tracking-closeout.md:82-91`).
-- R-0004 and T-0006 provide explicit ownership, authorization, dependencies,
-  scope, evidence, current state, recovery caveat, and exact next action for the
-  follow-up publication (`docs/work/runs/R-0004.md:3-39`,
-  `docs/work/tickets/T-0006-ship-post-dispatch-tracking.md:3-59`).
-- No application behavior, architectural layer, test, or database schema is
-  changed, so no migration or new behavior test is required. GitHub reports the
-  `backend`, `frontend`, and `security` checks passing for PR #9.
+- The terminal exception in `docs/work/README.md:125` requires every normal
+  review and merge gate and explicitly forbids direct commits to `main` or gate
+  bypasses.
+- The diff changes documentation and tracking records only; no application
+  layering, database migration, or runtime security surface is affected.
+- `gh pr checks 10` reports `backend`, `frontend`, and `security` passing.
+
+VERDICT: CHANGES_REQUESTED
+
+## Round 2
+
+### Must-fix
+
+None.
+
+### Should-fix
+
+None.
+
+### Nit
+
+None.
+
+### Evidence
+
+- The round 1 finding is resolved:
+  `docs/specs/chore-durable-work-tracking/tasks.md:6` now marks T-0002
+  complete, consistent with the completed PR #9 records in this diff.
+- The terminal-history exception in `docs/work/README.md:125-135` still
+  requires every normal review and merge gate, forbids direct commits to
+  `main`, and limits the exception to avoiding another audit-only branch.
+- The diff remains documentation-only; it introduces no application layering,
+  database migration, test, or runtime security change.
+- `gh pr checks 10` reports `backend`, `frontend`, and `security` passing.
 
 VERDICT: APPROVE
