@@ -3,9 +3,10 @@
 This repo publishes **cooperative, metadata-only** agent activity to a local
 Agent Flow JSONL stream. It does not connect to or read the SC3040 workspace.
 
-Durable assignments, checkpoints, and session recovery live in
-[work tracking](work/README.md). Publish live events here and save work evidence
-there; the private JSONL stream is not the recovery source or a full audit log.
+Durable assignments and pre-review checkpoints live in
+[work tracking](work/README.md); post-dispatch ship checkpoints live in PR
+comments. Publish live events here; the private JSONL stream is not the recovery
+source or a full audit log.
 Record the adapter-safe Agent Flow ID alongside the durable actor in the run
 roster (for example, `R-0001/worker-01` maps to `R-0001-worker-01`; the existing
 root uses `orchestrator`). The adapter accepts letters, digits, underscores and
@@ -71,6 +72,13 @@ a distinct short ID. A child may report its own events; a parent may report
 start and finish after receiving confirmation. A fresh Reviewer must **not**
 receive this document, events, or the implementer's conversation as inputs;
 the coordinator may report Reviewer lifecycle events externally.
+
+Before dispatch, the coordinator labels the Reviewer `Reviewer active; CI
+already green`. The isolated Reviewer emits no internal events while reading,
+running permitted checks and writing its report, so its node may remain
+`Running` without new JSONL lines. This is review work, not hidden coordinator
+CI. Publish only verified dispatch and verdict transitions; never invent
+intermediate review progress.
 
 The hexagon is an **agent node** created by `agent_spawn`; it needs neither a
 child nor a tool call. `tool_call_start` increments its tool count, with
