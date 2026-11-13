@@ -14,7 +14,7 @@
 - Branch / worktree: `feature/002-core-domain`
 - Worktree path: `../tallyhold-feature-002`
 - Issue / PR: issue #7; PR not created
-- Updated: 2026-11-13T09:15:55Z
+- Updated: 2026-11-13T09:21:32Z
 
 ## Scope
 
@@ -35,15 +35,19 @@ frontend work.
 
 ## Checkpoint
 
-- Last completed action: committed the validated architecture plan and tasks as
-  `bc1e167` and assigned the RED contract to the Test writer.
-- Evidence: clean worktree after `bc1e167`; Test writer assignment recorded.
-- Worktree state: clean at `bc1e167`.
-- Remaining work: RED tests, implementation, checks, and ship.
+- Last completed action: added the complete Feature 002 RED contract at the
+  approved public seams and verified collection and missing-behavior failures.
+- Evidence: `uv run pytest --collect-only -q tests/domain` collected 56 tests;
+  `uv run pytest -q --tb=no tests/domain` reported 53 expected missing-behavior
+  failures and 3 purity-baseline passes; Ruff lint and format checks pass.
+- Worktree state: RED tests, completed task checkbox, and this checkpoint are
+  uncommitted on `feature/002-core-domain`.
+- Remaining work: commit RED, then implementation, full checks, and ship.
 - Blocker / unblock action: none. The requested `R-0010` was already allocated
   to unrelated active work, so the next unused run `R-0013` is used.
-- Next action: add collecting tests for every AC and verify expected RED.
-- Handoff recipient: Implementer after the committed RED handoff.
+- Next action: commit `test: add failing core domain contract`, then the
+  coordinator records the Test writer completion and assigns the Implementer.
+- Handoff recipient: coordinator for Implementer assignment after RED commit.
 
 ## History
 
@@ -52,3 +56,8 @@ frontend work.
 | 2026-11-13T09:13:44Z | R-0013/coordinator | Claimed the approved implementation scope as Architect in a new worktree | Write the plan and tasks; no plan gate is required |
 | 2026-11-13T09:15:10Z | R-0013/coordinator | Completed and validated the architecture plan and ordered tasks | Commit the architecture handoff, then begin RED |
 | 2026-11-13T09:15:55Z | R-0013/coordinator | Committed architecture as `bc1e167` and assigned the clean branch to the Test writer | Add and commit the complete RED contract |
+| 2026-11-13T09:17:21Z | R-0013/test-writer-01 | Recovered the approved RED contract and confirmed a clean missing-behavior baseline at `f6decee` | Add the seven planned public-seam test modules |
+| 2026-11-13T09:19:17Z | R-0013/test-writer-01 | First collection command stopped before pytest because its Agent Flow adapter path was resolved from `backend/` | Retry collection with the adapter's absolute worktree path |
+| 2026-11-13T09:19:31Z | R-0013/test-writer-01 | Retry again stopped before pytest because the preceding telemetry close still used the relative adapter path | Use absolute adapter paths for the complete wrapper and run collection |
+| 2026-11-13T09:21:32Z | R-0013/test-writer-01 | Corrected three Ruff-only line-wrap findings; one later validation wrapper also stopped before checks from the same relative adapter-path error | Absolute-path reruns passed Ruff lint and format |
+| 2026-11-13T09:21:32Z | R-0013/test-writer-01 | Completed AC1-AC10 and five-repository RED coverage at planned seams | 56 collected; 53 missing-behavior failures, 3 purity passes; commit RED next |
