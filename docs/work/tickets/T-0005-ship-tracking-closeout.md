@@ -13,7 +13,7 @@
 - Branch / worktree: `chore/work-tracking-checkpoints`,
   sibling worktree `../tallyhold-work-tracking-checkpoints`
 - Issue / PR: issue #5; [PR #8](https://github.com/donkey-king-kong/tallyhold/pull/8)
-- Updated: 2026-11-13T03:55:21Z
+- Updated: 2026-11-13T03:57:56Z
 
 ## Scope
 
@@ -60,11 +60,16 @@ claiming an independent approval. Include this ship ticket and run for recovery.
 - Review result: fallback Reviewer approved with no findings; `review.md` and
   PR comment `https://github.com/donkey-king-kong/tallyhold/pull/8#issuecomment-6843342536`
   match byte-for-byte.
-- Remaining work: commit/push the permitted report-only change, then run merge
-  gates and merge.
+- Merge gate: report-only head `945a3085af9fd79341cc5780793672b9e0d42c0f`
+  passed backend, frontend, and security CI; report/comment equality, findings,
+  labels, assignee, reviewed delta, constitution exclusion, and mergeability
+  checks all passed.
+- Merge intent: merge PR #8 now, then update `main` in its clean sibling
+  worktree without touching feature 002.
+- Remaining work: execute and verify the merge, then ship the post-dispatch
+  tracking branch authorized by Zack.
 - Blocker / unblock action: none.
-- Next action: commit and push `review.md` on the PR branch, then recheck CI and
-  every merge condition.
+- Next action: merge PR #8 and verify remote PR/main state.
 - Handoff recipient: R-0003/coordinator.
 
 ## History
@@ -80,3 +85,4 @@ claiming an independent approval. Include this ship ticket and run for recovery.
 | 2026-11-13T03:53:41Z | R-0003/coordinator | Claude Reviewer exited before review with API `ECONNREFUSED`; no report, comment, or verdict exists | Launch the ship procedure's fresh Trae fallback Reviewer |
 | 2026-11-13T03:54:27Z | R-0003/coordinator | Launched fresh isolated Trae fallback Reviewer for PR #8 round 1 | Native ID `arun_6af689ed0405b3a179ddd804`; await actual result |
 | 2026-11-13T03:55:21Z | R-0003/coordinator | Fallback Reviewer approved with no findings; report and PR comment match exactly | Commit report-only change, then verify merge gate |
+| 2026-11-13T03:57:56Z | R-0003/coordinator | All ship merge gates passed for report-only head `945a308`; recorded merge intent | Merge PR #8 and verify remote state |
