@@ -43,7 +43,9 @@ inputs; the coordinator records their tickets and runs externally.
 3. **"create pr", "open pr", "ship" or "ship it": run [ship](docs/skills/ship.md) end to end**: [create-pr](docs/skills/create-pr.md) sub-step, checks, fresh Reviewer each round, fixes and merge gate (at most three rounds).
 4. **Gate 2:** The ship coordinator merges only if every gate passes; Zack merges constitution-changing PRs or resolves `needs-human`. CD deploys staging; production deploys on a tagged release.
 
-Git is the only sync between Trae and Claude Code devices: pull before starting, push when stopping. One feature = one branch = one tool at a time. Use `feature/NNN-name` for feature work; `chore/name` for foundation/maintenance. Every commit and PR follows [conventions](docs/conventions.md). Agents never push directly to `main`; merge only through ship.
+Git is the only sync between Trae and Claude Code devices: pull before starting, push when stopping. Use `git worktree add <path> -b <branch>` to work on each feature or maintenance task in an isolated directory; multiple worktrees may be active simultaneously on different branches. Never run two tools on the same branch at the same time. Agents never push directly to `main`; merge only through ship. After a branch is merged, clean up with `git worktree remove <path>` from the main worktree, then delete the local branch.
+
+**Worktree paths:** Use sibling directories named `../tallyhold-<branch-slug>`, for example `../tallyhold-feature-002`.
 
 ## Definition of done
 

@@ -24,6 +24,16 @@ python3 .trae/agent-flow/adapter.py init --session-id tallyhold-run1 --task "Tal
 If `.agent-flow/session.json` already exists, skip `init` and publish to the
 existing stream. The coordinator checks this before each ship run.
 
+Each worktree initializes its own session from the worktree root:
+
+```bash
+python3 .trae/agent-flow/adapter.py init --session-id "feature-NNN-name" --task "..."
+```
+
+The `.agent-flow/` directory is worktree-local and git-ignored, so JSONL files
+are isolated per feature. Point Agent Flow's JSONL watch to the active
+worktree's `.agent-flow/agent-flow-events.jsonl`.
+
 In Trae's Command Palette, run **Agent Flow: Open Agent Flow**, then select
 **Connect to Running Agent** and **Watch JSONL File**. In this repository,
 choose:

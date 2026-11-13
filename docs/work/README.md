@@ -15,6 +15,7 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 | [T-0006](tickets/T-0006-ship-post-dispatch-tracking.md) | Ship PR #8 post-dispatch tracking | [R-0004](runs/R-0004.md) |
 | [T-0007](tickets/T-0007-end-recursive-closeout.md) | End recursive closeout branches and ship terminal history | [R-0005](runs/R-0005.md) |
 | [T-0008](tickets/T-0008-agent-flow-granularity.md) | Ship granular Agent Flow role telemetry | [R-0006](runs/R-0006.md) |
+| [T-0010](tickets/T-0010-parallel-worktrees.md) | Enable parallel feature worktrees | [R-0010](runs/R-0010.md) |
 | [T-0009](tickets/T-0009-comment-based-ship-tracking.md) | Replace ship-log branches with PR comments | [R-0008](runs/R-0008.md) |
 
 Historical PR #6 post-dispatch records remain in T-0002's checkpoint
@@ -28,6 +29,10 @@ Completed tickets remain in this index; split an archive index when it grows.
 The [roadmap](roadmap.md) shows project priorities and feature links.
 
 ## Start or resume
+
+Multiple tickets and runs may be active simultaneously on different branches.
+Each branch has its own worktree and its own `.agent-flow/` session initialized
+from that worktree.
 
 1. Read the relevant ticket, latest linked run, and linked spec/plan/tasks.
    Confirm the requested scope and required approvals. Roadmap entries and

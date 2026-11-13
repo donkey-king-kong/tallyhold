@@ -1,6 +1,6 @@
 # Ship a feature
 
-Follow [workflow](../workflow.md), [constitution](../constitution.md) and [conventions](../conventions.md). Zack approves specs and required plans; [create-pr](create-pr.md) is one step in this end-to-end procedure. Work from the repo root. Replace `<N>`, `<R>` and `NNN-name` with actual values.
+Follow [workflow](../workflow.md), [constitution](../constitution.md) and [conventions](../conventions.md). Zack approves specs and required plans; [create-pr](create-pr.md) is one step in this end-to-end procedure. Work from the worktree root (the directory created by `git worktree add`). Replace `<N>`, `<R>` and `NNN-name` with actual values.
 
 Before every run, confirm `.agent-flow/session.json` exists; initialize only when missing. Remind Zack to connect **Agent Flow: Open Agent Flow -> Connect to Running Agent -> Watch JSONL File** to `.agent-flow/agent-flow-events.jsonl`. Publish these events from the coordinator, not the fresh Reviewer:
 
@@ -86,18 +86,16 @@ For **each** numbered step below, emit `tool-start` before its real operation an
    # Inspect the review, PR diff, labels and check results here.
    python3 .trae/agent-flow/adapter.py tool-end --agent orchestrator --category Shell --outcome succeeded
    ```
-7. **Automated merge:** Only after **every** condition in step 6 passes, publish and merge. Then check out and pull `main`:
+7. **Automated merge:** Only after **every** condition in step 6 passes, publish and merge. Do not switch to `main` from the linked worktree; `main` is checked out in the main worktree and is updated during final cleanup:
 
    ```sh
    python3 .trae/agent-flow/adapter.py status --agent orchestrator --state working --activity "Merging approved PR"
    python3 .trae/agent-flow/adapter.py tool-start --agent orchestrator --category Shell
-   gh pr merge <N> --merge --delete-branch
-   git switch main
-   git pull --ff-only origin main
+   gh pr merge <N> --merge
    merge_sha="$(gh pr view <N> --json mergeCommit --jq .mergeCommit.oid)"
-   gh pr comment <N> --body "Ship checkpoint: merged as \`$merge_sha\`; main updated and ship run complete."
+   gh pr comment <N> --body "Ship checkpoint: merged as \`$merge_sha\`; final worktree cleanup starting."
    python3 .trae/agent-flow/adapter.py tool-end --agent orchestrator --category Shell --outcome succeeded
-   python3 .trae/agent-flow/adapter.py complete --agent orchestrator --summary "PR merged and main updated"
+   python3 .trae/agent-flow/adapter.py complete --agent orchestrator --summary "PR merged; final worktree cleanup follows"
    ```
 
    If **any** condition fails, do not merge. Create the `needs-human` label with `gh label create needs-human --color D93F0B --description "Requires Zack review"` **only if missing**; then add it, comment the specific reason and report to Zack. This includes PRs modifying `docs/constitution.md`; Zack alone merges those after review. Publish the block and outcome:
@@ -108,3 +106,16 @@ For **each** numbered step below, emit `tool-start` before its real operation an
    gh pr comment <N> --body "Automated merge blocked: <specific reason>. Zack review required."
    python3 .trae/agent-flow/adapter.py complete --agent orchestrator --summary "Escalated to Zack" --failed
    ```
+
+**Final: Clean up worktree.** Let `<worktree-path>` be the sibling worktree
+path and `<branch>` its full branch name. From the main repo directory, run:
+
+```sh
+git pull --ff-only origin main
+git worktree remove <worktree-path>
+git branch -d <branch>
+```
+
+For example, Feature 002 uses `../tallyhold-feature-002` and
+`feature/002-core-domain`; this chore uses
+`../tallyhold-chore-parallel-worktrees` and `chore/parallel-worktrees`.
