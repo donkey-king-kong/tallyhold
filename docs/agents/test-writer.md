@@ -46,7 +46,10 @@ python3 .trae/agent-flow/adapter.py tool-start --agent test_writer --category Ed
 python3 .trae/agent-flow/adapter.py tool-end --agent test_writer --category Edit --outcome succeeded
 python3 .trae/agent-flow/adapter.py status --agent test_writer --state working --activity "Committing red tests"
 python3 .trae/agent-flow/adapter.py tool-start --agent test_writer --category Shell
-# Inspect and commit the RED test changes before handoff.
+# Inspect the RED test changes before handoff.
+python3 .trae/agent-flow/adapter.py tool-end --agent test_writer --category Shell --outcome succeeded
+python3 .trae/agent-flow/adapter.py tool-start --agent test_writer --category Shell
+# Commit the RED test changes before handoff.
 python3 .trae/agent-flow/adapter.py tool-end --agent test_writer --category Shell --outcome succeeded
 python3 .trae/agent-flow/adapter.py complete --agent test_writer --parent orchestrator --summary "Red tests handed off"
 python3 .trae/agent-flow/adapter.py status --agent test_writer --state blocked --activity "Test writing blocked"
