@@ -1,37 +1,42 @@
-# Review: PR #8
+# Review
 
 ## Round 1
 
-### Must-fix findings
+### Must-fix
 
 None.
 
-### Should-fix findings
+### Should-fix
 
 None.
 
-### Nit findings
+### Nits
 
 None.
 
 ### Evidence
 
-- `docs/work/runs/R-0001.md:18-21` identifies the coordinator and both fresh
-  Reviewer attempts separately, including native operation IDs and failed states.
-- `docs/work/runs/R-0001.md:32-39` preserves the append-only sequence of review
-  failures, escalation, and human merge without representing the merge as an
-  independent approval.
-- `docs/work/tickets/T-0002-publish-work-tracking.md:17-31` records the cancelled
-  automated ship, the unmet review gate, verification evidence, and exact next
-  action.
-- `docs/work/tickets/T-0003-review-work-tracking.md:18-31` records both failed
-  Reviewer operations, the intended review base/head, the absent verdict, and
-  the explicit cancellation outcome.
-- `docs/work/tickets/T-0005-ship-tracking-closeout.md:18-46` scopes this PR to
-  checkpoint-only history and records authorization, ownership, dependencies,
-  evidence, remaining work, and the next action.
-- The PR diff changes only work-tracking Markdown. It introduces no application
-  layering, database migration, or executable security surface.
-- `gh pr checks 8` reports passing `backend`, `frontend`, and `security` checks.
+- The PR is limited to durable work-tracking documentation and does not change
+  application code, schema, CI, the constitution, or merge gates, matching the
+  approved scope and out-of-scope boundaries
+  (`docs/work/README.md:15`, `docs/work/runs/R-0003.md:1-53`,
+  `docs/work/runs/R-0004.md:1-39`,
+  `docs/work/tickets/T-0005-ship-tracking-closeout.md:1-91`,
+  `docs/work/tickets/T-0006-ship-post-dispatch-tracking.md:1-59`).
+- The updated R-0003 record distinguishes the failed Claude launch from the
+  completed isolated fallback review, identifies both actors, records observed
+  evidence, closes the run, and links its successor
+  (`docs/work/runs/R-0003.md:3-24`, `docs/work/runs/R-0003.md:31-53`).
+- T-0005 preserves an append-only event history while recording the review
+  snapshot, failure, fallback, approval, merge gate, verified merge, and exact
+  successor action (`docs/work/tickets/T-0005-ship-tracking-closeout.md:28-79`,
+  `docs/work/tickets/T-0005-ship-tracking-closeout.md:82-91`).
+- R-0004 and T-0006 provide explicit ownership, authorization, dependencies,
+  scope, evidence, current state, recovery caveat, and exact next action for the
+  follow-up publication (`docs/work/runs/R-0004.md:3-39`,
+  `docs/work/tickets/T-0006-ship-post-dispatch-tracking.md:3-59`).
+- No application behavior, architectural layer, test, or database schema is
+  changed, so no migration or new behavior test is required. GitHub reports the
+  `backend`, `frontend`, and `security` checks passing for PR #9.
 
 VERDICT: APPROVE
