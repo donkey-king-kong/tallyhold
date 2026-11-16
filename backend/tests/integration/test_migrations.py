@@ -171,12 +171,13 @@ def test_catalog_enforces_tenant_currency_and_delete_relationships(
 ) -> None:
     with database_engine.connect() as connection:
         constraints = {
-            (row.table_name, row.constraint_type, row.definition)
+            (row.table_name, row.constraint_type, row.definition, row.delete_action)
             for row in connection.execute(
                 text(
                     "SELECT c.conrelid::regclass::text AS table_name, "
                     "c.contype AS constraint_type, "
-                    "pg_get_constraintdef(c.oid) AS definition "
+                    "pg_get_constraintdef(c.oid) AS definition, "
+                    "c.confdeltype AS delete_action "
                     "FROM pg_constraint c WHERE c.conrelid::regclass::text "
                     "IN "
                     "('users','brokers','broker_accounts','instruments','transactions')"
@@ -184,8 +185,8 @@ def test_catalog_enforces_tenant_currency_and_delete_relationships(
             )
         }
         assert all(
-            "ON DELETE NO ACTION" in definition
-            for _, kind, definition in constraints
+            delete_action == "a"
+            for _, kind, _, delete_action in constraints
             if kind == "f"
         )
         for table, key in (
@@ -196,7 +197,7 @@ def test_catalog_enforces_tenant_currency_and_delete_relationships(
         ):
             assert any(
                 t == table and kind == "u" and key in definition
-                for t, kind, definition in constraints
+                for t, kind, definition, _ in constraints
             )
         for table, columns, target in (
             ("broker_accounts", "(user_id)", "users"),
@@ -209,10 +210,9 @@ def test_catalog_enforces_tenant_currency_and_delete_relationships(
                 and kind == "f"
                 and columns in definition
                 and f"REFERENCES {target}" in definition
-                and "ON DELETE NO ACTION" in definition
-                for t, kind, definition in constraints
+                for t, kind, definition, _ in constraints
             )
-        checks = " ".join(d for _, kind, d in constraints if kind == "c").lower()
+        checks = " ".join(d for _, kind, d, _ in constraints if kind == "c").lower()
         for token in ("buy", "sell", "quantity", "unit_price_amount", "fee_amount"):
             assert token in checks
         indexes = {
