@@ -25,7 +25,7 @@ GREEN. All repository/migration evidence uses real PostgreSQL from Compose
 locally (equivalent PostgreSQL 17 service in CI), never SQLite or `create_all()`.
 Test each repository only for operations exposed by its Feature 002 port.
 
-- [ ] **PostgreSQL harness and migration RED:** Create unique disposable
+- [x] **PostgreSQL harness and migration RED:** Create unique disposable
   databases from an explicit test URL, apply Alembic before tests, roll back
   each test and drop databases even after failure. Assert fresh
   `base -> 0001_baseline -> 0002_core_persistence`, catalog table/column/type/
@@ -33,7 +33,7 @@ Test each repository only for operations exposed by its Feature 002 port.
   normalized catalog equivalence, and failing revision/direction diagnostics.
   Trace: plan "Persistence boundary", "Migrations and real PostgreSQL
   verification" items 1-2; AC1-AC3, AC6.
-- [ ] **Schema and constraint RED:** Exercise all five mapped tables, UUID
+- [x] **Schema and constraint RED:** Exercise all five mapped tables, UUID
   keys, mandatory/canonical currency, BUY/SELL and positive quantity/price/
   nonnegative fee checks, `NUMERIC(20,6)`/`NUMERIC(18,8)` exactness and
   overprecision rejection. Direct SQL must reject cross-user account links
@@ -43,7 +43,7 @@ Test each repository only for operations exposed by its Feature 002 port.
   use `ON DELETE NO ACTION`, referenced-account deletion fails, scoped
   indexes and composite candidate keys exist. Trace: plan "Relational design
   and Architecture Q2", verification items 1, 3, 6; AC2, AC4-AC6.
-- [ ] **Five-port adapter RED:** Test domain/row round trips and supported
+- [x] **Five-port adapter RED:** Test domain/row round trips and supported
   CRUD for `UserRepository`, `BrokerRepository`, `AccountRepository`,
   `InstrumentRepository`, `TransactionRepository`; shared reference access,
   case-insensitive `find_by_symbol`, owner mismatch, two-user read/write/
@@ -53,7 +53,7 @@ Test each repository only for operations exposed by its Feature 002 port.
   failures without leaking driver exceptions. Trace: plan "Persistence
   boundary", "Repository behavior and transaction ownership", verification
   item 3; AC1, AC4-AC7.
-- [ ] **Ordering, upsert and audit RED:** Insert same-day BUY then SELL with
+- [x] **Ordering, upsert and audit RED:** Insert same-day BUY then SELL with
   UUIDs in opposite order; assert `(trade_date, entry_seq)` listing supports
   Feature 002 average cost. Assert `entry_seq` is DB-generated, omitted from
   insert/upsert and unchanged by replace-save. For an account and transaction
@@ -63,7 +63,7 @@ Test each repository only for operations exposed by its Feature 002 port.
   tables and `updated_at` on accounts/transactions, advancing on update.
   Trace: plan "Relational design and Architecture Q2", "Repository behavior
   and transaction ownership", verification items 4-6; AC2, AC4-AC6.
-- [ ] **RED checkpoint:** Commit tests separately from production work only
+- [x] **RED checkpoint:** Commit tests separately from production work only
   after confirming their failures come from missing Feature 003 behavior,
   not collection or PostgreSQL setup; verify Feature 002 tests still pass.
   Trace: plan "Acceptance and test map"; AC1-AC7.
