@@ -6,5 +6,5 @@
   approval; retain local CI migration round-trip.
 - [x] Document the workflow and Supabase integration prerequisite in README.
 - [x] Verify the `production` environment approval rule and local checks.
-- [ ] Verify PR CI on the pushed branch.
+- [x] Verify PR CI on the pushed branch.
 - [ ] Ship the PR with independent review and merge gates.
