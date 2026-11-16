@@ -111,7 +111,7 @@ per task. The Implementer does not change tests merely to make them pass.
   composite FK reject cross-user accounts and mismatched instrument currency.
   Trace: plan "Relational design and Architecture Q2", "Repository behavior
   and transaction ownership", verification items 3-6; AC2, AC4-AC5.
-- [ ] **CI/docs and final verification:** Document Compose setup and safe
+- [x] **CI/docs and final verification:** Document Compose setup and safe
   disposable DB URLs in `README.md`; include integration tests in CI alongside
   the existing fresh-Postgres upgrade/downgrade check without database
   interference. Run all six numbered plan verification items, five-port tests,

@@ -34,7 +34,7 @@ npm run dev
 
 Open http://localhost:3000 to see the API status. The frontend uses `http://localhost:8000` by default; override `NEXT_PUBLIC_API_URL` before starting Next.js if the API runs elsewhere. The API allows the local frontend origin `http://localhost:3000` by default (`FRONTEND_ORIGIN` overrides it). To stop the containers, use `docker compose down`.
 
-The local database is exposed on `127.0.0.1:55432`, not `5432`, to avoid common local Postgres conflicts. It uses trust authentication **only for disposable local development** and is not suitable for production or real user data. No application tables exist in feature 001. On a network with a custom trusted TLS authority, point `TALLYHOLD_CA_CERT` at its local PEM bundle when running `docker compose up --build -d`; Docker mounts it as a build secret, without committing the certificate or disabling TLS validation.
+The local database is exposed on `127.0.0.1:55432`, not `5432`, to avoid common local Postgres conflicts. It uses trust authentication **only for disposable local development** and is not suitable for production or real user data. On a network with a custom trusted TLS authority, point `TALLYHOLD_CA_CERT` at its local PEM bundle when running `docker compose up --build -d`; Docker mounts it as a build secret, without committing the certificate or disabling TLS validation.
 
 ## Check changes
 
@@ -46,9 +46,36 @@ uv run --locked ruff check .
 uv run --locked ruff format --check .
 uv run --locked mypy app
 uv run --locked lint-imports
-uv run --locked pytest --cov=app --cov-report=term-missing --cov-fail-under=80
-DATABASE_URL=postgresql+psycopg://tallyhold@localhost:55432/tallyhold uv run --locked alembic upgrade head
-DATABASE_URL=postgresql+psycopg://tallyhold@localhost:55432/tallyhold uv run --locked alembic downgrade base
+TALLYHOLD_TEST_DATABASE_URL=postgresql+psycopg://tallyhold@127.0.0.1:55432/tallyhold_test \
+  uv run --locked pytest --cov=app --cov-report=term-missing --cov-fail-under=80
+```
+
+The PostgreSQL integration suite requires the Compose `db` service (`docker
+compose up -d db`). Its explicit local `tallyhold_test` URL is a **target
+prefix**, not a database to migrate: pytest creates a unique
+`tallyhold_test_<uuid>` database, migrates it, rolls back each test, and drops
+it even on failure. It rejects the developer's `tallyhold` database and does
+not use SQLite. Run the suite twice to verify clean reruns. For a separate
+manual migration smoke check against a fresh disposable database:
+
+```sh
+docker compose exec -T db createdb -U tallyhold tallyhold_test_smoke
+DATABASE_URL=postgresql+psycopg://tallyhold@127.0.0.1:55432/tallyhold_test_smoke \
+  uv run --locked alembic upgrade head
+DATABASE_URL=postgresql+psycopg://tallyhold@127.0.0.1:55432/tallyhold_test_smoke \
+  uv run --locked alembic downgrade base
+docker compose exec -T db dropdb -U tallyhold tallyhold_test_smoke
+```
+
+Run these commands from `backend/`. `createdb` fails if the named smoke
+database already exists; inspect it before dropping any existing database.
+CI's integration suite uses uniquely named disposable databases and its
+upgrade/downgrade smoke check uses the separate fresh service database.
+
+For unit-only checks without PostgreSQL, exclude `tests/integration`:
+
+```sh
+uv run --locked pytest tests/domain
 ```
 
 Run frontend commands from `frontend/`:
