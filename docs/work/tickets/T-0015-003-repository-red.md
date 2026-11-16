@@ -3,7 +3,7 @@
 ## Assignment
 
 - Status: done
-- Owner actor: R-0019/test-writer-01
+- Owner actor: R-0019/test-writer-02
 - Role: Test writer
 - Run: [R-0019](../runs/R-0019.md) (original RED: [R-0018](../runs/R-0018.md))
 - Feature / task: [Feature 003 RED](../../specs/003-schema-repositories/tasks.md#red-after-approval-only)
@@ -15,7 +15,7 @@
 - Branch / worktree: `feature/003-schema-repositories-architecture`
 - Worktree path: `../tallyhold-feature-003-architecture`
 - Issue / PR: issue #17; no PR requested
-- Updated: 2026-11-16T08:02:01Z
+- Updated: 2026-11-16T08:11:01Z
 
 ## Scope
 
@@ -40,11 +40,14 @@ Preserve plan choices; escalate material schema changes to Zack.
   `("aapl", "nasdaq")` and `("Aapl", "NASDAQ")` find the saved
   `("AAPL", "NASDAQ")` instrument without changing stored case; it fails
   against the missing adapter and is committed/pushed separately before GREEN.
+- [x] Catalog assertion confirms all approved FKs have PostgreSQL
+  `confdeltype='a'` (NO ACTION) while retaining composite/key checks;
+  its correction is committed separately from paused GREEN WIP.
 
 ## Checkpoint
 
-- Last completed action: committed the focused RED test only at `31a0fa6`
-  with Zack's exact message and pushed it to the feature branch.
+- Last completed action: pushed test-only catalog correction `cf9f09c` after
+  real PostgreSQL verification.
 - Evidence: reviewed plan/tasks `15d27fa`, remaining planning edits `485e314`,
   approval gate `075ea6c`; `uv run pytest --collect-only -q tests/integration`
   collects; Compose-targeted `uv run pytest -q tests/integration --tb=no`
@@ -57,13 +60,17 @@ Preserve plan choices; escalate material schema changes to Zack.
   returned 1 failed, 0 errors, naming absent
   `app.modules.instruments.infrastructure.repositories`; ruff check and
   format check on the test file passed.
-- Worktree state: `31a0fa6` and checkpoint `7db7134` pushed; coordinator
-  run/assignment records pending commit.
-- Remaining work: none for RED; coordinator assigns GREEN under T-0016.
-- Blocker / unblock action: no RED blocker; any material schema change requires
-  Zack's approval.
-- Next action: R-0019/coordinator assigns the Implementer for GREEN against
-  pushed `31a0fa6`.
+- Worktree state: `cf9f09c` pushed; GREEN task-one schema WIP remains
+  uncommitted and unstaged.
+- Verification: `TALLYHOLD_TEST_DATABASE_URL=postgresql+psycopg://tallyhold@127.0.0.1:55432/tallyhold_test uv run pytest -q tests/integration/test_migrations.py tests/integration/test_isolation.py --tb=short`
+  passed 17 tests (6 Alembic configuration deprecation warnings); `uv run
+  ruff check tests/integration/test_migrations.py` and `uv run ruff format
+  --check tests/integration/test_migrations.py` passed.
+- Remaining work: no Test writer work; coordinator resumes GREEN.
+- Blocker / unblock action: no schema change; Test writer owns correction,
+  Implementer must not edit RED tests.
+- Next action: coordinator resumes GREEN task one from paused WIP using pushed
+  `cf9f09c`; do not discard the uncommitted schema/migration changes.
 - Handoff recipient: R-0019/coordinator.
 
 ## History
@@ -82,3 +89,7 @@ Preserve plan choices; escalate material schema changes to Zack.
 | 2026-11-16T08:01:28Z | R-0019/test-writer-01 | Added case-insensitive lookup and original-case round-trip assertion; targeted PostgreSQL test failed solely on absent instrument adapter (1 failed, 0 errors); ruff lint/format passed | Commit only test, then checkpoint SHA separately and push branch |
 | 2026-11-16T08:02:01Z | R-0019/test-writer-01 | Committed only test code as `31a0fa6` (`test: cover case-insensitive instrument lookup`) and pushed to origin | Commit and push ticket checkpoint separately; hand GREEN assignment to coordinator |
 | 2026-11-16T08:02:31Z | R-0019/coordinator | Verified exact requested assertions in `31a0fa6` and pushed ticket checkpoint `7db7134` | T-0015 done; allocate GREEN T-0016 |
+| 2026-11-16T08:08:08Z | R-0019/coordinator | GREEN task-one PostgreSQL catalog check found explicit NO ACTION is stored as `confdeltype='a'`, rendered without default clause; schema matches plan | Reopen T-0015 for test-only assertion repair; preserve WIP, then resume GREEN |
+| 2026-11-16T08:08:59Z | R-0019/test-writer-02 | Claimed test-only catalog correction; existing GREEN schema/migration work and other tracking edits remain untouched | Check `confdeltype='a'` for every FK, verify against PostgreSQL, commit only test and T-0015 |
+| 2026-11-16T08:10:19Z | R-0019/test-writer-02 | Corrected FK delete-action catalog check while preserving relationship, composite, key, check and index assertions; PostgreSQL migration/isolation suite 17 passed, 6 deprecation warnings; edited test ruff lint/format passed | Inspect staged scope, commit test only, checkpoint SHA separately, push |
+| 2026-11-16T08:11:01Z | R-0019/test-writer-02 | Committed only migration test as `cf9f09c` (`test: check postgres foreign key delete action in catalog`) and pushed branch; GREEN WIP remains unstaged | Commit and push this T-0015 checkpoint separately, return to coordinator for GREEN |
