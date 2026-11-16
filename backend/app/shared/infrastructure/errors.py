@@ -5,7 +5,7 @@ from typing import Any, cast
 from sqlalchemy.engine import CursorResult
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from sqlalchemy.sql.dml import Insert, Update
+from sqlalchemy.sql.dml import Delete, Insert, Update
 
 
 class PersistenceConstraintError(ValueError):
@@ -16,7 +16,7 @@ class PersistenceConstraintError(ValueError):
         super().__init__("persistence constraint violated")
 
 
-def execute_write(session: Session, statement: Insert | Update) -> int:
+def execute_write(session: Session, statement: Delete | Insert | Update) -> int:
     """Flush a write; the caller remains responsible for rollback or commit."""
     try:
         result = cast(CursorResult[Any], session.execute(statement))

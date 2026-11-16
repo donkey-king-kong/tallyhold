@@ -16,7 +16,7 @@
 - Branch / worktree: `feature/003-schema-repositories-architecture`
 - Worktree path: `../tallyhold-feature-003-architecture`
 - Issue / PR: issue #17; no PR yet
-- Updated: 2026-11-16T08:19:00Z
+- Updated: 2026-11-16T08:23:00Z
 
 ## Scope
 
@@ -40,16 +40,17 @@ tests unchanged and escalate significant schema changes to Zack before coding.
 
 ## Checkpoint
 
-- Last completed action: Task-one commit `1d66a5b`; root/shared adapter slice
-  implemented and verified for commit.
-- Evidence: mixed-case PostgreSQL instrument lookup passed; ruff, format,
-  mypy and import-linter pass. Other repository tests require scoped adapters.
-- Worktree state: task-two adapters and checkpoint ready for commit.
-- Remaining work: commit task two, then scoped account and transaction
-  adapters and final verification.
+- Last completed action: Task-two commit `7e98f17`; scoped account adapter
+  implemented and quality checks pass.
+- Evidence: ruff, format, mypy and import-linter pass. The account foreign-ID
+  RED case cannot finish until transaction adapter exists: its setup calls
+  `repos["transactions"].save` before the account assertion.
+- Worktree state: task-three adapter and checkpoint ready for commit.
+- Remaining work: commit task three, implement transaction adapter and run
+  repository integration suite, then CI/docs/full checks.
 - Blocker / unblock action: catalog-test blocker resolved; significant schema
   changes still require Zack's approval before proceeding.
-- Next action: commit task two, then implement scoped account adapter.
+- Next action: commit task three, implement transaction adapter, rerun tests.
 - Handoff recipient: ship coordinator after full GREEN verification.
 
 ## History
@@ -63,3 +64,4 @@ tests unchanged and escalate significant schema changes to Zack before coding.
 | 2026-11-16T08:12:53Z | R-0019/implementer-02 | Claimed replacement assignment after confirmed predecessor stop; fixed two import-order findings in preserved task-one WIP | Verify schema and migration against corrected RED before commit |
 | 2026-11-16T08:15:00Z | R-0019/implementer-02 | Verified schema on Compose PostgreSQL 17 (17/17), ruff lint/format, mypy and import-linter all passed; task one checked | Commit schema task, then root adapters |
 | 2026-11-16T08:19:00Z | R-0019/implementer-02 | Committed task one `1d66a5b`; added root/shared ports and error translation; mixed-case lookup passed, lint/format/mypy/import-linter pass | Commit task two and implement scoped account adapter |
+| 2026-11-16T08:23:00Z | R-0019/implementer-02 | Committed task two `7e98f17`; account adapter scoped operations and upsert implemented; quality checks pass, account foreign-ID test blocked in setup by missing transaction adapter | Commit task three and implement transaction adapter, then run all repository RED |

@@ -93,7 +93,7 @@ per task. The Implementer does not change tests merely to make them pass.
   constraint name. Keep callers in charge of session commit/rollback.
   Trace: plan "Persistence boundary", "Repository behavior and transaction
   ownership", verification items 3, 6; AC1, AC4-AC7.
-- [ ] **Scoped account adapter:** Implement owner-checked, user-predicated
+- [x] **Scoped account adapter:** Implement owner-checked, user-predicated
   get/list/save/delete and scoped `ON CONFLICT (id) DO UPDATE ... WHERE
   broker_accounts.user_id = EXCLUDED.user_id`; check rowcount 0 and raise the
   generic foreign-ID error without changing or disclosing the row. Set
