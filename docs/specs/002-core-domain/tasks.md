@@ -6,9 +6,9 @@ in order, and run all five backend checks after every implementation task.
 
 - [x] **Architecture, Architect:** Write and commit `plan.md` and this ordered
   task list. Map module ownership, public seams, classes, five repository ABCs,
-  calculations, purity constraints, and every AC (AC1-AC10).
+  calculations, purity constraints, and every AC (AC1-AC11).
 - [x] **Complete RED contract, Test writer:** Add collecting pytest tests in
-  `backend/tests/domain/` covering AC1-AC10 and the five repository interfaces.
+  `backend/tests/domain/` covering AC1-AC11.
   Tests must fail inside test execution because public behavior is absent, not
   because of collection or syntax errors. Commit `test: add failing core domain
   contract`.

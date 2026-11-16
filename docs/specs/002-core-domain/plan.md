@@ -2,13 +2,13 @@
 
 ## Status and authorization
 
-- [Approved spec](spec.md): Gate 1 approved by Zack on 2026-11-13.
+- [Approved spec](spec.md): Gate 1 approved by Zack on 2026-11-13; pure domain
+  repository ports approved as a contract amendment on 2026-11-16.
 - Plan approval: not required before execution because this feature changes no
   schema or established architecture.
-- Scope clarification: Zack's implementation mission explicitly adds pure
-  abstract repository interfaces required by Feature 003. This supersedes the
-  older spec exclusion only for domain-owned interfaces; persistence,
-  SQLAlchemy implementations, and migrations remain out of scope.
+- Scope clarification: the approved contract includes pure abstract repository
+  interfaces required by Feature 003. Persistence, SQLAlchemy implementations,
+  and migrations remain out of scope.
 
 ## Module design
 
@@ -127,7 +127,7 @@ members, avoiding collection or syntax failures.
 | AC7 | unrealised calculation | `test_pnl.py` |
 | AC8 | portfolio weights | `test_weights.py` |
 | AC9 | all domain files and deterministic calculation seams | `test_domain_purity.py` plus exact-value tests |
-| Mission dependency for Feature 003 | five repository ABCs | `test_repositories.py` |
+| AC11 / Feature 003 dependency | five repository ABCs | `test_repositories.py` |
 
 ## Schema, dependencies, and decisions
 

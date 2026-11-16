@@ -2,7 +2,7 @@
 
 ## Status
 
-Approved — Gate 1, 2026-11-13
+Approved — Gate 1, 2026-11-13; repository-port amendment approved 2026-11-16
 
 Issue: [#7](https://github.com/donkey-king-kong/tallyhold/issues/7)
 
@@ -54,10 +54,14 @@ This feature defines these pure Python domain objects:
   added by implementing this interface rather than changing callers.
 - `AverageCostStrategy` is the concrete Feature 002 implementation of
   `CostBasisStrategy`. FIFO, LIFO, and strategy selection are deferred.
+- `UserRepository`, `BrokerRepository`, `AccountRepository`,
+  `InstrumentRepository`, and `TransactionRepository` are pure abstract domain
+  ports. User-owned operations require an explicit `user_id`; the ports contain
+  no persistence implementation, query, session, or transaction behavior.
 
 Calculations consume domain objects and explicit in-memory current prices.
-They neither obtain data nor define ports to databases, HTTP services, market
-data providers, or other external systems.
+They do not obtain data or call databases, HTTP services, market-data
+providers, or other external systems.
 
 ## Calculation rules
 
@@ -241,10 +245,21 @@ being added without an explicit conversion performed outside this feature.
 - Given a DIVIDEND, SPLIT, or any other transaction type, when Feature 002
   Transaction creation is attempted, then it fails as unsupported.
 
+### AC11: Persistence dependencies point to pure domain ports
+
+- Given the five repository contracts, when their public operations are
+  inspected, then they expose only the entity-specific get, list, save, find,
+  and delete operations approved in the architecture plan.
+- Given an account or transaction repository operation, when user-owned data is
+  addressed, then `user_id` is an explicit parameter.
+- Given any repository contract, when its source is inspected, then it is
+  abstract and contains no SQLAlchemy, database session, query, transaction,
+  migration, or other infrastructure behavior.
+
 ## Out of scope
 
-- Database schemas, SQLAlchemy models, Alembic migrations, repositories,
-  persistence mapping, and stored positions
+- Database schemas, SQLAlchemy models, Alembic migrations, repository
+  implementations, persistence mapping, database behavior, and stored positions
 - FastAPI, Pydantic transport schemas, REST endpoints, and application services
 - Frontend, UI, and presentation rounding
 - External imports, CSV parsing, broker integrations, price or FX providers,
@@ -273,3 +288,6 @@ Zack approved this contract on 2026-11-13 with these binding decisions:
 7. Realised P&L is returned per sale and in aggregate, without period or
    account filters.
 8. Dividends and the remaining MVP metrics are deferred to later features.
+9. On 2026-11-16, Zack approved five pure domain repository ports required by
+   Feature 003. Persistence implementations and database behavior remain
+   outside Feature 002.
