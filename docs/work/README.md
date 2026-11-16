@@ -27,6 +27,7 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 | [T-0017](tickets/T-0017-ship-003-schema-repositories.md) | Ship Feature 003 after GREEN verification | [R-0019](runs/R-0019.md) |
 | [T-0018](tickets/T-0018-production-migrations.md) | Ship approval-gated Supabase production migrations | [R-0020](runs/R-0020.md) |
 | [T-0019](tickets/T-0019-review-production-migrations.md) | Independent review of production migration PR #25 | [R-0020](runs/R-0020.md) |
+| [T-0020](tickets/T-0020-phase1-roadmap.md) | Close out Phase 1 roadmap and ship documentation | [R-0021](runs/R-0021.md) |
 
 Historical PR #6 post-dispatch records remain in T-0002's checkpoint
 branch/worktree. Future ship runs use PR comments instead.
