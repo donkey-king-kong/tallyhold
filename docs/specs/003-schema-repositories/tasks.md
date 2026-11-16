@@ -101,7 +101,7 @@ per task. The Implementer does not change tests merely to make them pass.
   commit, and preserve `NO ACTION` account deletion behavior.
   Trace: plan "Relational design and Architecture Q2", "Repository behavior
   and transaction ownership", verification items 3, 5-6; AC2, AC4-AC5.
-- [ ] **Scoped transaction adapter:** Map BUY/SELL, exact quantity, Money
+- [x] **Scoped transaction adapter:** Map BUY/SELL, exact quantity, Money
   amounts and explicit instrument currency; reject over-scale/out-of-range
   values before the DB rounds. Use `user_id` in every operation and
   `(trade_date, entry_seq)` listing. Omit server-generated `entry_seq` from

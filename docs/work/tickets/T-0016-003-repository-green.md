@@ -16,7 +16,7 @@
 - Branch / worktree: `feature/003-schema-repositories-architecture`
 - Worktree path: `../tallyhold-feature-003-architecture`
 - Issue / PR: issue #17; no PR yet
-- Updated: 2026-11-16T08:23:00Z
+- Updated: 2026-11-16T08:28:00Z
 
 ## Scope
 
@@ -40,17 +40,16 @@ tests unchanged and escalate significant schema changes to Zack before coding.
 
 ## Checkpoint
 
-- Last completed action: Task-two commit `7e98f17`; scoped account adapter
-  implemented and quality checks pass.
-- Evidence: ruff, format, mypy and import-linter pass. The account foreign-ID
-  RED case cannot finish until transaction adapter exists: its setup calls
-  `repos["transactions"].save` before the account assertion.
-- Worktree state: task-three adapter and checkpoint ready for commit.
-- Remaining work: commit task three, implement transaction adapter and run
-  repository integration suite, then CI/docs/full checks.
+- Last completed action: Task-three commit `b196bee`; scoped transaction
+  adapter implemented and repository suite passed.
+- Evidence: 13/13 PostgreSQL repository tests pass; ruff, format, mypy and
+  import-linter pass. PostgreSQL DML returned `rowcount=-1` on zero-row
+  conflict, so affected-row detection uses `RETURNING`.
+- Worktree state: task-four adapter and checkpoint ready for commit.
+- Remaining work: commit task four, then CI/docs and full verification.
 - Blocker / unblock action: catalog-test blocker resolved; significant schema
   changes still require Zack's approval before proceeding.
-- Next action: commit task three, implement transaction adapter, rerun tests.
+- Next action: commit task four, then complete CI/docs and full checks.
 - Handoff recipient: ship coordinator after full GREEN verification.
 
 ## History
@@ -65,3 +64,4 @@ tests unchanged and escalate significant schema changes to Zack before coding.
 | 2026-11-16T08:15:00Z | R-0019/implementer-02 | Verified schema on Compose PostgreSQL 17 (17/17), ruff lint/format, mypy and import-linter all passed; task one checked | Commit schema task, then root adapters |
 | 2026-11-16T08:19:00Z | R-0019/implementer-02 | Committed task one `1d66a5b`; added root/shared ports and error translation; mixed-case lookup passed, lint/format/mypy/import-linter pass | Commit task two and implement scoped account adapter |
 | 2026-11-16T08:23:00Z | R-0019/implementer-02 | Committed task two `7e98f17`; account adapter scoped operations and upsert implemented; quality checks pass, account foreign-ID test blocked in setup by missing transaction adapter | Commit task three and implement transaction adapter, then run all repository RED |
+| 2026-11-16T08:28:00Z | R-0019/implementer-02 | Committed task three `b196bee`; transaction adapter and reliable affected-row check completed; 13/13 repository tests and quality checks pass | Commit task four, complete CI/docs and full verification |

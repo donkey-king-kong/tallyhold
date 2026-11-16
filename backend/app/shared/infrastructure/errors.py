@@ -1,8 +1,6 @@
 """Infrastructure-only persistence failures and integrity translation."""
 
-from typing import Any, cast
-
-from sqlalchemy.engine import CursorResult
+from sqlalchemy import literal
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.dml import Delete, Insert, Update
@@ -19,9 +17,10 @@ class PersistenceConstraintError(ValueError):
 def execute_write(session: Session, statement: Delete | Insert | Update) -> int:
     """Flush a write; the caller remains responsible for rollback or commit."""
     try:
-        result = cast(CursorResult[Any], session.execute(statement))
+        result = session.execute(statement.returning(literal(1)))
+        affected = result.scalar_one_or_none() is not None
         session.flush()
     except IntegrityError as error:
         name = getattr(getattr(error.orig, "diag", None), "constraint_name", None)
         raise PersistenceConstraintError(name or "unknown") from None
-    return result.rowcount
+    return int(affected)
