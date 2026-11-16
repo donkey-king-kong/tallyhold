@@ -13,8 +13,8 @@
 - Dependencies: [T-0004](T-0004-draft-core-domain-spec.md)
 - Branch / worktree: `feature/002-core-domain`
 - Worktree path: `../tallyhold-feature-002`
-- Issue / PR: issue #7; PR not created
-- Updated: 2026-11-16T02:20:00Z
+- Issue / PR: issue #7; PR #21
+- Updated: 2026-11-16T02:25:00Z
 
 ## Scope
 
@@ -35,16 +35,17 @@ frontend work.
 
 ## Checkpoint
 
-- Last completed action: completed all approved domain implementation and full
-  backend verification without changing tests.
+- Last completed action: pushed the complete implementation and opened PR #21;
+  all six initial CI jobs passed for implementation head `b86d222`.
 - Evidence: Ruff lint/format, strict mypy, and import-linter pass; all 58
   backend tests pass with 97.33% coverage.
-- Worktree state: final GREEN task ready to commit; branch is not pushed.
-- Remaining work: final ship checkpoint, push, PR, CI, fresh review, and merge.
+- Worktree state: clean pushed branch at `b86d222` before this final
+  pre-review checkpoint.
+- Remaining work: checkpoint commit, final-head CI, fresh review, and merge.
 - Blocker / unblock action: none. The requested `R-0010` was already allocated
   to unrelated active work, so the next unused run `R-0013` is used.
-- Next action: commit profit, loss, and weights, then prepare and push the
-  complete implementation for ship.
+- Next action: commit and push this checkpoint, wait for final-head CI, freeze
+  tracking files, and dispatch fresh review round 1.
 - Handoff recipient: coordinator after all GREEN tasks and checks complete.
 
 ## History
@@ -67,3 +68,4 @@ frontend work.
 | 2026-11-16T02:10:00Z | R-0014/coordinator | Completed BUY/SELL transactions and five abstract repository ports | 19 targeted tests and four static checks pass; 20 expected portfolio RED failures remain |
 | 2026-11-16T02:15:00Z | R-0014/coordinator | Completed deterministic average-cost positions and realised sale results | Eight targeted tests and four static checks pass; 12 expected calculation RED failures remain |
 | 2026-11-16T02:20:00Z | R-0014/coordinator | Completed exact realised/unrealised P&L and per-instrument weights | All 58 backend tests and four static checks pass; coverage is 97.33% |
+| 2026-11-16T02:25:00Z | R-0014/coordinator | Pushed implementation, opened PR #21, and verified initial CI | Six jobs passed for `b86d222`; commit final checkpoint, rerun CI, then dispatch fresh review |
