@@ -10,7 +10,7 @@ Ticket status and next actions live in the linked tickets, not this table.
 | Current maintenance | Track through ticket | [T-0001: durable work tracking](tickets/T-0001-durable-work-tracking.md) |
 | Current maintenance | Merged | [T-0008: granular Agent Flow role telemetry](tickets/T-0008-agent-flow-granularity.md); PR #12 merged at `fc523cd532a4167ed7afc8dff09f265ddb1fc0a8` |
 | Current: phase 1, core domain | Contract merged; architecture next | [Feature 002](../specs/002-core-domain/spec.md), [issue #7](https://github.com/donkey-king-kong/tallyhold/issues/7), [T-0004](tickets/T-0004-draft-core-domain-spec.md); PR #18 merged at `cfd22ff4b1c51de54cce3d3a731f27468d3e9451` |
-| Next: persistence | Gate 1 approved; dependency blocked | [Feature 003](../specs/003-schema-repositories/spec.md), [issue #17](https://github.com/donkey-king-kong/tallyhold/issues/17), [T-0011](tickets/T-0011-draft-schema-repositories-spec.md); merged Feature 002 defines no repository interfaces |
+| Next: persistence | Gate 1 approved; plan awaiting Zack | [Feature 003](../specs/003-schema-repositories/spec.md), [plan](../specs/003-schema-repositories/plan.md), [issue #17](https://github.com/donkey-king-kong/tallyhold/issues/17), [T-0014](tickets/T-0014-plan-schema-repositories.md); Feature 002 ports merged in PR #21 |
 | Phase 2: auth and accounts | Future | Depends on core domain foundations; no implementation approval recorded |
 | Phase 3: transactions and import | Future | Depends on core domain and authenticated accounts |
 | Phase 4: dashboard MVP | Future | Depends on transaction data and valuation; hosting decision remains open |
@@ -29,3 +29,5 @@ Ticket status and next actions live in the linked tickets, not this table.
   contract, while implementation still awaits architecture-plan approval.
 - 2026-11-13: PR #18 merged the Feature 002 contract. Feature 003 has Gate 1
   approval but remains blocked on approved domain repository interfaces.
+- 2026-11-16: PR #21 merged Feature 002 repository ports. Feature 003
+  architecture Q1 is resolved; schema/architecture plan awaits Zack's approval.
