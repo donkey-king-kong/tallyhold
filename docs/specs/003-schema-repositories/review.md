@@ -12,4 +12,18 @@ Nits: none.
 
 CI: `gh pr checks 23` reports backend, frontend, and security passing for both listed runs. The same-session replacement check against a disposable PostgreSQL database returned the updated user value; it is not a finding.
 
-VERDICT: CHANGES_REQUESTED
+Round 1 outcome: CHANGES_REQUESTED.
+
+## Round 2
+
+Must-fix: none.
+
+Should-fix: none.
+
+Nits: none.
+
+Resolution: The round-1 `NaN` finding is resolved. `backend/alembic/versions/0002_core_persistence.py:119-132` now excludes PostgreSQL `NaN` from quantity, unit price and fee checks; `backend/app/modules/transactions/infrastructure/models.py:52-65` mirrors those constraints in ORM metadata. `backend/tests/integration/test_isolation.py:126-140` exercises direct SQL with `Decimal("NaN")` for all three columns and asserts rejection.
+
+Evidence: The PR diff retains the five-table migration, scoped account and transaction adapters, composite tenant/currency foreign keys, disposable PostgreSQL integration fixture and migration round-trip tests for AC1-AC7. `gh pr checks 23` reports backend, frontend and security passing on both listed runs. No additional local checks were run in this round.
+
+VERDICT: APPROVE
