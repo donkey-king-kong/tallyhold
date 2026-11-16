@@ -21,7 +21,7 @@ in order, and run all five backend checks after every implementation task.
   pure abstract repository interfaces (AC2, AC9, AC10 and the Feature 003
   dependency). Run full checks, check off this task, and commit
   `feat: add transaction and repository contracts`.
-- [ ] **Average-cost positions, Implementer:** Implement immutable derived
+- [x] **Average-cost positions, Implementer:** Implement immutable derived
   `Position`, `RealisedResult`, abstract `CostBasisStrategy`, concrete
   `AverageCostStrategy`, and `derive_positions()` with stable date ordering,
   partial/full sells, oversell rejection, and post-close reset (AC3-AC5). Run
