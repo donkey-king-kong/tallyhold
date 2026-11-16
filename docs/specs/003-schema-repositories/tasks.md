@@ -3,15 +3,16 @@
 ## Approval gate
 
 The [revised plan](plan.md) supersedes the previous design. Feature 003 Gate 1
-and the Feature 002 ports are approved, but **Zack must explicitly approve this
-schema/architecture plan before any RED tests or GREEN implementation**. RLS,
-application wiring, domain changes and production provisioning are out of scope.
+and the Feature 002 ports are approved. **Zack approved the schema/architecture
+plan as written at `15d27fa` on 2026-11-16.** RED may proceed; stop at the RED
+checkpoint for Zack's review before GREEN. RLS, application wiring, domain
+changes and production provisioning are out of scope.
 
 - [x] **Architect, T-0014:** Adopt Zack's replacement plan, add its five-table
   ERD, map AC1-AC7 and verification items 1-6 to ordered work, and hand it
   back for review. Trace: plan "Status and gate", "Relational design and
   Architecture Q2", "Acceptance and test map"; AC1-AC7.
-- [ ] **Zack plan gate:** Decide on every choice in plan "Decision for
+- [x] **Zack plan gate:** Decide on every choice in plan "Decision for
   approval", including `entry_seq`, composite tenant/currency FKs, scoped
   upsert, error translation, audit and unique constraints, `NO ACTION`, exact
   numeric limits, five-table scope and deferred behavior. Record approval or
@@ -123,7 +124,8 @@ per task. The Implementer does not change tests merely to make them pass.
   PostgreSQL verification" items 1-6, "Known limitations", "Acceptance and
   test map"; AC1-AC7.
 
-No execution item is checked or assigned before Zack's approval. The planning
-handoff stays on [T-0014](../../work/tickets/T-0014-plan-schema-repositories.md)
-and [R-0017](../../work/runs/R-0017.md); create RED/GREEN tickets and runs
-only when authorized.
+The planning handoff is [T-0014](../../work/tickets/T-0014-plan-schema-repositories.md)
+and [R-0017](../../work/runs/R-0017.md). RED is assigned through
+[T-0015](../../work/tickets/T-0015-003-repository-red.md) and
+[R-0018](../../work/runs/R-0018.md). Do not assign GREEN until Zack reviews
+the RED checkpoint. Significant schema changes return to Zack for approval.
