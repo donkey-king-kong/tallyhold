@@ -1,48 +1,36 @@
-# Review
+# PR #21 Review
 
 ## Round 1
 
 ### Must-fix
 
-None.
+1. **Repository contracts exceed the approved Feature 002 scope.**
+   - Evidence: `docs/specs/002-core-domain/spec.md:246-247` explicitly places
+     repositories out of scope, while this PR adds five repository ABCs and
+     their contract tests in
+     `backend/app/modules/{identity,accounts,instruments,transactions}/domain/repositories.py`
+     and `backend/tests/domain/test_repositories.py`.
+   - The explanation in `docs/specs/002-core-domain/plan.md:7-11` changes the
+     approved scope but does not amend the approved feature spec. Remove the
+     repository additions, or amend and approve the feature spec before
+     including them.
 
 ### Should-fix
 
-1. `docs/spec.md:178-184` still defines total invested/cost basis as the sum of
-   every buy and then uses that value as the cost of the shares currently held.
-   That formula is no longer valid after this PR makes partial sells part of the
-   MVP: each sale consumes average-cost basis, so remaining cost basis must be
-   reduced before unrealised P&L is calculated. For example, buying 10 shares
-   and selling 5 would leave 5 shares but the unchanged formula would retain
-   the cost of all 10. Reconcile the product-level total-invested and unrealised
-   P&L rules with the approved consumed-basis rules in
-   `docs/specs/002-core-domain/spec.md:76-118`.
+None.
 
-2. The changed work records do not consistently record the state established by
-   this PR. `docs/work/roadmap.md:12` says Feature 002 is a Draft at Gate 1 that
-   must be revised and then await approval, while
-   `docs/specs/002-core-domain/spec.md:5` says Gate 1 is approved.
-   `docs/work/runs/R-0011.md:35-42` and
-   `docs/work/tickets/T-0004-draft-core-domain-spec.md:41-52` also say the
-   checkpoint still needs to be committed and pushed even though those records
-   are present in the reviewed PR diff. Update the records so the durable
-   status and next action agree with the approved contract and current review
-   stage.
-
-### Nit
+### Nits
 
 None.
 
 ### Evidence
 
-- The PR diff contains documentation and tracking changes only; no code,
-  schema, migration, or runtime security surface is introduced.
-- The approved feature contract covers AC1-AC10, pure-domain layering,
-  deterministic ordering, Decimal and currency invariants, partial and full
-  sells, realised and unrealised P&L, strategy substitution, and
-  per-instrument weights.
-- `gh pr checks 18` reports both backend runs, both frontend runs, and both
-  security runs passing.
+- The remaining diff implements AC1-AC10 with pure domain code, derived
+  positions, Decimal-based calculations, pluggable cost basis, and matching
+  tests.
+- No schema change or migration is present or required for the approved scope.
+- No security or layering defect was found in the permitted diff evidence.
+- `gh pr checks 21` reports all backend, frontend, and security jobs passing.
 
 VERDICT: CHANGES_REQUESTED
 
@@ -54,62 +42,27 @@ None.
 
 ### Should-fix
 
-1. Round 1 finding 2 remains unresolved in two changed work records.
-   `docs/work/runs/R-0011.md:35-42` still says the round-1 report and fixes are
-   local, uncommitted work whose next action is to commit and push them.
-   `docs/work/tickets/T-0004-draft-core-domain-spec.md:41-52` repeats that stale
-   worktree state, remaining work, and next action. Those files, the report,
-   and the fixes are already present in the reviewed PR diff, and the latest
-   `gh pr checks 18` results pass. Update both records to describe the current
-   round-2 review state and the actual next action.
+None.
 
-### Nit
+### Nits
 
 None.
 
 ### Evidence
 
-- Round 1 finding 1 is resolved in `docs/spec.md:178-205`: partial sells now
-  consume average-cost basis, and unrealised P&L uses only the remaining basis
-  and quantity.
-- The roadmap portion of Round 1 finding 2 is resolved at
-  `docs/work/roadmap.md:12`; it now records Gate 1 approval and PR review.
-- The PR diff remains documentation-only and introduces no code, schema,
-  migration, layering, or runtime security surface.
-- `gh pr checks 18` reports both backend runs, both frontend runs, and both
-  security runs passing.
-
-VERDICT: CHANGES_REQUESTED
-
-## Round 3
-
-### Must-fix
-
-None.
-
-### Should-fix
-
-None.
-
-### Nit
-
-None.
-
-### Evidence
-
-- Round 2 finding 1 is resolved. `docs/work/runs/R-0011.md:35-44` now records
-  review rounds 1-2 as completed, identifies final-head CI and round 3 as
-  outstanding, and directs the coordinator to confirm CI before dispatching
-  this review. `docs/work/tickets/T-0004-draft-core-domain-spec.md:41-52`
-  records the same current branch state, remaining work, and next action.
-- Round 1 finding 1 remains resolved in `docs/spec.md:178-205`: partial sells
-  consume average-cost basis, and unrealised P&L uses the remaining basis and
-  quantity.
-- The PR diff remains documentation-only and introduces no code, schema,
-  migration, layering, or runtime security surface. The approved Feature 002
-  contract remains internally consistent with its acceptance criteria and
-  defers planning and implementation.
-- `gh pr checks 18` reports both backend runs, both frontend runs, and both
-  security runs passing.
+- Round 1's scope finding is resolved. The approved feature contract now
+  explicitly includes the five pure abstract repository ports at
+  `docs/specs/002-core-domain/spec.md:5,57-60,248-257,291-293`, while repository
+  implementations and database behavior remain out of scope.
+- The repository contracts contain only abstract entity-specific operations,
+  and account and transaction operations explicitly require `user_id` at
+  `backend/app/modules/accounts/domain/repositories.py:26-43` and
+  `backend/app/modules/transactions/domain/repositories.py:10-29`.
+- The remaining diff implements AC1-AC11 with pure domain code, derived
+  positions, exact Decimal and currency behavior, pluggable cost basis, and
+  acceptance-mapped tests. No schema change or migration is present or required.
+- No security or layering defect was found in the permitted diff evidence.
+- `gh pr checks 21` reports both backend, both frontend, and both security jobs
+  passing.
 
 VERDICT: APPROVE
