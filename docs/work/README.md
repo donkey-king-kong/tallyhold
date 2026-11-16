@@ -23,6 +23,7 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 | [T-0013](tickets/T-0013-agent-monitor-spec.md) | Approve and ship the Agent Monitor extension contract | [R-0016](runs/R-0016.md) |
 | [T-0014](tickets/T-0014-plan-schema-repositories.md) | Approve Feature 003 schema and repository plan | [R-0017](runs/R-0017.md) |
 | [T-0015](tickets/T-0015-003-repository-red.md) | Write Feature 003 failing PostgreSQL repository tests | [R-0018](runs/R-0018.md) |
+| [T-0016](tickets/T-0016-003-repository-green.md) | Implement Feature 003 schema and repositories | [R-0019](runs/R-0019.md) |
 
 Historical PR #6 post-dispatch records remain in T-0002's checkpoint
 branch/worktree. Future ship runs use PR comments instead.

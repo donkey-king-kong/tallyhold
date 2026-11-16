@@ -57,13 +57,13 @@ Preserve plan choices; escalate material schema changes to Zack.
   returned 1 failed, 0 errors, naming absent
   `app.modules.instruments.infrastructure.repositories`; ruff check and
   format check on the test file passed.
-- Worktree state: `31a0fa6` pushed; this ticket checkpoint awaits its own
-  commit/push; coordinator run edits remain untouched.
-- Remaining work: coordinator assigns GREEN after receiving this RED handoff.
+- Worktree state: `31a0fa6` and checkpoint `7db7134` pushed; coordinator
+  run/assignment records pending commit.
+- Remaining work: none for RED; coordinator assigns GREEN under T-0016.
 - Blocker / unblock action: no RED blocker; any material schema change requires
   Zack's approval.
-- Next action: commit and push this ticket separately, then R-0019/coordinator
-  assigns the Implementer for GREEN against `31a0fa6`.
+- Next action: R-0019/coordinator assigns the Implementer for GREEN against
+  pushed `31a0fa6`.
 - Handoff recipient: R-0019/coordinator.
 
 ## History
@@ -81,3 +81,4 @@ Preserve plan choices; escalate material schema changes to Zack.
 | 2026-11-16T08:00:29Z | R-0019/test-writer-01 | Claimed requested RED-only lookup addition; branch synchronized, Compose PostgreSQL 17 healthy at 127.0.0.1:55432 | Add focused repository test, verify missing-adapter failure, commit test only, checkpoint separately and push |
 | 2026-11-16T08:01:28Z | R-0019/test-writer-01 | Added case-insensitive lookup and original-case round-trip assertion; targeted PostgreSQL test failed solely on absent instrument adapter (1 failed, 0 errors); ruff lint/format passed | Commit only test, then checkpoint SHA separately and push branch |
 | 2026-11-16T08:02:01Z | R-0019/test-writer-01 | Committed only test code as `31a0fa6` (`test: cover case-insensitive instrument lookup`) and pushed to origin | Commit and push ticket checkpoint separately; hand GREEN assignment to coordinator |
+| 2026-11-16T08:02:31Z | R-0019/coordinator | Verified exact requested assertions in `31a0fa6` and pushed ticket checkpoint `7db7134` | T-0015 done; allocate GREEN T-0016 |

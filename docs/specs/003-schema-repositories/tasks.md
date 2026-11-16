@@ -4,9 +4,10 @@
 
 The [revised plan](plan.md) supersedes the previous design. Feature 003 Gate 1
 and the Feature 002 ports are approved. **Zack approved the schema/architecture
-plan as written at `15d27fa` on 2026-11-16.** RED may proceed; stop at the RED
-checkpoint for Zack's review before GREEN. RLS, application wiring, domain
-changes and production provisioning are out of scope.
+plan as written at `15d27fa` on 2026-11-16.** Zack reviewed RED and approved
+GREEN after the requested mixed-case instrument lookup test was committed and
+pushed at `31a0fa6`. RLS, application wiring, domain changes and production
+provisioning are out of scope.
 
 - [x] **Architect, T-0014:** Adopt Zack's replacement plan, add its five-table
   ERD, map AC1-AC7 and verification items 1-6 to ordered work, and hand it
@@ -125,7 +126,8 @@ per task. The Implementer does not change tests merely to make them pass.
   test map"; AC1-AC7.
 
 The planning handoff is [T-0014](../../work/tickets/T-0014-plan-schema-repositories.md)
-and [R-0017](../../work/runs/R-0017.md). RED is assigned through
+and [R-0017](../../work/runs/R-0017.md). RED was completed through
 [T-0015](../../work/tickets/T-0015-003-repository-red.md) and
-[R-0018](../../work/runs/R-0018.md). Do not assign GREEN until Zack reviews
-the RED checkpoint. Significant schema changes return to Zack for approval.
+[R-0018](../../work/runs/R-0018.md), with the lookup addition under R-0019.
+GREEN is assigned through [T-0016](../../work/tickets/T-0016-003-repository-green.md).
+Significant schema changes return to Zack for approval.
