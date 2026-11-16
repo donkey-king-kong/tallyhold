@@ -2,11 +2,11 @@
 
 ## Entry point
 
-Worktree: `/Users/bytedance/Desktop/tallyhold-feature-004-agent-monitor`  
-Branch: `feature/004-agent-monitor`  
-Issue: [#20](https://github.com/donkey-king-kong/tallyhold/issues/20)  
-Requirements: [spec.md](spec.md)  
-Assignment: [T-0013](../../work/tickets/T-0013-agent-monitor-spec.md)  
+Worktree: `/Users/bytedance/Desktop/tallyhold-feature-004-agent-monitor`
+Branch: `feature/004-agent-monitor`
+Issue: [#20](https://github.com/donkey-king-kong/tallyhold/issues/20)
+Requirements: [spec.md](spec.md)
+Assignment: [T-0013](../../work/tickets/T-0013-agent-monitor-spec.md)
 Predecessor session: [R-0015](../../work/runs/R-0015.md)
 
 This is a gated action checklist, not an approved architecture plan. Both

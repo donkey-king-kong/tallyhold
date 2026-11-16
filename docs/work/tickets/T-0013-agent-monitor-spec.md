@@ -14,7 +14,7 @@
 - Branch: `feature/004-agent-monitor`
 - Worktree path: `../tallyhold-feature-004-agent-monitor`
 - Issue / PR: [issue #20](https://github.com/donkey-king-kong/tallyhold/issues/20); no PR
-- Updated: 2026-11-16T02:30:00Z
+- Updated: 2026-11-16T02:35:00Z
 
 ## Scope
 
@@ -32,18 +32,16 @@ separate plan gate.
 
 ## Checkpoint
 
-- Last completed action: recorded Gate 1 approval and reallocated unpublished
-  records after Feature 002 claimed the colliding IDs.
-- Evidence: Zack explicitly approved the written contract on 2026-11-16;
-  Feature 004 now uses T-0013, R-0015, and R-0016.
-- Worktree state: approved spec and recovery records remain uncommitted; no
-  implementation or architecture plan exists.
-- Remaining work: commit, integrate current main, validate, and ship the
-  spec-only PR.
+- Last completed action: committed the approved contract, integrated current
+  main, and validated the spec-only diff.
+- Evidence: 26 local document links pass; six Agent Flow adapter tests pass;
+  the diff contains only the six intended Feature 004 documents.
+- Worktree state: branch is current with main; final validation changes are
+  uncommitted and no remote branch exists.
+- Remaining work: commit validation checkpoint, push, open PR, review, and merge.
 - Blocker / unblock action: none for spec shipping; architecture execution
   remains blocked on a separately approved plan.
-- Next action: commit the recovered approved contract, merge current main, run
-  document/repository checks, and push for ship.
+- Next action: commit the validation checkpoint, push, and open the spec PR.
 - Handoff recipient: fresh Reviewer after PR creation and green CI.
 
 ## History
@@ -53,3 +51,4 @@ separate plan gate.
 | 2026-11-13T09:57:34Z | R-0015/coordinator | Claimed drafting after both interview rounds were accepted; created isolated worktree | Create issue and Draft spec; do not infer Gate 1 |
 | 2026-11-13T09:59:34Z | R-0015/coordinator | Created issue #20; saved Draft spec and gated Sol handoff; document validation passed | Await written-spec Gate 1; no commit, push, or code execution authorized |
 | 2026-11-16T02:30:00Z | R-0016/coordinator | Recorded explicit Gate 1 approval and ship request; reallocated unpublished IDs after Feature 002 merged | Commit approved contract, integrate current main, validate, and ship spec-only PR |
+| 2026-11-16T02:35:00Z | R-0016/coordinator | Integrated current main and validated the intended spec-only diff | 26 links and six adapter tests pass; commit validation checkpoint and push |
