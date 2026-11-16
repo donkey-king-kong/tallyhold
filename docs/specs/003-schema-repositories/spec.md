@@ -161,15 +161,16 @@ infrastructure must implement.
 
 ## Architecture dependencies and questions
 
-1. Feature 002 merged through PR #18. Its approved contract defines `User`,
-   `Broker`, `Account`, `Instrument`, `Transaction`, `Position`, `Money`, and
-   `CostBasisStrategy`, but explicitly defines no database ports or repository
-   interfaces. Under AC1, Feature 003 architecture remains blocked until an
-   approved domain follow-up supplies the repository interfaces required by
-   issue #17.
-2. Which database constraints enforce cross-user relationship integrity in
-   addition to mandatory repository scoping? The architecture plan must propose
-   this after the repository-interface blocker is resolved.
+1. **Resolved 2026-11-16:** Feature 002's approved repository-port amendment
+   merged through PR #21. Its domain now owns `UserRepository`,
+   `BrokerRepository`, `AccountRepository`, `InstrumentRepository`, and
+   `TransactionRepository`; Feature 003 can plan adapters against these exact
+   interfaces. PR #18 merged the earlier entity-only contract; it did not
+   supply these ports. AC1 remains a prerequisite for execution.
+2. **Proposed for Zack's schema-plan approval:** the [architecture plan](plan.md)
+   enforces cross-user account/transaction integrity with a composite
+   `(user_id, account_id)` foreign key and matching account candidate key.
+   Repositories additionally scope every user-owned operation. RLS is deferred.
 
 ## Gate 1 decision
 
