@@ -116,9 +116,18 @@ def upgrade() -> None:
         updated_at(),
         currency_check("instrument_currency", "transactions"),
         sa.CheckConstraint("type IN ('BUY', 'SELL')", name="ck_transactions_type"),
-        sa.CheckConstraint("quantity > 0", name="ck_transactions_quantity"),
-        sa.CheckConstraint("unit_price_amount > 0", name="ck_transactions_unit_price"),
-        sa.CheckConstraint("fee_amount >= 0", name="ck_transactions_fee"),
+        sa.CheckConstraint(
+            "quantity > 0 AND quantity <> 'NaN'::numeric",
+            name="ck_transactions_quantity",
+        ),
+        sa.CheckConstraint(
+            "unit_price_amount > 0 AND unit_price_amount <> 'NaN'::numeric",
+            name="ck_transactions_unit_price",
+        ),
+        sa.CheckConstraint(
+            "fee_amount >= 0 AND fee_amount <> 'NaN'::numeric",
+            name="ck_transactions_fee",
+        ),
         sa.ForeignKeyConstraint(
             ["user_id"],
             ["users.id"],

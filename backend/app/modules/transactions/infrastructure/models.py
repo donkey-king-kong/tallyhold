@@ -45,9 +45,18 @@ class TransactionRow(Base):
             ondelete="NO ACTION",
         ),
         CheckConstraint("type IN ('BUY', 'SELL')", name="ck_transactions_type"),
-        CheckConstraint("quantity > 0", name="ck_transactions_quantity"),
-        CheckConstraint("unit_price_amount > 0", name="ck_transactions_unit_price"),
-        CheckConstraint("fee_amount >= 0", name="ck_transactions_fee"),
+        CheckConstraint(
+            "quantity > 0 AND quantity <> 'NaN'::numeric",
+            name="ck_transactions_quantity",
+        ),
+        CheckConstraint(
+            "unit_price_amount > 0 AND unit_price_amount <> 'NaN'::numeric",
+            name="ck_transactions_unit_price",
+        ),
+        CheckConstraint(
+            "fee_amount >= 0 AND fee_amount <> 'NaN'::numeric",
+            name="ck_transactions_fee",
+        ),
         CheckConstraint(
             "instrument_currency COLLATE \"C\" ~ '^[A-Z]{3}$'",
             name="ck_transactions_currency",
