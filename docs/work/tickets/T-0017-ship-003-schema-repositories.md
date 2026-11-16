@@ -17,8 +17,8 @@
   [T-0016](T-0016-003-repository-green.md).
 - Branch / worktree: `feature/003-schema-repositories-architecture`
 - Worktree path: `../tallyhold-feature-003-architecture`
-- Issue / PR: issue #17; PR not yet opened
-- Updated: 2026-11-16T08:23:11Z
+- Issue / PR: issue #17; [PR #23](https://github.com/donkey-king-kong/tallyhold/pull/23)
+- Updated: 2026-11-16T08:26:24Z
 
 ## Scope
 
@@ -42,21 +42,25 @@ comments and Agent Flow. Significant schema changes return to Zack.
 
 ## Checkpoint
 
-- Last completed action: independently reran all local ship checks against
-  pushed `4b5e884`; all passed.
+- Last completed action: opened PR #23 against `main`, confirmed assignee
+  `donkey-king-kong`, and verified six green push/PR check runs at
+  `563d1524cf6067c61117ddbb40f9eab7533e9eed`.
 - Evidence: backend ruff lint/format, strict mypy, import-linter, 88 tests at
   98.42% coverage on Compose PostgreSQL 17; fresh upgrade/downgrade smoke
   with disposable DB cleanup; frontend lint/format/types, 3 tests, build
   and `npm audit`; backend locked `pip-audit`; gitleaks scanned 151 commits
   with no leaks. Integration suite includes 30 PostgreSQL tests and migration
   roundtrip. No unmet local gate.
-- Worktree state: clean at `4b5e884`; this ship checkpoint pending commit;
-  no PR yet.
-- Remaining work: open PR, await CI, fresh Reviewer, merge gate and cleanup.
+- Worktree state: `563d152` pushed; PR #23 open, CI green; final pre-review
+  checkpoint uncommitted.
+- Remaining work: push this final pre-review checkpoint, recheck resulting
+  CI, fresh Reviewer, merge gate and cleanup.
 - Blocker / unblock action: none known; significant schema changes require
   Zack's approval; any failed ship gate blocks automated merge.
-- Next action: commit and push local verification checkpoint, then open PR to
-  `main` with issue/spec and assigned owner; await CI.
+- Next action: commit/push this PR/head/CI checkpoint, freeze all repository
+  tracking files, wait for the new head's CI, then dispatch a brand-new
+  isolated Reviewer for PR #23 round 1. Future lifecycle records go only
+  to Agent Flow and PR comments.
 - Handoff recipient: fresh Reviewer only after PR and green CI.
 
 ## History
@@ -65,3 +69,5 @@ comments and Agent Flow. Significant schema changes return to Zack.
 | --- | --- | --- | --- |
 | 2026-11-16T08:20:34Z | R-0019/coordinator | Claimed ship assignment after five ordered GREEN commits and pushed handoff `552545f` | Commit ownership, run local checks, open PR then fresh review |
 | 2026-11-16T08:23:11Z | R-0019/coordinator | Repeated backend, PostgreSQL, frontend and security checks on `4b5e884`; all passed including 88 tests at 98.42% coverage | Commit/push verification, open PR and await CI |
+| 2026-11-16T08:25:15Z | R-0019/coordinator | Opened PR #23 against `main` at `563d152`, assignee verified; branch-push checks passed, PR-triggered backend/frontend/security pending | Wait for CI before final review checkpoint |
+| 2026-11-16T08:26:24Z | R-0019/coordinator | Push and PR backend/frontend/security checks all green at `563d152`; no PR labels; assignee verified | Commit/push final pre-review checkpoint, await new CI, freeze tracking and dispatch fresh Reviewer |
