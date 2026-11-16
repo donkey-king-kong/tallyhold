@@ -3,9 +3,9 @@
 ## Assignment
 
 - Status: in_progress
-- Owner actor: R-0013/implementer-01
+- Owner actor: R-0014/coordinator
 - Role: Implementer
-- Run: [R-0013](../runs/R-0013.md)
+- Run: [R-0014](../runs/R-0014.md)
 - Feature / task: [Feature 002](../../specs/002-core-domain/spec.md)
 - Authorization: Gate 1 approved 2026-11-13; Zack's 2026-11-13 mission
   authorizes pure domain repository interfaces and direct execution because
@@ -14,7 +14,7 @@
 - Branch / worktree: `feature/002-core-domain`
 - Worktree path: `../tallyhold-feature-002`
 - Issue / PR: issue #7; PR not created
-- Updated: 2026-11-13T09:23:33Z
+- Updated: 2026-11-16T02:05:00Z
 
 ## Scope
 
@@ -35,17 +35,18 @@ frontend work.
 
 ## Checkpoint
 
-- Last completed action: reconciled the Test writer's clean RED handoff through
-  checkpoint commit `9f91e41` and assigned the Implementer.
-- Evidence: `uv run pytest --collect-only -q tests/domain` collected 56 tests;
-  `uv run pytest -q --tb=no tests/domain` reported 53 expected missing-behavior
-  failures and 3 purity-baseline passes; Ruff lint and format checks pass.
-- Worktree state: clean at `9f91e41` before this Implementer assignment.
-- Remaining work: implementation, full checks, and ship.
+- Last completed action: completed Money and owned entities without changing
+  the committed RED tests.
+- Evidence: 15 targeted tests pass; Ruff lint/format, strict mypy, and
+  import-linter pass; the full domain run has 38 expected later-slice failures
+  and 18 passes.
+- Worktree state: first GREEN task ready to commit; branch is not pushed.
+- Remaining work: transactions and repositories, portfolio calculations,
+  final checks, and ship.
 - Blocker / unblock action: none. The requested `R-0010` was already allocated
   to unrelated active work, so the next unused run `R-0013` is used.
-- Next action: implement Money and owned entities, run all five checks, and
-  commit the completed task without altering tests.
+- Next action: commit Money and owned entities, then implement transactions and
+  repository ports without altering tests.
 - Handoff recipient: coordinator after all GREEN tasks and checks complete.
 
 ## History
@@ -62,3 +63,6 @@ frontend work.
 | 2026-11-13T09:21:32Z | R-0013/test-writer-01 | Completed AC1-AC10 and five-repository RED coverage at planned seams | 56 collected; 53 missing-behavior failures, 3 purity passes; commit RED next |
 | 2026-11-13T09:22:30Z | R-0013/test-writer-01 | Committed the verified RED contract as `aafbf74` without production changes | Coordinator records completion and assigns the first GREEN task |
 | 2026-11-13T09:23:33Z | R-0013/coordinator | Verified the clean RED handoff through `9f91e41` and assigned implementation | Complete each GREEN task with all five checks and separate commits |
+| 2026-11-13T09:24:42Z | R-0013/implementer-01 | Reconciled the clean `feature/002-core-domain` assignment and claimed GREEN implementation | Implement Money and owned entities without editing tests |
+| 2026-11-16T02:00:00Z | R-0014/coordinator | Took over the interrupted GREEN assignment and preserved its unfinished files | Complete the first implementation task, checks, and commit |
+| 2026-11-16T02:05:00Z | R-0014/coordinator | Completed Money, User, Broker, Account, and Instrument with public exports | 15 targeted tests pass; four static checks pass; 38 expected later-slice RED failures remain |
