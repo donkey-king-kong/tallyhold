@@ -16,7 +16,7 @@ in order, and run all five backend checks after every implementation task.
   `User`, `Broker`, `Account`, and `Instrument`, including exact Decimal and
   currency/ownership invariants (AC1, AC2, AC9). Run full checks, check off this
   task, and commit `feat: add core domain entities`.
-- [ ] **Transactions and repository ports, Implementer:** Implement immutable
+- [x] **Transactions and repository ports, Implementer:** Implement immutable
   BUY/SELL `Transaction`, reject invalid/unsupported trades, and add the five
   pure abstract repository interfaces (AC2, AC9, AC10 and the Feature 003
   dependency). Run full checks, check off this task, and commit

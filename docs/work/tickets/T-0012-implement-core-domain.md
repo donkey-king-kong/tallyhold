@@ -14,7 +14,7 @@
 - Branch / worktree: `feature/002-core-domain`
 - Worktree path: `../tallyhold-feature-002`
 - Issue / PR: issue #7; PR not created
-- Updated: 2026-11-16T02:05:00Z
+- Updated: 2026-11-16T02:10:00Z
 
 ## Scope
 
@@ -35,18 +35,17 @@ frontend work.
 
 ## Checkpoint
 
-- Last completed action: completed Money and owned entities without changing
-  the committed RED tests.
-- Evidence: 15 targeted tests pass; Ruff lint/format, strict mypy, and
-  import-linter pass; the full domain run has 38 expected later-slice failures
-  and 18 passes.
-- Worktree state: first GREEN task ready to commit; branch is not pushed.
-- Remaining work: transactions and repositories, portfolio calculations,
-  final checks, and ship.
+- Last completed action: implemented immutable BUY/SELL transactions and five
+  pure abstract repository ports without changing tests.
+- Evidence: 19 transaction/repository tests pass; Ruff lint/format, strict
+  mypy, and import-linter pass; 20 expected portfolio failures remain and 36
+  tests pass.
+- Worktree state: second GREEN task ready to commit; branch is not pushed.
+- Remaining work: average-cost positions, calculations, final checks, and ship.
 - Blocker / unblock action: none. The requested `R-0010` was already allocated
   to unrelated active work, so the next unused run `R-0013` is used.
-- Next action: commit Money and owned entities, then implement transactions and
-  repository ports without altering tests.
+- Next action: commit transaction and repository contracts, then implement
+  average-cost positions without altering tests.
 - Handoff recipient: coordinator after all GREEN tasks and checks complete.
 
 ## History
@@ -66,3 +65,4 @@ frontend work.
 | 2026-11-13T09:24:42Z | R-0013/implementer-01 | Reconciled the clean `feature/002-core-domain` assignment and claimed GREEN implementation | Implement Money and owned entities without editing tests |
 | 2026-11-16T02:00:00Z | R-0014/coordinator | Took over the interrupted GREEN assignment and preserved its unfinished files | Complete the first implementation task, checks, and commit |
 | 2026-11-16T02:05:00Z | R-0014/coordinator | Completed Money, User, Broker, Account, and Instrument with public exports | 15 targeted tests pass; four static checks pass; 38 expected later-slice RED failures remain |
+| 2026-11-16T02:10:00Z | R-0014/coordinator | Completed BUY/SELL transactions and five abstract repository ports | 19 targeted tests and four static checks pass; 20 expected portfolio RED failures remain |
