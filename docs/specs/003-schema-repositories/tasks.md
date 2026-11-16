@@ -84,7 +84,7 @@ per task. The Implementer does not change tests merely to make them pass.
   FK order on downgrade. Trace: plan "Persistence boundary", "Relational
   design and Architecture Q2", "Migrations and real PostgreSQL verification"
   items 1-2, 6; AC1-AC3, AC5, AC7.
-- [ ] **Shared/root adapters and error type:** Implement the `User`, `Broker`
+- [x] **Shared/root adapters and error type:** Implement the `User`, `Broker`
   and `Instrument` repository ABCs within their infrastructure modules;
   map frozen domain values without ORM leakage, preserve instrument spelling,
   use case-insensitive market lookup, permit shared broker/instrument saves,
