@@ -2,8 +2,8 @@
 
 ## Assignment
 
-- Status: ready
-- Owner actor: R-0019/coordinator (pending replacement Implementer)
+- Status: in_progress
+- Owner actor: R-0019/implementer-02
 - Role: Implementer
 - Run: [R-0019](../runs/R-0019.md)
 - Feature / task: [Feature 003 GREEN](../../specs/003-schema-repositories/tasks.md#green-after-the-red-handoff-only)
@@ -16,7 +16,7 @@
 - Branch / worktree: `feature/003-schema-repositories-architecture`
 - Worktree path: `../tallyhold-feature-003-architecture`
 - Issue / PR: issue #17; no PR yet
-- Updated: 2026-11-16T08:11:01Z
+- Updated: 2026-11-16T08:15:00Z
 
 ## Scope
 
@@ -40,22 +40,16 @@ tests unchanged and escalate significant schema changes to Zack before coding.
 
 ## Checkpoint
 
-- Last completed action: Test writer corrected only the invalid PostgreSQL
-  catalog assertion in pushed `cf9f09c`; targeted real-PostgreSQL
-  migration/isolation suite passed 17/17.
-- Evidence: PostgreSQL stores explicit `ON DELETE NO ACTION` as
-  `pg_constraint.confdeltype='a'`; Test writer preserved composite FK/key
-  assertions. No approved schema decision changed. Ruff lint/format passed
-  for the corrected test.
-- Worktree state: uncommitted task-one schema files retained, unstaged;
-  coordinator run/ticket checkpoints uncommitted. No adapter/CI work yet.
-- Remaining work: fix two known import-order lint findings in task-one WIP,
-  verify/commit it, then tasks two through five and full checks.
+- Last completed action: Task-one schema verified against PostgreSQL and
+  checked off for commit.
+- Evidence: 17/17 migration/isolation tests; ruff, format, mypy and
+  import-linter pass.
+- Worktree state: schema task ready for commit; no adapter work.
+- Remaining work: commit task one, then tasks two through five.
 - Blocker / unblock action: catalog-test blocker resolved; significant schema
   changes still require Zack's approval before proceeding.
-- Next action: dispatch replacement Implementer to preserve task-one WIP,
-  verify against corrected RED and commit task one when checks pass.
-- Handoff recipient: replacement Implementer after confirmed dispatch.
+- Next action: commit task one and implement shared/root adapters.
+- Handoff recipient: ship coordinator after full GREEN verification.
 
 ## History
 
@@ -65,3 +59,5 @@ tests unchanged and escalate significant schema changes to Zack before coding.
 | 2026-11-16T08:04:02Z | R-0019/implementer-01 | Claimed GREEN; clean synced `2b9fe0e`, approved spec/plan/tasks and RED tests read, Compose PostgreSQL healthy | Implement schema/migration task first |
 | 2026-11-16T08:05:47Z | R-0019/implementer-01 | Task-one schema WIP; targeted PostgreSQL suite 16 passed, one invalid catalog expectation failed; independent DB reproduced PG default-action normalization (`confdeltype='a'`); WIP has two import-order lint findings | Stop without changing RED or committing incomplete schema; coordinator corrects test contract |
 | 2026-11-16T08:11:01Z | R-0019/coordinator | Test writer fixed catalog assertion in `cf9f09c`; targeted real-PostgreSQL suite 17 passed, test lint/format passed | Resume task one from preserved unstaged schema WIP; no schema deviation |
+| 2026-11-16T08:12:53Z | R-0019/implementer-02 | Claimed replacement assignment after confirmed predecessor stop; fixed two import-order findings in preserved task-one WIP | Verify schema and migration against corrected RED before commit |
+| 2026-11-16T08:15:00Z | R-0019/implementer-02 | Verified schema on Compose PostgreSQL 17 (17/17), ruff lint/format, mypy and import-linter all passed; task one checked | Commit schema task, then root adapters |

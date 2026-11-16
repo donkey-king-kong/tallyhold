@@ -74,7 +74,7 @@ Test each repository only for operations exposed by its Feature 002 port.
 Complete in order, with a distinct logical commit and targeted verification
 per task. The Implementer does not change tests merely to make them pass.
 
-- [ ] **SQLAlchemy rows and Alembic revision:** Add shared Base, per-module
+- [x] **SQLAlchemy rows and Alembic revision:** Add shared Base, per-module
   infrastructure rows and explicit metadata imports. Create all and only the
   five plan tables in `0002_core_persistence` after empty `0001_baseline`,
   with every ERD column, server-generated `entry_seq`, `created_at` everywhere

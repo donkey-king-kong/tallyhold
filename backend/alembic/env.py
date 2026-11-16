@@ -3,9 +3,14 @@
 import os
 from logging.config import fileConfig
 
-from sqlalchemy import MetaData, engine_from_config, pool
+from sqlalchemy import engine_from_config, pool
 
 from alembic import context
+from app.modules.accounts.infrastructure import models as account_models  # noqa: F401
+from app.modules.identity.infrastructure import models as identity_models  # noqa: F401
+from app.modules.instruments.infrastructure import models as instrument_models  # noqa: F401
+from app.modules.transactions.infrastructure import models as transaction_models  # noqa: F401
+from app.shared.infrastructure.database import Base
 
 config = context.config
 if config.config_file_name and config.get_section("loggers"):
@@ -13,7 +18,7 @@ if config.config_file_name and config.get_section("loggers"):
 
 url = os.environ["DATABASE_URL"]
 config.set_main_option("sqlalchemy.url", url.replace("%", "%%"))
-target_metadata = MetaData()
+target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:
