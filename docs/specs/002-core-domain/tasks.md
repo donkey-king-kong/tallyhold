@@ -27,7 +27,7 @@ in order, and run all five backend checks after every implementation task.
   partial/full sells, oversell rejection, and post-close reset (AC3-AC5). Run
   full checks, check off this task, and commit
   `feat: derive average-cost positions`.
-- [ ] **Profit, loss, and weights, Implementer:** Implement
+- [x] **Profit, loss, and weights, Implementer:** Implement
   `calculate_realised_pnl()`, `calculate_unrealised_pnl()`, and
   `calculate_portfolio_weights()` with exact Decimal and strict currency
   behavior (AC6-AC9). Run full checks, check off this task, and commit

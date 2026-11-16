@@ -14,7 +14,7 @@
 - Branch / worktree: `feature/002-core-domain`
 - Worktree path: `../tallyhold-feature-002`
 - Issue / PR: issue #7; PR not created
-- Updated: 2026-11-16T02:15:00Z
+- Updated: 2026-11-16T02:20:00Z
 
 ## Scope
 
@@ -35,17 +35,16 @@ frontend work.
 
 ## Checkpoint
 
-- Last completed action: implemented average-cost positions and per-sale
-  realised results without changing tests.
-- Evidence: all eight average-cost tests pass; Ruff lint/format, strict mypy,
-  and import-linter pass; 12 expected calculation failures remain and 44 tests
-  pass.
-- Worktree state: third GREEN task ready to commit; branch is not pushed.
-- Remaining work: calculations, final checks, and ship.
+- Last completed action: completed all approved domain implementation and full
+  backend verification without changing tests.
+- Evidence: Ruff lint/format, strict mypy, and import-linter pass; all 58
+  backend tests pass with 97.33% coverage.
+- Worktree state: final GREEN task ready to commit; branch is not pushed.
+- Remaining work: final ship checkpoint, push, PR, CI, fresh review, and merge.
 - Blocker / unblock action: none. The requested `R-0010` was already allocated
   to unrelated active work, so the next unused run `R-0013` is used.
-- Next action: commit average-cost positions, then implement profit, loss, and
-  weights without altering tests.
+- Next action: commit profit, loss, and weights, then prepare and push the
+  complete implementation for ship.
 - Handoff recipient: coordinator after all GREEN tasks and checks complete.
 
 ## History
@@ -67,3 +66,4 @@ frontend work.
 | 2026-11-16T02:05:00Z | R-0014/coordinator | Completed Money, User, Broker, Account, and Instrument with public exports | 15 targeted tests pass; four static checks pass; 38 expected later-slice RED failures remain |
 | 2026-11-16T02:10:00Z | R-0014/coordinator | Completed BUY/SELL transactions and five abstract repository ports | 19 targeted tests and four static checks pass; 20 expected portfolio RED failures remain |
 | 2026-11-16T02:15:00Z | R-0014/coordinator | Completed deterministic average-cost positions and realised sale results | Eight targeted tests and four static checks pass; 12 expected calculation RED failures remain |
+| 2026-11-16T02:20:00Z | R-0014/coordinator | Completed exact realised/unrealised P&L and per-instrument weights | All 58 backend tests and four static checks pass; coverage is 97.33% |
