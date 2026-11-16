@@ -20,6 +20,7 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 | [T-0004](tickets/T-0004-draft-core-domain-spec.md) | Approve the Feature 002 core domain contract | [R-0011](runs/R-0011.md) |
 | [T-0011](tickets/T-0011-draft-schema-repositories-spec.md) | Approve the Feature 003 persistence contract | [R-0012](runs/R-0012.md) |
 | [T-0012](tickets/T-0012-implement-core-domain.md) | Implement and ship Feature 002 core domain | [R-0013](runs/R-0013.md) |
+| [T-0013](tickets/T-0013-agent-monitor-spec.md) | Approve and ship the Agent Monitor extension contract | [R-0016](runs/R-0016.md) |
 
 Historical PR #6 post-dispatch records remain in T-0002's checkpoint
 branch/worktree. Future ship runs use PR comments instead.
