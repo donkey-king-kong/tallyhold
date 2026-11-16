@@ -117,6 +117,22 @@ def test_direct_sql_rejects_invalid_trade_values(
 
 
 @pytest.mark.parametrize(
+    "column",
+    ("quantity", "unit_price_amount", "fee_amount"),
+)
+def test_direct_sql_rejects_nan_trade_values(
+    connection: Connection,
+    column: str,
+) -> None:
+    rows = seed_rows(connection)
+    with rejected_sql(connection):
+        insert(connection, "transactions", **trade(rows, **{column: Decimal("NaN")}))
+    assert (
+        connection.execute(text("SELECT count(*) FROM transactions")).scalar_one() == 0
+    )
+
+
+@pytest.mark.parametrize(
     "table,column",
     (
         ("users", "base_currency"),
