@@ -25,6 +25,8 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 | [T-0015](tickets/T-0015-003-repository-red.md) | Write Feature 003 failing PostgreSQL repository tests | [R-0018](runs/R-0018.md) |
 | [T-0016](tickets/T-0016-003-repository-green.md) | Implement Feature 003 schema and repositories | [R-0019](runs/R-0019.md) |
 | [T-0017](tickets/T-0017-ship-003-schema-repositories.md) | Ship Feature 003 after GREEN verification | [R-0019](runs/R-0019.md) |
+| [T-0018](tickets/T-0018-production-migrations.md) | Ship approval-gated Supabase production migrations | [R-0020](runs/R-0020.md) |
+| [T-0019](tickets/T-0019-review-production-migrations.md) | Independent review of production migration PR #25 | [R-0020](runs/R-0020.md) |
 
 Historical PR #6 post-dispatch records remain in T-0002's checkpoint
 branch/worktree. Future ship runs use PR comments instead.

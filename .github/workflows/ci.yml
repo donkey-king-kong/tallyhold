@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - "feature/**"
+      - main
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -101,3 +103,31 @@ jobs:
       - name: Audit production frontend dependencies
         working-directory: frontend
         run: npm audit --omit=dev --audit-level=high
+
+  production-migrations:
+    if: github.ref == 'refs/heads/main'
+    needs: [backend, frontend, security]
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: production-migrations
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version-file: backend/.python-version
+      - uses: astral-sh/setup-uv@v10.3.3
+        with:
+          version: "0.13.7"
+          enable-cache: true
+      - run: uv sync --locked --no-dev
+      - name: Upgrade production schema
+        env:
+          DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
+        run: uv run --locked --no-dev alembic upgrade head
