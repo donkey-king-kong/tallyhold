@@ -98,3 +98,25 @@ uv run --locked pip-audit -r /tmp/tallyhold-requirements.txt
 ```
 
 Run `gitleaks git --redact --exit-code 1 .` at the repository root for the secret scan. CI runs these checks and the migration round-trip against a fresh PostgreSQL service on every pull request.
+
+## Production database migrations
+
+On each push to `main`, CI runs the backend, frontend and security checks
+first. Only if all three pass does the `production-migrations` job wait for
+Zack's approval through the GitHub `production` environment. The workflow can
+also be started with **Run workflow** (`workflow_dispatch`) on `main`; it
+performs the same checks and requires the same approval. A manual run on
+another branch does not run the production job.
+
+Once approved, the job runs `alembic upgrade head` from `backend/` using
+`DATABASE_URL` sourced from the `SUPABASE_DATABASE_URL` GitHub Actions secret.
+Configure that secret with the production PostgreSQL connection URL without
+committing or printing it. The URL must use the installed psycopg driver
+(`postgresql+psycopg://...`). The production job never downgrades, deploys the
+API or consumes other secrets. CI's upgrade/downgrade smoke test uses only its
+disposable local PostgreSQL service, not Supabase.
+
+Keep Supabase's own **Deploy to production** integration **OFF**: Alembic is
+the only tool that applies Tallyhold schema migrations. Confirm the GitHub
+`production` environment requires Zack's review before enabling this job;
+an unprotected environment would not provide the required approval gate.
