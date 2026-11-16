@@ -93,6 +93,19 @@ def test_five_ports_round_trip_and_shared_reference_access(
     assert session.in_transaction()
 
 
+def test_instrument_lookup_ignores_case_without_changing_stored_spelling(
+    repos: dict[str, object], session: Session
+) -> None:
+    instrument = Instrument(uuid4(), "AAPL", "NASDAQ", "Apple", "equity", "USD")
+    repos["instruments"].save(instrument)
+    session.expire_all()
+
+    for symbol, exchange in (("aapl", "nasdaq"), ("Aapl", "NASDAQ")):
+        found = repos["instruments"].find_by_symbol(symbol, exchange)
+        assert found == instrument
+        assert (found.symbol, found.exchange) == ("AAPL", "NASDAQ")
+
+
 def test_supported_replacements_and_deletions(
     repos: dict[str, object], session: Session
 ) -> None:
