@@ -7,7 +7,7 @@ The [constitution](../../../docs/constitution.md) wins over this skill if instru
 
 # Test-Driven Development
 
-TDD is the red -> green loop, followed by review-stage refactoring. Use the approved `docs/specs/NNN-name/{spec,plan,tasks}.md` and [commit cadence](../../../docs/conventions.md#commit-cadence). The Test writer owns RED; after a committed handoff the Implementer owns GREEN and REFACTOR. They remain separate roles.
+TDD is the red -> green loop, followed by review-stage refactoring. Use the approved `docs/specs/NNN-name/{spec,plan,tasks}.md` and [commit cadence](../../../docs/conventions.md#commit-cadence). The Test writer owns RED; after a committed, pushed handoff and [independent RED approval](../../../docs/skills/red-review.md), the Implementer owns GREEN and REFACTOR. They remain separate roles.
 
 When exploring, read `GLOSSARY.md` if present so test names match domain language, and respect relevant `docs/adr/` decisions.
 
@@ -35,6 +35,6 @@ When the interface itself is in question, ask the Architect to resolve it in the
 
 ## Rules of the loop
 
-- **Red before green.** The Test writer writes a failing pytest test, verifies it fails for missing behavior, and commits `test: ...` before handing off. The Implementer writes only enough code to pass, commits `feat: ...` or `fix: ...`, and never edits tests to make them pass.
+- **Red before green.** The Test writer writes a failing pytest test, verifies it fails for missing behavior, commits and pushes the RED test and run evidence, and waits for a fresh RED Reviewer verdict. The Implementer starts only after `APPROVE`, writes enough code to pass, commits `feat: ...` or `fix: ...`, and never edits tests to make them pass.
 - **One slice at a time.** One seam, one test, one minimal implementation per cycle.
 - **Refactor after green.** At the review stage, the Implementer may make behavior-preserving changes in separate `refactor: ...` commits, keeping tests green. Follow the [reviewer handoff](../../../docs/workflow.md); keep refactoring separate from behavior changes.

@@ -288,6 +288,7 @@ Suggested split: Claude Code for Planner, Architect and Reviewer; Trae for Test 
 | Planner | Turns a feature request into `spec.md` with testable acceptance criteria | Feature spec | Write code |
 | Architect | Turns an approved spec into `plan.md`; checks layering, SOLID and schema | Plan, ADRs, migrations design | Write feature code |
 | Test writer | Writes failing pytest tests from the acceptance criteria | Tests | Change production code |
+| RED Reviewer | Fresh headless Claude session checks pushed RED tests before GREEN | RED report and identical commit comment | Write code or alter approved requirements |
 | Implementer | Makes the tests pass, task by task, on a feature branch | Code, Alembic migrations | Edit tests to make them pass, push to `main` |
 | Reviewer | Fresh subagent each round; reviews PR diff against spec, plan, constitution and security | Review report and identical PR comment | Edit code or tests, merge or review its own changes |
 | DevOps | Maintains CI/CD and environments | GitHub Actions, Dockerfiles | Touch secrets |
@@ -298,8 +299,8 @@ Suggested split: Claude Code for Planner, Architect and Reviewer; Trae for Test 
 2. Planner drafts `spec.md`.
 3. **Gate 1:** Zack approves the spec (and the plan for anything touching schema or architecture).
 4. Architect writes `plan.md` and `tasks.md`.
-5. Test writer commits failing tests on `feature/NNN-name`.
-6. Implementer works through `tasks.md` until the tests pass, committing with Conventional Commit messages.
+5. Test writer commits and pushes failing tests and RED run evidence on `feature/NNN-name`.
+6. A fresh [RED Reviewer](skills/red-review.md) checks the pushed tests against the approved spec and plan, records `APPROVE` or `CHANGES_REQUESTED` on the branch, and escalates after two unsuccessful rounds or a requirements/security conflict. On approval, the Implementer works through `tasks.md` until the tests pass, committing with Conventional Commit messages.
 7. An agent opens a pull request linking the issue and spec.
 8. CI runs; a failure goes back to step 6.
 9. A brand-new Reviewer subagent checks the PR diff with [only its permitted inputs](agents/reviewer.md) and posts `review.md` and an identical PR comment. Every round starts a new subagent; change requests go back to step 6, at most 3 rounds before escalating to Zack.

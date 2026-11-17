@@ -7,10 +7,10 @@ Tallyhold ("All your brokers. One portfolio.") is a multi-user, read-only portfo
 **Session recovery:** On every new session, context recovery, or task assignment,
 read [work tracking](docs/work/README.md) and the relevant ticket before acting.
 Record ownership before work, checkpoint results and failures as they occur, and
-leave an exact next action before handoff. Fresh Reviewers keep their restricted
-inputs; the coordinator records their tickets and runs externally.
+leave an exact next action before handoff. Fresh PR and RED Reviewers keep their
+restricted inputs; the coordinator records their tickets and runs externally.
 
-1. [Constitution](docs/constitution.md) for non-negotiable rules. Exception: a fresh Reviewer reads only [its permitted inputs](docs/agents/reviewer.md).
+1. [Constitution](docs/constitution.md) for non-negotiable rules. Exception: fresh PR and RED Reviewers read only their permitted inputs in [their roles](docs/agents/).
 2. [Product spec](docs/spec.md) for product and architecture decisions; it wins over summaries elsewhere.
 3. For a feature, read `docs/specs/NNN-name/spec.md`, then the approved `plan.md` and `tasks.md` when present.
 4. Read [workflow](docs/workflow.md) for handoffs and the relevant [role](docs/agents/) before acting in that role.
@@ -39,9 +39,9 @@ inputs; the coordinator records their tickets and runs externally.
 ## Work on a feature
 
 1. GitHub issue -> Planner drafts feature `spec.md` -> **Gate 1:** Zack approves the spec. For schema or architecture changes, Zack also approves the plan before execution.
-2. Architect writes `plan.md` and `tasks.md`; Test writer commits failing tests; Implementer makes them pass.
+2. Architect writes `plan.md` and `tasks.md`; Test writer commits and pushes failing tests and RED run evidence. A [fresh independent RED review](docs/skills/red-review.md) approves before the Implementer starts GREEN; changes get at most two fresh rounds, then Zack resolves escalations.
 3. **"create pr", "open pr", "ship" or "ship it": run [ship](docs/skills/ship.md) end to end**: [create-pr](docs/skills/create-pr.md) sub-step, checks, fresh Reviewer each round, fixes and merge gate (at most three rounds).
-4. **Gate 2:** The ship coordinator merges only if every gate passes; Zack merges constitution-changing PRs or resolves `needs-human`. CD deploys staging; production deploys on a tagged release.
+4. **Gate 2:** The ship coordinator merges only if every gate passes; Zack merges constitution-changing PRs or resolves `needs-human`. Zack also approves Gate 1 specs, architecture/schema plans, production migrations and RED escalations. CD deploys staging; production deploys on a tagged release.
 
 Git is the only sync between Trae and Claude Code devices: pull before starting, push when stopping. Use `git worktree add <path> -b <branch>` to work on each feature or maintenance task in an isolated directory; multiple worktrees may be active simultaneously on different branches. Never run two tools on the same branch at the same time. Agents never push directly to `main`; merge only through ship. After a branch is merged, clean up with `git worktree remove <path>` from the main worktree, then delete the local branch.
 

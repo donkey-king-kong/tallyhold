@@ -12,13 +12,18 @@ ticket. Maintain that ticket under its checkpoint procedure in addition to the
 role outputs below; return updates to the coordinator if running read-only.
 
 ## Outputs it produces
-`backend/tests/` pytest test files on `feature/NNN-name` (exact filenames in the approved plan).
+`backend/tests/` pytest test files on `feature/NNN-name` (exact filenames in
+the approved plan) and `docs/specs/NNN-name/red-test-run.md`.
 
 ## Steps
 1. Map criteria to focused tests, including domain edge cases and user isolation where relevant.
    Use [tdd](../../.claude/skills/tdd/SKILL.md) for RED; hand GREEN and REFACTOR to Implementer.
-2. Run pytest and record the expected red result for missing behavior; commit failing tests separately from implementation following [commit cadence](../conventions.md#commit-cadence).
-3. Commit before handoff; give the failing tests and criterion mapping to the Implementer.
+2. Commit the failing tests separately from implementation, then run new RED
+   cases and the existing tests separately at that test commit. Exclude only
+   the new RED cases from the existing-suite command. Record sanitized
+   commands, counts, failure reasons, existing-suite results and criterion/plan
+   verification mapping in `red-test-run.md`.
+3. Commit and push the evidence with the tests following [commit cadence](../conventions.md#commit-cadence). Hand the pushed RED head to the coordinator for [independent RED review](../skills/red-review.md); on changes requested, fix in a new commit and push. Hand GREEN to the Implementer only after `APPROVE`.
 
 ## Agent Flow (mandatory)
 The coordinator ensures the session exists and publishes `start` before the
@@ -37,19 +42,25 @@ python3 .trae/agent-flow/adapter.py tool-end --agent test_writer --category Read
 python3 .trae/agent-flow/adapter.py tool-start --agent test_writer --category Edit
 # Add focused tests and their acceptance-criterion mapping.
 python3 .trae/agent-flow/adapter.py tool-end --agent test_writer --category Edit --outcome succeeded
-python3 .trae/agent-flow/adapter.py status --agent test_writer --state working --activity "Running red tests"
+python3 .trae/agent-flow/adapter.py tool-start --agent test_writer --category Shell
+# Commit RED tests before running checks at the pinned test revision.
+python3 .trae/agent-flow/adapter.py tool-end --agent test_writer --category Shell --outcome succeeded
+python3 .trae/agent-flow/adapter.py status --agent test_writer --state working --activity "Checking red and existing tests"
 python3 .trae/agent-flow/adapter.py tool-start --agent test_writer --category Test
 # Run the targeted RED test command.
 python3 .trae/agent-flow/adapter.py tool-end --agent test_writer --category Test --outcome failed
+python3 .trae/agent-flow/adapter.py tool-start --agent test_writer --category Test
+# Run the existing suite excluding only new RED cases.
+python3 .trae/agent-flow/adapter.py tool-end --agent test_writer --category Test --outcome succeeded
 python3 .trae/agent-flow/adapter.py tool-start --agent test_writer --category Edit
-# Record that the expected failure is missing behavior, not a broken test.
+# Record RED and existing-suite evidence and mapping in red-test-run.md.
 python3 .trae/agent-flow/adapter.py tool-end --agent test_writer --category Edit --outcome succeeded
-python3 .trae/agent-flow/adapter.py status --agent test_writer --state working --activity "Committing red tests"
+python3 .trae/agent-flow/adapter.py status --agent test_writer --state working --activity "Pushing RED evidence"
 python3 .trae/agent-flow/adapter.py tool-start --agent test_writer --category Shell
-# Inspect the RED test changes before handoff.
+# Inspect evidence changes before handoff.
 python3 .trae/agent-flow/adapter.py tool-end --agent test_writer --category Shell --outcome succeeded
 python3 .trae/agent-flow/adapter.py tool-start --agent test_writer --category Shell
-# Commit the RED test changes before handoff.
+# Commit the evidence and push both commits before review.
 python3 .trae/agent-flow/adapter.py tool-end --agent test_writer --category Shell --outcome succeeded
 python3 .trae/agent-flow/adapter.py complete --agent test_writer --parent orchestrator --summary "Red tests handed off"
 python3 .trae/agent-flow/adapter.py status --agent test_writer --state blocked --activity "Test writing blocked"
@@ -69,4 +80,4 @@ completion when blocked.
 Change production code or weaken tests to hide failures.
 
 ## Done when
-New tests fail for missing behavior (not collection or syntax errors), with each applicable criterion covered.
+New tests fail for missing behavior (not collection or syntax errors), existing tests pass, evidence is pushed, and the coordinator has the RED review handoff.
