@@ -12,7 +12,7 @@
 - Branch / worktree: `feature/004-agent-monitor` / `../tallyhold-feature-004-agent-monitor`
 - Worktree path: `../tallyhold-feature-004-agent-monitor`
 - Issue / PR: [#20](https://github.com/donkey-king-kong/tallyhold/issues/20); [#42](https://github.com/donkey-king-kong/tallyhold/pull/42)
-- Updated: 2026-11-17T09:50:36Z
+- Updated: 2026-11-17T10:19:05Z
 
 ## Scope
 
@@ -32,20 +32,21 @@ interaction and the broader editor lifecycle matrix remain unverified.
 
 ## Checkpoint
 
-- Last completed action: round 2 requested three must-fixes and one should-fix; all were fixed and pushed at green `ea8d726`; preferred headless Claude 2.1.322 round-3 launch then failed before a verdict with API `ECONNREFUSED`, consuming no round.
-- Evidence: round-2 `review.md` and identical PR comment; 71/71 tests and release matrix pass; duplicate PR CI runs green at `ea8d726`; factual round-3 failed-launch PR comment.
-- Worktree state: clean pushed `ea8d726` before this required failed-launch recovery checkpoint.
-- Remaining work: commit/push this checkpoint, wait for new-head CI, then dispatch a brand-new Trae explorer fallback for review round 3 with only the Reviewer role's permitted inputs.
+- Last completed action: Zack authorized fixes for all six round-3 findings and one exceptional fresh review; fixes passed 77/77 tests, the release matrix and duplicate CI at `734117f`; preferred headless Claude 2.1.322 then failed before a verdict with API `ECONNREFUSED`, consuming no review.
+- Evidence: authorization and fix checkpoint PR comments; local verification and duplicate green CI at `734117f`; factual exceptional-review failed-launch PR comment.
+- Worktree state: clean pushed `734117f` before this required failed-launch recovery checkpoint.
+- Remaining work: commit/push this checkpoint, wait for new-head CI, then dispatch a brand-new Trae explorer fallback for the authorized exceptional review with only the Reviewer role's permitted inputs.
 - Blocker / unblock action: none.
-- Next action: push the failed-launch checkpoint, verify CI, freeze tracking and launch fresh Trae fallback review round 3.
+- Next action: push the failed-launch checkpoint, verify CI, freeze tracking and launch the fresh Trae fallback exceptional review.
 - Handoff recipient: fresh PR Reviewer through R-0051/coordinator.
 
 ## History
 
-| UTC time | Actor | Event and observed result | Evidence / next action |
-| --- | --- | --- | --- |
-| 2026-11-17T08:50:21Z | R-0051/coordinator | Created after Zack requested ship with the recorded compatibility gaps accepted | Commit/push final handoff, then run release checks |
-| 2026-11-17T08:54:43Z | R-0051/coordinator | Local release matrix passed; opened assigned PR #42 at pushed `08ee9b0`; duplicate PR-triggered CI runs both passed backend/frontend/security | Commit/push this final repository checkpoint, wait for final-head CI, then freeze tracking and dispatch fresh review |
-| 2026-11-17T09:01:04Z | R-0051/coordinator | Final-head CI passed at `e60a920`; headless Claude 2.1.322 failed before verdict with API `ECONNREFUSED`; no round consumed | Commit/push failure checkpoint, wait for CI, then dispatch a fresh Trae explorer fallback for round 1 |
-| 2026-11-17T09:29:35Z | R-0051/coordinator | Trae fallback round 1 requested six must-fixes; fixes and expanded performance evidence passed locally and in CI at `f01dbca`; headless Claude round-2 launch failed before verdict with API `ECONNREFUSED` | Commit/push required recovery checkpoint, wait for CI, then dispatch a different fresh Trae fallback for round 2 |
-| 2026-11-17T09:50:36Z | R-0051/coordinator | Trae fallback round 2 requested three must-fixes and one should-fix; all fixes passed the 71-test release matrix and green CI at `ea8d726`; headless Claude round-3 launch failed before verdict with API `ECONNREFUSED` | Commit/push required recovery checkpoint, wait for CI, then dispatch a different fresh Trae fallback for final round 3 |
+| UTC time             | Actor              | Event and observed result                                                                                                                                                                                                                           | Evidence / next action                                                                                                               |
+| -------------------- | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| 2026-11-17T08:50:21Z | R-0051/coordinator | Created after Zack requested ship with the recorded compatibility gaps accepted                                                                                                                                                                     | Commit/push final handoff, then run release checks                                                                                   |
+| 2026-11-17T08:54:43Z | R-0051/coordinator | Local release matrix passed; opened assigned PR #42 at pushed `08ee9b0`; duplicate PR-triggered CI runs both passed backend/frontend/security                                                                                                       | Commit/push this final repository checkpoint, wait for final-head CI, then freeze tracking and dispatch fresh review                 |
+| 2026-11-17T09:01:04Z | R-0051/coordinator | Final-head CI passed at `e60a920`; headless Claude 2.1.322 failed before verdict with API `ECONNREFUSED`; no round consumed                                                                                                                         | Commit/push failure checkpoint, wait for CI, then dispatch a fresh Trae explorer fallback for round 1                                |
+| 2026-11-17T09:29:35Z | R-0051/coordinator | Trae fallback round 1 requested six must-fixes; fixes and expanded performance evidence passed locally and in CI at `f01dbca`; headless Claude round-2 launch failed before verdict with API `ECONNREFUSED`                                         | Commit/push required recovery checkpoint, wait for CI, then dispatch a different fresh Trae fallback for round 2                     |
+| 2026-11-17T09:50:36Z | R-0051/coordinator | Trae fallback round 2 requested three must-fixes and one should-fix; all fixes passed the 71-test release matrix and green CI at `ea8d726`; headless Claude round-3 launch failed before verdict with API `ECONNREFUSED`                            | Commit/push required recovery checkpoint, wait for CI, then dispatch a different fresh Trae fallback for final round 3               |
+| 2026-11-17T10:19:05Z | R-0051/coordinator | After round 3 escalation, Zack authorized all six fixes and one exceptional fresh review; fixes passed the 77-test release matrix and duplicate CI at `734117f`; headless Claude exceptional reviewer failed before verdict with API `ECONNREFUSED` | Commit/push required recovery checkpoint, wait for CI, then dispatch a brand-new Trae fallback for the authorized exceptional review |
