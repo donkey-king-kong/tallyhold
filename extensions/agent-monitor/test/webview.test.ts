@@ -176,14 +176,15 @@ describe("editor webview controls (AC3-5, AC7-8, AC12, AC14-15)", () => {
       lastUpdateAge: 3,
       activities: [
         { type: "agent_spawn", time: 0, summary: "Review started" },
-        { type: "tool_call_end", time: 1, summary: "Read failed", outcome: "failed", pairing: "unmatched" },
-        { type: "agent_complete", time: 2, summary: "Review finished" },
+        { type: "tool_call_end", time: 1, summary: "Read first file", outcome: "succeeded", pairing: "unmatched" },
+        { type: "tool_call_end", time: 2, summary: "Read second file", outcome: "failed", pairing: "unmatched" },
+        { type: "agent_complete", time: 3, summary: "Review finished" },
       ],
     };
     const { root } = await mount([reviewed]);
     fireEvent.click(getAllByRole(root, "button", { name: /done/i })[0]);
     const history = getByRole(root, "region", { name: /activity history/i });
-    expect(history.textContent).toMatch(/read failed/i);
+    expect(history.textContent).toMatch(/read first file[\s\S]*succeed(?:ed)?[\s\S]*read second file[\s\S]*fail(?:ed)?/i);
     expect(history.textContent).toMatch(/unmatched/i);
     expect(history.textContent).toMatch(/review finished/i);
     const details = getByRole(root, "region", { name: /agent details/i });
@@ -222,5 +223,54 @@ describe("editor webview controls (AC3-5, AC7-8, AC12, AC14-15)", () => {
     expect(getByRole(root, "region", { name: /activity history/i }).textContent).toContain("Review finished");
     expect(getByRole(root, "region", { name: /agent details/i }).textContent).toMatch(/failed/i);
     expect(root.querySelector("animate, animateMotion")).toBeNull();
+  });
+
+  it("shows an actionable initial read error without presenting an empty successful connection", async () => {
+    const { root, app } = await mount();
+    app.update({ ...view([]), reader: "error", error: "Selected file cannot be read", sessionId: null });
+    expect(root.textContent).toMatch(/selected file cannot be read/i);
+    expect(root.textContent).toMatch(/choose|select|retry|reopen/i);
+    expect(root.textContent).not.toMatch(/connected|following/i);
+    expect(root.textContent).toContain("/worktree/.agent-flow/agent-flow-events.jsonl");
+  });
+
+  it("preserves keyboard access to controls and history on a narrow panel after filtering", async () => {
+    Object.defineProperty(window, "innerWidth", { configurable: true, value: 320 });
+    const { root, app } = await mount();
+    fireEvent(window, new Event("resize"));
+    const navigator = getByRole(root, "navigation", { name: /agent navigator/i });
+    const target = within(navigator).getByRole("button", { name: /done/i });
+    target.focus();
+    fireEvent.keyDown(target, { key: "Enter" });
+    expect(getByRole(root, "region", { name: /agent details/i }).textContent).toContain("Finished review");
+    fireEvent.click(getByRole(root, "checkbox", { name: /last reported nonterminal/i }));
+    const reveal = getByRole(root, "button", { name: /reveal.*done/i });
+    expect(document.activeElement).toBe(reveal);
+    fireEvent.click(reveal);
+    expect(getByRole(root, "region", { name: /activity history/i }).textContent).toContain("Review finished");
+    const fit = getByRole(root, "button", { name: /fit all/i });
+    fit.focus();
+    fireEvent.keyDown(fit, { key: "Enter" });
+    expect(document.activeElement).toBe(fit);
+    app.update(view([node("done", "completed"), node("active", "working")]));
+    expect(getByRole(root, "region", { name: /activity history/i }).textContent).toContain("Review finished");
+  });
+
+  it("labels an incomplete execution and locally observed age without inventing wall time", async () => {
+    const uncertain = {
+      ...node("reviewer", "working"),
+      intervals: [{ start: null, end: null, certainty: "incomplete" }],
+      lastUpdateAge: null,
+      observedLocalAge: 3,
+      activities: [{ type: "tool_call_end", time: 4, summary: "Read file", pairing: "ambiguous" }],
+    };
+    const { root } = await mount([uncertain]);
+    fireEvent.click(getAllByRole(root, "button", { name: /reviewer/i })[0]);
+    const details = getByRole(root, "region", { name: /agent details/i });
+    const history = getByRole(root, "region", { name: /activity history/i });
+    expect(details.textContent).toMatch(/incomplete|ambiguous/i);
+    expect(details.textContent).toMatch(/observed locally.*3(?:s| seconds)/i);
+    expect(details.textContent).not.toMatch(/last report.*3(?:s| seconds)/i);
+    expect(history.textContent).toMatch(/ambiguous/i);
   });
 });

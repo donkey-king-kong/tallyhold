@@ -247,6 +247,30 @@ describe("selected local source (AC2, AC9-11, AC13, AC15)", () => {
     ]);
   });
 
+  it("does not auto-read an untrusted workspace source until explicitly selected", async () => {
+    const source = await fixture("s1");
+    const root = roots[0];
+    const directory = join(root, ".agent-flow");
+    await mkdir(directory);
+    const selected = join(directory, "agent-flow-events.jsonl");
+    await rename(source.path, selected);
+    const reads: string[] = [];
+    const reader = await controller({
+      workspaceRoots: [root],
+      trusted: false,
+      readBytes: async (path: string) => {
+        reads.push(path);
+        return readFile(path);
+      },
+    });
+    expect(reads).toEqual([]);
+    expect(reader.getState().projection.nodes).toHaveLength(0);
+    expect(reader.getState().path ?? null).toBeNull();
+    await reader.selectSource(pathToFileURL(selected));
+    expect(reads).toContain(selected);
+    expect(reader.getState().sessionId).toBe("s1");
+  });
+
   it("closes its filesystem watcher on switch and disposal", async () => {
     const first = await fixture("first");
     const second = await fixture("second");
