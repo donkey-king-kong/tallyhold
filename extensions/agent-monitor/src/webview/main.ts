@@ -1,9 +1,11 @@
 export type MonitorState = {
   path: string | null;
   sessionId: string | null;
+  sourceGeneration?: number;
   reader: string;
   error?: string;
   diagnostics?: any[];
+  companions?: any[];
   projection: { nodes: any[]; edges?: any[]; diagnostics?: any[] };
 };
 
@@ -203,6 +205,22 @@ export function mountMonitor(
         region.append(element("div", "Additional diagnostics are not shown."));
       root.append(region);
     }
+    if ((state.companions?.length ?? 0) > 0) {
+      const region = element("section", undefined, {
+        role: "region",
+        "aria-label": "Provisional companion observations",
+      });
+      region.append(element("h2", "Provisional companion observations"));
+      for (const companion of state.companions ?? []) {
+        region.append(
+          element(
+            "div",
+            `${companion.agentId ?? "Unknown identity"}: ${companion.status ?? "unknown"}; ${companion.activity ?? "activity unavailable"}; updated ${companion.updatedAt ?? "unavailable"}; ${companion.certainty ?? "provisional"} ${companion.source ?? "companion"}`,
+          ),
+        );
+      }
+      root.append(region);
+    }
 
     const controls = element("section", undefined, {
       "aria-label": "Graph controls",
@@ -225,6 +243,12 @@ export function mountMonitor(
       ),
       button("Pan right", () =>
         setCamera(([x, y, width, height]) => [x + 100, y, width, height]),
+      ),
+      button("Pan up", () =>
+        setCamera(([x, y, width, height]) => [x, y - 100, width, height]),
+      ),
+      button("Pan down", () =>
+        setCamera(([x, y, width, height]) => [x, y + 100, width, height]),
       ),
       button("Fit All", () => {
         camera = bounds(state.projection.nodes);
@@ -383,7 +407,17 @@ export function mountMonitor(
         line.append(
           element(
             "span",
-            `${activity.type}: ${activity.summary ?? "unavailable"}`,
+            `Reported +${Number.isFinite(activity.time) ? activity.time : "unavailable"}s`,
+          ),
+        );
+        if (activity.absoluteTime)
+          line.append(
+            element("span", ` Verified absolute ${activity.absoluteTime}`),
+          );
+        line.append(
+          element(
+            "span",
+            ` ${activity.type}: ${activity.summary ?? "unavailable"}`,
           ),
         );
         if (activity.outcome)
@@ -444,7 +478,11 @@ export function mountMonitor(
 
   return {
     update(nextState: MonitorState) {
+      const sourceChanged =
+        nextState.sourceGeneration !== undefined &&
+        nextState.sourceGeneration !== state.sourceGeneration;
       state = nextState;
+      if (sourceChanged) camera = bounds(state.projection.nodes);
       render();
     },
     dispose() {

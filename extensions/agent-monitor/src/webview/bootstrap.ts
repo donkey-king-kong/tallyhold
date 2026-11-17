@@ -11,8 +11,10 @@ let generation = 0;
 const empty = {
   path: "No source selected",
   sessionId: null,
+  sourceGeneration: 0,
   reader: "idle",
   diagnostics: [],
+  companions: [],
   projection: { nodes: [] },
 };
 const monitor = mountMonitor(root, empty, {

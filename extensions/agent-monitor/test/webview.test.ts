@@ -25,8 +25,10 @@ function view(
   return {
     path: "/worktree/.agent-flow/agent-flow-events.jsonl",
     sessionId: "s1",
+    sourceGeneration: 1,
     reader: "following",
     diagnostics,
+    companions: [],
     projection: { nodes, edges, diagnostics },
   };
 }
@@ -122,6 +124,9 @@ describe("editor webview controls (AC3-5, AC7-8, AC12, AC14-15)", () => {
     const zoomed = graph!.outerHTML;
     fireEvent.click(getByRole(root, "button", { name: /pan right/i }));
     expect(graph!.outerHTML).not.toBe(zoomed);
+    const horizontal = graph!.outerHTML;
+    fireEvent.click(getByRole(root, "button", { name: /pan down/i }));
+    expect(graph!.outerHTML).not.toBe(horizontal);
     fireEvent.click(getByRole(root, "button", { name: /fit all/i }));
     expect(graph!.outerHTML).toBe(initialCamera);
     for (const name of [
@@ -129,6 +134,8 @@ describe("editor webview controls (AC3-5, AC7-8, AC12, AC14-15)", () => {
       /zoom out/i,
       /pan left/i,
       /pan right/i,
+      /pan up/i,
+      /pan down/i,
       /fit all/i,
     ]) {
       const control = getByRole(root, "button", { name });
@@ -236,6 +243,41 @@ describe("editor webview controls (AC3-5, AC7-8, AC12, AC14-15)", () => {
     ).not.toContain("unresolved");
   });
 
+  it("fits the first projection and each new source generation", async () => {
+    const root = document.createElement("main");
+    document.body.append(root);
+    const modulePath = ["../src/webview", "main"].join("/");
+    const { mountMonitor } = await import(/* @vite-ignore */ modulePath);
+    const app = mountMonitor(root, {
+      ...view([]),
+      sourceGeneration: 0,
+      path: null,
+      sessionId: null,
+      reader: "idle",
+    });
+    dispose = () => app.dispose();
+    const camera = () => root.querySelector("svg")?.getAttribute("viewBox");
+    const first = {
+      ...node("first", "working"),
+      position: { x: 4_000, y: 3_000 },
+    };
+    app.update(view([first]));
+    expect(camera()).toBe("0 0 4180 3060");
+
+    fireEvent.click(getByRole(root, "button", { name: /zoom in/i }));
+    fireEvent.click(getByRole(root, "button", { name: /pan down/i }));
+    const moved = camera();
+    app.update(view([first, node("append", "working")]));
+    expect(camera()).toBe(moved);
+
+    const second = {
+      ...node("second", "working"),
+      position: { x: 8_000, y: 6_000 },
+    };
+    app.update({ ...view([second]), sourceGeneration: 2 });
+    expect(camera()).toBe("0 0 8180 6060");
+  });
+
   it("labels a failed tool without mislabelling a completed agent as failed", async () => {
     const reviewed = {
       ...node("done", "completed"),
@@ -273,6 +315,58 @@ describe("editor webview controls (AC3-5, AC7-8, AC12, AC14-15)", () => {
     expect(details.textContent).toMatch(/unspecified/i);
     expect(details.textContent).toMatch(/3(?:s| seconds)/i);
     expect(details.textContent).not.toMatch(/agent failed/i);
+  });
+
+  it("shows reported relative time and only verified absolute activity time", async () => {
+    const timed = {
+      ...node("timed", "working"),
+      activities: [
+        {
+          type: "message",
+          time: 12.5,
+          absoluteTime: null,
+          summary: "Relative only",
+        },
+        {
+          type: "message",
+          time: 14,
+          absoluteTime: "2023-11-14T22:13:34.000Z",
+          summary: "Anchored",
+        },
+      ],
+    };
+    const { root } = await mount([timed]);
+    fireEvent.click(getByRole(root, "button", { name: /timed/i }));
+    const history = getByRole(root, "region", { name: /activity history/i });
+    expect(history.textContent).toContain("Reported +12.5s");
+    expect(history.textContent).toContain("Reported +14s");
+    expect(history.textContent).toContain("2023-11-14T22:13:34.000Z");
+    expect(history.textContent).not.toMatch(/relative only.*1970/i);
+  });
+
+  it("renders accepted heartbeat observations as provisional companions", async () => {
+    const { root, app } = await mount();
+    app.update({
+      ...view([node("active", "working")]),
+      companions: [
+        {
+          agentId: "reviewer",
+          parentId: "orchestrator",
+          status: "working",
+          activity: "Reviewing",
+          updatedAt: "2023-11-14T22:13:34.000Z",
+          source: "heartbeat",
+          certainty: "provisional",
+        },
+      ],
+    });
+    const companions = getByRole(root, "region", {
+      name: /provisional companion observations/i,
+    });
+    expect(companions.textContent).toMatch(
+      /reviewer.*working.*reviewing.*provisional/i,
+    );
+    expect(companions.textContent).toContain("2023-11-14T22:13:34.000Z");
   });
 
   it("keeps unknown age and uncertain relationships readable across editor themes", async () => {
