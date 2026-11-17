@@ -2,7 +2,7 @@
 
 ## Assignment
 
-- Status: in_progress
+- Status: in_review
 - Owner actor: R-0033/coordinator
 - Role: Test writer (after independent round-1 review)
 - Run: [R-0033](../runs/R-0033.md), after [R-0031](../runs/R-0031.md)
@@ -11,7 +11,7 @@
 - Dependencies: [T-0026](T-0026-auth-red-review.md) round-1 changes requested
 - Branch / worktree: `feature/005-auth` / `../tallyhold-feature-005-auth`
 - Issue / PR: issue #27 / no Feature 005 PR
-- Updated: 2026-11-17T05:23:36Z
+- Updated: 2026-11-17T05:24:40Z
 
 ## Scope
 
@@ -29,12 +29,12 @@ failed-unknown-key refresh throttle assertion, plus exact-head RED evidence.
 
 ## Checkpoint
 
-- Last completed action: targeted tests committed at `8d2a82c` and `dc8e087`; pushed `dc8e0875dcbf8aedbdaf450de45ed3682f507f77` matches remote and separate RED/existing suites reran at that exact head.
+- Last completed action: targeted tests and round-3 RED evidence committed/pushed; evidence head `b349e0a` differs from tested `dc8e087` in only four documentation/tracking files.
 - Evidence: [round-3 evidence addendum](../../specs/005-auth/red-test-run.md): backend 54 RED fail/1 pass, existing 91 pass; frontend 9 RED fail, existing 3 pass; backend Ruff and frontend lint/typecheck pass. `24a0797..d5cee6c` was docs-only.
-- Worktree state: evidence and checkpoint edits pending commit/push; no GREEN code.
-- Remaining work: push docs-only evidence head, verify test-tree equivalence, dispatch a different fresh scoped round-3 reviewer.
+- Worktree state: clean at pushed `b349e0a` before dispatch checkpoint; no GREEN code.
+- Remaining work: different fresh scoped round-3 reviewer; conditional GREEN only on APPROVE.
 - Blocker / unblock action: none for RED fixes; GREEN still requires third-round `APPROVE`.
-- Next action: commit/push evidence and coordinator checkpoint, verify remote SHA and docs-only gap, then dispatch independent round 3.
+- Next action: commit/push dispatch checkpoint and hand pinned evidence to a different fresh independent RED Reviewer.
 - Handoff recipient: R-0033/coordinator acting as Test writer; then different fresh Reviewer.
 
 ## History

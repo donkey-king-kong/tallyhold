@@ -11,7 +11,7 @@
 - Dependencies: [T-0023](T-0023-auth-red.md) and merged PR #29
 - Branch / worktree: `feature/005-auth` / `../tallyhold-feature-005-auth`
 - Issue / PR: issue #27; no Feature 005 PR yet
-- Updated: 2026-11-17T05:23:36Z
+- Updated: 2026-11-17T05:24:40Z
 
 ## Scope
 
@@ -32,12 +32,12 @@ existing RED-review escalation rules apply.
 
 ## Checkpoint
 
-- Last completed action: Test writer pushed targeted RED test head `dc8e0875dcbf8aedbdaf450de45ed3682f507f77` and reran all separate suites at that pushed SHA.
-- Evidence: revised [RED run](../../specs/005-auth/red-test-run.md) addendum with four suite counts and prior docs-only diff. Existing backend 91/91 and frontend 3/3 pass.
-- Worktree state: docs-only evidence and coordinator checkpoint pending commit/push; no GREEN code.
+- Last completed action: RED evidence pushed at `b349e0ac5e8e994b64bfa7cc578d3c9e6de7df18`, remote matches; `dc8e087..b349e0a` changes only four docs/tracking files, leaving the exact tested test tree intact.
+- Evidence: revised [RED run](../../specs/005-auth/red-test-run.md); base `a96c0dae42889b8196b6ec3f9ae3b2bb79dcb25a`, reviewed evidence head `b349e0a`; 91/91 existing backend and 3/3 existing frontend pass. Claude CLI is authenticated; launch status not yet known.
+- Worktree state: clean at pushed evidence head before this dispatch checkpoint; no GREEN code.
 - Remaining work: fresh independent round 3, limited to round-2 findings 1-3 and checklist item 6.
 - Blocker / unblock action: GREEN remains blocked until round-3 `APPROVE`; on anything else stop and escalate again.
-- Next action: commit/push evidence, confirm the reviewed head differs from `dc8e087` only in docs, then dispatch a different fresh RED Reviewer.
+- Next action: commit/push this dispatch checkpoint; attempt fresh headless Claude, fall back to fresh Trae if launch fails before verdict; stop GREEN until APPROVE.
 - Handoff recipient: fresh independent round-3 RED Reviewer after evidence push.
 
 ## History
@@ -55,3 +55,4 @@ existing RED-review escalation rules apply.
 | 2026-11-17T04:22:35Z | R-0031/red-reviewer-2 | Fresh Trae (GPT) round 2 returned `CHANGES_REQUESTED`: shared limiter test clocks conflict; failed unknown-key fetch throttle unasserted; exact-head equivalence unstated | Report and identical commit comment `210393364`; final-round escalation to Zack, GREEN prohibited |
 | 2026-11-17T05:20:40Z | R-0033/coordinator | Zack authorized one extra targeted RED round on issue #27; took over from R-0031 at clean `3fda8dc` | Fix findings 1-3 and verify checklist item 6 only; round 3 must use a different fresh reviewer, no GREEN before APPROVE |
 | 2026-11-17T05:23:36Z | R-0033/coordinator | Revised test head `dc8e087` pushed and remote matched; 54 backend/9 frontend RED fail, 91 backend/3 frontend existing pass at exact pushed SHA | Push evidence and dispatch scoped round 3 |
+| 2026-11-17T05:24:40Z | R-0033/coordinator | Pushed `b349e0a`, remote matched; only docs changed since exact tested `dc8e087`; Claude CLI authenticated | Pin base `a96c0da` / reviewed RED evidence head `b349e0a`, dispatch scoped fresh round 3 after checkpoint |
