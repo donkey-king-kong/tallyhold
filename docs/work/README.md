@@ -30,6 +30,7 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 | [T-0020](tickets/T-0020-phase1-roadmap.md) | Close out Phase 1 roadmap and ship documentation | [R-0021](runs/R-0021.md) |
 | [T-0024](tickets/T-0024-automated-red-review.md) | Automate independent RED review for future features | [R-0029](runs/R-0029.md) |
 | [T-0025](tickets/T-0025-review-automated-red-review.md) | Independent ship review of automated RED review PR | [R-0029](runs/R-0029.md) |
+| [T-0027](tickets/T-0027-reviewer-fallback.md) | Add fresh Trae fallback for independent reviewer dispatch | [R-0032](runs/R-0032.md) |
 
 Historical PR #6 post-dispatch records remain in T-0002's checkpoint
 branch/worktree. Future ship runs use PR comments instead.

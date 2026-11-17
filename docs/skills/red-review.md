@@ -17,7 +17,7 @@ Use one feature branch and worktree at a time, as in [workflow](../workflow.md).
    network and fixture failures block review. The coordinator verifies the
    remote SHA matches the handoff and records its base SHA, RED SHA, evidence
    path and next action in the ticket/run before dispatch.
-2. **Dispatch:** For round 1 or 2, start a **new headless Claude Code process**
+2. **Dispatch:** For round 1 or 2, prefer a **new headless Claude Code process**
    from the feature worktree using ship's [fresh-review mechanism](ship.md#4-delegate-independent-review).
    Check `claude --version` and `claude auth status`. Use no `--continue` or
    `--resume`, no prior conversation, and no Test writer or Implementer session.
@@ -28,11 +28,19 @@ Use one feature branch and worktree at a time, as in [workflow](../workflow.md).
    ```
 
    The allowlist excludes editing tools; Bash is allowed only for permitted
-   checks, report writing and posting the comment. If Claude is unavailable
-   or unauthenticated, stop and escalate to Zack; do not silently substitute
-   the Test writer, Implementer, or a contextual agent. The coordinator
-   reports reviewer lifecycle and verdict in Agent Flow without passing
-   telemetry or work-tracking documents to the reviewer.
+   checks, report writing and posting the comment. If `claude` is unavailable,
+   unauthenticated or fails to launch before producing a verdict, automatically
+   start a **different, fresh Trae subagent** with no conversation-history fork.
+   Give it only the same role-file instruction, feature path, round, base/head
+   SHAs and role-permitted evidence. It reads no Test writer or Implementer
+   chat, tickets, runs, Agent Flow or coordinator assessment. Explicitly limit
+   it to the same read-only code/test checks, the one permitted report and
+   identical commit comment; Trae lacks a verified tool allowlist. A failed
+   launch does not consume a review round. If neither reviewer can run, stop
+   and escalate to Zack. Preserve all other escalation conditions in step 4.
+   The coordinator reports reviewer type, lifecycle and verdict in the
+   ticket/run and Agent Flow without passing tracking or telemetry to the
+   reviewer.
 3. **Decide and record:** Confirm the report ends in `VERDICT: APPROVE` or
    `VERDICT: CHANGES_REQUESTED`, matches the commit comment, and covers every
    checklist item in the RED Reviewer role. Record reviewer identity, round,
