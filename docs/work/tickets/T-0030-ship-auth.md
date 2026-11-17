@@ -11,7 +11,7 @@
 - Dependencies: [T-0029](T-0029-auth-green.md)
 - Branch / worktree: `feature/005-auth` / `../tallyhold-feature-005-auth`
 - Issue / PR: [#27](https://github.com/donkey-king-kong/tallyhold/issues/27) / [#32](https://github.com/donkey-king-kong/tallyhold/pull/32)
-- Updated: 2026-11-17T05:50:11Z
+- Updated: 2026-11-17T05:52:45Z
 
 ## Scope
 
@@ -28,12 +28,12 @@ deletion.
 
 ## Checkpoint
 
-- Last completed action: opened PR #32, assigned `donkey-king-kong` and verified head `ac8fbe05661b709636ee34215f187a9724d36d5e`.
-- Evidence: local backend 146/146, 94.73% coverage and full quality/security checks; frontend 12/12 and full checks; PR CI currently pending.
-- Worktree state: clean before this tracking checkpoint; branch synchronized to origin.
-- Remaining work: final-head CI, frozen pre-review checkpoint, fresh PR review, merge gate.
-- Blocker / unblock action: CI pending; wait for completion before review.
-- Next action: commit/push tracking checkpoint, inspect latest PR checks, record final CI state before reviewer dispatch.
+- Last completed action: PR #32 at pushed head `aafbc8332d904582221bd8f1b107b23354eb028e` passed backend/frontend/security CI (two event runs); production-migrations correctly skipped; assignee verified.
+- Evidence: local backend 146/146, 94.73% coverage; frontend 12/12; Python and production npm audits and gitleaks pass; `gh pr view 32` shows all applicable CI green.
+- Worktree state: final pre-review checkpoint pending commit; only tracking files change.
+- Remaining work: final documentation-head CI, fresh PR review, merge gate.
+- Blocker / unblock action: no local blocker; wait for CI on this checkpoint commit before dispatch.
+- Next action: commit/push final tracking checkpoint, confirm its exact head and green CI, then freeze tracking and dispatch fresh PR Reviewer.
 - Handoff recipient: fresh Reviewer via T-0031 only after green CI.
 
 ## History
@@ -41,3 +41,4 @@ deletion.
 | UTC time | Actor | Event and observed result | Evidence / next action |
 | --- | --- | --- | --- |
 | 2026-11-17T05:50:11Z | R-0033/coordinator | Opened PR #32 at `ac8fbe0`; assignee confirmed; CI pending | Commit/push tracking then inspect final CI before dispatch |
+| 2026-11-17T05:52:45Z | R-0033/coordinator | PR #32 at `aafbc83` passed two backend/frontend/security CI runs; production migration jobs skipped; no labels | Commit/push this final tracking-only checkpoint, wait for new CI, freeze files and review |

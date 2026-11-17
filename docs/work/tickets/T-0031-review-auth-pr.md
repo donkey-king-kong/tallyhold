@@ -11,7 +11,7 @@
 - Dependencies: [T-0030](T-0030-ship-auth.md)
 - Branch / worktree: `feature/005-auth` / `../tallyhold-feature-005-auth`
 - Issue / PR: [#27](https://github.com/donkey-king-kong/tallyhold/issues/27) / [#32](https://github.com/donkey-king-kong/tallyhold/pull/32)
-- Updated: 2026-11-17T05:50:11Z
+- Updated: 2026-11-17T05:52:45Z
 
 ## Scope
 
@@ -28,10 +28,10 @@ PR comment.
 ## Checkpoint
 
 - Last completed action: reviewer assignment registered before dispatch.
-- Evidence: PR #32 opened at `ac8fbe0`; CI pending.
+- Evidence: PR #32 at `aafbc83` has passing backend/frontend/security checks; final tracking-only checkpoint and its CI still pending.
 - Worktree state: no review report yet.
 - Remaining work: fresh review after green CI and frozen checkpoint.
-- Blocker / unblock action: wait for final CI.
+- Blocker / unblock action: wait for CI at frozen review head.
 - Next action: after CI passes, coordinator freezes tracking and tries fresh headless Claude, using authorized fresh Trae fallback only if unavailable.
 - Handoff recipient: fresh independent PR Reviewer.
 
@@ -40,3 +40,4 @@ PR comment.
 | UTC time | Actor | Event and observed result | Evidence / next action |
 | --- | --- | --- | --- |
 | 2026-11-17T05:50:11Z | R-0033/coordinator | Registered PR review independently from approved RED review; no reviewer dispatched | Wait for green final-head CI |
+| 2026-11-17T05:52:45Z | R-0033/coordinator | CI green at `aafbc83`; final pre-review checkpoint not yet pushed | Dispatch only after final tracking head CI is green |
