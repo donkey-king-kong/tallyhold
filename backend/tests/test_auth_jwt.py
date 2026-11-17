@@ -277,6 +277,7 @@ def test_failed_unknown_key_refresh_keeps_unexpired_known_key(
         subject.verify(minted(signing_key, headers={"kid": "another-unavailable-key"}))
     assert fetches == 2
     assert subject.verify(known).subject == SUBJECT
+    assert fetches == 2
 
 
 def test_expired_cache_random_kids_still_use_shared_refresh_gate(
