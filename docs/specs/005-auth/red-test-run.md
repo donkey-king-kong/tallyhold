@@ -69,3 +69,54 @@ The production Data API OFF checkpoint was confirmed by Zack in the approved
 spec. Operator erasure runbook, provider retention verification and the
 disposable operator walkthrough are planned GREEN work, not live operations
 performed by these RED tests. No CI test uses a real Supabase Auth user.
+
+## Round 2 RED revision (supersedes the counts above)
+
+- Test commit: `24a079782b5ccd848d006db350dda08ce1c4c50e`.
+- Checked on 2026-11-17 with guarded disposable local PostgreSQL 17 and
+  in-memory P-256 keys/fake HTTP. No production DB, live signing key, Supabase
+  call or external network. The local test URL is deliberately omitted.
+- The backend RED command now also includes
+  `tests/integration/test_auth_boundary.py`; the existing backend command
+  additionally excludes only that new file. All other commands are the same
+  as in the table above.
+
+| Scope | Exit | Collected / failed / passed / skipped | Observed reason |
+| --- | ---: | --- | --- |
+| Backend RED | 1, expected | 55 / 54 / 1 / 0 | JWT verifier, `/me` composition, `0003` tables and resolution service are absent; CORS preflight passes. The new composed boundary fails explicitly because `app.dependencies` is absent. |
+| Backend existing | 0 | 91 / 0 / 91 / 0 | Existing tests remain green. |
+| Frontend RED | 1, expected | 9 / 9 / 0 / 0 | Auth status, browser client and callback modules are absent. |
+| Frontend existing | 0 | 3 / 0 / 3 / 0 | Existing tests remain green. |
+
+Backend command (from `backend/`, with the guarded disposable test URL set):
+
+```sh
+uv run --locked pytest -q --tb=line tests/test_auth_jwt.py tests/test_auth_http.py tests/integration/test_auth_schema.py tests/integration/test_auth_resolution.py tests/integration/test_auth_boundary.py
+uv run --locked pytest -q --ignore=tests/test_auth_jwt.py --ignore=tests/test_auth_http.py --ignore=tests/integration/test_auth_schema.py --ignore=tests/integration/test_auth_resolution.py --ignore=tests/integration/test_auth_boundary.py
+```
+
+Frontend commands (from `frontend/`):
+
+```sh
+npm test -- components/auth-status.test.tsx components/auth-callback.test.tsx --reporter=dot
+npm test -- components/health-status.test.tsx --reporter=dot
+```
+
+Backend ruff lint/format and frontend lint/typecheck passed before the test
+commit; `git diff --check` passed. No collection errors, skipped tests,
+unavailable dependencies, failed connections or live network calls occurred.
+Direct database tests expecting 0003 fail on its absent tables; the constraint
+rollback case's temporary CHECK is installed only after that migration exists.
+New assertions for verifier rejection use `ValueError`, JWKS transport failures
+use `ConnectionError`, and marker denial uses `PermissionError`; FastAPI cases
+assert generic 401/503 and zero provisioned users instead of internal errors.
+
+Round-1 findings mapped to new RED assertions:
+
+| Criterion / verification item | Revised coverage |
+| --- | --- |
+| AC1 / 1 | `browser Supabase client requests the PKCE OAuth flow`, `callback-created session becomes authenticated without leaking its token`, and both callback tests now check token/provider detail absence in redirects, response bodies and logs; cancelled callback redirects to `/`. Real provider OAuth remains outside CI. |
+| AC2 / 2 | `test_auth_boundary.py` drives valid/expired/wrong-issuer/anon/empty-sub/HS256/forged JWTs and JWKS outage through the composed `/me` dependency with zero provisioning on denial (401/503). `test_auth_jwt.py` now tests `x5u`, rotated key acceptance, cache expiry and outage, failed refresh retaining an unexpired known key, unknown-kid gating after expiry and rejected untrusted/HTTP JWKS configuration. It does not demand immediate revocation of an unexpired cached key. |
+| AC3 / 3 | `test_provisioning_constraint_failure_rolls_back_candidate_not_caller_work` checks savepoint rollback with a deliberate PostgreSQL constraint failure while preserving unrelated caller work. Existing simultaneous-login and same-email/different-sub cases remain. |
+| AC4 / 4 | Composed bearer mapping returns the internal UUID, ignores attempted client user ID/email, isolates two subjects, rejects duplicate Authorization headers and gives 503 on JWKS outage without user detail. CORS and public health remain covered by the original route tests. |
+| AC5 / 5 | Marker denial assertions now require a denial category rather than any exception; two real PostgreSQL advisory-lock orderings, late purge and schema checks remain. Data API inspection, actual backup/log retention and disposable operator walkthrough remain explicit GREEN/deployment gates, not claims of completed CI coverage. |

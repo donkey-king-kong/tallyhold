@@ -11,7 +11,7 @@
 - Dependencies: [T-0026](T-0026-auth-red-review.md) round-1 changes requested
 - Branch / worktree: `feature/005-auth` / `../tallyhold-feature-005-auth`
 - Issue / PR: issue #27 / no Feature 005 PR
-- Updated: 2026-11-17T04:18:45Z
+- Updated: 2026-11-17T04:19:51Z
 
 ## Scope
 
@@ -27,12 +27,12 @@ Retain independently reviewed round-1 report and commit. No GREEN code.
 
 ## Checkpoint
 
-- Last completed action: added offline rotation/cache/configuration, composed JWT-to-HTTP, savepoint rollback and frontend PKCE/session/logging tests; backend RED lint/format and frontend lint/typecheck pass.
-- Evidence: uncommitted RED test diff; backend ruff checks and frontend ESLint/TypeScript checks at 2026-11-17T04:18:45Z.
-- Worktree state: five RED test files changed; no GREEN code.
-- Remaining work: commit tests, separate new/existing suite run at that revision, evidence and fresh round 2.
+- Last completed action: committed RED review fixes at `24a079782b5ccd848d006db350dda08ce1c4c50e` and reran separate suites against that revision.
+- Evidence: revised `red-test-run.md`: backend RED 54 failed/1 passed, existing 91 passed; frontend RED 9 failed, existing 3 passed; backend ruff and frontend lint/typecheck passed.
+- Worktree state: evidence appendix pending commit/push; no GREEN code.
+- Remaining work: push evidence and dispatch a different fresh reviewer for round 2.
 - Blocker / unblock action: GREEN remains blocked until round-2 `APPROVE`.
-- Next action: commit focused RED tests, rerun new and existing suites separately, then push evidence and dispatch round 2.
+- Next action: commit and push RED evidence and coordinator checkpoint; verify remote head, then dispatch independent round 2.
 - Handoff recipient: a different fresh independent RED Reviewer.
 
 ## History
@@ -41,3 +41,4 @@ Retain independently reviewed round-1 report and commit. No GREEN code.
 | --- | --- | --- | --- |
 | 2026-11-17T04:04:34Z | R-0031/coordinator | Round 1 requested changes in security and lifecycle RED tests; claimed Test writer fixes | Commit reviewer report; write RED-only cases |
 | 2026-11-17T04:18:45Z | R-0031/coordinator | Added RED-only review fixes; backend ruff lint/format and frontend lint/typecheck pass | Commit tests; run RED and existing suites at the pinned test revision |
+| 2026-11-17T04:19:51Z | R-0031/coordinator | Test commit `24a0797`: backend RED 54 failed/1 passed and existing 91 passed; frontend RED 9 failed and existing 3 passed | Evidence appendix saved; commit/push and independently review round 2 |
