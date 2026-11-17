@@ -11,7 +11,7 @@
 - Dependencies: merged PR #29
 - Branch / worktree: `chore/reviewer-fallback` / `../tallyhold-chore-reviewer-fallback`
 - Issue / PR: [#30](https://github.com/donkey-king-kong/tallyhold/issues/30) / [#31](https://github.com/donkey-king-kong/tallyhold/pull/31)
-- Updated: 2026-11-17T04:03:00Z
+- Updated: 2026-11-17T04:21:43Z
 
 ## Scope
 
@@ -27,12 +27,12 @@ Documentation only, no active feature branch changes or application code.
 
 ## Checkpoint
 
-- Last completed action: pushed `1a92a21` and opened PR #31 assigned to Zack; local checks completed with guarded PostgreSQL after correcting a missing test URL.
-- Evidence: `git diff --check`, six adapter tests, backend ruff/format/mypy/import-linter and 91 pytest (98% coverage), frontend lint/types/3 tests/build pass. PR #31 CI backend/frontend/security pending at review.
-- Worktree state: tracking-only PR checkpoint pending commit; code head `1a92a21`.
-- Remaining work: final tracking checkpoint, CI, independent PR review; Zack merges.
+- Last completed action: PR #31 CI passed and round-1 independent reviewer requested a ship tracking fix. Preferred headless Claude launch failed with `ECONNREFUSED`; actual reviewer was fresh Trae (GPT) subagent `arun_6afbd5e28f6c1606eab14cb3`.
+- Evidence: [round-1 report](../../specs/chore-reviewer-fallback/review.md) and identical [PR comment](https://github.com/donkey-king-kong/tallyhold/pull/31#issuecomment-6938193521), `CHANGES_REQUESTED`; backend/frontend/security CI green. Reviewer type recorded here and in R-0032.
+- Worktree state: report untracked and focused ship doc fix pending commit/push.
+- Remaining work: verify fix, push report and fix together, wait for CI, request different fresh round-2 reviewer; Zack merges.
 - Blocker / unblock action: none.
-- Next action: commit/push this pre-dispatch checkpoint, confirm PR #31 CI green, then dispatch fresh PR Reviewer.
+- Next action: commit/push report and fix together, confirm CI, then dispatch different fresh reviewer for round 2.
 - Handoff recipient: Zack for final PR merge after review.
 
 ## History
@@ -42,3 +42,4 @@ Documentation only, no active feature branch changes or application code.
 | 2026-11-17T04:00:13Z | R-0032/coordinator | Claimed approved maintenance task in a new main-based worktree; created issue #30 | Document and verify reviewer fallback |
 | 2026-11-17T04:01:42Z | R-0032/coordinator | Drafted preferred Claude and automatic fresh Trae fallback for RED and ship; checked whitespace and six adapter tests | Commit/push; open PR #30-linked |
 | 2026-11-17T04:03:00Z | R-0032/coordinator | Pushed `1a92a21`, opened PR #31 assigned to Zack; guarded backend 91/98% and frontend 3/build passed; PR CI pending | Commit/push final tracking checkpoint and review after CI |
+| 2026-11-17T04:21:43Z | R-0032/coordinator | Claude reviewer launch failed (`ECONNREFUSED`); fresh Trae (GPT) reviewer `arun_6afbd5e28f6c1606eab14cb3` returned `CHANGES_REQUESTED` on `e59a317` | Comment `6938193521`; fix ticket/run reviewer type reconciliation and seek fresh round 2 |
