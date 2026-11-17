@@ -68,3 +68,38 @@ VERDICT: CHANGES_REQUESTED
 
 Round 2 is the last reviewer round. These gaps require coordinator escalation before GREEN; no spec or plan change is proposed here.
 VERDICT: CHANGES_REQUESTED
+
+## Exceptional round 3 independent review
+
+- Reviewer: fresh Trae RED Reviewer, this round-3 session, distinct from the round-1 and round-2 sessions; GitHub commenter `donkey-king-kong`.
+- Base: `82ec809`
+- Pushed RED head: `c21ef065e9e3ecfabe9eb5d26901f8da95dbb713`
+- Scope: approved spec/plan/tasks, cumulative base-to-head diff, RED run, prior rounds, relevant existing tests and independent read-only reruns at this head.
+
+### Coverage mapping
+
+| Criterion / numbered plan verification | Tests and uncovered behavior |
+| --- | --- |
+| AC1 / 1 | `test_head_seeds_shared_sg_brokers_and_replaces_exact_name_constraint`, pre-existing-ID and both reserved-ID collision cases, `test_brokers_with_the_same_name_are_ordered_by_stable_id`, shared authenticated HTTP catalog and UI broker choice. None uncovered. |
+| AC2 / 2 | `test_brokers_and_owned_accounts_have_stable_name_order_and_broker_labels`, orphaned-broker failure, two-user HTTP list/detail and identical absent/foreign 404. None uncovered. |
+| AC3 / 3 | Application trim, 255-character boundary, currency and partial PATCH; HTTP 201/Location, strict payloads, immutable broker, padded/renamed/concurrent conflicts; direct SQL per-user expression-index behavior and two-connection race. None uncovered. |
+| AC4 / 4 | Owned and foreign/absent DELETE, transaction-preserving 409, blocked downgrade, UI confirmation. None uncovered. |
+| AC5 / 5 | HTTP malformed/extra/empty 422, opaque 404/409, detail/write bearer 401 with row retention, verifier and local DB 503; UI conflict/outage/expiry/401. None uncovered. |
+| AC6 / 6 | Home link, page mount, visible populated-row broker label, editable lowercase currency uppercase in form and POST, CRUD, loading/empty/errors, focus, sign-out/stale action, switch and expiry in `account-manager.test.tsx`. Narrow-screen pixel usability remains a GREEN browser check, not a jsdom claim. |
+| AC7 / 7 | PostgreSQL migration/index/race, existing scoped repositories, two-user HTTP isolation, configured-origin CORS and denied foreign origin, existing auth tests. **Uncovered:** rejection of an unneeded CORS preflight method (for example PUT). Import-linter, mypy, metadata drift, coverage, lint/build and scans remain GREEN/ship checks. |
+
+### Prior findings
+
+Round-1 auth, collision, orphan, absent/foreign write, page and stale-action findings remain addressed by the cumulative tests as recorded in round 2. Round-2's three gaps are addressed: `test_brokers_with_the_same_name_are_ordered_by_stable_id` reverses input order and asserts stable IDs; the create/edit UI test asserts the populated row adds another visible `IBKR`, changes `usd` to `USD` in the form, and inspects POST currency `USD`. No approved spec or plan change is proposed.
+
+### Checklist findings
+
+1. **Acceptance and numbered verification: changes requested.** AC1-AC6 and plan items 1-6 have the mapped evidence above. AC7/verification 7 requires CORS to permit *only* the needed methods, but `test_write_preflight_allows_configured_origin_without_cookies` in `backend/tests/integration/test_accounts_http.py` tests only the four allowed methods and a denied origin. It never sends PUT (or another unneeded method) from an allowed origin.
+2. **Observable plan decisions: changes requested.** `plan.md` specifies "add only GET/POST/PATCH/DELETE to configured-origin CORS." A middleware configured with PUT in addition would satisfy every current CORS assertion, including the attacker-origin denial. Add an allowed-origin preflight for an unneeded method asserting rejection/no permissive allow-methods result. Other tested decisions include reserved UUID collision even on a matching key, migration preflight/rollback and guarded downgrade, scoped internal-user operations, response codes, ordering and concurrent uniqueness.
+3. **RED cause: none.** Independent targeted reruns at this head: 50 backend failures (10 missing migration/seed/index, 27 missing routes/CORS, 13 missing application operations), zero setup/collection errors; frontend 10 failures (eight missing manager, one missing link, one missing page) and eight passes. Local PostgreSQL responds; no external network failure explains RED.
+4. **Behavioral assertions: changes requested only for the CORS negative case.** SQL tests inspect persisted rows and enforce a two-connection case-conflict race; HTTP tests exercise route responses and row retention; UI tests assert DOM, writes, bearer and stale-session effects. Those assertions reject plausible wrong implementations for the mapped behaviors. The missing PUT preflight permits the overbroad CORS implementation described in finding 2.
+5. **Allowed infrastructure: none.** `backend/tests/integration/conftest.py` enforces uniquely named, disposable local PostgreSQL 17 databases; auth overrides and browser fetch/Supabase fakes are offline, and outage testing uses a local closed port. No live secrets or external calls appear in the test changes.
+6. **Existing suite: none.** The cumulative diff preserves historical 003 assertions at revision 0002 and renames colliding broker fixtures without removing their assertions. Independently rerun: 146 pre-existing backend tests pass; 13 frontend tests pass with the one new home-link case deliberately excluded. No pre-existing test is deleted or weakened. `git diff --check 82ec809 c21ef065e9e3ecfabe9eb5d26901f8da95dbb713` passes.
+
+Zack authorized this exceptional third round; this verdict does not begin GREEN. Add the focused CORS rejection RED case and rerun targeted and existing suites before coordinator resolution.
+VERDICT: CHANGES_REQUESTED

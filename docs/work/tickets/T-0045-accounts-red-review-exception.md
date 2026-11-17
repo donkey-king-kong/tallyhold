@@ -2,8 +2,8 @@
 
 ## Assignment
 
-- Status: in_progress
-- Owner actor: R-0040/red-reviewer-3 (fresh Trae pending launch)
+- Status: blocked
+- Owner actor: R-0040/red-reviewer-3 (fresh review complete)
 - Role: independent RED Reviewer, Zack-authorized exceptional round
 - Run: [R-0040](../runs/R-0040.md)
 - Feature / task: [006 spec](../../specs/006-accounts/spec.md), [plan](../../specs/006-accounts/plan.md), [tasks](../../specs/006-accounts/tasks.md)
@@ -23,24 +23,25 @@ comment. No code, tests, approved docs, tracking, telemetry, commits or push.
 
 ## Acceptance
 
-- [ ] Distinct fresh Reviewer checks base `82ec809`, exceptional test SHA
-  `161a3d9`, and latest pushed head; preserves previous review rounds.
-- [ ] Coordinator verifies identical comment and records verdict. GREEN only
-  after APPROVE; another non-approval returns to Zack.
+- [x] Distinct fresh Reviewer checked base `82ec809`, test SHA `161a3d9`
+  and reviewed head `c21ef06`, preserving previous review rounds.
+- [x] Coordinator verified identical comment and `CHANGES_REQUESTED` verdict;
+  GREEN remains blocked and escalation returns to Zack.
 
 ## Checkpoint
 
-- Last completed action: assignment pushed `be0e290`; use fresh Trae reviewer.
-  Claude Code was authenticated but its fresh round 1 and 2 attempts both
-  failed with API ECONNREFUSED before verdict; no Claude review is claimed.
-- Evidence: 50 expected backend RED failures, 146 existing passes; 10 expected
-  frontend RED failures, 13 existing passes plus one excluded new case.
-- Worktree state: clean at pushed `be0e290`.
-- Remaining work: fresh verdict and identical comment.
-- Blocker / unblock action: GREEN gated on APPROVE.
-- Next action: push actual fallback-type checkpoint; dispatch distinct fresh
-  Trae reviewer against base `82ec809` through the new remote head.
-- Handoff recipient: coordinator, then Implementer on APPROVE.
+- Last completed action: different fresh Trae reviewer returned
+  `CHANGES_REQUESTED` for exceptional round 3; report/comment identical.
+- Evidence: [review](../../specs/006-accounts/red-review.md) and
+  [comment](https://github.com/donkey-king-kong/tallyhold/commit/c21ef065e9e3ecfabe9eb5d26901f8da95dbb713#commitcomment-210415966);
+  base `82ec809`, reviewed head `c21ef06`, pinned tests `161a3d9`.
+- Worktree state: reviewer report modified; no code/test edit after verdict.
+- Remaining work: Zack resolves the further RED escalation.
+- Blocker / unblock action: exceptional round non-approval. Missing negative
+  CORS assertion: allowed origin must reject unneeded PUT preflight.
+- Next action: commit/push report and escalation checkpoint, then ask Zack
+  for explicit resolution before another RED change or GREEN.
+- Handoff recipient: Zack.
 
 ## History
 
@@ -48,3 +49,4 @@ comment. No code, tests, approved docs, tracking, telemetry, commits or push.
 | --- | --- | --- | --- |
 | 2026-11-17T08:08:26Z | R-0040/coordinator | Claimed exceptional fresh review after Zack's one-round authorization | Push assignment, then dispatch |
 | 2026-11-17T08:08:26Z | R-0040/coordinator | Assignment pushed `be0e290`; selected fresh Trae fallback after two Claude API launch failures | Push fallback checkpoint then dispatch; no GREEN |
+| 2026-11-17T08:08:26Z | R-0040/coordinator | Fresh distinct Trae reviewer checked `82ec809..c21ef06`; `CHANGES_REQUESTED` with identical comment `210415966` | Escalate to Zack; GREEN and ship remain stopped |
