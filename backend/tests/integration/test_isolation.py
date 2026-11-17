@@ -88,7 +88,11 @@ def test_direct_sql_rejects_cross_user_and_currency_links(
             **trade(rows, broker_account_id=uuid4()),
         )
     assert (
-        connection.execute(text("SELECT count(*) FROM transactions")).scalar_one() == 0
+        connection.execute(
+            text("SELECT count(*) FROM transactions WHERE user_id = :owner"),
+            {"owner": rows["owner"]},
+        ).scalar_one()
+        == 0
     )
 
 
@@ -112,7 +116,11 @@ def test_direct_sql_rejects_invalid_trade_values(
     with rejected_sql(connection):
         insert(connection, "transactions", **trade(rows, **{column: invalid}))
     assert (
-        connection.execute(text("SELECT count(*) FROM transactions")).scalar_one() == 0
+        connection.execute(
+            text("SELECT count(*) FROM transactions WHERE user_id = :owner"),
+            {"owner": rows["owner"]},
+        ).scalar_one()
+        == 0
     )
 
 
@@ -128,7 +136,11 @@ def test_direct_sql_rejects_nan_trade_values(
     with rejected_sql(connection):
         insert(connection, "transactions", **trade(rows, **{column: Decimal("NaN")}))
     assert (
-        connection.execute(text("SELECT count(*) FROM transactions")).scalar_one() == 0
+        connection.execute(
+            text("SELECT count(*) FROM transactions WHERE user_id = :owner"),
+            {"owner": rows["owner"]},
+        ).scalar_one()
+        == 0
     )
 
 
@@ -250,30 +262,28 @@ def test_audit_timestamps_populate_and_advance_on_updates(
     connection: Connection,
 ) -> None:
     rows = seed_rows(connection)
-    insert(connection, "transactions", **trade(rows))
+    trade_values = trade(rows)
+    insert(connection, "transactions", **trade_values)
     for table in ("users", "brokers", "broker_accounts", "instruments", "transactions"):
         assert connection.execute(
             text(f"SELECT bool_and(created_at IS NOT NULL) FROM {table}")
         ).scalar_one()
     for table in ("broker_accounts", "transactions"):
+        row_id = rows["account"] if table == "broker_accounts" else trade_values["id"]
         original = connection.execute(
-            text(f"SELECT created_at, updated_at FROM {table} LIMIT 1")
+            text(f"SELECT created_at, updated_at FROM {table} WHERE id = :id"),
+            {"id": row_id},
         ).one()
         connection.execute(
             text(
                 f"UPDATE {table} SET updated_at = updated_at + INTERVAL '1 second' "
                 "WHERE id = :id"
             ),
-            {
-                "id": rows["account"]
-                if table == "broker_accounts"
-                else connection.execute(
-                    text("SELECT id FROM transactions LIMIT 1")
-                ).scalar_one()
-            },
+            {"id": row_id},
         )
         changed = connection.execute(
-            text(f"SELECT created_at, updated_at FROM {table} LIMIT 1")
+            text(f"SELECT created_at, updated_at FROM {table} WHERE id = :id"),
+            {"id": row_id},
         ).one()
         assert changed.created_at == original.created_at
         assert changed.updated_at > original.updated_at
