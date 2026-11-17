@@ -354,6 +354,16 @@ def test_write_preflight_allows_configured_origin_without_cookies() -> None:
             )
             assert denied.status_code == 400
             assert "access-control-allow-origin" not in denied.headers
+        unnecessary = client.options(
+            f"{API}/accounts",
+            headers={
+                "Origin": "http://localhost:3000",
+                "Access-Control-Request-Method": "PUT",
+                "Access-Control-Request-Headers": "authorization,content-type",
+            },
+        )
+        assert unnecessary.status_code == 400
+        assert "PUT" not in unnecessary.headers.get("access-control-allow-methods", "")
 
 
 def test_account_routes_require_bearer_and_preserve_public_health() -> None:
