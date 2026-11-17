@@ -11,7 +11,7 @@
 - Dependencies: [T-0061](T-0061-first-deploy-plan.md) pushed with green CI
 - Branch / worktree: `chore/first-deploy-plan`, `../tallyhold-chore-first-deploy`
 - Issue / PR: #35 / [#39](https://github.com/donkey-king-kong/tallyhold/pull/39)
-- Updated: 2026-11-17T07:31:57Z
+- Updated: 2026-11-17T07:37:04Z
 
 ## Scope
 
@@ -24,12 +24,12 @@ permitted inputs, never this ticket or Agent Flow.
 
 ## Checkpoint
 
-- Last completed action: PR #39 green at implementation head; fresh Claude review intended but not dispatched.
-- Evidence: PR #39 head `fe86e789c68be2b582a4f19b273b6ec9841df407`; CI backend/frontend/security pass.
-- Worktree state: final checkpoint pending commit.
-- Remaining work: checkpoint push, new-head CI and fresh review.
+- Last completed action: Claude review launch failed with API ECONNREFUSED before verdict; fresh Trae fallback planned but not dispatched.
+- Evidence: PR #39 at `3ea951a932d06aed9a0c71f4a2763812f81fc822`; CI green; failed CLI process.
+- Worktree state: failed-launch checkpoint pending commit.
+- Remaining work: push checkpoint, new-head CI and fresh fallback review.
 - Blocker / unblock action: none.
-- Next action: dispatch after final pre-review checkpoint and new-head green CI.
+- Next action: push failed-launch checkpoint; dispatch fresh Trae reviewer after new-head green CI.
 - Handoff recipient: coordinator.
 
 ## History
@@ -38,3 +38,4 @@ permitted inputs, never this ticket or Agent Flow.
 | --- | --- | --- | --- |
 | 2026-11-17T07:25:14Z | R-0062/coordinator | Reserved fresh docs PR review | Wait for green CI |
 | 2026-11-17T07:31:57Z | R-0062/coordinator | PR #39 green at `fe86e78`; Claude preferred for review | Push checkpoint and recheck CI |
+| 2026-11-17T07:37:04Z | R-0062/coordinator | Claude launch failed before verdict with API ECONNREFUSED; no round completed | Push failure checkpoint; fresh Trae fallback |
