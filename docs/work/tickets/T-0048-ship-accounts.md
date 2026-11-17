@@ -2,7 +2,7 @@
 
 ## Assignment
 
-- Status: blocked
+- Status: in_progress
 - Owner actor: R-0040/coordinator
 - Role: coordinator
 - Run: [R-0040](../runs/R-0040.md)
@@ -15,7 +15,7 @@
 - Dependencies: [T-0047](T-0047-accounts-green.md)
 - Branch / worktree: `feature/006-accounts` / `../tallyhold-feature-006-accounts`
 - Issue / PR: [#36](https://github.com/donkey-king-kong/tallyhold/issues/36) / none
-- Updated: 2026-11-17T09:03:12Z
+- Updated: 2026-11-17T09:14:08Z
 
 ## Scope
 
@@ -41,10 +41,9 @@ AGENTS.md on Track A.
   artifact allowance is 500 MB. Billing-method status is not verified.
 - Worktree state: clean; local branch ahead of remote, no PR.
 - Remaining work: cost approval, push, PR, CI, fresh review, merge gate.
-- Blocker / unblock action: Zack explicitly approved COST APPROVAL 1/2;
-  request and await separate COST APPROVAL 2/2 before provider/CI action.
-- Next action: request the second cost approval with the same GitHub
-  action, cost bounds and undo terms; push only after separate explicit yes.
+- Blocker / unblock action: none; Zack separately approved COST APPROVAL
+  1/2 and COST APPROVAL 2/2 for the stated GitHub PR/CI action.
+- Next action: commit/push this approval checkpoint; create PR, inspect CI.
 - Handoff recipient: Zack for cost gate, then ship coordinator.
 
 ## History
@@ -53,3 +52,4 @@ AGENTS.md on Track A.
 | --- | --- | --- | --- |
 | 2026-11-17T08:48:02Z | R-0040/coordinator | Claimed ship after GREEN and local main merge; paused before provider work under new cost rule | Request staged GitHub Actions cost approval |
 | 2026-11-17T09:03:12Z | R-0040/coordinator | Zack explicitly selected "Approve stage 1" for GitHub Feature 006 PR/CI after $0 expected, unbounded paid-storage worst-case and cancellation terms were stated; branch remains local | Separately request COST APPROVAL 2/2; no CI yet |
+| 2026-11-17T09:14:08Z | R-0040/coordinator | Zack separately selected "Approve stage 2" after the same GitHub action, $0 expected/unbounded paid-storage worst-case and undo terms were restated | Commit/push branch and open PR; inspect CI |
