@@ -1,3 +1,4 @@
+import { AuthStatus } from "../components/auth-status";
 import { HealthStatus } from "../components/health-status";
 
 export default function Home() {
@@ -15,6 +16,13 @@ export default function Home() {
           when the API is.
         </p>
       </div>
+      <section
+        aria-label="Your account"
+        className="rounded-2xl border border-slate-200 bg-white px-6 py-5 shadow-sm"
+      >
+        <h2 className="mb-3 text-lg font-semibold">Your account</h2>
+        <AuthStatus />
+      </section>
       <section
         aria-label="System status"
         className="rounded-2xl border border-slate-200 bg-white px-6 py-5 shadow-sm"

@@ -11,7 +11,7 @@
 - Dependencies: [T-0026](T-0026-auth-red-review.md), [T-0028](T-0028-auth-red-review-fixes.md)
 - Branch / worktree: `feature/005-auth` / `../tallyhold-feature-005-auth`
 - Issue / PR: issue #27 / no Feature 005 PR yet
-- Updated: 2026-11-17T05:41:32Z
+- Updated: 2026-11-17T05:44:33Z
 
 ## Scope
 
@@ -31,12 +31,12 @@ or execute production erasure.
 
 ## Checkpoint
 
-- Last completed action: resolver committed at `776a038`; bearer-only FastAPI `/me` composition implemented.
-- Evidence: auth HTTP 7/7 and composed PostgreSQL boundary 9/9 pass; backend Ruff lint/format, mypy strict and import-linter pass.
-- Worktree state: HTTP composition and task/checkpoint edits pending commit.
-- Remaining work: frontend, runbook and full verification, then ship.
+- Last completed action: API composition committed at `2124957`; Next.js PKCE/session and callback UI implemented.
+- Evidence: frontend 12/12 Vitest, lint, typecheck, Prettier and build pass; approved RED test assertions unchanged, only Prettier line wrapping.
+- Worktree state: frontend implementation, lockfile, formatting and task/checkpoint edits pending commit.
+- Remaining work: operator runbook and full verification, then ship.
 - Blocker / unblock action: none for GREEN; operator/deployment gates remain.
-- Next action: commit HTTP composition slice, then implement Next.js PKCE/session UI.
+- Next action: commit frontend slice, then write operator erasure runbook.
 - Handoff recipient: R-0033/coordinator acting as Implementer.
 
 ## History
@@ -48,3 +48,4 @@ or execute production erasure.
 | 2026-11-17T05:37:23Z | R-0033/coordinator | JWT verifier 27/27, backend lint/format/mypy/import-linter pass; schema committed `2d66e5a` | Commit verifier slice, then resolve first-login identity |
 | 2026-11-17T05:39:07Z | R-0033/coordinator | Identity resolution 9/9 PostgreSQL tests pass; Ruff/mypy/import-linter pass; verifier committed `0eecada` | Commit resolver slice, then compose `/me` |
 | 2026-11-17T05:41:32Z | R-0033/coordinator | Bearer-only `/me` and restricted CORS pass HTTP 7/7 and composed PostgreSQL 9/9; Ruff/format/mypy/import-linter pass; resolver committed `776a038` | Commit API slice, then implement frontend |
+| 2026-11-17T05:44:33Z | R-0033/coordinator | Frontend PKCE, callback and session UI pass Vitest 12/12, lint, typecheck, Prettier and build; API committed `2124957`; two RED tests reformatted without changing assertions | Commit frontend slice, then write operator runbook; assess npm audit findings at full verification |

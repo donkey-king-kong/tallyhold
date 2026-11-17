@@ -85,7 +85,7 @@ roles; the Implementer does not alter tests merely to pass.
   /api/v1/me` with UUID/currency and generic denial. Restrict CORS to
   configured frontend origins, accept bearer not auth cookies, keep health
   public. Run API and import-linter tests; commit.
-- [ ] **Implementer: Next.js login/logout (AC1, AC4).** Add Supabase
+- [x] **Implementer: Next.js login/logout (AC1, AC4).** Add Supabase
   browser/server clients and PKCE callback, protected user display,
   signed-out and failure states, sign-out/session-expiry behavior, and
   bearer-only FastAPI fetch with credentials omitted. Lock packages,

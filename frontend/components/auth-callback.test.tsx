@@ -30,8 +30,12 @@ test("callback exchanges only the one-time code and redirects without tokens", a
     /one-time-code|offline-jwt|access_token|refresh_token/,
   );
   expect(await response.text()).not.toMatch(/one-time-code|offline-jwt/);
-  expect(JSON.stringify(errorLog.mock.calls)).not.toMatch(/one-time-code|offline-jwt/);
-  expect(JSON.stringify(infoLog.mock.calls)).not.toMatch(/one-time-code|offline-jwt/);
+  expect(JSON.stringify(errorLog.mock.calls)).not.toMatch(
+    /one-time-code|offline-jwt/,
+  );
+  expect(JSON.stringify(infoLog.mock.calls)).not.toMatch(
+    /one-time-code|offline-jwt/,
+  );
 });
 
 test("cancelled callback returns a safe signed-out redirect", async () => {
@@ -55,7 +59,8 @@ test("cancelled callback returns a safe signed-out redirect", async () => {
     /sensitive-provider-detail|access_denied|access_token|refresh_token/,
   );
   expect(
-    new URL(response.headers.get("location")!, "http://localhost:3000").pathname,
+    new URL(response.headers.get("location")!, "http://localhost:3000")
+      .pathname,
   ).toBe("/");
   expect(await response.text()).not.toContain("sensitive-provider-detail");
   expect(JSON.stringify(errorLog.mock.calls)).not.toContain(

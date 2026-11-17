@@ -135,7 +135,9 @@ test("callback-created session becomes authenticated without leaking its token",
   expect(fetch).toHaveBeenCalledWith(
     expect.stringMatching(/\/api\/v1\/me$/),
     expect.objectContaining({
-      headers: expect.objectContaining({ Authorization: "Bearer callback-jwt" }),
+      headers: expect.objectContaining({
+        Authorization: "Bearer callback-jwt",
+      }),
       credentials: "omit",
     }),
   );
