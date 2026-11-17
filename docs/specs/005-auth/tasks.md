@@ -73,7 +73,7 @@ roles; the Implementer does not alter tests merely to pass.
   ES256/role/sub checks and fail-closed errors.
   No shared secret, token-supplied key URL or live Supabase network in CI.
   Run offline matrix and commit.
-- [ ] **Implementer: identity resolution (AC3, AC5).** Add pure domain
+- [x] **Implementer: identity resolution (AC3, AC5).** Add pure domain
   identity/marker ports, SQLAlchemy adapters and `ResolveCurrentUser`.
   Check marker before lookup. If identity is absent, acquire the PostgreSQL
   transaction advisory lock on the canonical `(issuer, sub)` key, re-check
