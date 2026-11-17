@@ -78,6 +78,14 @@ def test_brokers_and_owned_accounts_have_stable_name_order_and_broker_labels() -
     assert [item.id for item in manager.list_accounts(other)] == [foreign.id]
 
 
+def test_brokers_with_the_same_name_are_ordered_by_stable_id() -> None:
+    first = Broker(UUID(int=1), "Shared", "SG")
+    last = Broker(UUID(int=3), "Shared", "US")
+    manager = service(Accounts(), Brokers(first, last))
+
+    assert [broker.id for broker in manager.list_brokers()] == [first.id, last.id]
+
+
 def test_create_trims_name_normalizes_currency_and_never_selects_an_owner() -> None:
     owner, other = uuid4(), uuid4()
     broker = Broker(uuid4(), "IBKR", "SG")

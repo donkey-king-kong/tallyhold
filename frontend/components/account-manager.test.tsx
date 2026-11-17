@@ -142,8 +142,16 @@ test("create, edit, and confirmed delete use bearer writes and update the visibl
   fireEvent.change(screen.getByLabelText(/account name/i), {
     target: { value: "Main" },
   });
+  fireEvent.change(screen.getByLabelText(/account currency/i), {
+    target: { value: "usd" },
+  });
+  expect(screen.getByLabelText(/account currency/i)).toHaveProperty(
+    "value",
+    "USD",
+  );
   fireEvent.click(screen.getByRole("button", { name: /create account/i }));
   expect(await screen.findByText("Main")).toBeTruthy();
+  expect(screen.getAllByText("IBKR").length).toBeGreaterThanOrEqual(2);
   fireEvent.click(screen.getByRole("button", { name: /edit Main/i }));
   fireEvent.change(screen.getByLabelText(/account name/i), {
     target: { value: "Growth" },
@@ -165,6 +173,9 @@ test("create, edit, and confirmed delete use bearer writes and update the visibl
     "PATCH",
     "DELETE",
   ]);
+  expect(JSON.parse(String(writes[0][1].body))).toMatchObject({
+    currency: "USD",
+  });
   expect(
     writes.every(
       ([, options]) =>
