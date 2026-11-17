@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { appendFile, mkdtemp, readFile, rename, rm, truncate, writeFile } from "node:fs/promises";
+import { appendFile, mkdir, mkdtemp, readFile, rename, rm, truncate, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -23,9 +23,9 @@ async function fixture(session: string) {
   return { path, line };
 }
 
-async function controller() {
+async function controller(options: Record<string, unknown> = {}) {
   const { createSourceController } = await import("../src/host/sourceReader");
-  const instance = createSourceController();
+  const instance = createSourceController(options);
   controllers.push(instance);
   return instance;
 }
@@ -34,6 +34,10 @@ describe("selected local source (AC2, AC9-11, AC13, AC15)", () => {
   it("switches between worktrees without mixing same-named agents or sessions", async () => {
     const first = await fixture("first");
     const second = await fixture("second");
+    await appendFile(first.path, JSON.stringify({
+      time: 1, type: "message", sessionId: "first",
+      payload: { agent: "same", content: "first only" },
+    }) + "\n");
     const reader = await controller();
     await reader.selectSource(pathToFileURL(first.path));
     expect(reader.getState()).toMatchObject({
@@ -44,6 +48,8 @@ describe("selected local source (AC2, AC9-11, AC13, AC15)", () => {
       path: second.path, sessionId: "second", reader: "following",
     });
     expect(reader.getState().projection.nodes.map((node: any) => node.id)).toEqual(["same"]);
+    expect(reader.getState().projection.nodes[0].activities).toHaveLength(1);
+    expect(JSON.stringify(reader.getState().projection)).not.toContain("first only");
   });
 
   it("preserves the valid view on failure and recovers without duplicate history", async () => {
@@ -53,6 +59,8 @@ describe("selected local source (AC2, AC9-11, AC13, AC15)", () => {
     await rm(source.path);
     await reader.refresh();
     expect(reader.getState().reader).toBe("stale");
+    expect(reader.getState().error).toMatch(/selected|file|read/i);
+    expect(reader.getState().lastSuccessfulRead).toBeTruthy();
     expect(reader.getState().projection.nodes).toHaveLength(1);
     await writeFile(source.path, source.line);
     await reader.refresh();
@@ -97,9 +105,17 @@ describe("selected local source (AC2, AC9-11, AC13, AC15)", () => {
   it("never allows a stale read to overwrite a later selection", async () => {
     const first = await fixture("first");
     const second = await fixture("second");
-    const reader = await controller();
+    let releaseFirst: (() => void) | undefined;
+    const gate = new Promise<void>((resolve) => { releaseFirst = resolve; });
+    const reader = await controller({
+      readBytes: async (path: string) => {
+        if (path === first.path) await gate;
+        return readFile(path);
+      },
+    });
     const pending = reader.selectSource(pathToFileURL(first.path));
     await reader.selectSource(pathToFileURL(second.path));
+    releaseFirst?.();
     await pending;
     expect(reader.getState().sessionId).toBe("second");
   });
@@ -167,5 +183,80 @@ describe("selected local source (AC2, AC9-11, AC13, AC15)", () => {
     await reader.refresh();
     expect(reader.getState().reader).not.toBe("following");
     expect(reader.getState().diagnostics.some((item: any) => item.code === "limit_exceeded")).toBe(true);
+  });
+
+  it("retains accepted history and an actionable incomplete state after an append exceeds a limit", async () => {
+    const source = await fixture("s1");
+    const reader = await controller();
+    await reader.selectSource(pathToFileURL(source.path));
+    await appendFile(source.path, "x".repeat(1024 * 1024 + 1) + "\n");
+    await reader.refresh();
+    expect(reader.getState().projection.nodes[0].activities).toHaveLength(1);
+    expect(reader.getState().reader).not.toBe("following");
+    expect(reader.getState().error).toMatch(/limit|incomplete/i);
+  });
+
+  it("does not reread an unchanged notification or append across a changed prefix", async () => {
+    const source = await fixture("s1");
+    const reader = await controller();
+    await reader.selectSource(pathToFileURL(source.path));
+    await reader.refresh();
+    await reader.refresh();
+    expect(reader.getState().projection.nodes[0].activities).toHaveLength(1);
+    await writeFile(source.path, source.line.replace("s1", "s2") +
+      JSON.stringify({
+        time: 1, type: "message", sessionId: "s2",
+        payload: { agent: "same", content: "new generation" },
+      }) + "\n");
+    await reader.refresh();
+    expect(reader.getState().sessionId).toBe("s2");
+    expect(reader.getState().projection.nodes[0].activities).toHaveLength(2);
+    expect(reader.getState().projection.diagnostics.some((item: any) => item.code === "session_mismatch")).toBe(false);
+  });
+
+  it("keeps malformed companions and heartbeat claims advisory", async () => {
+    const source = await fixture("s1");
+    const root = roots[0];
+    await writeFile(join(root, "session.json"), "{invalid");
+    await mkdir(join(root, "heartbeats"));
+    await writeFile(join(root, "heartbeats", "same.json"), JSON.stringify({
+      agent: "same", status: "completed", updated_at: 1,
+    }));
+    const reader = await controller();
+    await reader.selectSource(pathToFileURL(source.path));
+    expect(reader.getState().projection.nodes[0].status).toBe("starting");
+    expect(reader.getState().projection.nodes[0].activities[0].absoluteTime).toBeNull();
+    expect(reader.getState().diagnostics.some((item: any) => item.code === "invalid_metadata")).toBe(true);
+    await writeFile(join(root, "session.json"), JSON.stringify({
+      session_id: "s1", started_at: -1,
+    }));
+    await reader.refresh();
+    expect(reader.getState().projection.nodes[0].activities[0].absoluteTime).toBeNull();
+  });
+
+  it("discovers worktree streams only when the workspace is trusted", async () => {
+    const source = await fixture("s1");
+    const root = roots[0];
+    await mkdir(join(root, ".agent-flow"));
+    await rename(source.path, join(root, ".agent-flow", "agent-flow-events.jsonl"));
+    const { discoverWorktreeSources } = await import("../src/host/monitorPanel");
+    expect(await discoverWorktreeSources([root], { trusted: false })).toEqual([]);
+    expect(await discoverWorktreeSources([root], { trusted: true })).toEqual([
+      pathToFileURL(join(root, ".agent-flow", "agent-flow-events.jsonl")).href,
+    ]);
+  });
+
+  it("closes its filesystem watcher on switch and disposal", async () => {
+    const first = await fixture("first");
+    const second = await fixture("second");
+    let closed = 0;
+    const reader = await controller({
+      watchSource: () => ({ close: () => { closed++; } }),
+    });
+    await reader.selectSource(pathToFileURL(first.path));
+    await reader.selectSource(pathToFileURL(second.path));
+    expect(closed).toBe(1);
+    reader.dispose();
+    expect(closed).toBe(2);
   });
 });

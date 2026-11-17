@@ -76,6 +76,11 @@ describe("selected-stream projection (AC3-10, AC12-13)", () => {
     ));
     expect(model.snapshot().nodes[0].intervals).toHaveLength(2);
     expect(model.snapshot().nodes[0].activities).toHaveLength(4);
+    expect(model.snapshot().nodes[0].intervals).toMatchObject([
+      { start: 0, end: 1, certainty: "reported" },
+      { start: 2, end: null, certainty: "reported" },
+    ]);
+    expect(model.snapshot().nodes[0].status).toBe("working");
     model.ingest(bytes(record("agent_spawn", { name: "worker" }, 4, "other")));
     expect(model.snapshot().nodes).toHaveLength(1);
     expect(model.snapshot().diagnostics.some((item: any) => item.code === "session_mismatch")).toBe(true);
@@ -98,6 +103,7 @@ describe("selected-stream projection (AC3-10, AC12-13)", () => {
     });
     expect(view.nodes.find((node: any) => node.id === "unspawned").intervals[0].certainty).toBe("incomplete");
     expect(view.nodes.find((node: any) => node.id === "child").activities.some((item: any) => item.pairing === "ambiguous")).toBe(true);
+    expect(view.nodes.find((node: any) => node.id === "child").activities[1].pairing).toBe("unmatched");
   });
 
   it("keeps coordinates on append, status and filter changes, and rejects cycles", async () => {
@@ -111,6 +117,7 @@ describe("selected-stream projection (AC3-10, AC12-13)", () => {
     expect(model.snapshot().nodes.find((node: any) => node.id === "a").position).toEqual(before);
     expect(model.snapshot().nodes).toHaveLength(2);
     expect(model.snapshot().diagnostics.some((item: any) => item.code === "cycle")).toBe(true);
+    expect(model.snapshot().edges).not.toContainEqual({ parentId: "a", childId: "b" });
     expect(model.snapshot({ activeOnly: true }).nodes.map((node: any) => node.id)).toEqual(["b"]);
     expect(model.snapshot().nodes.map((node: any) => node.id)).toEqual(["a", "b"]);
   });
@@ -157,5 +164,60 @@ describe("selected-stream projection (AC3-10, AC12-13)", () => {
     ]);
     expect(model.snapshot().nodes[0].status).toBe("working");
     expect(model.snapshot().diagnostics.some((item: any) => item.code === "invalid_record")).toBe(true);
+  });
+
+  it("resolves a late parent without moving either identity or accepting a self-link", async () => {
+    const model = await stream();
+    model.ingest(bytes(record("agent_spawn", { name: "child", parent: "parent" }, 1)));
+    const childPosition = model.snapshot().nodes[0].position;
+    model.ingest(bytes(
+      record("agent_spawn", { name: "parent" }, 2) +
+      record("agent_spawn", { name: "self", parent: "self" }, 3),
+    ));
+    const view = model.snapshot();
+    expect(view.nodes.find((item: any) => item.id === "child").position).toEqual(childPosition);
+    expect(view.edges).toContainEqual({ parentId: "parent", childId: "child" });
+    expect(view.edges).not.toContainEqual({ parentId: "self", childId: "self" });
+    expect(view.nodes.map((item: any) => item.id)).toEqual(["child", "parent", "self"]);
+    expect(view.nodes.every((item: any) => Number.isFinite(item.position.x) && Number.isFinite(item.position.y))).toBe(true);
+  });
+
+  it("reports duplicate terminal boundaries and post-terminal activity as incomplete", async () => {
+    const model = await stream();
+    model.ingest(bytes(
+      record("agent_spawn", { name: "a" }, 0) +
+      record("agent_complete", { name: "a", status: "completed" }, 2) +
+      record("agent_complete", { name: "a", status: "completed" }, 3) +
+      record("message", { agent: "a", content: "late" }, 4),
+    ));
+    expect(model.snapshot().nodes[0].intervals).toHaveLength(1);
+    expect(model.snapshot().nodes[0].intervals[0]).toMatchObject({ start: 0, end: 2 });
+    expect(model.snapshot().nodes[0].activities.slice(-2).every((item: any) => item.certainty === "ambiguous")).toBe(true);
+    expect(model.snapshot().nodes[0].status).not.toBe("working");
+  });
+
+  it("rejects invalid times and payloads while reporting offsets and source-order anomalies", async () => {
+    const model = await stream();
+    const first = record("agent_spawn", { name: "root" }, 3);
+    const invalid = [
+      '{"time":-1,"type":"message","sessionId":"s1","payload":{"agent":"root"}}\n',
+      '{"time":null,"type":"message","sessionId":"s1","payload":{"agent":"root"}}\n',
+      '{"time":2,"type":"message","sessionId":"s1","payload":[]}\n',
+      '{"time":2,"type":"message","sessionId":7,"payload":{"agent":"root"}}\n',
+    ].join("");
+    model.ingest(bytes(first + invalid + record("message", { agent: "root", content: "late timestamp" }, 1)));
+    const view = model.snapshot();
+    expect(view.nodes[0].activities.map((item: any) => item.time)).toEqual([3, 1]);
+    expect(view.diagnostics.filter((item: any) => item.code === "invalid_record")).toHaveLength(4);
+    expect(view.diagnostics.some((item: any) => item.code === "out_of_order_time")).toBe(true);
+    expect(view.diagnostics.every((item: any) => Number.isInteger(item.line) && Number.isInteger(item.byteOffset))).toBe(true);
+  });
+
+  it("advances verified report age without changing reported agent state", async () => {
+    const model = await stream({ sessionStartedAt: 1_700_000_000 });
+    model.ingest(bytes(record("agent_spawn", { name: "reviewer" }, 2)));
+    expect(model.snapshot({ now: 1_700_000_010_000 }).nodes[0].lastUpdateAge).toBe(8);
+    expect(model.snapshot({ now: 1_700_000_070_000 }).nodes[0].lastUpdateAge).toBe(68);
+    expect(model.snapshot({ now: 1_700_000_070_000 }).nodes[0].status).toBe("starting");
   });
 });
