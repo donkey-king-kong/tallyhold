@@ -9,6 +9,7 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     ForeignKeyConstraint,
+    Index,
     String,
     UniqueConstraint,
     func,
@@ -37,7 +38,6 @@ class AccountRow(Base):
     __tablename__ = "broker_accounts"
     __table_args__ = (
         UniqueConstraint("user_id", "id", name="uq_broker_accounts_user_id_id"),
-        UniqueConstraint("user_id", "name", name="uq_broker_accounts_user_id_name"),
         CheckConstraint(
             "currency COLLATE \"C\" ~ '^[A-Z]{3}$'",
             name="ck_broker_accounts_currency",
@@ -67,3 +67,11 @@ class AccountRow(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
+
+
+Index(
+    "uq_broker_accounts_user_id_name_ci",
+    AccountRow.user_id,
+    func.lower(AccountRow.name),
+    unique=True,
+)

@@ -112,6 +112,31 @@ test("session fetches only its own current user with bearer and omitted credenti
   expect(document.body.textContent).not.toContain("offline-jwt");
 });
 
+test("signed-in home links to accounts and hides link on sign-out", async () => {
+  const auth = fakeAuth({
+    access_token: "offline-jwt",
+    expires_at: 4102444800,
+  });
+  vi.stubGlobal(
+    "fetch",
+    vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        id: "11111111-1111-4111-8111-111111111111",
+        base_currency: "SGD",
+      }),
+    }),
+  );
+  await renderAuthStatus(auth.client);
+  expect(
+    (
+      await screen.findByRole("link", { name: /manage accounts/i })
+    ).getAttribute("href"),
+  ).toBe("/accounts");
+  await act(async () => auth.emit("SIGNED_OUT", null));
+  expect(screen.queryByRole("link", { name: /manage accounts/i })).toBeNull();
+});
+
 test("callback-created session becomes authenticated without leaking its token", async () => {
   const auth = fakeAuth(null);
   const fetch = vi.fn().mockResolvedValue({

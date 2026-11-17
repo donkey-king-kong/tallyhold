@@ -41,6 +41,16 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 | [T-0031](tickets/T-0031-review-auth-pr.md) | Fresh independent PR review for Feature 005 | [R-0033](runs/R-0033.md) |
 | [T-0032](tickets/T-0032-parallel-track-coordination.md) | Reserve disjoint parallel-track IDs and correct the Phase 2 roadmap | [R-0034](runs/R-0034.md) |
 | [T-0033](tickets/T-0033-review-parallel-track-coordination.md) | Independently review and gate the parallel-track handoff PR | [R-0034](runs/R-0034.md) |
+| [T-0040](tickets/T-0040-draft-accounts-spec.md) | Draft and grill Feature 006 accounts spec before Gate 1 | [R-0040](runs/R-0040.md) |
+| [T-0041](tickets/T-0041-plan-accounts.md) | Draft Feature 006 architecture and migration plan for Zack's separate gate | [R-0040](runs/R-0040.md) |
+| [T-0042](tickets/T-0042-accounts-red.md) | Write and hand off Feature 006 failing tests | [R-0040](runs/R-0040.md) |
+| [T-0043](tickets/T-0043-accounts-red-review.md) | Independently review Feature 006 RED handoff | [R-0040](runs/R-0040.md) |
+| [T-0044](tickets/T-0044-accounts-red-review-round2.md) | Verify Feature 006 RED corrections with a fresh reviewer | [R-0040](runs/R-0040.md) |
+| [T-0045](tickets/T-0045-accounts-red-review-exception.md) | Review Zack-authorized final RED correction independently | [R-0040](runs/R-0040.md) |
+| [T-0046](tickets/T-0046-accounts-red-review-cors.md) | Review Zack-authorized focused CORS RED correction | [R-0040](runs/R-0040.md) |
+| [T-0047](tickets/T-0047-accounts-green.md) | Implement approved Feature 006 migration, API and UI | [R-0040](runs/R-0040.md) |
+| [T-0048](tickets/T-0048-ship-accounts.md) | Ship Feature 006 after the newly required cost gate | [R-0040](runs/R-0040.md) |
+| [T-0049](tickets/T-0049-review-accounts-pr.md) | Fresh independent PR #43 review after green CI | [R-0040](runs/R-0040.md) |
 | [T-0060](tickets/T-0060-first-deploy-maintenance.md) | Ship Track C migration gate and Compose ports | [R-0060](runs/R-0060.md) |
 | [T-0061](tickets/T-0061-first-deploy-plan.md) | Defer first-deploy decision to Phase 4 and ship docs | [R-0062](runs/R-0062.md), after [R-0061](runs/R-0061.md) |
 | [T-0062](tickets/T-0062-review-first-deploy-maintenance.md) | Independently review Track C maintenance PR | [R-0060](runs/R-0060.md) |

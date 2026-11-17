@@ -19,7 +19,7 @@ from app.shared.domain.money import Money
 
 def entities() -> tuple[User, Broker, Account, Instrument, Transaction]:
     user = User(uuid4(), "USD")
-    broker = Broker(uuid4(), "Tiger", "SG")
+    broker = Broker(uuid4(), "Fixture Broker", "SG")
     account = Account(uuid4(), user.id, broker.id, "Long term", "USD")
     instrument = Instrument(uuid4(), "aApL", "Nasdaq", "Apple", "equity", "USD")
     transaction = Transaction(

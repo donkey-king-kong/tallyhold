@@ -25,3 +25,14 @@ _Avoid_: email account, Google subject
 One investor's account at a broker, distinct from the shared broker name
 and from the account used to sign in.
 _Avoid_: login account, broker
+
+**Broker**:
+A shared reference to a brokerage entity identified by its name and
+jurisdiction, not an investor's personal account there.
+_Avoid_: broker account, login provider
+
+**Account currency**:
+The preferred currency associated with a broker account for entry and
+potential account-level reporting; it does not restrict the currencies
+of transactions or holdings.
+_Avoid_: transaction currency, user base currency
