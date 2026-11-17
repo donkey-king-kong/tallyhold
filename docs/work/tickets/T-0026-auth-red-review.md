@@ -11,7 +11,7 @@
 - Dependencies: [T-0023](T-0023-auth-red.md) and merged PR #29
 - Branch / worktree: `feature/005-auth` / `../tallyhold-feature-005-auth`
 - Issue / PR: issue #27; no Feature 005 PR yet
-- Updated: 2026-11-17T05:24:40Z
+- Updated: 2026-11-17T05:30:24Z
 
 ## Scope
 
@@ -32,12 +32,12 @@ existing RED-review escalation rules apply.
 
 ## Checkpoint
 
-- Last completed action: RED evidence pushed at `b349e0ac5e8e994b64bfa7cc578d3c9e6de7df18`, remote matches; `dc8e087..b349e0a` changes only four docs/tracking files, leaving the exact tested test tree intact.
-- Evidence: revised [RED run](../../specs/005-auth/red-test-run.md); base `a96c0dae42889b8196b6ec3f9ae3b2bb79dcb25a`, reviewed evidence head `b349e0a`; 91/91 existing backend and 3/3 existing frontend pass. Claude CLI is authenticated; launch status not yet known.
-- Worktree state: clean at pushed evidence head before this dispatch checkpoint; no GREEN code.
+- Last completed action: fresh headless Claude launch for round 3 exited 1 with `ECONNREFUSED` before any report/comment/verdict; no review round consumed.
+- Evidence: clean worktree and no comment on reviewed evidence head `b349e0ac5e8e994b64bfa7cc578d3c9e6de7df18`; previous report remains round-2 `CHANGES_REQUESTED`.
+- Worktree state: coordinator fallback checkpoint pending commit/push; no GREEN code.
 - Remaining work: fresh independent round 3, limited to round-2 findings 1-3 and checklist item 6.
 - Blocker / unblock action: GREEN remains blocked until round-3 `APPROVE`; on anything else stop and escalate again.
-- Next action: commit/push this dispatch checkpoint; attempt fresh headless Claude, fall back to fresh Trae if launch fails before verdict; stop GREEN until APPROVE.
+- Next action: commit/push failed-launch checkpoint; start a different fresh Trae (GPT) RED Reviewer with identical restricted inputs and the authorized round-3 scope.
 - Handoff recipient: fresh independent round-3 RED Reviewer after evidence push.
 
 ## History
@@ -56,3 +56,4 @@ existing RED-review escalation rules apply.
 | 2026-11-17T05:20:40Z | R-0033/coordinator | Zack authorized one extra targeted RED round on issue #27; took over from R-0031 at clean `3fda8dc` | Fix findings 1-3 and verify checklist item 6 only; round 3 must use a different fresh reviewer, no GREEN before APPROVE |
 | 2026-11-17T05:23:36Z | R-0033/coordinator | Revised test head `dc8e087` pushed and remote matched; 54 backend/9 frontend RED fail, 91 backend/3 frontend existing pass at exact pushed SHA | Push evidence and dispatch scoped round 3 |
 | 2026-11-17T05:24:40Z | R-0033/coordinator | Pushed `b349e0a`, remote matched; only docs changed since exact tested `dc8e087`; Claude CLI authenticated | Pin base `a96c0da` / reviewed RED evidence head `b349e0a`, dispatch scoped fresh round 3 after checkpoint |
+| 2026-11-17T05:30:24Z | R-0033/coordinator | Headless Claude returned `ECONNREFUSED` before verdict, report or comment; worktree clean and reviewed commit has no new comment | Authorized fresh Trae (GPT) fallback for round 3; record type in run and dispatch |
