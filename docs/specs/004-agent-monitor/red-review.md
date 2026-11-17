@@ -139,6 +139,98 @@ spec/plan change or unwritable security test claimed here.
 
 VERDICT: CHANGES_REQUESTED
 
+# Feature 004 RED review, exceptional round 4
+
+- Base: `0988e8e`
+- Reviewed pushed RED head: `1ec4eed08bba538eab04c59738f7914d5ce93c50`
+- Zack explicitly authorized this exceptional fourth independent round after
+  round 3. The three preceding reports are preserved above. References below
+  are under `extensions/agent-monitor/test/`; each AC also denotes its numbered
+  verification row in the approved plan.
+
+## Acceptance criteria and plan verification mapping, round 4
+
+| AC / plan item | Cumulative RED test evidence | Remaining verification |
+| --- | --- | --- |
+| 1 | `packaging.test.ts:6-14` requires the named command, extension entry point and `^1.80.0` API floor; `red-test-run.md` defines the two-editor installation/open-command checklist. | Actual VSIX installation and recorded editor versions remain the explicit GREEN smoke gate. |
+| 2 | `host.test.ts:35-54,93-104,238-271` checks source/session isolation, missing files, trusted discovery and zero untrusted auto-reads before explicit selection; `webview.test.ts:228-235` requires visible path and actionable initial error without a false connected state. | Actual picker/editor interaction remains GREEN integration. |
+| 3 | `core.test.ts:30-42`; `webview.test.ts:211-225` reconstruct and immediately expose completed and failed historical nodes without playback. | None for RED. |
+| 4 | `core.test.ts:109-123,224-243`; `webview.test.ts:87-109,143-170` require deterministic non-overlapping immutable positions, camera preservation, numeric Fit All bounds over terminal/unresolved overflow and keyboard pan/zoom/Fit All. | None for RED. |
+| 5 | `core.test.ts:30-42`; `webview.test.ts:58-70,172-195` require inspector chronology, identity/status/age labels and distinct success/failure outcome labels from neutral summaries while preserving completed agent status. | None for RED. |
+| 6 | `core.test.ts:69-86,185-197`; `host.test.ts:35-54,146-156`; `webview.test.ts:259-275` check reactivation boundaries, session/generation isolation, ambiguous terminal activity and visible incomplete interval certainty. | None for RED. |
+| 7 | `core.test.ts:109-123`; `webview.test.ts:47-55,111-123,237-257` require all nodes by default, explicit nonterminal semantics, focused reveal and retained history. | None for RED. |
+| 8 | `core.test.ts:140-151,216-222`; `webview.test.ts:125-141,259-275` separate reader/agent state, advance verified age without inferred liveness, and distinguish unavailable wall age from locally observed age. | None for RED. |
+| 9 | `core.test.ts:44-67`; `host.test.ts:200-216,312-335` check every byte split, equal-valued offsets, unchanged-notification reads, changed-prefix generation reset and historical/append equivalence. | None for RED. |
+| 10 | `core.test.ts:44-67,125-138,153-166,199-214,245-255` checks split UTF-8/newline, malformed/unsupported/schema/nonfinite records, exact offsets, mismatch, source order and later valid records. | None for RED. |
+| 11 | `host.test.ts:56-91,106-138,146-198,274-285,312-355` checks stale-view recovery, reopen, truncation/replacement, delayed-read cancellation, limit preservation and watcher/timer disposal. | Actual editor reload remains in the GREEN smoke checklist. |
+| 12 | `core.test.ts:89-123,169-197`; `webview.test.ts:143-170,197-209,259-275` check orphan/late/cyclic/self relationships, unmatched and ambiguous tools, incomplete boundaries and reachable uncertainty labels. | None for RED. |
+| 13 | `core.test.ts:125-151`; `host.test.ts:124-138,218-236,288-310` check relative-only time, malformed/conflicting/inconsistent snapshots, provisional heartbeats and companion immutability. | None for RED. |
+| 14 | `webview.test.ts:58-70,87-141,197-225,237-257` requires keyboard navigation, focus/reveal, non-color text labels, camera controls and narrow-panel access to details/history/Fit All after updates. | Measured contrast, responsive geometry and CSS reduced-motion behavior remain explicit GREEN editor checks. |
+| 15 | `host.test.ts:140-144,238-271,288-310,337-344`; `webview.test.ts:73-85`; `packaging.test.ts:16-74` require local-only reads, zero untrusted auto-read, no fetch or companion writes, text-only hostile data, restricted CSP/resources and bidirectional message rejection. | Actual VSIX content inspection remains GREEN. |
+| 16 | `packaging.test.ts:6-14,76-81`; `host.test.ts:158-198,357-369`; `red-test-run.md` defines repeatable coverage, build, audit, VSIX, benchmark and two-editor checks. | Coverage, package contents, measured performance and editor compatibility are correctly pending GREEN release verification. |
+
+## Prior findings, round 4 disposition
+
+- Round-3 AC2/AC15 gaps are resolved by `host.test.ts:250-271`, which observes
+  zero reads and no selected path in an untrusted workspace until explicit file
+  selection, and `webview.test.ts:228-235`, which requires actionable initial
+  error copy, the selected path and no connected/following claim.
+- Round-3 AC5 is resolved by `webview.test.ts:172-195`: two neutral tool
+  summaries carry opposing `outcome` values and must render distinct
+  succeeded/failed labels while agent details remain completed.
+- Round-3 AC6/AC8/AC12 uncertainty gaps are resolved by
+  `webview.test.ts:259-275`, which separately requires incomplete interval
+  certainty, ambiguous tool pairing, locally observed age and no fabricated
+  last-report wall age.
+- Round-3 AC14's RED-visible responsive-access gap is resolved by
+  `webview.test.ts:237-257`, which exercises keyboard selection, filtered-node
+  reveal, history, Fit All focus and selected history after a narrow resize and
+  update. Pixel contrast, CSS geometry/motion and actual editor behavior remain
+  appropriately assigned to the documented GREEN smoke checks.
+- Earlier failure-validity, infrastructure/privacy and existing-suite findings
+  remain resolved. No approved spec or plan decision was changed.
+
+## Checklist findings, round 4
+
+1. **AC and numbered verification mapping: none.** All AC1-AC16 and all 16
+   corresponding plan verification rows map to concrete public-seam tests
+   above. The remaining installation, visual measurement, performance,
+   coverage and package-audit items require an implementation/VSIX and are
+   explicitly retained as GREEN gates rather than claimed RED passes.
+2. **Observable plan decisions: none.** The cumulative suite covers approved
+   limits, diagnostics, source order, selection generations, immutable layout,
+   camera behavior, interval and tool ambiguity, truthful age/status,
+   snapshots, trust rejection, message bounds, CSP and local-only/no-write
+   behavior. The round-4 assertions reject the plausible outcome-blind,
+   auto-reading, false-connected and inaccessible narrow-layout
+   implementations identified in round 3.
+3. **RED failure validity: none.** Reran
+   `npm test -- --reporter=dot --silent` at the reviewed head: four files
+   collected, 56 tests failed, zero passed/skipped. Core, host and webview
+   cases fail on absent approved GREEN modules; package cases fail on absent
+   planned manifest/artifacts. There was no collection, fixture, dependency or
+   external-network failure, matching `red-test-run.md`.
+4. **Behavioral assertions and plausible wrong implementations: none.** Tests
+   assert projected state, file reads/writes, camera bounds, DOM roles/focus,
+   chronological records, security rejection and semantic labels through the
+   approved core, host and webview interfaces. The four round-4 cases close the
+   remaining adversarial gaps without asserting private implementation calls.
+5. **Allowed infrastructure/privacy: none observed.** Core/webview fixtures are
+   synthetic; host tests use disposable local temporary files and injected
+   boundary fakes. Rejected network URIs are paired with a `fetch` spy. No real
+   secret, private runtime log, PostgreSQL service or external network fixture
+   is used.
+6. **Existing tests and cumulative diff: none.** The cumulative RED test diff
+   adds the extension package/tests and does not modify or delete
+   `.trae/agent-flow/test_adapter.py`. Reran the relevant existing adapter
+   suite: six passed, zero failed/skipped. The permitted diff check also
+   reported no whitespace errors.
+
+No escalation finding remains. GREEN may begin under the approved plan, with
+the documented release and actual-editor checks still mandatory before ship.
+
+VERDICT: APPROVE
+
 # Feature 004 RED review, exceptional round 3
 
 - Base: `0988e8e`

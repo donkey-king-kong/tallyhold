@@ -30,35 +30,35 @@ adapter tests still pass, then confirm new tests collect and fail for missing
 extension behavior rather than environment/setup errors. Commit and push the
 RED evidence; follow the independent fresh RED review before GREEN.
 
-- [ ] **Parser and replay RED:** Test complete and incremental delivery of
+- [x] **Parser and replay RED:** Test complete and incremental delivery of
   identical bytes, split UTF-8 character and newline, repeated notifications,
   equal-valued distinct records, malformed/unsupported records, nonfinite
   relative times and mixed session IDs. Assert later valid records survive and
   counts/history match; AC3, AC9-AC10, AC13.
-- [ ] **Projection RED:** Cover parent/child graph, delayed parent, missing
+- [x] **Projection RED:** Cover parent/child graph, delayed parent, missing
   spawn, cycles, terminal/default visibility, explicit nonterminal filter,
   failed tool vs agent failure, ambiguous concurrent tool pairs, historical
   activity, same-session reactivation and cross-session same-name isolation.
   Assert incomplete interval and identity-kind labels, status/age honesty and
   snapshot conflicts and historical age without a verified session start;
   AC3, AC5-AC8, AC12-AC13.
-- [ ] **Source lifecycle RED:** Mock file append, unchanged notifications,
+- [x] **Source lifecycle RED:** Mock file append, unchanged notifications,
   same-size replacement, truncation, disappearance, temporary failure,
   recovery, rapid stream switching, panel disposal and reload. Verify
   selection generation cancels old async results, the stale view survives
   failure, and neither JSONL nor metadata is written; AC2, AC9, AC11, AC15.
-- [ ] **Graph and UI RED:** Verify immutable coordinates, preserved camera,
+- [x] **Graph and UI RED:** Verify immutable coordinates, preserved camera,
   initial/explicit Fit All, pan/zoom, keyboard node selection and navigator,
   inspector chronology, active-only toggle/reveal, focus on updates,
   light/dark/high-contrast tokens, narrow layout and reduced motion. Include
   empty/error/stale states and hostile text/URI injection; AC2-AC5, AC7-AC8,
   AC12, AC14-AC15.
-- [ ] **Host/package RED:** Test command registration, picker/source policy,
+- [x] **Host/package RED:** Test command registration, picker/source policy,
   validated bounded message protocol, CSP/local-resource restrictions,
   64 MiB/100k/2k/1 MiB boundary errors, package allowlist and no outbound
   requests. Define repeatable synthetic latency fixtures and two-editor
   smoke checklist; AC1-AC2, AC11, AC15-AC16.
-- [ ] **RED checkpoint and review:** Record test command/revision and expected
+- [x] **RED checkpoint and review:** Record test command/revision and expected
   failures, run unaffected publisher adapter tests, push the RED commit and
   obtain independent `APPROVE` per `docs/skills/red-review.md`. A failing
   environment or unresolved review is not permission for GREEN; AC1-AC16.
