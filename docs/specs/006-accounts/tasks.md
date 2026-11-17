@@ -75,7 +75,7 @@ orders work and maps ACs; tickets own assignment and execution evidence.
   injection. Register router once and permit configured-origin
   GET/POST/PATCH/DELETE preflights without cookies or wildcard. Pass API
   and isolation tests; commit this HTTP slice.
-- [ ] **Implementer: account UI (AC1, AC3, AC5, AC6).** Reuse the 005
+- [x] **Implementer: account UI (AC1, AC3, AC5, AC6).** Reuse the 005
   session lifecycle, add bearer-only account API client and `/accounts`
   manager with home link, forms, delete confirmation and meaningful
   empty/error/expiry states. Preserve current auth tests and private
