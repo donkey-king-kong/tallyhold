@@ -10,8 +10,8 @@
 - Authorization: Zack's request to ship a separate PR, 2026-11-17
 - Dependencies: [T-0064](T-0064-cost-safeguard.md) pushed and CI green
 - Branch / worktree: `chore/cost-safeguard`, `../tallyhold-chore-cost-safeguard`
-- Issue / PR: #40 / pending
-- Updated: 2026-11-17T07:36:40Z
+- Issue / PR: #40 / [#41](https://github.com/donkey-king-kong/tallyhold/pull/41)
+- Updated: 2026-11-17T07:46:46Z
 
 ## Scope
 
@@ -24,12 +24,12 @@ permitted Reviewer inputs. Coordinator owns this ticket externally.
 
 ## Checkpoint
 
-- Last completed action: reserved fresh review ticket.
-- Evidence: issue #40 and Zack's explicit request.
-- Worktree state: safeguard not yet implemented.
-- Remaining work: CI and dispatch.
+- Last completed action: PR #41 green at `426e554`; Trae fresh Reviewer selected because Claude API failed with ECONNREFUSED earlier in this session.
+- Evidence: PR #41 CI backend/frontend/security passed, migration jobs skipped; PR #39 Claude failed before verdict.
+- Worktree state: final tracking checkpoint pending commit.
+- Remaining work: checkpoint push, new-head CI, fresh Trae dispatch.
 - Blocker / unblock action: none.
-- Next action: dispatch only after pre-review checkpoint and green CI.
+- Next action: push checkpoint, confirm green CI and dispatch fresh Trae Reviewer.
 - Handoff recipient: coordinator.
 
 ## History
@@ -37,3 +37,4 @@ permitted Reviewer inputs. Coordinator owns this ticket externally.
 | UTC time | Actor | Event and observed result | Evidence / next action |
 | --- | --- | --- | --- |
 | 2026-11-17T07:36:40Z | R-0063/coordinator | Reserved constitution PR review | Wait for CI |
+| 2026-11-17T07:46:46Z | R-0063/coordinator | PR #41 green; selected fresh Trae after Claude API failure on PR #39 | Push final checkpoint and recheck CI |
