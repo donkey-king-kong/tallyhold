@@ -15,7 +15,7 @@
 - Dependencies: [T-0047](T-0047-accounts-green.md)
 - Branch / worktree: `feature/006-accounts` / `../tallyhold-feature-006-accounts`
 - Issue / PR: [#36](https://github.com/donkey-king-kong/tallyhold/issues/36) / none
-- Updated: 2026-11-17T08:48:02Z
+- Updated: 2026-11-17T09:03:12Z
 
 ## Scope
 
@@ -41,10 +41,10 @@ AGENTS.md on Track A.
   artifact allowance is 500 MB. Billing-method status is not verified.
 - Worktree state: clean; local branch ahead of remote, no PR.
 - Remaining work: cost approval, push, PR, CI, fresh review, merge gate.
-- Blocker / unblock action: constitution rule 15 cost approval required
-  before provider/CI action; ask Zack for the exact GitHub action.
-- Next action: after Zack's required separate approvals, push branch,
-  open PR #36's feature, inspect CI and dispatch a fresh Reviewer.
+- Blocker / unblock action: Zack explicitly approved COST APPROVAL 1/2;
+  request and await separate COST APPROVAL 2/2 before provider/CI action.
+- Next action: request the second cost approval with the same GitHub
+  action, cost bounds and undo terms; push only after separate explicit yes.
 - Handoff recipient: Zack for cost gate, then ship coordinator.
 
 ## History
@@ -52,3 +52,4 @@ AGENTS.md on Track A.
 | UTC time | Actor | Event and observed result | Evidence / next action |
 | --- | --- | --- | --- |
 | 2026-11-17T08:48:02Z | R-0040/coordinator | Claimed ship after GREEN and local main merge; paused before provider work under new cost rule | Request staged GitHub Actions cost approval |
+| 2026-11-17T09:03:12Z | R-0040/coordinator | Zack explicitly selected "Approve stage 1" for GitHub Feature 006 PR/CI after $0 expected, unbounded paid-storage worst-case and cancellation terms were stated; branch remains local | Separately request COST APPROVAL 2/2; no CI yet |
