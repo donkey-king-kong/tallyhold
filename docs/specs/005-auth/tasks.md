@@ -90,7 +90,7 @@ roles; the Implementer does not alter tests merely to pass.
   signed-out and failure states, sign-out/session-expiry behavior, and
   bearer-only FastAPI fetch with credentials omitted. Lock packages,
   document public configuration, run Vitest/typecheck/build; commit.
-- [ ] **Implementer: operator runbook and docs (AC5).** Document verified
+- [x] **Implementer: operator runbook and docs (AC5).** Document verified
   request clock (30 calendar days), verified `(issuer, sub)` key derivation
   identical to provisioning, acquire `pg_advisory_xact_lock` in the
   operator's transaction, upsert marker with >=3600s remaining and commit before
