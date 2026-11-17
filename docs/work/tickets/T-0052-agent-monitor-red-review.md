@@ -2,7 +2,7 @@
 
 ## Assignment
 
-- Status: blocked
+- Status: in_progress
 - Owner actor: R-0051/coordinator (fresh Reviewer not yet dispatched)
 - Role: coordinator records fresh RED Reviewer lifecycle externally
 - Run: [R-0051](../runs/R-0051.md)
@@ -12,11 +12,11 @@
 - Branch / worktree: `feature/004-agent-monitor` / `../tallyhold-feature-004-agent-monitor`
 - Worktree path: `../tallyhold-feature-004-agent-monitor`
 - Issue / PR: [#20](https://github.com/donkey-king-kong/tallyhold/issues/20); no implementation PR
-- Updated: 2026-11-17T07:45:12Z
+- Updated: 2026-11-17T07:46:46Z
 
 ## Scope
 
-Fresh Reviewer sees only the permitted role inputs, base/head SHAs and approved feature files. It writes only `red-review.md` and posts identical contents on the pushed RED commit. Coordinator checks report/comment and commits the report. Zack authorized one exceptional third round after the normal two-round cap; no fourth round and no GREEN before `APPROVE`.
+Fresh Reviewer sees only the permitted role inputs, base/head SHAs and approved feature files. It writes only `red-review.md` and posts identical contents on the pushed RED commit. Coordinator checks report/comment and commits the report. Zack separately authorized exceptional rounds 3 and 4 after the normal two-round cap; no fifth round and no GREEN before `APPROVE`.
 
 ## Acceptance
 
@@ -26,13 +26,13 @@ Fresh Reviewer sees only the permitted role inputs, base/head SHAs and approved 
 
 ## Checkpoint
 
-- Last completed action: fresh Trae exceptional round 3 reviewed base `0988e8e` through pushed `c92ae050f280c35b2298aa57e9561c23e1f9a4f8` and returned `CHANGES_REQUESTED`.
-- Evidence: [round 3 report](../../specs/004-agent-monitor/red-review.md) and [identical commit comment](https://github.com/donkey-king-kong/tallyhold/commit/c92ae050f280c35b2298aa57e9561c23e1f9a4f8#commitcomment-210412877); report/comment diff exit 0; reviewer native ID `6f3927c7-6583-4645-89d3-9e5a78ffd8ad`.
-- Worktree state: reviewer report modified locally; coordinator must commit and push it with checkpoint.
-- Remaining work: Zack decides how to resolve unapproved RED gate.
-- Blocker / unblock action: no fourth round authorized; GREEN and ship blocked.
-- Next action: commit/push report and escalation, then ask Zack for direction.
-- Handoff recipient: Zack.
+- Last completed action: Zack authorized one targeted correction plus another fresh independent RED review after round 3 `CHANGES_REQUESTED`.
+- Evidence: explicit 2026-11-17 user selection; [round 3 report](../../specs/004-agent-monitor/red-review.md) and [identical commit comment](https://github.com/donkey-king-kong/tallyhold/commit/c92ae050f280c35b2298aa57e9561c23e1f9a4f8#commitcomment-210412877).
+- Worktree state: clean at pushed `6c1b6d5` before round 4 corrections.
+- Remaining work: targeted RED tests/evidence and exceptional fresh round 4.
+- Blocker / unblock action: GREEN and ship blocked pending independent `APPROVE`; non-approval returns to Zack.
+- Next action: wait for Test writer to push revised evidence, then dispatch fresh reviewer on cumulative diff.
+- Handoff recipient: different fresh round 4 RED Reviewer after pushed handoff.
 
 ## History
 
@@ -48,3 +48,4 @@ Fresh Reviewer sees only the permitted role inputs, base/head SHAs and approved 
 | 2026-11-17T07:37:50Z | R-0051/coordinator | Zack authorized one targeted exception round, not a RED approval | Fresh third reviewer only after revised tests/evidence pushed; non-approval escalates |
 | 2026-11-17T07:43:15Z | R-0051/coordinator | Test revision `9e9ed7d` adds 14 targeted behavioral cases, 52/52 expected RED failures and 6/6 existing passes | Push evidence and pre-dispatch checkpoint; use one fresh independent third reviewer |
 | 2026-11-17T07:45:12Z | R-0051/coordinator | Different fresh Trae reviewer returned `CHANGES_REQUESTED` on pushed `c92ae05`; identical commit comment `210412877` | All authorized rounds exhausted; report missing outcome-specific, responsive/theme and trust-gated read assertions; escalate to Zack |
+| 2026-11-17T07:46:46Z | R-0051/coordinator | Zack authorized targeted correction and exactly one more independent review | Prepare round 4 only after pushed RED evidence; no GREEN without `APPROVE` |

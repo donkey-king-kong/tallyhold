@@ -2,7 +2,7 @@
 
 ## Assignment
 
-- Status: blocked
+- Status: in_progress
 - Owner actor: R-0051/coordinator
 - Role: Test writer (same actor, no subagent dispatched)
 - Run: [R-0051](../runs/R-0051.md)
@@ -12,7 +12,7 @@
 - Branch / worktree: `feature/004-agent-monitor` / `../tallyhold-feature-004-agent-monitor`
 - Worktree path: `../tallyhold-feature-004-agent-monitor`
 - Issue / PR: [#20](https://github.com/donkey-king-kong/tallyhold/issues/20); no implementation PR
-- Updated: 2026-11-17T07:45:12Z
+- Updated: 2026-11-17T07:46:46Z
 
 ## Scope
 
@@ -26,13 +26,13 @@ After confirming public test interfaces, assign Test writer to produce synthetic
 
 ## Checkpoint
 
-- Last completed action: exceptional independent round 3 returned `CHANGES_REQUESTED` on pushed RED head `c92ae05`.
-- Evidence: [review report](../../specs/004-agent-monitor/red-review.md) and [identical commit comment](https://github.com/donkey-king-kong/tallyhold/commit/c92ae050f280c35b2298aa57e9561c23e1f9a4f8#commitcomment-210412877); 52 expected RED failures and 6 existing publisher passes.
-- Worktree state: reviewer report and post-review checkpoint pending coordinator commit/push; production remains absent.
-- Remaining work: Zack resolves the RED escalation before any further tests/review or GREEN.
-- Blocker / unblock action: all authorized review rounds used without `APPROVE`; no fourth round permitted autonomously.
-- Next action: commit/push report and escalation record, then request Zack's decision on an additional correction/review or another path.
-- Handoff recipient: Zack.
+- Last completed action: Zack authorized one more targeted correction and fresh independent RED review after round 3 `CHANGES_REQUESTED`.
+- Evidence: explicit 2026-11-17 user selection; [round 3 report](../../specs/004-agent-monitor/red-review.md) and identical [commit comment](https://github.com/donkey-king-kong/tallyhold/commit/c92ae050f280c35b2298aa57e9561c23e1f9a4f8#commitcomment-210412877).
+- Worktree state: clean at pushed `6c1b6d5` before round 4 corrections; production remains absent.
+- Remaining work: targeted tests/evidence, push and one fresh independent review.
+- Blocker / unblock action: GREEN still requires independent `APPROVE`; non-approval returns to Zack.
+- Next action: strengthen outcome, initial error, keyboard/narrow accessibility and untrusted auto-read assertions; rerun and push RED evidence.
+- Handoff recipient: different fresh RED Reviewer after pushed round 4 handoff.
 
 ## History
 
@@ -48,3 +48,4 @@ After confirming public test interfaces, assign Test writer to produce synthetic
 | 2026-11-17T07:37:50Z | R-0051/coordinator | Zack authorized targeted RED corrections and exactly one extra independent review | Resume Test writer only; GREEN still gated on `APPROVE` |
 | 2026-11-17T07:43:15Z | R-0051/coordinator | Committed targeted tests at `9e9ed7d`; 52/52 RED failures for absent extension behavior and 6/6 existing publisher passes | Evidence updated for AC1-AC16; commit/push before exceptional independent review |
 | 2026-11-17T07:45:12Z | R-0051/coordinator | Pushed `c92ae05`; fresh exceptional reviewer requested changes; report and comment matched byte-for-byte | Stop RED/GREEN/ship; checkpoint review and escalate to Zack |
+| 2026-11-17T07:46:46Z | R-0051/coordinator | Zack authorized one more targeted RED correction and fresh independent review | Resume Test writer only, with no GREEN until independent `APPROVE` |
