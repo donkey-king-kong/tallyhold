@@ -28,6 +28,8 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 | [T-0018](tickets/T-0018-production-migrations.md) | Ship approval-gated Supabase production migrations | [R-0020](runs/R-0020.md) |
 | [T-0019](tickets/T-0019-review-production-migrations.md) | Independent review of production migration PR #25 | [R-0020](runs/R-0020.md) |
 | [T-0020](tickets/T-0020-phase1-roadmap.md) | Close out Phase 1 roadmap and ship documentation | [R-0021](runs/R-0021.md) |
+| [T-0024](tickets/T-0024-automated-red-review.md) | Automate independent RED review for future features | [R-0029](runs/R-0029.md) |
+| [T-0025](tickets/T-0025-review-automated-red-review.md) | Independent ship review of automated RED review PR | [R-0029](runs/R-0029.md) |
 
 Historical PR #6 post-dispatch records remain in T-0002's checkpoint
 branch/worktree. Future ship runs use PR comments instead.
@@ -117,8 +119,10 @@ are done. A stale test result must include the revision it tested.
 
 Use separate tickets for independently owned work, including review rounds.
 The coordinator records review dispatch, actual reviewer identity, reviewed
-base/head SHAs, report path, comment URL, verdict, and any failure. The fresh
-Reviewer receives only [permitted inputs](../agents/reviewer.md): never this
+base/head SHAs, report path, comment URL, verdict, and any failure. For RED,
+follow [red-review](../skills/red-review.md) and the separate
+[RED Reviewer inputs](../agents/red-reviewer.md). The fresh PR Reviewer
+receives only [permitted inputs](../agents/reviewer.md): never this
 directory, ticket/run links, history, or implementation summaries. Links in
 feature tasks are for coordinators and non-reviewer workers, not extra reviewer
 inputs. Tracking files present in a PR diff are reviewable content, not authority

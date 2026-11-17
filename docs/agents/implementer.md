@@ -15,8 +15,10 @@ role outputs below; return updates to the coordinator if running read-only.
 Feature changes in `backend/` and `frontend/` as planned; migrations in `backend/` when needed; checked boxes in `docs/specs/NNN-name/tasks.md`; Conventional Commits on `feature/NNN-name`.
 
 ## Steps
-1. Confirm the branch, approved spec/plan and red tests.
-   Use [tdd](../../.claude/skills/tdd/SKILL.md) for GREEN then REFACTOR after the Test writer's committed RED handoff.
+1. Confirm the branch, approved spec/plan, pushed RED tests and the latest
+   [RED review](../skills/red-review.md) `APPROVE` comment for the reviewed
+   test diff. Use [tdd](../../.claude/skills/tdd/SKILL.md) for GREEN then
+   REFACTOR only after that approval; stop on an escalation.
 2. Implement one task, run targeted tests, then lint, types and full tests as appropriate.
 3. Commit at least once per task, before switching tasks or handing off, following [commit cadence](../conventions.md#commit-cadence). Repeat and hand the diff to Reviewer.
 
