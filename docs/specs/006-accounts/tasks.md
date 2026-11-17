@@ -22,7 +22,7 @@ orders work and maps ACs; tickets own assignment and execution evidence.
 
 ## RED: only after separate plan approval
 
-- [ ] **Test writer: PostgreSQL migration and repository invariants
+- [x] **Test writer: PostgreSQL migration and repository invariants
   (AC1, AC3, AC4, AC7).** Add failing tests for 0004's SG Tiger/IBKR
   seeds, reuse of pre-existing IDs, idempotence, `(user_id, lower(name))`
   index replacing the old constraint, two-user independence, direct SQL
@@ -30,24 +30,24 @@ orders work and maps ACs; tickets own assignment and execution evidence.
   downgrade and legacy collision/padded-name preflight without data
   rewrites. Adapt 003 catalog assertions to distinguish 0002 from head;
   do not edit migration or production code. Commit and push RED.
-- [ ] **Test writer: account use cases (AC2-AC5, AC7).** With fake 003
+- [x] **Test writer: account use cases (AC2-AC5, AC7).** With fake 003
   ports, cover sorted scoped reads, name trimming/blank/length and
   currency normalization, stable broker, partial PATCH, missing/foreign
   account, duplicate name, unknown broker and dependent delete. Assert
   domain/application imports remain pure. Commit and push RED.
-- [ ] **Test writer: authenticated API and CORS (AC1-AC5, AC7).** Add
+- [x] **Test writer: authenticated API and CORS (AC1-AC5, AC7).** Add
   offline JWT/dependency-injected FastAPI tests for the six routes, two
   users, strict 422/404/409, create `Location`, 204 delete, 401/503,
   rollback/no SQL leak, public health and configured-origin write
   preflights. Reuse disposable PostgreSQL 17, never live auth. Commit
   and push RED.
-- [ ] **Test writer: account UI (AC1, AC3, AC5, AC6).** Add Vitest
+- [x] **Test writer: account UI (AC1, AC3, AC5, AC6).** Add Vitest
   failures for `/accounts` link/list/form/edit/delete, SG catalog,
   broker-not-listed and currency default from `/me`, conflict/retry,
   loading/empty/outage, keyboard/focus and mobile, bearer-only fetch,
   sign-out/expiry/user-switch clearing and stale request abortion.
   Keep existing 005 auth tests passing. Commit and push RED.
-- [ ] **Test writer handoff:** Run targeted RED suites to show failures
+- [x] **Test writer handoff:** Run targeted RED suites to show failures
   are caused by missing 006 behavior, not broken fixtures or unrelated
   regressions; run pre-existing tests and checkpoint the pushed SHA,
   failure summary and plan criteria. Stop for fresh independent
@@ -80,7 +80,7 @@ orders work and maps ACs; tickets own assignment and execution evidence.
   manager with home link, forms, delete confirmation and meaningful
   empty/error/expiry states. Preserve current auth tests and private
   data clearing; pass Vitest/types/lint/build and commit UI separately.
-- [ ] **Implementer: verification and docs (AC1-AC7).** Run fresh
+- [x] **Implementer: verification and docs (AC1-AC7).** Run fresh
   PostgreSQL migration upgrade/downgrade/re-upgrade and full backend
   ruff/format/mypy/import-linter/pytest >=80%; frontend lint/
   Prettier/typecheck/Vitest/build and dependency/secret scans. Reconcile

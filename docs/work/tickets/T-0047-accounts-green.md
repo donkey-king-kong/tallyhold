@@ -12,7 +12,7 @@
 - Dependencies: [T-0042](T-0042-accounts-red.md), [T-0046](T-0046-accounts-red-review-cors.md)
 - Branch / worktree: `feature/006-accounts` / `../tallyhold-feature-006-accounts`
 - Issue / PR: [#36](https://github.com/donkey-king-kong/tallyhold/issues/36) / none
-- Updated: 2026-11-17T09:00:00Z
+- Updated: 2026-11-17T08:44:26Z
 
 ## Scope
 
@@ -23,20 +23,22 @@ Alembic; CI, Compose and AGENTS.md remain untouched.
 
 ## Acceptance
 
-- [ ] Approved RED cases and existing suites pass; coverage >=80%.
-- [ ] Ruff/format/mypy/import-linter and frontend lint/types/Vitest/build,
+- [x] Approved RED cases and existing suites pass; coverage 95.31%.
+- [x] Ruff/format/mypy/import-linter and frontend lint/types/Vitest/build,
   migration round-trip and scans pass.
 - [ ] Tasks and verification are checkpointed and pushed before ship.
 
 ## Checkpoint
 
-- Last completed action: full backend 196 pass/95.31% coverage; frontend 23 pass/build.
+- Last completed action: 196 backend pass/95.31% coverage, 23 frontend pass/build,
+  14 targeted migration passes, scans clean.
 - Evidence: base `82ec809`, RED test SHA `4137911`, reviewed head `abdd8ca`;
   identical APPROVE comment `210417698`.
-- Worktree state: API committed `1a40aee`; UI and legacy fixture adjustments awaiting commit.
-- Remaining work: scan, final verification, push and ship.
+- Worktree state: UI `19339bb`, compatibility `5dd39ed`; identity guard and
+  checkpoint await commit.
+- Remaining work: commit/push, PR, CI, fresh review and merge gate.
 - Blocker / unblock action: none.
-- Next action: commit UI and verification adjustment separately, run scans and push.
+- Next action: commit identity guard and verification record, push, then ship.
 - Handoff recipient: ship coordinator after GREEN checks.
 
 ## History
@@ -49,3 +51,5 @@ Alembic; CI, Compose and AGENTS.md remain untouched.
 | 2026-11-17T09:00:00Z | R-0040/coordinator | Application committed `39d9713`; API composition passes 27 HTTP tests and checks; corrected module import boundary via top-level injection | Commit API; add UI |
 | 2026-11-17T09:00:00Z | R-0040/coordinator | API committed `1a40aee`; UI 23 full frontend tests, lint, typecheck, build and Prettier pass; full backend initially 11 legacy test assumptions failed after committed HTTP fixture rows | Scope legacy assertions to test-created rows |
 | 2026-11-17T09:00:00Z | R-0040/coordinator | Updated 003 isolation assertions without modifying approved RED tests; full backend 196 pass, 95.31% coverage; Ruff, format, mypy and import-linter pass | Commit UI and compatibility; scan and ship |
+| 2026-11-17T08:44:26Z | R-0040/coordinator | UI `19339bb`, test compatibility `5dd39ed`; token-scoped list guard reran 23 frontend tests, lint, types, build; 14 targeted migration tests passed. npm audit 0, pip-audit no vulnerabilities, gitleaks no leaks. Browser `/accounts` signed-out route rendered; browser auth configuration unavailable | Commit/push final GREEN checkpoint; start ship |
+| 2026-11-17T08:44:26Z | R-0040/coordinator | Correction: earlier `09:00:00Z` checkpoint timestamps were estimates entered during work, not observed UTC times; results and commit IDs above are verified | Use observed UTC for subsequent checkpoints |

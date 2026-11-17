@@ -25,6 +25,7 @@ export function AccountManager({ authClient }: { authClient?: AuthClient }) {
     useAuthenticatedSession(authClient);
   const [brokers, setBrokers] = useState<Broker[]>([]);
   const [accounts, setAccounts] = useState<Account[] | null>(null);
+  const [loadedFor, setLoadedFor] = useState<string | null>(null);
   const [listError, setListError] = useState("");
   const [feedback, setFeedback] = useState("");
   const [brokerId, setBrokerId] = useState("");
@@ -42,6 +43,7 @@ export function AccountManager({ authClient }: { authClient?: AuthClient }) {
       activeToken.current = null;
       void Promise.resolve().then(() => {
         setAccounts(null);
+        setLoadedFor(null);
         setBrokers([]);
         setListError("");
         setFeedback("");
@@ -53,11 +55,13 @@ export function AccountManager({ authClient }: { authClient?: AuthClient }) {
     pending.current?.abort();
     pending.current = controller;
     const token = session.access_token;
+    const scope = `${user.id}:${token}`;
     activeToken.current = token;
     void (async () => {
       await Promise.resolve();
       if (controller.signal.aborted) return;
       setAccounts(null);
+      setLoadedFor(null);
       setBrokers([]);
       setListError("");
       setFeedback("");
@@ -80,6 +84,7 @@ export function AccountManager({ authClient }: { authClient?: AuthClient }) {
         );
         if (controller.signal.aborted) return;
         setAccounts(owned);
+        setLoadedFor(scope);
       } catch (error) {
         if (controller.signal.aborted) return;
         if (error instanceof AccountApiError && error.status === 401) {
@@ -99,7 +104,7 @@ export function AccountManager({ authClient }: { authClient?: AuthClient }) {
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const token = activeToken.current;
-    if (!token || busy) return;
+    if (!token || !user || busy) return;
     if (
       !name.trim() ||
       name.trim().length > 255 ||
@@ -135,6 +140,7 @@ export function AccountManager({ authClient }: { authClient?: AuthClient }) {
           (a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id),
         ),
       );
+      setLoadedFor(`${user.id}:${token}`);
       setEditing(null);
       setName("");
       setFeedback(editing ? "Account updated." : "Account created.");
@@ -204,6 +210,9 @@ export function AccountManager({ authClient }: { authClient?: AuthClient }) {
       </div>
     );
 
+  const visibleAccounts =
+    loadedFor === `${user.id}:${session.access_token}` ? accounts : null;
+
   return (
     <div className="space-y-8">
       <header className="flex flex-wrap items-center justify-between gap-4">
@@ -229,13 +238,15 @@ export function AccountManager({ authClient }: { authClient?: AuthClient }) {
       <section aria-label="Account list">
         <h2 className="text-xl font-semibold">Your list</h2>
         {listError && <p role="alert">{listError}</p>}
-        {!listError && accounts === null && (
+        {!listError && visibleAccounts === null && (
           <p role="status">Loading accounts...</p>
         )}
-        {accounts?.length === 0 && <p>No accounts yet. Add one below.</p>}
-        {accounts && accounts.length > 0 && (
+        {visibleAccounts?.length === 0 && (
+          <p>No accounts yet. Add one below.</p>
+        )}
+        {visibleAccounts && visibleAccounts.length > 0 && (
           <ul className="mt-4 grid gap-3">
-            {accounts.map((account) => (
+            {visibleAccounts.map((account) => (
               <li
                 key={account.id}
                 className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4"
