@@ -12,7 +12,7 @@
 - Branch / worktree: `feature/004-agent-monitor` / `../tallyhold-feature-004-agent-monitor`
 - Worktree path: `../tallyhold-feature-004-agent-monitor`
 - Issue / PR: [#20](https://github.com/donkey-king-kong/tallyhold/issues/20); [#42](https://github.com/donkey-king-kong/tallyhold/pull/42)
-- Updated: 2026-11-17T08:54:43Z
+- Updated: 2026-11-17T09:01:04Z
 
 ## Scope
 
@@ -32,12 +32,12 @@ interaction and the broader editor lifecycle matrix remain unverified.
 
 ## Checkpoint
 
-- Last completed action: opened assigned PR #42 from pushed `08ee9b0`; complete local release checks passed and both GitHub CI runs completed green.
-- Evidence: 56/56 extension tests at 95.57% statement coverage; 6/6 publisher tests; lint, format, typecheck, build, benchmark, audit and eight-file VSIX package audit passed; PR backend/frontend/security checks passed and migration jobs skipped as expected.
-- Worktree state: clean pushed PR head `08ee9b0` before this final tracking-only pre-review checkpoint.
-- Remaining work: commit/push this checkpoint, wait for final-head CI, then freeze tracking and dispatch a fresh Reviewer.
+- Last completed action: final-head CI passed at `e60a920`; preferred headless Claude 2.1.322 review launch failed before a verdict with API `ECONNREFUSED`, consuming no review round.
+- Evidence: PR #42 check runs green; factual failed-launch PR comment; no `review.md` or reviewer verdict was produced.
+- Worktree state: clean pushed `e60a920` before this required failed-launch recovery checkpoint.
+- Remaining work: commit/push this checkpoint, wait for new-head CI, then dispatch a brand-new Trae explorer fallback with only the Reviewer role's permitted inputs.
 - Blocker / unblock action: none.
-- Next action: push the final tracking-only checkpoint, verify CI on the resulting PR head and dispatch independent review round 1.
+- Next action: push the failed-launch checkpoint, verify CI, freeze tracking and launch fresh Trae fallback review round 1.
 - Handoff recipient: fresh PR Reviewer through R-0051/coordinator.
 
 ## History
@@ -46,3 +46,4 @@ interaction and the broader editor lifecycle matrix remain unverified.
 | --- | --- | --- | --- |
 | 2026-11-17T08:50:21Z | R-0051/coordinator | Created after Zack requested ship with the recorded compatibility gaps accepted | Commit/push final handoff, then run release checks |
 | 2026-11-17T08:54:43Z | R-0051/coordinator | Local release matrix passed; opened assigned PR #42 at pushed `08ee9b0`; duplicate PR-triggered CI runs both passed backend/frontend/security | Commit/push this final repository checkpoint, wait for final-head CI, then freeze tracking and dispatch fresh review |
+| 2026-11-17T09:01:04Z | R-0051/coordinator | Final-head CI passed at `e60a920`; headless Claude 2.1.322 failed before verdict with API `ECONNREFUSED`; no round consumed | Commit/push failure checkpoint, wait for CI, then dispatch a fresh Trae explorer fallback for round 1 |
