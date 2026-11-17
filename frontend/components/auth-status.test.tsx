@@ -145,6 +145,58 @@ test("callback-created session becomes authenticated without leaking its token",
   expect(window.location.href).not.toContain("callback-jwt");
 });
 
+test("switching accounts hides the previous user until the new user resolves", async () => {
+  const auth = fakeAuth({
+    access_token: "first-jwt",
+    expires_at: 4102444800,
+  });
+  let releaseSecond!: () => void;
+  const secondRequest = new Promise<void>((resolve) => {
+    releaseSecond = resolve;
+  });
+  const fetch = vi
+    .fn()
+    .mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        id: "11111111-1111-4111-8111-111111111111",
+        base_currency: "SGD",
+      }),
+    })
+    .mockImplementationOnce(async () => {
+      await secondRequest;
+      return {
+        ok: true,
+        json: async () => ({
+          id: "22222222-2222-4222-8222-222222222222",
+          base_currency: "USD",
+        }),
+      };
+    });
+  vi.stubGlobal("fetch", fetch);
+  await renderAuthStatus(auth.client);
+  expect(await screen.findByText(/SGD/)).toBeTruthy();
+
+  await act(async () =>
+    auth.emit("SIGNED_IN", {
+      access_token: "second-jwt",
+      expires_at: 4102444800,
+    }),
+  );
+  expect(fetch).toHaveBeenCalledWith(
+    expect.stringMatching(/\/api\/v1\/me$/),
+    expect.objectContaining({
+      headers: expect.objectContaining({ Authorization: "Bearer second-jwt" }),
+      credentials: "omit",
+    }),
+  );
+  expect(screen.queryByText(/SGD/)).toBeNull();
+  expect(screen.queryByText(/USD/)).toBeNull();
+
+  releaseSecond();
+  expect(await screen.findByText(/USD/)).toBeTruthy();
+});
+
 test("sign-out and expiry remove protected user details", async () => {
   const auth = fakeAuth({
     access_token: "offline-jwt",

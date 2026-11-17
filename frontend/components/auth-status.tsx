@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { createClient } from "../lib/supabase/browser";
 
@@ -34,6 +34,7 @@ function isValid(session: Session | null): session is Session {
 }
 
 export function AuthStatus({ authClient }: { authClient?: AuthClient }) {
+  const activeRequest = useRef<AbortController | null>(null);
   const [{ client, unavailable }] = useState(() => {
     if (authClient) return { client: authClient, unavailable: false };
     try {
@@ -57,11 +58,10 @@ export function AuthStatus({ authClient }: { authClient?: AuthClient }) {
     let eventReceived = false;
     const subscription = client.auth.onAuthStateChange((_event, next) => {
       eventReceived = true;
+      activeRequest.current?.abort();
+      setUser(null);
+      setState(isValid(next) ? "checking" : "signed-out");
       setSession(isValid(next) ? next : null);
-      if (!isValid(next)) {
-        setUser(null);
-        setState("signed-out");
-      }
     }).data.subscription;
 
     void client.auth.getSession().then(
@@ -88,8 +88,10 @@ export function AuthStatus({ authClient }: { authClient?: AuthClient }) {
   useEffect(() => {
     if (!isValid(session)) return;
     const controller = new AbortController();
+    activeRequest.current = controller;
     const timeout = window.setTimeout(
       () => {
+        controller.abort();
         setUser(null);
         setSession(null);
         setState("signed-out");
@@ -123,6 +125,7 @@ export function AuthStatus({ authClient }: { authClient?: AuthClient }) {
 
     return () => {
       controller.abort();
+      if (activeRequest.current === controller) activeRequest.current = null;
       window.clearTimeout(timeout);
     };
   }, [session]);
@@ -143,6 +146,7 @@ export function AuthStatus({ authClient }: { authClient?: AuthClient }) {
 
   async function signOut() {
     if (!client) return;
+    activeRequest.current?.abort();
     setUser(null);
     setSession(null);
     setState("signed-out");

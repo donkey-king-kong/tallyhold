@@ -20,9 +20,12 @@ Production access and deletion require an authorized human operator.
   retained copies. Confirm restoration procedures reapply pending erasures.
 - An operator walks this runbook through on disposable PostgreSQL 17 and
   disposable Supabase Auth users, including interrupted steps, stale-token
-  denial, both provisioning/marker lock orders and marker purge. Record the
-  result outside this repository. Until these gates pass, do not onboard
-  anyone other than Zack.
+  denial, both provisioning/marker lock orders and marker purge. Include a
+  delayed-deletion case: insert a marker at 00:00, issue a token at 00:20,
+  delete Auth at 00:30 and verify the marker still denies at 01:00; do not
+  purge before 01:30 when the 3600-second lifetime after confirmed deletion
+  has elapsed. Record the result outside this repository. Until these gates
+  pass, do not onboard anyone other than Zack.
 
 ## Verify and prepare
 
@@ -90,9 +93,11 @@ presence denies even after `expires_at` until a deliberate purge.
    the UUID and pair before committing. Roll back on any mismatch or error.
    No app deletion may precede the committed deny marker.
 2. Delete the corresponding Supabase Auth user by the verified Auth user ID
-   with the authorized admin mechanism, then confirm it is absent. Do not
-   delete by email or provider label. If this step fails, retain the marker,
-   record the partial state and retry; never call it complete.
+   with the authorized admin mechanism, then confirm it is absent. Record
+   the confirmation time in the restricted case register: this is the
+   earliest reliable bound on the last possible token issuance. Do not delete
+   by email or provider label. If deletion or confirmation fails, retain the
+   marker, record the partial state and retry; never call it complete.
 3. Confirm `GET /api/v1/me` with any still-valid token for that pair is
    denied, there is no app user/identity or user-owned transaction/account,
    and the Auth user is absent. Record the completion date and evidence in
@@ -108,11 +113,14 @@ restored data**; review the restricted case register against restored records.
 
 ## Purge the minimal marker
 
-Only after the Auth user is confirmed deleted, no app identity remains, the
-maximum configured token lifetime has elapsed **since the last marker upsert**
-and `expires_at` has passed may an authorized operator delete this pair's
-marker. Confirm the project token lifetime has not grown and record the
-purge separately. If uncertain, leave the marker in place: it is a minimal
+Only after the Auth user is confirmed deleted, no app identity remains, and
+the maximum configured token lifetime has elapsed **after confirmed Auth
+deletion** and **after the last marker upsert**, and `expires_at` has passed,
+may an authorized operator delete this pair's marker. A token issued shortly
+before Auth deletion may remain valid after the marker's original expiry; do
+not count from marker insertion alone. Confirm the project token lifetime has
+not grown and record the purge separately. If the last possible issuance or
+deletion time is uncertain, leave the marker in place: it is a minimal
 security control and its existence is fail-closed. Retained backups/logs
 remain restricted until their actual provider expiry, independently of the
 marker purge.
