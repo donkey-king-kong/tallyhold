@@ -34,6 +34,7 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 | [T-0024](tickets/T-0024-automated-red-review.md) | Automate independent RED review for future features | [R-0029](runs/R-0029.md) |
 | [T-0025](tickets/T-0025-review-automated-red-review.md) | Independent ship review of automated RED review PR | [R-0029](runs/R-0029.md) |
 | [T-0026](tickets/T-0026-auth-red-review.md) | Verify and independently review Feature 005 RED before GREEN | [R-0033](runs/R-0033.md), after [R-0031](runs/R-0031.md) |
+| [T-0027](tickets/T-0027-reviewer-fallback.md) | Add fresh Trae fallback for independent reviewer dispatch | [R-0032](runs/R-0032.md) |
 | [T-0028](tickets/T-0028-auth-red-review-fixes.md) | Resolve targeted Feature 005 RED findings under Zack's one-round exception | [R-0033](runs/R-0033.md), after [R-0031](runs/R-0031.md) |
 | [T-0029](tickets/T-0029-auth-green.md) | Implement Feature 005 auth after approved RED review | [R-0033](runs/R-0033.md) |
 | [T-0030](tickets/T-0030-ship-auth.md) | Ship Feature 005 through PR #32 and merge gate | [R-0033](runs/R-0033.md) |

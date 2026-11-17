@@ -60,7 +60,34 @@ For **each** numbered step below, emit `tool-start` before its real operation an
      claude -p "Act strictly per docs/agents/reviewer.md on PR #<N>, round <R>, feature docs/specs/NNN-name/. Read only its permitted evidence and previous review.md on later rounds. Write docs/specs/NNN-name/review.md and post identical content with gh pr comment. End with the VERDICT line. Do not use implementer chat or summaries." --allowedTools "Read,Grep,Glob,Bash" --model opus --safe-mode --no-session-persistence
      ```
 
-     `--safe-mode` disables automatic `CLAUDE.md` and skill context; the prompt explicitly names the sole role file. The allowlist excludes editing tools, but Bash is needed for checks and the permitted report/comment: the Reviewer must follow its write restrictions. If Claude is unavailable or unauthenticated, report this to Zack and use a fresh Trae chat with only the minimal brief. Trae's `spawn_agent` is fresh-context but lacks verified tool restrictions; prefer Claude.
+     `--safe-mode` disables automatic `CLAUDE.md` and skill context; the
+     prompt explicitly names the sole role file. The allowlist excludes
+     editing tools, but Bash is needed for checks and the permitted
+     report/comment: the Reviewer must follow its write restrictions.
+
+     If `claude` is unavailable, unauthenticated or fails to launch before a
+     verdict, automatically start a **new Trae subagent** with no history
+     fork and the identical minimal brief: PR number, round, feature path
+     and `docs/agents/reviewer.md`. The subagent reads only the role-permitted
+     PR evidence and writes only `review.md` plus its identical PR comment;
+     explicitly forbid edits to code, tests, approved documents, tracking
+     or telemetry, and forbid commits, pushes and merges. Trae lacks
+     verified tool restrictions, so retain the same role boundaries in its
+     prompt. A failed launch does not consume a round; use a different new
+     reviewer for each later round.
+
+     Record the reviewer type selected for dispatch in the ticket/run
+     checkpoint. If Claude fails to launch before a verdict, no review round
+     has completed: checkpoint its failure and the actual Trae fallback type
+     in the ticket/run, commit/push that checkpoint, wait for CI on the new
+     head, then dispatch Trae against that head. This is a failed-launch
+     recovery before a usable reviewer starts, not a post-review tracking
+     edit. Freeze repository tracking again for the fallback's review.
+     Record the actual reviewer type and native identity in a durable
+     `Ship checkpoint:` PR comment once launched; this supplements, rather
+     than replaces, the ticket/run type. If Trae also fails to launch, record
+     that failure in a PR comment and escalate without claiming it ran.
+     All existing finding and merge-gate escalations still apply.
 
    After the fresh review process returns, the **coordinator** closes its tool event and publishes the verdict (the Reviewer never writes telemetry):
 

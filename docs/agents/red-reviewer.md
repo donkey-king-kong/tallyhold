@@ -4,8 +4,9 @@
 
 Independently decide whether the pushed RED tests are a trustworthy,
 complete specification of the approved behavior before GREEN. Each round is a
-brand-new headless Claude Code session, separate from the Test writer,
-Implementer and any earlier reviewer.
+brand-new independent reviewer session, separate from the Test writer,
+Implementer and any earlier reviewer. Headless Claude is preferred; when
+unavailable, a fresh Trae subagent follows the same inputs and limits.
 
 ## Inputs
 
