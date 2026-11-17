@@ -34,6 +34,9 @@ export function validateWebviewMessage(
   ) {
     return { type: value.type, generation: value.generation, id: value.id };
   }
+  if (value.type === "selectSource" && value.uri === undefined) {
+    return { type: value.type, generation: value.generation };
+  }
   if (
     value.type === "selectSource" &&
     typeof value.uri === "string" &&

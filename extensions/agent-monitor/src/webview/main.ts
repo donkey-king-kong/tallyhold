@@ -6,6 +6,10 @@ export type MonitorState = {
   projection: { nodes: any[] };
 };
 
+type MonitorActions = {
+  selectSource?: () => void;
+};
+
 function element<K extends keyof HTMLElementTagNameMap>(
   name: K,
   text?: string,
@@ -42,7 +46,11 @@ function bounds(nodes: any[]): string {
   return `${minX} ${minY} ${Math.max(800, maxX - minX)} ${Math.max(600, maxY - minY)}`;
 }
 
-export function mountMonitor(root: HTMLElement, initialState: MonitorState) {
+export function mountMonitor(
+  root: HTMLElement,
+  initialState: MonitorState,
+  actions: MonitorActions = {},
+) {
   let state = initialState;
   let selectedId: string | null = null;
   let activeOnly = false;
@@ -90,6 +98,7 @@ export function mountMonitor(root: HTMLElement, initialState: MonitorState) {
       "aria-label": "Graph controls",
     });
     controls.append(
+      button("Choose Source", () => actions.selectSource?.()),
       button("Zoom in", () =>
         setCamera(([x, y, width, height]) => [x, y, width * 0.8, height * 0.8]),
       ),

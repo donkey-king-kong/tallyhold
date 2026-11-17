@@ -5,6 +5,7 @@ import * as vscode from "vscode";
 
 import { createPanelOptions, renderPanelHtml } from "./host/monitorPanel";
 import { createSourceController } from "./host/sourceReader";
+import { validateWebviewMessage } from "./shared/protocol";
 
 function nonce(): string {
   return randomBytes(18).toString("base64url");
@@ -38,7 +39,7 @@ export function activate(context: vscode.ExtensionContext) {
       });
 
       const reader = createSourceController();
-      const generation = 1;
+      let generation = 0;
       let closed = false;
       const publish = () =>
         panel.webview.postMessage({
@@ -46,6 +47,28 @@ export function activate(context: vscode.ExtensionContext) {
           generation,
           ...reader.getState(),
         });
+      const chooseSource = async () => {
+        const selected = await vscode.window.showOpenDialog({
+          canSelectMany: false,
+          canSelectFiles: true,
+          canSelectFolders: false,
+          openLabel: "Monitor JSONL stream",
+          filters: { "JSON Lines": ["jsonl"] },
+        });
+        if (!selected?.[0]) return false;
+        generation++;
+        await reader.selectSource(pathToFileURL(selected[0].fsPath));
+        await publish();
+        return true;
+      };
+      const messageSubscription = panel.webview.onDidReceiveMessage(
+        async (value: unknown) => {
+          const message = validateWebviewMessage(value, generation);
+          if (message?.type === "selectSource" && !("uri" in message)) {
+            await chooseSource();
+          }
+        },
+      );
       const timer = setInterval(async () => {
         await reader.refresh();
         if (!closed) await publish();
@@ -53,20 +76,11 @@ export function activate(context: vscode.ExtensionContext) {
       panel.onDidDispose(() => {
         closed = true;
         clearInterval(timer);
+        messageSubscription.dispose();
         reader.dispose();
       });
 
-      const selected = await vscode.window.showOpenDialog({
-        canSelectMany: false,
-        canSelectFiles: true,
-        canSelectFolders: false,
-        openLabel: "Monitor JSONL stream",
-        filters: { "JSON Lines": ["jsonl"] },
-      });
-      if (selected?.[0]) {
-        await reader.selectSource(pathToFileURL(selected[0].fsPath));
-      }
-      await publish();
+      if (!(await chooseSource())) await publish();
     }),
   );
 }
