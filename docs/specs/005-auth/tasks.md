@@ -65,7 +65,7 @@ roles; the Implementer does not alter tests merely to pass.
   `0003_auth_identity` after deployed `0002`; import metadata in Alembic.
   Preserve 002 tables and prove PostgreSQL migration round-trip and RED
   constraints pass. Commit only schema/migration work.
-- [ ] **Implementer: ES256 verification (AC2).** Add locked cryptographic
+- [x] **Implementer: ES256 verification (AC2).** Add locked cryptographic
   JWT/HTTP dependencies, pinned issuer/audience/project JWKS, bounded
   600s public-key cache, synchronized in-memory unknown-`kid` limit
   (one attempt per 60 seconds per process across all keys), 3s HTTP timeout,
