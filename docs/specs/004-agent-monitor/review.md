@@ -206,4 +206,57 @@ checks do not exercise the extension-specific suite. Because must-fix and
 should-fix findings remain after the third and final review round, escalate
 them to Zack for resolution as required by the Reviewer role.
 
-VERDICT: CHANGES_REQUESTED
+## Round 4
+
+### Previous findings
+
+Zack authorized this exceptional fourth review round. All five round-3 must-fix
+findings and the should-fix finding are resolved in the current diff:
+
+- `extensions/agent-monitor/src/host/sourceReader.ts:274-300` verifies the full
+  accepted prefix before incremental ingestion, and
+  `extensions/agent-monitor/test/host.test.ts:264-302` covers an early rewrite
+  outside the former tail window followed by an append.
+- `extensions/agent-monitor/src/webview/main.ts:472-478` resets the camera when
+  `sourceGeneration` changes, while
+  `extensions/agent-monitor/test/webview.test.ts:211-246` verifies initial fit,
+  same-source preservation, and source-switch refit.
+- `extensions/agent-monitor/src/host/sourceReader.ts:104-190` validates
+  companion schema and chronology, retains host-owned provisional attribution,
+  and emits diagnostics; `extensions/agent-monitor/src/webview/main.ts:183-201`
+  renders accepted observations separately as provisional.
+- `extensions/agent-monitor/src/host/sourceReader.ts:66-93` uses the reducer's
+  event identity rules for the 2,000-identity limit, including dispatch and
+  return parents, with boundary coverage in
+  `extensions/agent-monitor/test/host.test.ts:548-563`.
+- `extensions/agent-monitor/src/webview/main.ts:393-404` renders reported
+  relative time and only displays absolute time when the reducer provides a
+  verified value; `extensions/agent-monitor/test/webview.test.ts:292-321`
+  covers both cases.
+- `extensions/agent-monitor/src/webview/main.ts:225-230` adds vertical pan
+  controls, and the keyboard/navigation tests exercise both axes.
+
+### Must-fix
+
+None.
+
+### Should-fix
+
+None.
+
+### Nits
+
+None.
+
+### CI evidence
+
+`gh pr checks 42` reports both displayed backend, frontend, and security runs
+passing; production migration and migration-change jobs are skipped. No
+reported PR check runs the extension suite. The tracked release evidence records
+passing extension lint, format, type, build, 77 tests, coverage above 80%,
+dependency audit, adapter tests, package audit, and measured host/webview
+performance. It also labels final-VSIX VS Code interaction and the remaining
+Trae interaction matrix unverified, records Zack's acceptance of those reported
+gaps, and does not claim them as passed compatibility.
+
+VERDICT: APPROVE
