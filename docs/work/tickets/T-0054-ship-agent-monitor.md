@@ -12,7 +12,7 @@
 - Branch / worktree: `feature/004-agent-monitor` / `../tallyhold-feature-004-agent-monitor`
 - Worktree path: `../tallyhold-feature-004-agent-monitor`
 - Issue / PR: [#20](https://github.com/donkey-king-kong/tallyhold/issues/20); [#42](https://github.com/donkey-king-kong/tallyhold/pull/42)
-- Updated: 2026-11-17T09:29:35Z
+- Updated: 2026-11-17T09:50:36Z
 
 ## Scope
 
@@ -32,12 +32,12 @@ interaction and the broader editor lifecycle matrix remain unverified.
 
 ## Checkpoint
 
-- Last completed action: round 1 requested changes; all six findings were fixed and pushed at green `f01dbca`; preferred headless Claude 2.1.322 round-2 launch then failed before a verdict with API `ECONNREFUSED`, consuming no round.
-- Evidence: round-1 `review.md` and identical PR comment; 65/65 tests and release matrix pass; duplicate PR CI runs green at `f01dbca`; factual round-2 failed-launch PR comment.
-- Worktree state: clean pushed `f01dbca` before this required failed-launch recovery checkpoint.
-- Remaining work: commit/push this checkpoint, wait for new-head CI, then dispatch a brand-new Trae explorer fallback for review round 2 with only the Reviewer role's permitted inputs.
+- Last completed action: round 2 requested three must-fixes and one should-fix; all were fixed and pushed at green `ea8d726`; preferred headless Claude 2.1.322 round-3 launch then failed before a verdict with API `ECONNREFUSED`, consuming no round.
+- Evidence: round-2 `review.md` and identical PR comment; 71/71 tests and release matrix pass; duplicate PR CI runs green at `ea8d726`; factual round-3 failed-launch PR comment.
+- Worktree state: clean pushed `ea8d726` before this required failed-launch recovery checkpoint.
+- Remaining work: commit/push this checkpoint, wait for new-head CI, then dispatch a brand-new Trae explorer fallback for review round 3 with only the Reviewer role's permitted inputs.
 - Blocker / unblock action: none.
-- Next action: push the failed-launch checkpoint, verify CI, freeze tracking and launch fresh Trae fallback review round 2.
+- Next action: push the failed-launch checkpoint, verify CI, freeze tracking and launch fresh Trae fallback review round 3.
 - Handoff recipient: fresh PR Reviewer through R-0051/coordinator.
 
 ## History
@@ -48,3 +48,4 @@ interaction and the broader editor lifecycle matrix remain unverified.
 | 2026-11-17T08:54:43Z | R-0051/coordinator | Local release matrix passed; opened assigned PR #42 at pushed `08ee9b0`; duplicate PR-triggered CI runs both passed backend/frontend/security | Commit/push this final repository checkpoint, wait for final-head CI, then freeze tracking and dispatch fresh review |
 | 2026-11-17T09:01:04Z | R-0051/coordinator | Final-head CI passed at `e60a920`; headless Claude 2.1.322 failed before verdict with API `ECONNREFUSED`; no round consumed | Commit/push failure checkpoint, wait for CI, then dispatch a fresh Trae explorer fallback for round 1 |
 | 2026-11-17T09:29:35Z | R-0051/coordinator | Trae fallback round 1 requested six must-fixes; fixes and expanded performance evidence passed locally and in CI at `f01dbca`; headless Claude round-2 launch failed before verdict with API `ECONNREFUSED` | Commit/push required recovery checkpoint, wait for CI, then dispatch a different fresh Trae fallback for round 2 |
+| 2026-11-17T09:50:36Z | R-0051/coordinator | Trae fallback round 2 requested three must-fixes and one should-fix; all fixes passed the 71-test release matrix and green CI at `ea8d726`; headless Claude round-3 launch failed before verdict with API `ECONNREFUSED` | Commit/push required recovery checkpoint, wait for CI, then dispatch a different fresh Trae fallback for final round 3 |
