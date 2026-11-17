@@ -161,8 +161,8 @@ def test_reserved_seed_id_collision_rejects_upgrade_without_overwriting(
 
 @pytest.mark.parametrize(
     "names",
-    [("Main", "main"), (" Main ",)],
-    ids=["case-collision", "noncanonical-whitespace"],
+    [("Main", "main"), (" Main ",), ("   ",)],
+    ids=["case-collision", "noncanonical-whitespace", "blank-legacy-name"],
 )
 def test_upgrade_rejects_legacy_names_without_rewriting_rows(
     monkeypatch: pytest.MonkeyPatch, names: tuple[str, ...]

@@ -228,6 +228,61 @@ test("sign-out drops private rows and ignores an older in-flight response", asyn
   ).toHaveLength(0);
 });
 
+test("switching login identities hides the previous account until the new list resolves", async () => {
+  const auth = fakeAuth(valid);
+  let finishSecond!: (value: ReturnType<typeof reply>) => void;
+  const secondList = new Promise<ReturnType<typeof reply>>((resolve) => {
+    finishSecond = resolve;
+  });
+  const fetch = vi
+    .fn()
+    .mockImplementation(async (input: string, options?: RequestInit) => {
+      const token = (options?.headers as Record<string, string> | undefined)
+        ?.Authorization;
+      if (input.endsWith("/me"))
+        return reply({
+          id: token === "Bearer offline-jwt" ? OWNER : BROKER,
+          base_currency: "SGD",
+        });
+      if (input.endsWith("/brokers"))
+        return reply([{ id: BROKER, name: "IBKR", country: "SG" }]);
+      if (token === "Bearer second-jwt") return secondList;
+      return reply([
+        {
+          id: ACCOUNT,
+          broker_id: BROKER,
+          broker_name: "IBKR",
+          name: "Private first account",
+          currency: "SGD",
+        },
+      ]);
+    });
+  vi.stubGlobal("fetch", fetch);
+  await renderManager(auth.client);
+  expect(await screen.findByText("Private first account")).toBeTruthy();
+
+  await act(async () =>
+    auth.emit("SIGNED_IN", {
+      access_token: "second-jwt",
+      expires_at: 4102444800,
+    }),
+  );
+  expect(screen.queryByText("Private first account")).toBeNull();
+  finishSecond(
+    reply([
+      {
+        id: ACCOUNT,
+        broker_id: BROKER,
+        broker_name: "IBKR",
+        name: "Second account",
+        currency: "USD",
+      },
+    ]),
+  );
+  expect(await screen.findByText("Second account")).toBeTruthy();
+  expect(screen.queryByText("Private first account")).toBeNull();
+});
+
 test("expired session makes no protected requests", async () => {
   const auth = fakeAuth({ access_token: "expired-jwt", expires_at: 1 });
   const fetch = vi.fn();

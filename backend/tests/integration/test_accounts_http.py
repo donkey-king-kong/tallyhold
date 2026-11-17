@@ -7,7 +7,7 @@ from uuid import UUID, uuid4
 import pytest
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
-from sqlalchemy import text
+from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
 
@@ -203,6 +203,25 @@ def test_unknown_broker_duplicate_name_and_malformed_ids_have_private_errors(
     assert client.get(f"{API}/accounts", headers=BEARER).json() == [first.json()]
 
 
+def test_renaming_to_another_owned_name_returns_conflict_without_mutation(
+    accounts_client: tuple[TestClient, list[User], UUID],
+) -> None:
+    client, _, broker_id = accounts_client
+    first = create(client, broker_id, "Main")
+    second = create(client, broker_id, "Savings")
+    assert first.status_code == second.status_code == 201
+    response = client.patch(
+        f"{API}/accounts/{second.json()['id']}",
+        headers=BEARER,
+        json={"name": "main"},
+    )
+    assert response.status_code == 409
+    assert (
+        client.get(f"{API}/accounts/{second.json()['id']}", headers=BEARER).json()
+        == second.json()
+    )
+
+
 def test_partial_edit_and_transaction_free_delete(
     accounts_client: tuple[TestClient, list[User], UUID],
 ) -> None:
@@ -338,3 +357,30 @@ def test_missing_request_database_is_503_not_an_empty_account_list() -> None:
         assert response.json() != []
     finally:
         app.dependency_overrides.clear()
+
+
+def test_local_database_connection_outage_has_a_generic_503() -> None:
+    app = import_module("app.main").app
+    dependencies = import_module("app.dependencies")
+    engine = create_engine(
+        "postgresql+psycopg://tallyhold@127.0.0.1:65432/tallyhold_test_outage",
+        connect_args={"connect_timeout": 1},
+    )
+
+    def unavailable_session() -> Iterator[Session]:
+        with Session(engine) as session:
+            yield session
+
+    app.dependency_overrides[dependencies.get_current_user] = lambda: User(
+        uuid4(), "SGD"
+    )
+    app.dependency_overrides[dependencies.get_db_session] = unavailable_session
+    try:
+        with TestClient(app, raise_server_exceptions=False) as client:
+            response = client.get(f"{API}/accounts", headers=BEARER)
+        assert response.status_code == 503
+        assert "psycopg" not in response.text
+        assert "65432" not in response.text
+    finally:
+        app.dependency_overrides.clear()
+        engine.dispose()
