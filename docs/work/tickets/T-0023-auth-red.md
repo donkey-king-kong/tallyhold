@@ -12,7 +12,7 @@
 - Branch / worktree: `feature/005-auth`
 - Worktree path: `../tallyhold-feature-005-auth`
 - Issue / PR: [issue #27](https://github.com/donkey-king-kong/tallyhold/issues/27); no PR
-- Updated: 2026-11-17T03:10:49Z
+- Updated: 2026-11-17T03:15:14Z
 
 ## Scope
 
@@ -33,12 +33,12 @@ implementation; no production code, migrations, GREEN or Feature 006 work.
 
 ## Checkpoint
 
-- Last completed action: HTTP RED committed at `b95bf48`; frontend auth component and callback RED collected.
-- Evidence: `npm test -- components/auth-status.test.tsx components/auth-callback.test.tsx --reporter=dot`: 7 failures, all missing component/route; `npm run typecheck`, `npm run lint`, and targeted Prettier check passed.
-- Worktree state: frontend test files and checkpoint not yet committed; branch ahead of remote.
-- Remaining work: commit frontend RED; verify baseline backend/frontend suites and full RED, push and hand off.
+- Last completed action: frontend RED committed at `a709cbc`; full backend/frontend RED and existing suites verified. Corrected the cold-cache flood assertion, added async callers, and kept legacy migration catalog assertion additive.
+- Evidence: full backend `uv run --locked pytest -q --tb=no` had 36 missing-feature failures, 92 passes; old backend suite 91 passed with disposable PostgreSQL 17. Full frontend `npm test -- --reporter=dot` had 7 absent-component/route failures, 3 passes; old frontend suite 3 passed. Backend ruff/format/mypy/import-linter and frontend lint/typecheck/targeted Prettier all passed. No live keys, Supabase network or production schema use.
+- Worktree state: flood correction, additive existing test, tasks and this checkpoint not yet committed; branch ahead of remote.
+- Remaining work: commit final RED test refinements and checkpoint; rerun at final revision, push and hand off to Zack. GREEN remains held.
 - Blocker / unblock action: GREEN requires Zack's review of the RED checkpoint.
-- Next action: commit frontend RED and run whole-worktree verification before Zack's checkpoint.
+- Next action: commit final RED adjustments, verify final revision, push, then stop at Zack's checkpoint.
 - Handoff recipient: Zack at RED checkpoint.
 
 ## History
@@ -52,3 +52,4 @@ implementation; no production code, migrations, GREEN or Feature 006 work.
 | 2026-11-17T03:04:48Z | R-0028/coordinator | Schema RED committed at `9369949`; eight identity/marker/lock cases fail on absent 005 behavior after correcting test SQL casts | Commit resolution RED, proceed to HTTP |
 | 2026-11-17T03:07:00Z | R-0028/coordinator | Resolution RED committed at `af9ec9b`; HTTP suite has 6 absent-route/dependency failures and 1 pre-existing CORS pass | Commit HTTP RED, then frontend |
 | 2026-11-17T03:10:49Z | R-0028/coordinator | HTTP RED committed at `b95bf48`; frontend auth component/callback RED 7 missing-feature failures; typecheck, lint, Prettier pass | Commit frontend RED; verify baseline/full RED |
+| 2026-11-17T03:15:14Z | R-0028/coordinator | Frontend RED committed at `a709cbc`; baseline backend 91 and frontend 3 pass, full backend 36 expected failures/92 passes and frontend 7 expected failures/3 passes; static checks green | Commit final flood/additive refinements, rerun and push; stop before GREEN |

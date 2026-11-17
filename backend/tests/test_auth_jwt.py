@@ -1,5 +1,6 @@
 """Feature 005 AC2: offline ES256 verification at the verifier interface."""
 
+import asyncio
 import base64
 import json
 from concurrent.futures import ThreadPoolExecutor
@@ -201,7 +202,7 @@ def test_cached_keys_expire_at_600_seconds(
 def test_random_kid_flood_refreshes_at_most_once_per_process_per_window(
     signing_key: ec.EllipticCurvePrivateKey,
 ) -> None:
-    clock = [0.0]
+    clock = [1_000_000.0]
     requests: list[httpx.Request] = []
 
     def jwks(request: httpx.Request) -> httpx.Response:
@@ -211,8 +212,6 @@ def test_random_kid_flood_refreshes_at_most_once_per_process_per_window(
     transport = httpx.MockTransport(jwks)
     first = verifier(transport, clock)
     second = verifier(transport, clock)
-    first.verify(minted(signing_key))
-    assert len(requests) == 1
 
     def rejected(index: int) -> None:
         token = minted(signing_key, headers={"kid": f"random-{index}"})
@@ -221,12 +220,21 @@ def test_random_kid_flood_refreshes_at_most_once_per_process_per_window(
 
     with ThreadPoolExecutor(max_workers=12) as pool:
         list(pool.map(rejected, range(40)))
-    assert len(requests) == 2  # warm-cache fetch + one unknown-kid attempt
-    clock[0] = 59.0
+    assert len(requests) == 1
+    clock[0] = 1_000_059.0
     rejected(40)
-    assert len(requests) == 2
-    clock[0] = 60.0
+    assert len(requests) == 1
+    clock[0] = 1_000_060.0
     rejected(41)
+    assert len(requests) == 2
+
+    async def async_flood() -> None:
+        await asyncio.gather(
+            *(asyncio.to_thread(rejected, index) for index in range(42, 62))
+        )
+
+    clock[0] = 1_000_120.0
+    asyncio.run(async_flood())
     assert len(requests) == 3
     assert first.verify(minted(signing_key)).subject == SUBJECT
     assert len(requests) == 3

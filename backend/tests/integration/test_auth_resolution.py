@@ -89,7 +89,7 @@ def test_first_and_returning_login_keep_one_user_and_existing_settings(
     assert counts(auth_engine) == (1, 1)
 
 
-def test_different_auth_subjects_with_shared_email_stay_distinct(
+def test_different_auth_subjects_with_same_provider_stay_distinct(
     auth_engine: Engine,
 ) -> None:
     with Session(auth_engine) as session:

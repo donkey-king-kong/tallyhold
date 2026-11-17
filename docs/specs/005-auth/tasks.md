@@ -27,7 +27,7 @@ roles; the Implementer does not alter tests merely to pass.
 
 ## RED: Approved, stop for Zack's review before GREEN
 
-- [ ] **Test writer: offline JWT matrix (AC2).** Add locally generated
+- [x] **Test writer: offline JWT matrix (AC2).** Add locally generated
   P-256 key/test JWKS tokens for valid, expired, bad signature, wrong issuer,
   audience and algorithm (including previously used HS256), unknown `kid`,
   missing/empty `sub`, `anon`/`service_role`/unknown role and JWKS outage.
@@ -36,7 +36,7 @@ roles; the Implementer does not alter tests merely to pass.
   60-second window even with concurrent thread/async requests,
   a 3-second fetch timeout, no provisioning on rejection and no Supabase
   network. Commit behavioral failures separately.
-- [ ] **Test writer: schema, first login and erasure marker (AC3, AC5).**
+- [x] **Test writer: schema, first login and erasure marker (AC3, AC5).**
   Extend disposable PostgreSQL migration tests to `0003` upgrade/downgrade/
   re-upgrade; assert identity uniqueness/FK, minimal marker and no extra
   auth table or exposure. Add same-user return, email/provider
@@ -45,11 +45,11 @@ roles; the Implementer does not alter tests merely to pass.
   operator inserts marker under the same advisory lock while first-login
   is in flight; after operator deletion, no re-provisioned user survives.
   Verify both lock orders with READ COMMITTED re-check; commit RED.
-- [ ] **Test writer: current-user route/CORS (AC2, AC4).** Exercise
+- [x] **Test writer: current-user route/CORS (AC2, AC4).** Exercise
   `/api/v1/me` with authenticated bearer and two users, missing/invalid
   bearer, cookie-only attempt, allowed/disallowed preflight origins, public
   health and no caller-supplied user ID. Commit RED.
-- [ ] **Test writer: Next.js session experience (AC1, AC4).** Mock Google
+- [x] **Test writer: Next.js session experience (AC1, AC4).** Mock Google
   OAuth PKCE callback, signed-in and signed-out states, cancelled/expired
   flows, sign-out, bearer request with omitted credentials and no tokens in
   URLs/logs. Run Vitest to a behavior-failing RED checkpoint; commit.
