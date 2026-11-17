@@ -45,6 +45,8 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 | [T-0061](tickets/T-0061-first-deploy-plan.md) | Defer first-deploy decision to Phase 4 and ship docs | [R-0062](runs/R-0062.md), after [R-0061](runs/R-0061.md) |
 | [T-0062](tickets/T-0062-review-first-deploy-maintenance.md) | Independently review Track C maintenance PR | [R-0060](runs/R-0060.md) |
 | [T-0063](tickets/T-0063-review-deferred-deploy-plan.md) | Independently review deferred deployment decision PR | [R-0062](runs/R-0062.md) |
+| [T-0064](tickets/T-0064-cost-safeguard.md) | Require staged approvals for cost-bearing actions | [R-0063](runs/R-0063.md) |
+| [T-0065](tickets/T-0065-review-cost-safeguard.md) | Independently review constitution safeguard PR | [R-0063](runs/R-0063.md) |
 
 Historical PR #6 post-dispatch records remain in T-0002's checkpoint
 branch/worktree. Future ship runs use PR comments instead.

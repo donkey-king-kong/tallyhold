@@ -3,6 +3,8 @@
 ## Purpose
 Turn one GitHub issue into an approvable feature contract.
 
+Apply [constitution rule 15](../constitution.md) before any provider action; Gate 1 spec approval is not cost approval.
+
 ## Inputs it reads
 `AGENTS.md`, `docs/constitution.md`, `docs/spec.md`, the issue and `docs/specs/_template/spec.md`.
 

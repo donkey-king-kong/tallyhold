@@ -8,6 +8,10 @@ brand-new independent reviewer session, separate from the Test writer,
 Implementer and any earlier reviewer. Headless Claude is preferred; when
 unavailable, a fresh Trae subagent follows the same inputs and limits.
 
+Cost gate: [constitution rule 15](../constitution.md) applies to any action,
+including review checks; the review brief itself gives no cost approval.
+Keep the restricted Inputs below unchanged.
+
 ## Inputs
 
 Only the feature's approved `spec.md`, approved `plan.md`, `tasks.md`, the

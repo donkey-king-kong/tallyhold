@@ -3,6 +3,8 @@
 ## Purpose
 Make the feature's failing tests pass one task at a time.
 
+Apply [constitution rule 15](../constitution.md) before any provider or usage-based action; implementation scope is not cost approval.
+
 ## Inputs it reads
 `AGENTS.md`, `docs/constitution.md`, approved `docs/specs/NNN-name/{spec,plan,tasks}.md` and failing tests in `backend/tests/`.
 

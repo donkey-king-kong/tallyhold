@@ -4,6 +4,13 @@ Run this gate for every future feature RED handoff, before GREEN. The approved
 feature spec and plan remain authoritative; a review cannot change either.
 Use one feature branch and worktree at a time, as in [workflow](../workflow.md).
 
+**Cost gate:** Apply [constitution rule 15](../constitution.md) before RED
+setup, checks or reviewer dispatch that could incur provider costs. A spec,
+plan or RED handoff is not cost approval: the coordinator obtains two separate
+explicit yeses through `COST APPROVAL 1/2` then `COST APPROVAL 2/2`; even a
+confirmed payment-free free-tier action needs one explicit yes with limits noted.
+Use only offline/local review checks until the required approval is recorded.
+
 1. **Prepare evidence:** The Test writer commits the RED tests, then runs the
    new tests and the existing tests selected separately (excluding only the
    new RED cases) at that test commit. Commit and push

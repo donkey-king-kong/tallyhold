@@ -2,6 +2,13 @@
 
 Follow [workflow](../workflow.md), [constitution](../constitution.md) and [conventions](../conventions.md). Zack approves specs and required plans; [create-pr](create-pr.md) is one step in this end-to-end procedure. Work from the worktree root (the directory created by `git worktree add`). Replace `<N>`, `<R>` and `NNN-name` with actual values.
 
+**Cost gate:** Before a potentially billable action in any ship step (including
+CI, provider setup or deployment), apply [constitution rule 15](../constitution.md):
+post `COST APPROVAL 1/2`, await Zack's first explicit yes, post a separate
+`COST APPROVAL 2/2`, and await his second separate yes. Confirmed payment-free
+free-tier actions still need one explicit approval and their limits recorded.
+Neither an approved plan nor a green PR check grants cost approval.
+
 Before every run, confirm `.agent-flow/session.json` exists; initialize only when missing. Remind Zack to connect **Agent Flow: Open Agent Flow -> Connect to Running Agent -> Watch JSONL File** to `.agent-flow/agent-flow-events.jsonl`. Publish these events from the coordinator, not the fresh Reviewer:
 
 ```sh
