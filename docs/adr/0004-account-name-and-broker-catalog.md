@@ -1,7 +1,7 @@
 # ADR 0004: Replace account-name uniqueness and seed shared brokers
 
-Status: proposed with the Feature 006 schema/architecture plan; awaiting
-Zack's separate approval after Gate 1.
+Status: accepted with Zack's separate Feature 006 schema/architecture-plan
+approval on 2026-11-17 at `ab58947`.
 
 ## Context
 
@@ -57,5 +57,5 @@ rollback. Tests that inspect the historical 0002 schema must no longer
 assume its old constraint survives at `head`. The schema remains safe for
 concurrent writes, but a live deployment with noncanonical legacy names
 must pause for an explicitly approved remediation rather than guess.
-No migration file or data change is authorized until Zack approves the
-Feature 006 plan.
+Implementation follows the independent RED review gate; production data
+remediation and migration deployment retain their separate approvals.

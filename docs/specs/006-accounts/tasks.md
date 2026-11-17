@@ -8,8 +8,9 @@
 - [x] **Architect, [T-0041](../../work/tickets/T-0041-plan-accounts.md):**
   Present [plan](plan.md), this ordering and [ADR 0004](../../adr/0004-account-name-and-broker-catalog.md)
   for Zack's separate schema/architecture approval.
-- [ ] **Zack plan gate:** Explicitly approve the migration, layer design and
-  verification before any RED test, migration file or feature code is written.
+- [x] **Zack plan gate:** Approved the migration, layer design and
+  verification as written at `ab58947` on 2026-11-17. RED may begin;
+  independent RED approval still gates migration and feature code.
 
 The coordinator creates a Track A ticket (T-0042..T-0049 as available)
 **when assigning** each independently owned step, not in advance.

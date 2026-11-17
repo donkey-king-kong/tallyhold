@@ -4,9 +4,9 @@
 
 - [Spec](spec.md), [issue #36](https://github.com/donkey-king-kong/tallyhold/issues/36):
   Zack approved Gate 1 on 2026-11-17; pushed as `c5469b8`.
-- **Proposed for Zack's separate schema/architecture-plan approval.**
-  This plan and [tasks](tasks.md) authorize no RED tests, migration file,
-  implementation or PR. Track A alone writes Alembic until 006 merges.
+- **Approved by Zack on 2026-11-17 as written at `ab58947`.**
+  RED tests may start; migration and implementation remain gated on an
+  independent RED `APPROVE`. Track A alone writes Alembic until 006 merges.
 - The plan covers the SG broker seed, replacement of 003's case-sensitive
   account-name constraint, the 005 current-user dependency, 003 repository
   ports and a minimal `/accounts` UI. No CI, Compose or AGENTS.md edits.
@@ -183,12 +183,13 @@ secret scans remain required before ship.
 
 ## Plan-gate decision
 
-Approval would accept one 0004 transactional revision after 0003; safe
+Zack's approval accepts one 0004 transactional revision after 0003; safe
 seed reuse with stable reserved IDs and guarded rollback; legacy-name
 preflight with no silent data rewrites; a PostgreSQL unique expression
 index `(user_id, lower(name))` replacing 003's named constraint; typed
 account failures at the module boundary; composition through the 005
 request session/current user and 003 ports; a focused `/accounts` UI
 sharing 005's session lifecycle; and the RED/review/GREEN order above.
-Do not infer approval from Gate 1 or from a pushed plan. Material changes
-to this schema or architecture return to Zack before execution.
+The explicit plan approval was given at `ab58947`, separately from Gate 1.
+Material changes to this schema or architecture return to Zack before
+execution.
