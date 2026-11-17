@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { appendFile, mkdir, mkdtemp, readFile, rename, rm, truncate, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -10,6 +10,7 @@ const controllers: Array<{ dispose(): void }> = [];
 afterEach(async () => {
   controllers.splice(0).forEach((controller) => controller.dispose());
   await Promise.all(roots.splice(0).map((root) => rm(root, { recursive: true, force: true })));
+  vi.restoreAllMocks();
 });
 
 async function fixture(session: string) {
@@ -258,5 +259,88 @@ describe("selected local source (AC2, AC9-11, AC13, AC15)", () => {
     expect(closed).toBe(1);
     reader.dispose();
     expect(closed).toBe(2);
+  });
+
+  it("never trusts a matching but future session start or mutates companion files", async () => {
+    const source = await fixture("s1");
+    const root = roots[0];
+    const metadata = join(root, "session.json");
+    const future = JSON.stringify({
+      session_id: "s1", started_at: Math.floor(Date.now() / 1000) + 3_600,
+    });
+    await writeFile(metadata, future);
+    await mkdir(join(root, "heartbeats"));
+    const heartbeat = join(root, "heartbeats", "same.json");
+    const observation = JSON.stringify({ agent: "same", status: "completed", updated_at: 1 });
+    await writeFile(heartbeat, observation);
+    const reader = await controller();
+    await reader.selectSource(pathToFileURL(source.path));
+    expect(reader.getState().projection.nodes[0].activities[0].absoluteTime).toBeNull();
+    expect(reader.getState().projection.nodes[0].status).toBe("starting");
+    expect(reader.getState().diagnostics.some((item: any) => item.code === "inconsistent_metadata")).toBe(true);
+    expect(reader.getState().companions.some((item: any) =>
+      item.source === "heartbeat" && item.certainty === "provisional")).toBe(true);
+    expect(await readFile(source.path, "utf8")).toBe(source.line);
+    expect(await readFile(metadata, "utf8")).toBe(future);
+    expect(await readFile(heartbeat, "utf8")).toBe(observation);
+  });
+
+  it("does not reread unchanged bytes and matches a fresh replay after append", async () => {
+    const source = await fixture("s1");
+    let reads = 0;
+    const reader = await controller({
+      readBytes: async (path: string) => {
+        if (path === source.path) reads++;
+        return readFile(path);
+      },
+    });
+    await reader.selectSource(pathToFileURL(source.path));
+    const initialReads = reads;
+    await reader.refresh();
+    await reader.refresh();
+    expect(reads).toBe(initialReads);
+    await appendFile(source.path, JSON.stringify({
+      time: 1, type: "message", sessionId: "s1",
+      payload: { agent: "same", content: "appended" },
+    }) + "\n");
+    await reader.refresh();
+    const fresh = await controller();
+    await fresh.selectSource(pathToFileURL(source.path));
+    expect(reader.getState().projection.nodes).toEqual(fresh.getState().projection.nodes);
+    expect(reader.getState().projection.nodes[0].activities).toHaveLength(2);
+  });
+
+  it("does not call fetch for local selection or a rejected network URI", async () => {
+    const source = await fixture("s1");
+    const fetch = vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("network forbidden"));
+    const reader = await controller();
+    await reader.selectSource(pathToFileURL(source.path));
+    await expect(reader.selectSource(new URL("https://example.invalid/events"))).rejects.toThrow();
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("cancels the fallback reconciliation timer when disposed", async () => {
+    const source = await fixture("s1");
+    let cancelled = 0;
+    const reader = await controller({
+      scheduleReconcile: () => ({ dispose: () => { cancelled++; } }),
+    });
+    await reader.selectSource(pathToFileURL(source.path));
+    reader.dispose();
+    expect(cancelled).toBe(1);
+  });
+
+  it("accepts all identities within the approved 2,000-identity envelope", async () => {
+    const source = await fixture("s1");
+    const remaining = Array.from({ length: 1_999 }, (_, index) => JSON.stringify({
+      time: index + 1, type: "agent_spawn", sessionId: "s1",
+      payload: { name: `agent_${index}` },
+    })).join("\n");
+    await appendFile(source.path, remaining + "\n");
+    const reader = await controller();
+    await reader.selectSource(pathToFileURL(source.path));
+    expect(reader.getState().reader).toBe("following");
+    expect(reader.getState().projection.nodes).toHaveLength(2_000);
+    expect(reader.getState().diagnostics.some((item: any) => item.code === "limit_exceeded")).toBe(false);
   });
 });

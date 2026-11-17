@@ -7,6 +7,7 @@ afterEach(() => {
   dispose?.();
   document.body.replaceChildren();
   vi.useRealTimers();
+  vi.unstubAllGlobals();
 });
 
 function view(nodes: Array<Record<string, unknown>>) {
@@ -109,10 +110,14 @@ describe("editor webview controls (AC3-5, AC7-8, AC12, AC14-15)", () => {
 
   it("explains the filter and reveals a selected terminal node without discarding history", async () => {
     const { root } = await mount();
-    fireEvent.click(getAllByRole(root, "button", { name: /done/i })[0]);
+    const selected = getAllByRole(root, "button", { name: /done/i })[0];
+    selected.focus();
+    fireEvent.click(selected);
     fireEvent.click(getByRole(root, "checkbox", { name: /last reported nonterminal/i }));
     expect(root.textContent).toMatch(/last reported.*not.*live|does not.*liveness/i);
-    fireEvent.click(getByRole(root, "button", { name: /reveal.*done/i }));
+    const reveal = getByRole(root, "button", { name: /reveal.*done/i });
+    expect(document.activeElement).toBe(reveal);
+    fireEvent.click(reveal);
     expect(getAllByRole(root, "button", { name: /done/i }).length).toBeGreaterThan(0);
     expect(getByRole(root, "region", { name: /activity history/i }).textContent).toContain("Review finished");
   });
@@ -133,5 +138,89 @@ describe("editor webview controls (AC3-5, AC7-8, AC12, AC14-15)", () => {
     vi.advanceTimersByTime(2_000);
     expect(root.textContent).toMatch(/4(?:s| seconds)/i);
     expect(root.textContent).not.toMatch(/verified live/i);
+  });
+
+  it("preserves the camera after append and filtering, with Fit All including terminal and unresolved overflow", async () => {
+    const far = {
+      ...node("unresolved", "failed"),
+      relationship: "unresolved",
+      position: { x: 4_000, y: -3_000 },
+    };
+    const { root, app } = await mount([node("done", "completed"), far]);
+    const camera = () => root.querySelector("svg")?.getAttribute("viewBox");
+    const initial = camera()!.split(/[ ,]+/).map(Number);
+    expect(initial).toHaveLength(4);
+    expect(initial[0]).toBeLessThanOrEqual(0);
+    expect(initial[1]).toBeLessThanOrEqual(-3_000);
+    expect(initial[0] + initial[2]).toBeGreaterThanOrEqual(4_000);
+    expect(initial[1] + initial[3]).toBeGreaterThanOrEqual(0);
+    fireEvent.click(getByRole(root, "button", { name: /zoom in/i }));
+    fireEvent.click(getByRole(root, "button", { name: /pan right/i }));
+    const moved = camera();
+    app.update(view([node("done", "completed"), far, {
+      ...node("new", "starting"), position: { x: 8_000, y: 0 },
+    }]));
+    expect(camera()).toBe(moved);
+    fireEvent.click(getByRole(root, "checkbox", { name: /last reported nonterminal/i }));
+    expect(camera()).toBe(moved);
+    fireEvent.click(getByRole(root, "button", { name: /fit all/i }));
+    const fitted = camera()!.split(/[ ,]+/).map(Number);
+    expect(fitted[0] + fitted[2]).toBeGreaterThanOrEqual(8_000);
+    expect(getByRole(root, "navigation", { name: /agent navigator/i }).textContent).toContain("unresolved");
+  });
+
+  it("labels a failed tool without mislabelling a completed agent as failed", async () => {
+    const reviewed = {
+      ...node("done", "completed"),
+      identityKind: "unspecified",
+      lastUpdateAge: 3,
+      activities: [
+        { type: "agent_spawn", time: 0, summary: "Review started" },
+        { type: "tool_call_end", time: 1, summary: "Read failed", outcome: "failed", pairing: "unmatched" },
+        { type: "agent_complete", time: 2, summary: "Review finished" },
+      ],
+    };
+    const { root } = await mount([reviewed]);
+    fireEvent.click(getAllByRole(root, "button", { name: /done/i })[0]);
+    const history = getByRole(root, "region", { name: /activity history/i });
+    expect(history.textContent).toMatch(/read failed/i);
+    expect(history.textContent).toMatch(/unmatched/i);
+    expect(history.textContent).toMatch(/review finished/i);
+    const details = getByRole(root, "region", { name: /agent details/i });
+    expect(details.textContent).toMatch(/completed/i);
+    expect(details.textContent).toMatch(/unspecified/i);
+    expect(details.textContent).toMatch(/3(?:s| seconds)/i);
+    expect(details.textContent).not.toMatch(/agent failed/i);
+  });
+
+  it("keeps unknown age and uncertain relationships readable across editor themes", async () => {
+    const uncertain = { ...node("orphan", "failed"), relationship: "unresolved", lastUpdateAge: null };
+    const { root } = await mount([uncertain]);
+    for (const theme of ["vscode-light", "vscode-dark", "vscode-high-contrast"]) {
+      document.body.className = theme;
+      const navigator = getByRole(root, "navigation", { name: /agent navigator/i });
+      const target = within(navigator).getByRole("button", { name: /orphan/i });
+      fireEvent.click(target);
+      expect(root.textContent).toMatch(/unresolved/i);
+      expect(root.textContent).toMatch(/failed/i);
+      expect(getByRole(root, "region", { name: /agent details/i }).textContent).toMatch(/unavailable/i);
+    }
+  });
+
+  it("shows failed completed history immediately without playback, even at narrow reduced-motion size", async () => {
+    vi.stubGlobal("matchMedia", () => ({
+      matches: true, media: "(prefers-reduced-motion: reduce)",
+      addListener: () => {}, removeListener: () => {},
+    }));
+    Object.defineProperty(window, "innerWidth", { configurable: true, value: 320 });
+    const failed = { ...node("failed-review", "failed"), task: "Check release" };
+    const { root } = await mount([failed]);
+    fireEvent(window, new Event("resize"));
+    expect(getByRole(root, "button", { name: /fit all/i })).toBeTruthy();
+    expect(getByRole(root, "navigation", { name: /agent navigator/i }).textContent).toContain("failed-review");
+    fireEvent.click(getAllByRole(root, "button", { name: /failed-review/i })[0]);
+    expect(getByRole(root, "region", { name: /activity history/i }).textContent).toContain("Review finished");
+    expect(getByRole(root, "region", { name: /agent details/i }).textContent).toMatch(/failed/i);
+    expect(root.querySelector("animate, animateMotion")).toBeNull();
   });
 });

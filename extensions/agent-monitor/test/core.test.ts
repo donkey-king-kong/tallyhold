@@ -220,4 +220,37 @@ describe("selected-stream projection (AC3-10, AC12-13)", () => {
     expect(model.snapshot({ now: 1_700_000_070_000 }).nodes[0].lastUpdateAge).toBe(68);
     expect(model.snapshot({ now: 1_700_000_070_000 }).nodes[0].status).toBe("starting");
   });
+
+  it("uses deterministic non-overlapping slots without moving existing nodes on later reports", async () => {
+    const sequence = [
+      record("agent_spawn", { name: "root" }, 0),
+      record("agent_spawn", { name: "one", parent: "root" }, 1),
+      record("agent_spawn", { name: "two", parent: "root" }, 2),
+      record("agent_spawn", { name: "three", parent: "one" }, 3),
+    ];
+    const batch = await stream();
+    batch.ingest(bytes(sequence.join("")));
+    const incremental = await stream();
+    for (const line of sequence) incremental.ingest(bytes(line));
+    expect(incremental.snapshot().nodes.map((item: any) => item.position)).toEqual(
+      batch.snapshot().nodes.map((item: any) => item.position),
+    );
+    const positions = incremental.snapshot().nodes.map((item: any) => item.position);
+    expect(new Set(positions.map((position: any) => `${position.x},${position.y}`)).size).toBe(4);
+    incremental.ingest(bytes(record("message", { agent: "root", content: "later" }, 4) +
+      record("agent_spawn", { name: "four", parent: "root" }, 5)));
+    expect(incremental.snapshot().nodes.slice(0, 4).map((item: any) => item.position)).toEqual(positions);
+  });
+
+  it("gives exact diagnostic line and byte offset for invalid JSON and nonfinite time", async () => {
+    const model = await stream();
+    const first = record("agent_spawn", { name: "root" }, 0);
+    model.ingest(bytes(first + '{"time":1e309,"type":"message","sessionId":"s1","payload":{"agent":"root"}}\n' +
+      "{broken}\n" + record("message", { agent: "root", content: "valid" }, 2)));
+    expect(model.snapshot().diagnostics).toMatchObject([
+      { code: "invalid_record", line: 2, byteOffset: bytes(first).length },
+      { code: "malformed_record", line: 3 },
+    ]);
+    expect(model.snapshot().nodes[0].activities).toHaveLength(2);
+  });
 });

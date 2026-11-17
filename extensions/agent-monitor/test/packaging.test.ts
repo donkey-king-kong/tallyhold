@@ -47,4 +47,36 @@ describe("independent extension contract (AC1, AC15-16)", () => {
       localResourceRoots: ["file:///extension/media"],
     });
   });
+
+  it("rejects hostile resource URIs and attribute-breaking nonce values", async () => {
+    const { renderPanelHtml } = await import("../src/host/monitorPanel");
+    expect(() => renderPanelHtml({
+      scriptUri: "https://example.invalid/remote.js",
+      styleUri: "vscode-resource:/extension/main.css",
+      nonce: "safe",
+    })).toThrow();
+    expect(() => renderPanelHtml({
+      scriptUri: 'vscode-resource:/extension/main.js" onload="alert(1)',
+      styleUri: "javascript:alert(1)",
+      nonce: 'bad" onload="alert(1)',
+    })).toThrow();
+  });
+
+  it("rejects malformed host-to-webview updates rather than rendering arbitrary payloads", async () => {
+    const { validateHostMessage } = await import("../src/shared/protocol");
+    expect(validateHostMessage({ type: "state", generation: 4, projection: { nodes: [] } }, 4)).toBeTruthy();
+    expect(validateHostMessage({ type: "state", generation: 3, projection: { nodes: [] } }, 4)).toBeNull();
+    expect(validateHostMessage({
+      type: "state", generation: 4,
+      projection: { nodes: [{ id: "<img src=x>", activities: "not a list" }] },
+    }, 4)).toBeNull();
+    expect(validateHostMessage({ type: "evaluate", generation: 4, code: "alert(1)" }, 4)).toBeNull();
+  });
+
+  it("excludes private runtime and test inputs from the packaged extension", async () => {
+    const ignore = await readFile(resolve(".vscodeignore"), "utf8");
+    for (const forbidden of [".agent-flow", ".env", "node_modules", "test", "coverage"]) {
+      expect(ignore).toContain(forbidden);
+    }
+  });
 });
