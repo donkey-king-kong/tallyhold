@@ -1,4 +1,4 @@
-# PR #37 review
+# PR #39 review
 
 ## Round 1
 
@@ -6,10 +6,15 @@
 - Should-fix: none.
 - Nit: none.
 
-Evidence:
-- `.github/workflows/ci.yml:107-160`: path detection runs only on main pushes; production migrations require a positive path result and successful backend, frontend and security jobs, and retain the `production` environment. The pathspec matches tracked Alembic files and all four current infrastructure `models.py` files. PR checks passed for backend, frontend and security; both migration jobs skipped as expected on a PR.
-- `docker-compose.yml:9,23,31`: database and API host bindings remain loopback-only, retain their defaults, and accept alternate ports and frontend origin. Default and alternate `docker compose config` output matched `README.md:37-44`.
-- `README.md:142-162`: documents the push-only trigger, dispatch behavior and required production environment review. Live production approval remains unverified by PR CI because the job is intentionally skipped here.
-- `docs/specs/chore-first-deploy/spec.md:7-18`: changes remain within the maintenance acceptance criteria; no schema or application changes appear in the PR diff.
+Evidence: `docs/specs/chore-first-deploy/spec.md:16-20` defers execution to
+Phase 4 and leaves Cloud Run Tokyo and Render Singapore undecided;
+`docs/specs/chore-first-deploy/first-deploy-plan.md:4-22` records the same
+boundary, separate cost and migration approvals, and future sign-in and
+multi-user gates. `docs/specs/chore-first-deploy/hosting-research.md:1-95`
+provides cited background without authorizing configuration or deployment.
+The PR diff changes documentation only, so it introduces no application,
+schema, migration or test behavior. `gh pr checks 39` reports backend,
+frontend and security passing; migration-changes and production-migrations
+are skipped. No local checks were run for this docs-only review.
 
 VERDICT: APPROVE
