@@ -22,6 +22,22 @@ Place an independently packaged TypeScript VS Code extension in `extensions/agen
 
 No separate ADR or design-system file is proposed: the extension boundary and trade-offs are recorded here for Zack's gate. If an approved implementation needs a significant deviation, return to Zack rather than silently changing the contract.
 
+### Confirmed public test interfaces
+
+Zack confirmed these TDD seams on 2026-11-17 after approval of the unchanged
+design at `64a4246`. Tests target externally observable behavior, not private
+collaborator calls:
+
+| Public interface | Catches | Does not catch |
+| --- | --- | --- |
+| Core `ingest(bytes)` and `snapshot()` on one selected stream | Replay, diagnostic, interval, status, graph-position and batch/incremental equivalence | Filesystem watching, editor rendering |
+| Host `selectSource(uri)` and observable source state | Selection isolation, filesystem reconciliation, failure/recovery and disposal | Webview layout, keyboard interaction |
+| Webview DOM controls and rendered state | Graph/inspector accessibility, filtering, camera and hostile text display | Actual editor-host/VSIX compatibility |
+
+Packaged-editor smoke verifies the remaining host/editor gap. Concrete parameter
+and type declarations may follow the approved TypeScript design without making
+tests depend on private methods.
+
 ### Stream identity and replay
 
 Use an immutable **selection key** (canonical local path plus a host selection generation), a **file generation** (stat identity, length, modification metadata and content continuity checks) and a **session key** (`sessionId` in each valid record). Never key an agent by name alone: node key is selection/file generation + session ID + published agent ID. A switch creates a fresh projection and camera, cancels stale asynchronous reads by generation token and never merges results from the previous selection. Reopening a panel reconstructs from source bytes, not serialized webview state; persist only the selected URI when appropriate, never event history. A workspace shortcut discovers that worktree's `.agent-flow/agent-flow-events.jsonl`; explicit local file selection is also supported. Show full selected path, session identity or `unavailable`, and reader state separately.
