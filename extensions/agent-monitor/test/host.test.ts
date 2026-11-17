@@ -289,6 +289,43 @@ describe("selected local source (AC2, AC9-11, AC13, AC15)", () => {
     ).toBe(false);
   });
 
+  it("replays when an early accepted byte changes before a later append", async () => {
+    const source = await fixture("s1");
+    const largeRecord =
+      JSON.stringify({
+        time: 1,
+        type: "message",
+        sessionId: "s1",
+        payload: { agent: "same", content: "x".repeat(5_000) },
+      }) + "\n";
+    await appendFile(source.path, largeRecord);
+    const reader = await controller();
+    await reader.selectSource(pathToFileURL(source.path));
+
+    const replacement =
+      source.line.replaceAll("s1", "s2") +
+      largeRecord +
+      JSON.stringify({
+        time: 2,
+        type: "message",
+        sessionId: "s2",
+        payload: { agent: "same", content: "new generation" },
+      }) +
+      "\n";
+    await writeFile(source.path, replacement);
+    await reader.refresh();
+
+    expect(reader.getState().sessionId).toBe("s2");
+    expect(reader.getState().projection.nodes[0].activities).toHaveLength(2);
+    expect(
+      reader
+        .getState()
+        .projection.diagnostics.some(
+          (item: any) => item.code === "session_mismatch",
+        ),
+    ).toBe(true);
+  });
+
   it("keeps malformed companions and heartbeat claims advisory", async () => {
     const source = await fixture("s1");
     const root = roots[0];
@@ -398,9 +435,11 @@ describe("selected local source (AC2, AC9-11, AC13, AC15)", () => {
     await mkdir(join(root, "heartbeats"));
     const heartbeat = join(root, "heartbeats", "same.json");
     const observation = JSON.stringify({
-      agent: "same",
+      agent_id: "same",
+      parent_id: null,
       status: "completed",
-      updated_at: 1,
+      activity: "Finished",
+      updated_at: new Date().toISOString(),
     });
     await writeFile(heartbeat, observation);
     const reader = await controller();
@@ -414,14 +453,7 @@ describe("selected local source (AC2, AC9-11, AC13, AC15)", () => {
         .getState()
         .diagnostics.some((item: any) => item.code === "inconsistent_metadata"),
     ).toBe(true);
-    expect(
-      reader
-        .getState()
-        .companions.some(
-          (item: any) =>
-            item.source === "heartbeat" && item.certainty === "provisional",
-        ),
-    ).toBe(true);
+    expect(reader.getState().companions).toEqual([]);
     expect(await readFile(source.path, "utf8")).toBe(source.line);
     expect(await readFile(metadata, "utf8")).toBe(future);
     expect(await readFile(heartbeat, "utf8")).toBe(observation);
@@ -509,6 +541,23 @@ describe("selected local source (AC2, AC9-11, AC13, AC15)", () => {
     ).toBe(false);
   });
 
+  it("counts dispatch and return parents toward the identity envelope", async () => {
+    const source = await fixture("s1");
+    const dispatches = Array.from({ length: 2_000 }, (_, index) =>
+      JSON.stringify({
+        time: index + 1,
+        type: index % 2 === 0 ? "subagent_dispatch" : "subagent_return",
+        sessionId: "s1",
+        payload: { parent: `parent_${index}`, child: `child_${index}` },
+      }),
+    ).join("\n");
+    await appendFile(source.path, dispatches + "\n");
+    const reader = await controller();
+    await reader.selectSource(pathToFileURL(source.path));
+    expect(reader.getState().reader).toBe("incomplete");
+    expect(reader.getState().error).toMatch(/identity limit/i);
+  });
+
   it("reads only continuity and appended ranges after the initial replay", async () => {
     const source = await fixture("s1");
     let fullReads = 0;
@@ -587,4 +636,61 @@ describe("selected local source (AC2, AC9-11, AC13, AC15)", () => {
       expect(reader.getState().companions).toEqual([]);
     },
   );
+
+  it("validates heartbeat schema and chronology with host-owned attribution", async () => {
+    const source = await fixture("s1");
+    const root = roots.at(-1)!;
+    const startedAt = Math.floor(Date.now() / 1000) - 60;
+    await writeFile(
+      join(root, "session.json"),
+      JSON.stringify({ session_id: "s1", started_at: startedAt }),
+    );
+    await mkdir(join(root, "heartbeats"));
+    await writeFile(
+      join(root, "heartbeats", "valid.json"),
+      JSON.stringify({
+        agent_id: "same",
+        parent_id: null,
+        status: "working",
+        activity: "Inspecting telemetry",
+        updated_at: new Date().toISOString(),
+        source: "untrusted",
+        certainty: "certain",
+      }),
+    );
+    await writeFile(
+      join(root, "heartbeats", "stale.json"),
+      JSON.stringify({
+        agent_id: "stale",
+        parent_id: null,
+        status: "working",
+        activity: "Old observation",
+        updated_at: new Date((startedAt - 1) * 1000).toISOString(),
+      }),
+    );
+    await writeFile(
+      join(root, "heartbeats", "malformed.json"),
+      JSON.stringify({ agent_id: "malformed", updated_at: "not-a-date" }),
+    );
+
+    const reader = await controller();
+    await reader.selectSource(pathToFileURL(source.path));
+
+    expect(reader.getState().companions).toEqual([
+      expect.objectContaining({
+        agentId: "same",
+        source: "heartbeat",
+        certainty: "provisional",
+      }),
+    ]);
+    expect(reader.getState().companions[0]).not.toHaveProperty(
+      "source",
+      "untrusted",
+    );
+    expect(
+      reader
+        .getState()
+        .diagnostics.filter((item: any) => item.code === "invalid_heartbeat"),
+    ).toHaveLength(2);
+  });
 });

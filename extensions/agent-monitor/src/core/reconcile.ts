@@ -65,7 +65,10 @@ function text(value: unknown): string | undefined {
   return typeof value === "string" && value.length > 0 ? value : undefined;
 }
 
-function eventIdentity(type: string, payload: JsonObject): string | undefined {
+export function eventIdentity(
+  type: string,
+  payload: JsonObject,
+): string | undefined {
   if (type === "agent_spawn" || type === "agent_complete")
     return text(payload.name);
   if (type === "subagent_dispatch") return text(payload.parent);

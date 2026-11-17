@@ -2,7 +2,7 @@ import { open, readFile, readdir, stat } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { createStream } from "../core/reconcile";
+import { createStream, eventIdentity } from "../core/reconcile";
 
 type Disposable = { dispose?: () => void; close?: () => void };
 type Options = {
@@ -24,6 +24,17 @@ const FILE_LIMIT = 64 * 1024 * 1024;
 const LINE_LIMIT = 1024 * 1024;
 const RECORD_LIMIT = 100_000;
 const IDENTITY_LIMIT = 2_000;
+const AGENT_ID = /^[a-zA-Z][a-zA-Z0-9_-]{0,63}$/;
+
+type Companion = {
+  agentId: string;
+  parentId: string | null;
+  status: string;
+  activity: string;
+  updatedAt: string;
+  source: "heartbeat";
+  certainty: "provisional";
+};
 
 function close(resource: Disposable | undefined) {
   resource?.close?.();
@@ -65,7 +76,13 @@ function inspectLimits(bytes: Uint8Array): string | null {
       return "Record limit exceeded; view is incomplete";
     try {
       const record = JSON.parse(decoder.decode(bytes.slice(lineStart, index)));
-      const id = record?.payload?.name ?? record?.payload?.agent;
+      const id =
+        typeof record?.type === "string" &&
+        typeof record?.payload === "object" &&
+        record.payload !== null &&
+        !Array.isArray(record.payload)
+          ? eventIdentity(record.type, record.payload)
+          : undefined;
       if (typeof id === "string") identities.add(id);
       if (identities.size > IDENTITY_LIMIT)
         return "Identity limit exceeded; view is incomplete";
@@ -81,8 +98,9 @@ function inspectLimits(bytes: Uint8Array): string | null {
 
 async function readCompanions(path: string, sessionId: string | null) {
   const diagnostics: Array<Record<string, unknown>> = [];
-  const companions: Array<Record<string, unknown>> = [];
+  const companions: Companion[] = [];
   let sessionStartedAt: number | undefined;
+  let metadataStartedAt: number | undefined;
   let metadataMatches = false;
   const root = dirname(path);
   try {
@@ -96,6 +114,7 @@ async function readCompanions(path: string, sessionId: string | null) {
       metadata.started_at >= 0
     ) {
       metadataMatches = true;
+      metadataStartedAt = metadata.started_at;
       if (metadata.started_at > Date.now() / 1000) {
         diagnostics.push({
           code: "inconsistent_metadata",
@@ -110,12 +129,11 @@ async function readCompanions(path: string, sessionId: string | null) {
         message: "Session metadata does not match the stream",
       });
     }
-  } catch (error: any) {
-    if (error?.code !== "ENOENT")
-      diagnostics.push({
-        code: "invalid_metadata",
-        message: "Session metadata is invalid",
-      });
+  } catch {
+    diagnostics.push({
+      code: "invalid_metadata",
+      message: "Session metadata is missing or invalid",
+    });
   }
 
   if (metadataMatches) {
@@ -127,14 +145,47 @@ async function readCompanions(path: string, sessionId: string | null) {
           const value = JSON.parse(
             await readFile(join(heartbeatRoot, name), "utf8"),
           );
+          const updatedAtSeconds =
+            typeof value?.updated_at === "string"
+              ? Date.parse(value.updated_at) / 1000
+              : Number.NaN;
+          const valid =
+            typeof value === "object" &&
+            value !== null &&
+            !Array.isArray(value) &&
+            typeof value.agent_id === "string" &&
+            AGENT_ID.test(value.agent_id) &&
+            (value.parent_id === null ||
+              (typeof value.parent_id === "string" &&
+                AGENT_ID.test(value.parent_id))) &&
+            typeof value.status === "string" &&
+            value.status.length > 0 &&
+            value.status.length <= 160 &&
+            typeof value.activity === "string" &&
+            value.activity.length > 0 &&
+            value.activity.length <= 160 &&
+            Number.isFinite(updatedAtSeconds) &&
+            updatedAtSeconds >= (metadataStartedAt ?? 0) &&
+            updatedAtSeconds <= Date.now() / 1000 + 1;
+          if (!valid) {
+            diagnostics.push({
+              code: "invalid_heartbeat",
+              message: `Heartbeat ${name} is malformed or chronologically inconsistent`,
+            });
+            continue;
+          }
           companions.push({
+            agentId: value.agent_id,
+            parentId: value.parent_id,
+            status: value.status,
+            activity: value.activity,
+            updatedAt: new Date(updatedAtSeconds * 1000).toISOString(),
             source: "heartbeat",
             certainty: "provisional",
-            ...value,
           });
         } catch {
           diagnostics.push({
-            code: "invalid_metadata",
+            code: "invalid_heartbeat",
             message: `Heartbeat ${name} is invalid`,
           });
         }
@@ -173,6 +224,7 @@ export function createSourceController(options: Options = {}) {
           }
         });
   let generation = 0;
+  let sourceGeneration = 0;
   let selectedPath: string | null = null;
   let signature: string | null = null;
   let fileIdentity: string | null = null;
@@ -187,6 +239,7 @@ export function createSourceController(options: Options = {}) {
     path: null,
     sessionId: null,
     reader: "idle",
+    sourceGeneration,
     diagnostics: [],
     companions: [],
     projection: EMPTY_PROJECTION,
@@ -229,6 +282,7 @@ export function createSourceController(options: Options = {}) {
           path: selectedPath,
           sessionId: projection.sessionId,
           reader: "following",
+          sourceGeneration,
           diagnostics,
           companions,
           projection,
@@ -253,15 +307,9 @@ export function createSourceController(options: Options = {}) {
         fileIdentity === nextIdentity &&
         details.size > fileSize;
       if (canAppend && currentModel) {
-        const continuityStart = Math.max(0, fileSize - 4096);
-        const continuity = await readRange(
-          selectedPath,
-          continuityStart,
-          fileSize,
-        );
+        const continuity = await readRange(selectedPath, 0, fileSize);
         if (token !== generation || disposed) return;
-        const expected = acceptedBytes.slice(continuityStart, fileSize);
-        if (equalBytes(continuity, expected)) {
+        if (equalBytes(continuity, acceptedBytes)) {
           const appended = await readRange(
             selectedPath,
             fileSize,
@@ -303,6 +351,7 @@ export function createSourceController(options: Options = {}) {
         sessionStartedAt: metadata.sessionStartedAt,
       });
       nextModel.ingest(bytes);
+      if (model !== null) sourceGeneration++;
       model = nextModel;
       metadataDiagnostics = metadata.diagnostics;
       acceptedBytes = bytes;
@@ -329,6 +378,7 @@ export function createSourceController(options: Options = {}) {
       if (uri.protocol !== "file:")
         throw new Error("Only local file sources are supported");
       generation++;
+      sourceGeneration++;
       const token = generation;
       release();
       selectedPath = fileURLToPath(uri);
@@ -342,6 +392,7 @@ export function createSourceController(options: Options = {}) {
         path: selectedPath,
         sessionId: null,
         reader: "reading",
+        sourceGeneration,
         diagnostics: [],
         companions: [],
         projection: EMPTY_PROJECTION,
