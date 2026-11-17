@@ -76,22 +76,28 @@ CLI into separate temporary user-data and extension directories.
 | Editor                     | Final VSIX install | Named command and panel       | Full interaction checklist |
 | -------------------------- | ------------------ | ----------------------------- | -------------------------- |
 | VS Code 1.145.3            | PASS               | UNVERIFIED for the final VSIX | UNVERIFIED                 |
-| Trae 3.6.13 / base 1.107.1 | PASS               | UNVERIFIED                    | UNVERIFIED                 |
+| Trae 3.6.13 / base 1.107.1 | PASS               | PASS                          | PARTIAL PASS               |
 
 An earlier package activated the named command and rendered a panel in VS Code,
 but desktop automation selected an unintended local source instead of the
 synthetic fixture. That run is not counted as final-candidate compatibility,
 and no private stream content was copied into tracked artifacts.
 
-The following remain unverified in actual editors: synthetic source switching,
-live append, truncation/replacement, read-error recovery, reactivation,
-filter/reveal, camera preservation, keyboard-only inspection, three-theme
-contrast, narrow layout and reduced motion. Unit and DOM tests cover these
-behaviors, but they do not replace the required final-editor smoke.
+Zack manually opened the final VSIX in Trae, selected the synthetic
+`fixtures/smoke.jsonl`, and confirmed the visible source/session, historical
+orchestrator and worker nodes, completed worker inspector, separately failed
+unmatched tool outcome, last-reported filter, camera controls and keyboard
+access. The broader live append, truncation/replacement, read-error recovery,
+reactivation, source-switch isolation, three-theme contrast and reduced-motion
+matrix remains unverified in Trae. All final-VSIX interaction remains
+unverified in VS Code. Unit and DOM tests cover these behaviors, but they do
+not replace the remaining editor smoke.
 
 ## Release Decision
 
 Automated behavior, coverage, quality, dependency, performance, package-content
-and final-VSIX installation checks pass. Actual-editor interaction compatibility
-remains **unverified**, so Feature 004 is not ready for ship or a compatibility
-claim until that checklist is completed intentionally in both editors.
+and final-VSIX installation checks pass. The named command and core synthetic
+inspection workflow pass in Trae. Zack accepted the explicitly reported
+remaining compatibility gaps and requested ship on 2026-11-17. Release notes
+must not claim verified VS Code compatibility or full editor-lifecycle
+compatibility.

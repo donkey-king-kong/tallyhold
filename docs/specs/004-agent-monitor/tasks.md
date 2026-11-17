@@ -97,7 +97,7 @@ throughout.
   and publisher adapter tests. Measure representative ingest/update and
   64 MiB behavior with hardware recorded. Audit VSIX file list for private
   logs/credentials; AC1, AC15-AC16.
-- [ ] **Actual editor smoke and compatibility report:** Install the built
+- [x] **Actual editor smoke and compatibility report:** Install the built
   VSIX in recorded installed VS Code and Trae versions. On synthetic files
   check command, complete history, live append, failure, reactivation,
   switch, reload and read-error recovery; exercise keyboard/three themes
@@ -107,7 +107,7 @@ throughout.
 
 ## Delivery gate
 
-- [ ] **Coordinator:** Only on a later explicit shipping request, create a
+- [x] **Coordinator:** On Zack's 2026-11-17 explicit `ship` request, create a
   Track B ship ticket and use the full `ship` procedure: checks, fresh
   reviewer rounds and merge gate. Coordinate any `.github/workflows/ci.yml`
   change with Track C, and reconcile shared indexes without overwriting
