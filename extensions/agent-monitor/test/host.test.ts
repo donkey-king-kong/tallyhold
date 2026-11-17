@@ -1,5 +1,14 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { appendFile, mkdir, mkdtemp, readFile, rename, rm, truncate, writeFile } from "node:fs/promises";
+import {
+  appendFile,
+  mkdir,
+  mkdtemp,
+  readFile,
+  rename,
+  rm,
+  truncate,
+  writeFile,
+} from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -9,7 +18,9 @@ const controllers: Array<{ dispose(): void }> = [];
 
 afterEach(async () => {
   controllers.splice(0).forEach((controller) => controller.dispose());
-  await Promise.all(roots.splice(0).map((root) => rm(root, { recursive: true, force: true })));
+  await Promise.all(
+    roots.splice(0).map((root) => rm(root, { recursive: true, force: true })),
+  );
   vi.restoreAllMocks();
 });
 
@@ -17,9 +28,13 @@ async function fixture(session: string) {
   const root = await mkdtemp(join(tmpdir(), "tallyhold-monitor-"));
   roots.push(root);
   const path = join(root, "events.jsonl");
-  const line = JSON.stringify({
-    time: 0, type: "agent_spawn", sessionId: session, payload: { name: "same" },
-  }) + "\n";
+  const line =
+    JSON.stringify({
+      time: 0,
+      type: "agent_spawn",
+      sessionId: session,
+      payload: { name: "same" },
+    }) + "\n";
   await writeFile(path, line);
   return { path, line };
 }
@@ -35,22 +50,35 @@ describe("selected local source (AC2, AC9-11, AC13, AC15)", () => {
   it("switches between worktrees without mixing same-named agents or sessions", async () => {
     const first = await fixture("first");
     const second = await fixture("second");
-    await appendFile(first.path, JSON.stringify({
-      time: 1, type: "message", sessionId: "first",
-      payload: { agent: "same", content: "first only" },
-    }) + "\n");
+    await appendFile(
+      first.path,
+      JSON.stringify({
+        time: 1,
+        type: "message",
+        sessionId: "first",
+        payload: { agent: "same", content: "first only" },
+      }) + "\n",
+    );
     const reader = await controller();
     await reader.selectSource(pathToFileURL(first.path));
     expect(reader.getState()).toMatchObject({
-      path: first.path, sessionId: "first", reader: "following",
+      path: first.path,
+      sessionId: "first",
+      reader: "following",
     });
     await reader.selectSource(pathToFileURL(second.path));
     expect(reader.getState()).toMatchObject({
-      path: second.path, sessionId: "second", reader: "following",
+      path: second.path,
+      sessionId: "second",
+      reader: "following",
     });
-    expect(reader.getState().projection.nodes.map((node: any) => node.id)).toEqual(["same"]);
+    expect(
+      reader.getState().projection.nodes.map((node: any) => node.id),
+    ).toEqual(["same"]);
     expect(reader.getState().projection.nodes[0].activities).toHaveLength(1);
-    expect(JSON.stringify(reader.getState().projection)).not.toContain("first only");
+    expect(JSON.stringify(reader.getState().projection)).not.toContain(
+      "first only",
+    );
   });
 
   it("preserves the valid view on failure and recovers without duplicate history", async () => {
@@ -100,14 +128,20 @@ describe("selected local source (AC2, AC9-11, AC13, AC15)", () => {
     await writeFile(path, "x".repeat(1024 * 1024 + 1) + "\n");
     await reader.refresh();
     expect(reader.getState().reader).not.toBe("following");
-    expect(reader.getState().diagnostics.some((item: any) => item.code === "limit_exceeded")).toBe(true);
+    expect(
+      reader
+        .getState()
+        .diagnostics.some((item: any) => item.code === "limit_exceeded"),
+    ).toBe(true);
   });
 
   it("never allows a stale read to overwrite a later selection", async () => {
     const first = await fixture("first");
     const second = await fixture("second");
     let releaseFirst: (() => void) | undefined;
-    const gate = new Promise<void>((resolve) => { releaseFirst = resolve; });
+    const gate = new Promise<void>((resolve) => {
+      releaseFirst = resolve;
+    });
     const reader = await controller({
       readBytes: async (path: string) => {
         if (path === first.path) await gate;
@@ -124,12 +158,18 @@ describe("selected local source (AC2, AC9-11, AC13, AC15)", () => {
   it("reopens from the selected bytes and ignores a conflicting companion snapshot", async () => {
     const source = await fixture("stream-session");
     const metadata = join(roots[0], "session.json");
-    await writeFile(metadata, JSON.stringify({
-      session_id: "different-session", started_at: 1_700_000_000,
-    }));
+    await writeFile(
+      metadata,
+      JSON.stringify({
+        session_id: "different-session",
+        started_at: 1_700_000_000,
+      }),
+    );
     const first = await controller();
     await first.selectSource(pathToFileURL(source.path));
-    expect(first.getState().projection.nodes[0].activities[0].absoluteTime).toBeNull();
+    expect(
+      first.getState().projection.nodes[0].activities[0].absoluteTime,
+    ).toBeNull();
     first.dispose();
     const reopened = await controller();
     await reopened.selectSource(pathToFileURL(source.path));
@@ -139,7 +179,9 @@ describe("selected local source (AC2, AC9-11, AC13, AC15)", () => {
 
   it("rejects non-local source URIs without making a network request", async () => {
     const reader = await controller();
-    await expect(reader.selectSource(new URL("https://example.invalid/private.jsonl"))).rejects.toThrow();
+    await expect(
+      reader.selectSource(new URL("https://example.invalid/private.jsonl")),
+    ).rejects.toThrow();
     expect(reader.getState().projection.nodes).toHaveLength(0);
   });
 
@@ -161,29 +203,49 @@ describe("selected local source (AC2, AC9-11, AC13, AC15)", () => {
     const reader = await controller();
     await reader.selectSource(pathToFileURL(source.path));
     expect(reader.getState().reader).not.toBe("following");
-    expect(reader.getState().diagnostics.some((item: any) => item.code === "limit_exceeded")).toBe(true);
+    expect(
+      reader
+        .getState()
+        .diagnostics.some((item: any) => item.code === "limit_exceeded"),
+    ).toBe(true);
   });
 
   it("labels identity and complete-record limits instead of dropping history", async () => {
     const source = await fixture("s1");
     const reader = await controller();
-    const identities = Array.from({ length: 2_001 }, (_, index) => JSON.stringify({
-      time: index + 1, type: "agent_spawn", sessionId: "s1",
-      payload: { name: `agent_${index}` },
-    })).join("\n");
+    const identities = Array.from({ length: 2_001 }, (_, index) =>
+      JSON.stringify({
+        time: index + 1,
+        type: "agent_spawn",
+        sessionId: "s1",
+        payload: { name: `agent_${index}` },
+      }),
+    ).join("\n");
     await appendFile(source.path, identities + "\n");
     await reader.selectSource(pathToFileURL(source.path));
     expect(reader.getState().reader).not.toBe("following");
-    expect(reader.getState().diagnostics.some((item: any) => item.code === "limit_exceeded")).toBe(true);
+    expect(
+      reader
+        .getState()
+        .diagnostics.some((item: any) => item.code === "limit_exceeded"),
+    ).toBe(true);
 
-    const repeated = Array.from({ length: 100_001 }, (_, index) => JSON.stringify({
-      time: index, type: "message", sessionId: "s1",
-      payload: { agent: "same", content: "status" },
-    })).join("\n");
+    const repeated = Array.from({ length: 100_001 }, (_, index) =>
+      JSON.stringify({
+        time: index,
+        type: "message",
+        sessionId: "s1",
+        payload: { agent: "same", content: "status" },
+      }),
+    ).join("\n");
     await writeFile(source.path, source.line + repeated + "\n");
     await reader.refresh();
     expect(reader.getState().reader).not.toBe("following");
-    expect(reader.getState().diagnostics.some((item: any) => item.code === "limit_exceeded")).toBe(true);
+    expect(
+      reader
+        .getState()
+        .diagnostics.some((item: any) => item.code === "limit_exceeded"),
+    ).toBe(true);
   });
 
   it("retains accepted history and an actionable incomplete state after an append exceeds a limit", async () => {
@@ -204,15 +266,27 @@ describe("selected local source (AC2, AC9-11, AC13, AC15)", () => {
     await reader.refresh();
     await reader.refresh();
     expect(reader.getState().projection.nodes[0].activities).toHaveLength(1);
-    await writeFile(source.path, source.line.replace("s1", "s2") +
-      JSON.stringify({
-        time: 1, type: "message", sessionId: "s2",
-        payload: { agent: "same", content: "new generation" },
-      }) + "\n");
+    await writeFile(
+      source.path,
+      source.line.replace("s1", "s2") +
+        JSON.stringify({
+          time: 1,
+          type: "message",
+          sessionId: "s2",
+          payload: { agent: "same", content: "new generation" },
+        }) +
+        "\n",
+    );
     await reader.refresh();
     expect(reader.getState().sessionId).toBe("s2");
     expect(reader.getState().projection.nodes[0].activities).toHaveLength(2);
-    expect(reader.getState().projection.diagnostics.some((item: any) => item.code === "session_mismatch")).toBe(false);
+    expect(
+      reader
+        .getState()
+        .projection.diagnostics.some(
+          (item: any) => item.code === "session_mismatch",
+        ),
+    ).toBe(false);
   });
 
   it("keeps malformed companions and heartbeat claims advisory", async () => {
@@ -220,28 +294,51 @@ describe("selected local source (AC2, AC9-11, AC13, AC15)", () => {
     const root = roots[0];
     await writeFile(join(root, "session.json"), "{invalid");
     await mkdir(join(root, "heartbeats"));
-    await writeFile(join(root, "heartbeats", "same.json"), JSON.stringify({
-      agent: "same", status: "completed", updated_at: 1,
-    }));
+    await writeFile(
+      join(root, "heartbeats", "same.json"),
+      JSON.stringify({
+        agent: "same",
+        status: "completed",
+        updated_at: 1,
+      }),
+    );
     const reader = await controller();
     await reader.selectSource(pathToFileURL(source.path));
     expect(reader.getState().projection.nodes[0].status).toBe("starting");
-    expect(reader.getState().projection.nodes[0].activities[0].absoluteTime).toBeNull();
-    expect(reader.getState().diagnostics.some((item: any) => item.code === "invalid_metadata")).toBe(true);
-    await writeFile(join(root, "session.json"), JSON.stringify({
-      session_id: "s1", started_at: -1,
-    }));
+    expect(
+      reader.getState().projection.nodes[0].activities[0].absoluteTime,
+    ).toBeNull();
+    expect(
+      reader
+        .getState()
+        .diagnostics.some((item: any) => item.code === "invalid_metadata"),
+    ).toBe(true);
+    await writeFile(
+      join(root, "session.json"),
+      JSON.stringify({
+        session_id: "s1",
+        started_at: -1,
+      }),
+    );
     await reader.refresh();
-    expect(reader.getState().projection.nodes[0].activities[0].absoluteTime).toBeNull();
+    expect(
+      reader.getState().projection.nodes[0].activities[0].absoluteTime,
+    ).toBeNull();
   });
 
   it("discovers worktree streams only when the workspace is trusted", async () => {
     const source = await fixture("s1");
     const root = roots[0];
     await mkdir(join(root, ".agent-flow"));
-    await rename(source.path, join(root, ".agent-flow", "agent-flow-events.jsonl"));
-    const { discoverWorktreeSources } = await import("../src/host/monitorPanel");
-    expect(await discoverWorktreeSources([root], { trusted: false })).toEqual([]);
+    await rename(
+      source.path,
+      join(root, ".agent-flow", "agent-flow-events.jsonl"),
+    );
+    const { discoverWorktreeSources } =
+      await import("../src/host/monitorPanel");
+    expect(await discoverWorktreeSources([root], { trusted: false })).toEqual(
+      [],
+    );
     expect(await discoverWorktreeSources([root], { trusted: true })).toEqual([
       pathToFileURL(join(root, ".agent-flow", "agent-flow-events.jsonl")).href,
     ]);
@@ -276,7 +373,11 @@ describe("selected local source (AC2, AC9-11, AC13, AC15)", () => {
     const second = await fixture("second");
     let closed = 0;
     const reader = await controller({
-      watchSource: () => ({ close: () => { closed++; } }),
+      watchSource: () => ({
+        close: () => {
+          closed++;
+        },
+      }),
     });
     await reader.selectSource(pathToFileURL(first.path));
     await reader.selectSource(pathToFileURL(second.path));
@@ -290,20 +391,37 @@ describe("selected local source (AC2, AC9-11, AC13, AC15)", () => {
     const root = roots[0];
     const metadata = join(root, "session.json");
     const future = JSON.stringify({
-      session_id: "s1", started_at: Math.floor(Date.now() / 1000) + 3_600,
+      session_id: "s1",
+      started_at: Math.floor(Date.now() / 1000) + 3_600,
     });
     await writeFile(metadata, future);
     await mkdir(join(root, "heartbeats"));
     const heartbeat = join(root, "heartbeats", "same.json");
-    const observation = JSON.stringify({ agent: "same", status: "completed", updated_at: 1 });
+    const observation = JSON.stringify({
+      agent: "same",
+      status: "completed",
+      updated_at: 1,
+    });
     await writeFile(heartbeat, observation);
     const reader = await controller();
     await reader.selectSource(pathToFileURL(source.path));
-    expect(reader.getState().projection.nodes[0].activities[0].absoluteTime).toBeNull();
+    expect(
+      reader.getState().projection.nodes[0].activities[0].absoluteTime,
+    ).toBeNull();
     expect(reader.getState().projection.nodes[0].status).toBe("starting");
-    expect(reader.getState().diagnostics.some((item: any) => item.code === "inconsistent_metadata")).toBe(true);
-    expect(reader.getState().companions.some((item: any) =>
-      item.source === "heartbeat" && item.certainty === "provisional")).toBe(true);
+    expect(
+      reader
+        .getState()
+        .diagnostics.some((item: any) => item.code === "inconsistent_metadata"),
+    ).toBe(true);
+    expect(
+      reader
+        .getState()
+        .companions.some(
+          (item: any) =>
+            item.source === "heartbeat" && item.certainty === "provisional",
+        ),
+    ).toBe(true);
     expect(await readFile(source.path, "utf8")).toBe(source.line);
     expect(await readFile(metadata, "utf8")).toBe(future);
     expect(await readFile(heartbeat, "utf8")).toBe(observation);
@@ -323,23 +441,34 @@ describe("selected local source (AC2, AC9-11, AC13, AC15)", () => {
     await reader.refresh();
     await reader.refresh();
     expect(reads).toBe(initialReads);
-    await appendFile(source.path, JSON.stringify({
-      time: 1, type: "message", sessionId: "s1",
-      payload: { agent: "same", content: "appended" },
-    }) + "\n");
+    await appendFile(
+      source.path,
+      JSON.stringify({
+        time: 1,
+        type: "message",
+        sessionId: "s1",
+        payload: { agent: "same", content: "appended" },
+      }) + "\n",
+    );
     await reader.refresh();
     const fresh = await controller();
     await fresh.selectSource(pathToFileURL(source.path));
-    expect(reader.getState().projection.nodes).toEqual(fresh.getState().projection.nodes);
+    expect(reader.getState().projection.nodes).toEqual(
+      fresh.getState().projection.nodes,
+    );
     expect(reader.getState().projection.nodes[0].activities).toHaveLength(2);
   });
 
   it("does not call fetch for local selection or a rejected network URI", async () => {
     const source = await fixture("s1");
-    const fetch = vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("network forbidden"));
+    const fetch = vi
+      .spyOn(globalThis, "fetch")
+      .mockRejectedValue(new Error("network forbidden"));
     const reader = await controller();
     await reader.selectSource(pathToFileURL(source.path));
-    await expect(reader.selectSource(new URL("https://example.invalid/events"))).rejects.toThrow();
+    await expect(
+      reader.selectSource(new URL("https://example.invalid/events")),
+    ).rejects.toThrow();
     expect(fetch).not.toHaveBeenCalled();
   });
 
@@ -347,7 +476,11 @@ describe("selected local source (AC2, AC9-11, AC13, AC15)", () => {
     const source = await fixture("s1");
     let cancelled = 0;
     const reader = await controller({
-      scheduleReconcile: () => ({ dispose: () => { cancelled++; } }),
+      scheduleReconcile: () => ({
+        dispose: () => {
+          cancelled++;
+        },
+      }),
     });
     await reader.selectSource(pathToFileURL(source.path));
     reader.dispose();
@@ -356,16 +489,24 @@ describe("selected local source (AC2, AC9-11, AC13, AC15)", () => {
 
   it("accepts all identities within the approved 2,000-identity envelope", async () => {
     const source = await fixture("s1");
-    const remaining = Array.from({ length: 1_999 }, (_, index) => JSON.stringify({
-      time: index + 1, type: "agent_spawn", sessionId: "s1",
-      payload: { name: `agent_${index}` },
-    })).join("\n");
+    const remaining = Array.from({ length: 1_999 }, (_, index) =>
+      JSON.stringify({
+        time: index + 1,
+        type: "agent_spawn",
+        sessionId: "s1",
+        payload: { name: `agent_${index}` },
+      }),
+    ).join("\n");
     await appendFile(source.path, remaining + "\n");
     const reader = await controller();
     await reader.selectSource(pathToFileURL(source.path));
     expect(reader.getState().reader).toBe("following");
     expect(reader.getState().projection.nodes).toHaveLength(2_000);
-    expect(reader.getState().diagnostics.some((item: any) => item.code === "limit_exceeded")).toBe(false);
+    expect(
+      reader
+        .getState()
+        .diagnostics.some((item: any) => item.code === "limit_exceeded"),
+    ).toBe(false);
   });
 
   it("reads only continuity and appended ranges after the initial replay", async () => {
@@ -384,12 +525,15 @@ describe("selected local source (AC2, AC9-11, AC13, AC15)", () => {
     });
     await reader.selectSource(pathToFileURL(source.path));
     expect(fullReads).toBe(1);
-    await appendFile(source.path, JSON.stringify({
-      time: 1,
-      type: "message",
-      sessionId: "s1",
-      payload: { agent: "same", content: "incremental" },
-    }) + "\n");
+    await appendFile(
+      source.path,
+      JSON.stringify({
+        time: 1,
+        type: "message",
+        sessionId: "s1",
+        payload: { agent: "same", content: "incremental" },
+      }) + "\n",
+    );
     await reader.refresh();
     expect(fullReads).toBe(1);
     expect(ranges.some(([start]) => start >= source.line.length)).toBe(true);
@@ -405,10 +549,42 @@ describe("selected local source (AC2, AC9-11, AC13, AC15)", () => {
     await rename(source.path, discovered);
     const { resolveInitialSource } = await import("../src/host/monitorPanel");
     const explicit = pathToFileURL(join(root, "explicit.jsonl")).href;
-    expect(await resolveInitialSource(explicit, [root], { trusted: true })).toBe(explicit);
+    expect(
+      await resolveInitialSource(explicit, [root], { trusted: true }),
+    ).toBe(explicit);
     expect(await resolveInitialSource(null, [root], { trusted: true })).toBe(
       pathToFileURL(discovered).href,
     );
-    expect(await resolveInitialSource(explicit, [root], { trusted: false })).toBeNull();
+    expect(
+      await resolveInitialSource(explicit, [root], { trusted: false }),
+    ).toBeNull();
   });
+
+  it.each([
+    ["missing", null],
+    ["malformed", "{invalid"],
+    [
+      "mismatched",
+      JSON.stringify({
+        session_id: "different-session",
+        started_at: 1_700_000_000,
+      }),
+    ],
+  ])(
+    "does not read heartbeat companions when session metadata is %s",
+    async (_case, metadata) => {
+      const source = await fixture("s1");
+      const root = roots.at(-1)!;
+      await mkdir(join(root, "heartbeats"));
+      await writeFile(
+        join(root, "heartbeats", "same.json"),
+        JSON.stringify({ agent: "same", status: "working" }),
+      );
+      if (metadata !== null)
+        await writeFile(join(root, "session.json"), metadata);
+      const reader = await controller();
+      await reader.selectSource(pathToFileURL(source.path));
+      expect(reader.getState().companions).toEqual([]);
+    },
+  );
 });

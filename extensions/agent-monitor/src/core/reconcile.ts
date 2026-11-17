@@ -146,6 +146,7 @@ export function createStream(options: {
   };
 
   const reconcileEdges = () => {
+    edges.length = 0;
     for (const node of nodes) {
       if (!node.parentId || !byId.has(node.parentId)) {
         node.relationship = node.parentId ? "unresolved" : "root";

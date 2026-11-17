@@ -21,15 +21,15 @@ package.
 | `npm run lint`                     | PASS                                                               |
 | `npm run format:check`             | PASS                                                               |
 | `npm run typecheck`                | PASS against VS Code 1.80 declarations                             |
-| `npm run test:coverage`            | PASS; 65/65 tests                                                  |
-| Coverage                           | 95.19% statements, 82.39% branches, 94.73% functions, 97.14% lines |
+| `npm run test:coverage`            | PASS; 71/71 tests                                                  |
+| Coverage                           | 95.29% statements, 82.62% branches, 94.94% functions, 97.02% lines |
 | `npm run build`                    | PASS; host and webview bundles                                     |
 | `npm audit --audit-level=low`      | PASS; zero vulnerabilities                                         |
 | Publisher adapter unittest command | PASS; 6/6 tests                                                    |
 | `npm run package`                  | PASS                                                               |
 
-The approved RED assertions were not weakened. Nine regression tests were added
-while resolving the first independent PR review.
+The approved RED assertions were not weakened. Fifteen regression cases were
+added while resolving the first two independent PR reviews.
 
 ## Performance
 
@@ -42,23 +42,23 @@ through the production webview mount.
 
 | Envelope                                            | Cold reconstruction | 200-record append | Fit All bounds | RSS delta | Diagnostics |
 | --------------------------------------------------- | ------------------: | ----------------: | -------------: | --------: | ----------: |
-| 10 MiB, 20,000 records, 500 identities              |            85.87 ms |           1.03 ms |        0.23 ms | 28.89 MiB |           0 |
-| 67,108,863 bytes, 100,000 records, 2,000 identities |           886.42 ms |      not measured |        0.27 ms | 24.66 MiB |           0 |
+| 10 MiB, 20,000 records, 500 identities              |            90.91 ms |           1.75 ms |        0.34 ms | 38.17 MiB |           0 |
+| 67,108,863 bytes, 100,000 records, 2,000 identities |           864.34 ms |      not measured |        0.27 ms | 26.03 MiB |           0 |
 
-The latest pure-reducer run measured 85.87 ms representative cold
-reconstruction, 1.03 ms for a 200-record append, 0.23 ms for Fit All and
-28.89 MiB RSS growth. The 67,108,863-byte maximum envelope reconstructed in
-886.42 ms with 2,000 identities, no diagnostics, a 0.27 ms Fit All and
-24.66 MiB RSS growth.
+The latest pure-reducer run measured 90.91 ms representative cold
+reconstruction, 1.75 ms for a 200-record append, 0.34 ms for Fit All and
+38.17 MiB RSS growth. The 67,108,863-byte maximum envelope reconstructed in
+864.34 ms with 2,000 identities, no diagnostics, a 0.27 ms Fit All and
+26.03 MiB RSS growth.
 
 The production source controller opened the representative local file in
-198.94 ms. After a 29,650-byte append, its continuity/range-read path exposed
-all 200 new records in 51.44 ms while remaining `following` with 500 identities
+203.03 ms. After a 29,650-byte append, its continuity/range-read path exposed
+all 200 new records in 53.89 ms while remaining `following` with 500 identities
 and no diagnostics.
 
 The production webview mount rendered a maximum-envelope projection with 2,000
-identities and a selected 100,000-activity history in 68.12 ms initially and
-59.76 ms for inspector selection. The DOM contained 500 viewport-bounded graph
+identities and a selected 100,000-activity history in 74.93 ms initially and
+72.33 ms for inspector selection. The DOM contained 500 viewport-bounded graph
 nodes and 100 paged activity rows; source history remained available through
 the paging controls.
 

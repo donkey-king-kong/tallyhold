@@ -83,6 +83,7 @@ async function readCompanions(path: string, sessionId: string | null) {
   const diagnostics: Array<Record<string, unknown>> = [];
   const companions: Array<Record<string, unknown>> = [];
   let sessionStartedAt: number | undefined;
+  let metadataMatches = false;
   const root = dirname(path);
   try {
     const metadata = JSON.parse(
@@ -94,6 +95,7 @@ async function readCompanions(path: string, sessionId: string | null) {
       Number.isFinite(metadata.started_at) &&
       metadata.started_at >= 0
     ) {
+      metadataMatches = true;
       if (metadata.started_at > Date.now() / 1000) {
         diagnostics.push({
           code: "inconsistent_metadata",
@@ -116,32 +118,34 @@ async function readCompanions(path: string, sessionId: string | null) {
       });
   }
 
-  try {
-    const heartbeatRoot = join(root, "heartbeats");
-    for (const name of await readdir(heartbeatRoot)) {
-      if (!name.endsWith(".json")) continue;
-      try {
-        const value = JSON.parse(
-          await readFile(join(heartbeatRoot, name), "utf8"),
-        );
-        companions.push({
-          source: "heartbeat",
-          certainty: "provisional",
-          ...value,
-        });
-      } catch {
+  if (metadataMatches) {
+    try {
+      const heartbeatRoot = join(root, "heartbeats");
+      for (const name of await readdir(heartbeatRoot)) {
+        if (!name.endsWith(".json")) continue;
+        try {
+          const value = JSON.parse(
+            await readFile(join(heartbeatRoot, name), "utf8"),
+          );
+          companions.push({
+            source: "heartbeat",
+            certainty: "provisional",
+            ...value,
+          });
+        } catch {
+          diagnostics.push({
+            code: "invalid_metadata",
+            message: `Heartbeat ${name} is invalid`,
+          });
+        }
+      }
+    } catch (error: any) {
+      if (error?.code !== "ENOENT")
         diagnostics.push({
           code: "invalid_metadata",
-          message: `Heartbeat ${name} is invalid`,
+          message: "Heartbeat directory is invalid",
         });
-      }
     }
-  } catch (error: any) {
-    if (error?.code !== "ENOENT")
-      diagnostics.push({
-        code: "invalid_metadata",
-        message: "Heartbeat directory is invalid",
-      });
   }
   return { diagnostics, companions, sessionStartedAt };
 }

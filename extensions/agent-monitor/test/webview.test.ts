@@ -1,6 +1,13 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, getAllByRole, getByRole, getByText, queryByText, within } from "@testing-library/dom";
+import {
+  fireEvent,
+  getAllByRole,
+  getByRole,
+  getByText,
+  queryByText,
+  within,
+} from "@testing-library/dom";
 
 let dispose: (() => void) | undefined;
 afterEach(() => {
@@ -26,8 +33,11 @@ function view(
 
 function node(id: string, status: string) {
   return {
-    id, task: id === "done" ? "Finished review" : "Coordinate",
-    status, relationship: "root", position: { x: 0, y: id === "done" ? 0 : 120 },
+    id,
+    task: id === "done" ? "Finished review" : "Coordinate",
+    status,
+    relationship: "root",
+    position: { x: 0, y: id === "done" ? 0 : 120 },
     terminal: status === "completed" || status === "failed",
     activities: [
       { type: "agent_spawn", time: 0, summary: "<img src=x onerror=alert(1)>" },
@@ -38,7 +48,9 @@ function node(id: string, status: string) {
   };
 }
 
-async function mount(nodes = [node("done", "completed"), node("active", "working")]) {
+async function mount(
+  nodes = [node("done", "completed"), node("active", "working")],
+) {
   const root = document.createElement("main");
   document.body.append(root);
   const modulePath = ["../src/webview", "main"].join("/");
@@ -52,12 +64,20 @@ describe("editor webview controls (AC3-5, AC7-8, AC12, AC14-15)", () => {
   it("shows every node and a reachable Fit All, then explicitly filters last-reported nonterminal", async () => {
     const { root } = await mount();
     expect(getByRole(root, "button", { name: /fit all/i })).toBeTruthy();
-    expect(getAllByRole(root, "button", { name: /done/i }).length).toBeGreaterThan(0);
+    expect(
+      getAllByRole(root, "button", { name: /done/i }).length,
+    ).toBeGreaterThan(0);
     expect(getByRole(root, "button", { name: /active/i })).toBeTruthy();
-    fireEvent.click(getByRole(root, "checkbox", { name: /last reported nonterminal/i }));
+    fireEvent.click(
+      getByRole(root, "checkbox", { name: /last reported nonterminal/i }),
+    );
     expect(queryByText(root, "Finished review")).toBeNull();
-    fireEvent.click(getByRole(root, "checkbox", { name: /last reported nonterminal/i }));
-    expect(getAllByRole(root, "button", { name: /done/i }).length).toBeGreaterThan(0);
+    fireEvent.click(
+      getByRole(root, "checkbox", { name: /last reported nonterminal/i }),
+    );
+    expect(
+      getAllByRole(root, "button", { name: /done/i }).length,
+    ).toBeGreaterThan(0);
   });
 
   it("selects a completed node by keyboard and retains chronological inspector history", async () => {
@@ -70,7 +90,9 @@ describe("editor webview controls (AC3-5, AC7-8, AC12, AC14-15)", () => {
     const history = getByRole(root, "region", { name: /activity history/i });
     expect(within(history).getByText(/review finished/i)).toBeTruthy();
     expect(history.textContent).toContain("agent_spawn");
-    expect(history.textContent?.indexOf("agent_spawn")).toBeLessThan(history.textContent!.indexOf("Review finished"));
+    expect(history.textContent?.indexOf("agent_spawn")).toBeLessThan(
+      history.textContent!.indexOf("Review finished"),
+    );
     expect(root.textContent).toMatch(/completed/i);
     expect(getByRole(root, "button", { name: /fit all/i })).toBeTruthy();
   });
@@ -102,13 +124,25 @@ describe("editor webview controls (AC3-5, AC7-8, AC12, AC14-15)", () => {
     expect(graph!.outerHTML).not.toBe(zoomed);
     fireEvent.click(getByRole(root, "button", { name: /fit all/i }));
     expect(graph!.outerHTML).toBe(initialCamera);
-    for (const name of [/zoom in/i, /zoom out/i, /pan left/i, /pan right/i, /fit all/i]) {
+    for (const name of [
+      /zoom in/i,
+      /zoom out/i,
+      /pan left/i,
+      /pan right/i,
+      /fit all/i,
+    ]) {
       const control = getByRole(root, "button", { name });
       control.focus();
       fireEvent.keyDown(control, { key: "Enter" });
       expect(document.activeElement).toBe(control);
     }
-    app.update(view([node("done", "completed"), node("active", "working"), node("new", "starting")]));
+    app.update(
+      view([
+        node("done", "completed"),
+        node("active", "working"),
+        node("new", "starting"),
+      ]),
+    );
     expect(getByText(root, "Finished review")).toBeTruthy();
     expect(getByRole(root, "button", { name: /new/i })).toBeTruthy();
   });
@@ -118,13 +152,21 @@ describe("editor webview controls (AC3-5, AC7-8, AC12, AC14-15)", () => {
     const selected = getAllByRole(root, "button", { name: /done/i })[0];
     selected.focus();
     fireEvent.click(selected);
-    fireEvent.click(getByRole(root, "checkbox", { name: /last reported nonterminal/i }));
-    expect(root.textContent).toMatch(/last reported.*not.*live|does not.*liveness/i);
+    fireEvent.click(
+      getByRole(root, "checkbox", { name: /last reported nonterminal/i }),
+    );
+    expect(root.textContent).toMatch(
+      /last reported.*not.*live|does not.*liveness/i,
+    );
     const reveal = getByRole(root, "button", { name: /reveal.*done/i });
     expect(document.activeElement).toBe(reveal);
     fireEvent.click(reveal);
-    expect(getAllByRole(root, "button", { name: /done/i }).length).toBeGreaterThan(0);
-    expect(getByRole(root, "region", { name: /activity history/i }).textContent).toContain("Review finished");
+    expect(
+      getAllByRole(root, "button", { name: /done/i }).length,
+    ).toBeGreaterThan(0);
+    expect(
+      getByRole(root, "region", { name: /activity history/i }).textContent,
+    ).toContain("Review finished");
   });
 
   it("offers a searchable keyboard navigator and updates age while the stream is quiet", async () => {
@@ -136,9 +178,15 @@ describe("editor webview controls (AC3-5, AC7-8, AC12, AC14-15)", () => {
     ]);
     const search = getByRole(root, "textbox", { name: /find agent/i });
     fireEvent.input(search, { target: { value: "reviewer" } });
-    const navigator = getByRole(root, "navigation", { name: /agent navigator/i });
-    expect(within(navigator).getByRole("button", { name: /reviewer/i })).toBeTruthy();
-    expect(within(navigator).queryByRole("button", { name: /other/i })).toBeNull();
+    const navigator = getByRole(root, "navigation", {
+      name: /agent navigator/i,
+    });
+    expect(
+      within(navigator).getByRole("button", { name: /reviewer/i }),
+    ).toBeTruthy();
+    expect(
+      within(navigator).queryByRole("button", { name: /other/i }),
+    ).toBeNull();
     expect(root.textContent).toMatch(/2(?:s| seconds)/i);
     vi.advanceTimersByTime(2_000);
     expect(root.textContent).toMatch(/4(?:s| seconds)/i);
@@ -162,16 +210,30 @@ describe("editor webview controls (AC3-5, AC7-8, AC12, AC14-15)", () => {
     fireEvent.click(getByRole(root, "button", { name: /zoom in/i }));
     fireEvent.click(getByRole(root, "button", { name: /pan right/i }));
     const moved = camera();
-    app.update(view([node("done", "completed"), far, {
-      ...node("new", "starting"), position: { x: 8_000, y: 0 },
-    }]));
+    app.update(
+      view([
+        node("done", "completed"),
+        far,
+        {
+          ...node("new", "starting"),
+          position: { x: 8_000, y: 0 },
+        },
+      ]),
+    );
     expect(camera()).toBe(moved);
-    fireEvent.click(getByRole(root, "checkbox", { name: /last reported nonterminal/i }));
+    expect(
+      getByRole(root, "navigation", { name: /agent navigator/i }).textContent,
+    ).toContain("unresolved");
+    fireEvent.click(
+      getByRole(root, "checkbox", { name: /last reported nonterminal/i }),
+    );
     expect(camera()).toBe(moved);
     fireEvent.click(getByRole(root, "button", { name: /fit all/i }));
     const fitted = camera()!.split(/[ ,]+/).map(Number);
     expect(fitted[0] + fitted[2]).toBeGreaterThanOrEqual(8_000);
-    expect(getByRole(root, "navigation", { name: /agent navigator/i }).textContent).toContain("unresolved");
+    expect(
+      getByRole(root, "navigation", { name: /agent navigator/i }).textContent,
+    ).not.toContain("unresolved");
   });
 
   it("labels a failed tool without mislabelling a completed agent as failed", async () => {
@@ -181,15 +243,29 @@ describe("editor webview controls (AC3-5, AC7-8, AC12, AC14-15)", () => {
       lastUpdateAge: 3,
       activities: [
         { type: "agent_spawn", time: 0, summary: "Review started" },
-        { type: "tool_call_end", time: 1, summary: "Read first file", outcome: "succeeded", pairing: "unmatched" },
-        { type: "tool_call_end", time: 2, summary: "Read second file", outcome: "failed", pairing: "unmatched" },
+        {
+          type: "tool_call_end",
+          time: 1,
+          summary: "Read first file",
+          outcome: "succeeded",
+          pairing: "unmatched",
+        },
+        {
+          type: "tool_call_end",
+          time: 2,
+          summary: "Read second file",
+          outcome: "failed",
+          pairing: "unmatched",
+        },
         { type: "agent_complete", time: 3, summary: "Review finished" },
       ],
     };
     const { root } = await mount([reviewed]);
     fireEvent.click(getAllByRole(root, "button", { name: /done/i })[0]);
     const history = getByRole(root, "region", { name: /activity history/i });
-    expect(history.textContent).toMatch(/read first file[\s\S]*succeed(?:ed)?[\s\S]*read second file[\s\S]*fail(?:ed)?/i);
+    expect(history.textContent).toMatch(
+      /read first file[\s\S]*succeed(?:ed)?[\s\S]*read second file[\s\S]*fail(?:ed)?/i,
+    );
     expect(history.textContent).toMatch(/unmatched/i);
     expect(history.textContent).toMatch(/review finished/i);
     const details = getByRole(root, "region", { name: /agent details/i });
@@ -200,65 +276,113 @@ describe("editor webview controls (AC3-5, AC7-8, AC12, AC14-15)", () => {
   });
 
   it("keeps unknown age and uncertain relationships readable across editor themes", async () => {
-    const uncertain = { ...node("orphan", "failed"), relationship: "unresolved", lastUpdateAge: null };
+    const uncertain = {
+      ...node("orphan", "failed"),
+      relationship: "unresolved",
+      lastUpdateAge: null,
+    };
     const { root } = await mount([uncertain]);
-    for (const theme of ["vscode-light", "vscode-dark", "vscode-high-contrast"]) {
+    for (const theme of [
+      "vscode-light",
+      "vscode-dark",
+      "vscode-high-contrast",
+    ]) {
       document.body.className = theme;
-      const navigator = getByRole(root, "navigation", { name: /agent navigator/i });
+      const navigator = getByRole(root, "navigation", {
+        name: /agent navigator/i,
+      });
       const target = within(navigator).getByRole("button", { name: /orphan/i });
       fireEvent.click(target);
       expect(root.textContent).toMatch(/unresolved/i);
       expect(root.textContent).toMatch(/failed/i);
-      expect(getByRole(root, "region", { name: /agent details/i }).textContent).toMatch(/unavailable/i);
+      expect(
+        getByRole(root, "region", { name: /agent details/i }).textContent,
+      ).toMatch(/unavailable/i);
     }
   });
 
   it("shows failed completed history immediately without playback, even at narrow reduced-motion size", async () => {
     vi.stubGlobal("matchMedia", () => ({
-      matches: true, media: "(prefers-reduced-motion: reduce)",
-      addListener: () => {}, removeListener: () => {},
+      matches: true,
+      media: "(prefers-reduced-motion: reduce)",
+      addListener: () => {},
+      removeListener: () => {},
     }));
-    Object.defineProperty(window, "innerWidth", { configurable: true, value: 320 });
-    const failed = { ...node("failed-review", "failed"), task: "Check release" };
+    Object.defineProperty(window, "innerWidth", {
+      configurable: true,
+      value: 320,
+    });
+    const failed = {
+      ...node("failed-review", "failed"),
+      task: "Check release",
+    };
     const { root } = await mount([failed]);
     fireEvent(window, new Event("resize"));
     expect(getByRole(root, "button", { name: /fit all/i })).toBeTruthy();
-    expect(getByRole(root, "navigation", { name: /agent navigator/i }).textContent).toContain("failed-review");
-    fireEvent.click(getAllByRole(root, "button", { name: /failed-review/i })[0]);
-    expect(getByRole(root, "region", { name: /activity history/i }).textContent).toContain("Review finished");
-    expect(getByRole(root, "region", { name: /agent details/i }).textContent).toMatch(/failed/i);
+    expect(
+      getByRole(root, "navigation", { name: /agent navigator/i }).textContent,
+    ).toContain("failed-review");
+    fireEvent.click(
+      getAllByRole(root, "button", { name: /failed-review/i })[0],
+    );
+    expect(
+      getByRole(root, "region", { name: /activity history/i }).textContent,
+    ).toContain("Review finished");
+    expect(
+      getByRole(root, "region", { name: /agent details/i }).textContent,
+    ).toMatch(/failed/i);
     expect(root.querySelector("animate, animateMotion")).toBeNull();
   });
 
   it("shows an actionable initial read error without presenting an empty successful connection", async () => {
     const { root, app } = await mount();
-    app.update({ ...view([]), reader: "error", error: "Selected file cannot be read", sessionId: null });
+    app.update({
+      ...view([]),
+      reader: "error",
+      error: "Selected file cannot be read",
+      sessionId: null,
+    });
     expect(root.textContent).toMatch(/selected file cannot be read/i);
     expect(root.textContent).toMatch(/choose|select|retry|reopen/i);
     expect(root.textContent).not.toMatch(/connected|following/i);
-    expect(root.textContent).toContain("/worktree/.agent-flow/agent-flow-events.jsonl");
+    expect(root.textContent).toContain(
+      "/worktree/.agent-flow/agent-flow-events.jsonl",
+    );
   });
 
   it("preserves keyboard access to controls and history on a narrow panel after filtering", async () => {
-    Object.defineProperty(window, "innerWidth", { configurable: true, value: 320 });
+    Object.defineProperty(window, "innerWidth", {
+      configurable: true,
+      value: 320,
+    });
     const { root, app } = await mount();
     fireEvent(window, new Event("resize"));
-    const navigator = getByRole(root, "navigation", { name: /agent navigator/i });
+    const navigator = getByRole(root, "navigation", {
+      name: /agent navigator/i,
+    });
     const target = within(navigator).getByRole("button", { name: /done/i });
     target.focus();
     fireEvent.keyDown(target, { key: "Enter" });
-    expect(getByRole(root, "region", { name: /agent details/i }).textContent).toContain("Finished review");
-    fireEvent.click(getByRole(root, "checkbox", { name: /last reported nonterminal/i }));
+    expect(
+      getByRole(root, "region", { name: /agent details/i }).textContent,
+    ).toContain("Finished review");
+    fireEvent.click(
+      getByRole(root, "checkbox", { name: /last reported nonterminal/i }),
+    );
     const reveal = getByRole(root, "button", { name: /reveal.*done/i });
     expect(document.activeElement).toBe(reveal);
     fireEvent.click(reveal);
-    expect(getByRole(root, "region", { name: /activity history/i }).textContent).toContain("Review finished");
+    expect(
+      getByRole(root, "region", { name: /activity history/i }).textContent,
+    ).toContain("Review finished");
     const fit = getByRole(root, "button", { name: /fit all/i });
     fit.focus();
     fireEvent.keyDown(fit, { key: "Enter" });
     expect(document.activeElement).toBe(fit);
     app.update(view([node("done", "completed"), node("active", "working")]));
-    expect(getByRole(root, "region", { name: /activity history/i }).textContent).toContain("Review finished");
+    expect(
+      getByRole(root, "region", { name: /activity history/i }).textContent,
+    ).toContain("Review finished");
   });
 
   it("labels an incomplete execution and locally observed age without inventing wall time", async () => {
@@ -267,7 +391,14 @@ describe("editor webview controls (AC3-5, AC7-8, AC12, AC14-15)", () => {
       intervals: [{ start: null, end: null, certainty: "incomplete" }],
       lastUpdateAge: null,
       observedLocalAge: 3,
-      activities: [{ type: "tool_call_end", time: 4, summary: "Read file", pairing: "ambiguous" }],
+      activities: [
+        {
+          type: "tool_call_end",
+          time: 4,
+          summary: "Read file",
+          pairing: "ambiguous",
+        },
+      ],
     };
     const { root } = await mount([uncertain]);
     fireEvent.click(getAllByRole(root, "button", { name: /reviewer/i })[0]);
@@ -304,15 +435,21 @@ describe("editor webview controls (AC3-5, AC7-8, AC12, AC14-15)", () => {
     expect(root.querySelectorAll("svg line[data-edge]")).toHaveLength(1);
     expect(root.querySelectorAll("svg g[data-node-id] text")).toHaveLength(2);
     expect(root.querySelector("foreignObject")).toBeNull();
-    expect(getByRole(root, "region", { name: /diagnostics/i }).textContent).toMatch(
-      /session_mismatch.*line 3.*byte 42/i,
-    );
+    expect(
+      getByRole(root, "region", { name: /diagnostics/i }).textContent,
+    ).toMatch(/session_mismatch.*line 3.*byte 42/i);
   });
 
   it("filters on the reported terminal boundary instead of status spelling", async () => {
-    const resolved = { ...node("resolved", "working"), status: "resolved", terminal: true };
+    const resolved = {
+      ...node("resolved", "working"),
+      status: "resolved",
+      terminal: true,
+    };
     const { root } = await mount([resolved, node("active", "working")]);
-    fireEvent.click(getByRole(root, "checkbox", { name: /last reported nonterminal/i }));
+    fireEvent.click(
+      getByRole(root, "checkbox", { name: /last reported nonterminal/i }),
+    );
     const graph = getByRole(root, "img", { name: /agent graph/i });
     expect(graph.textContent).not.toContain("resolved");
     expect(graph.textContent).toContain("active");
@@ -329,7 +466,9 @@ describe("editor webview controls (AC3-5, AC7-8, AC12, AC14-15)", () => {
       summary: `activity-${index}`,
     }));
     const { root } = await mount(many);
-    expect(root.querySelectorAll("svg g[data-node-id]").length).toBeLessThanOrEqual(500);
+    expect(
+      root.querySelectorAll("svg g[data-node-id]").length,
+    ).toBeLessThanOrEqual(500);
     fireEvent.click(getByRole(root, "button", { name: /agent-0 working/i }));
     const history = getByRole(root, "region", { name: /activity history/i });
     expect(history.textContent).toContain("activity-0");
@@ -338,5 +477,55 @@ describe("editor webview controls (AC3-5, AC7-8, AC12, AC14-15)", () => {
     expect(
       getByRole(root, "region", { name: /activity history/i }).textContent,
     ).toContain("activity-204");
+  });
+
+  it("fits complete node extents and filters the graph and navigator consistently", async () => {
+    const far = {
+      ...node("far", "working"),
+      position: { x: 1_000, y: 700 },
+    };
+    const { root } = await mount([node("done", "completed"), far]);
+    const [x, y, width, height] = root
+      .querySelector("svg")!
+      .getAttribute("viewBox")!
+      .split(/\s+/)
+      .map(Number);
+    expect(x + width).toBeGreaterThanOrEqual(1_180);
+    expect(y + height).toBeGreaterThanOrEqual(760);
+
+    fireEvent.click(
+      getByRole(root, "checkbox", { name: /last reported nonterminal/i }),
+    );
+    const navigator = getByRole(root, "navigation", {
+      name: /agent navigator/i,
+    });
+    expect(navigator.textContent).not.toContain("done");
+    expect(navigator.textContent).toContain("far");
+  });
+
+  it("prevents duplicate native keyboard activation and preserves focused controls", async () => {
+    const { root, app } = await mount();
+    const zoom = getByRole(root, "button", { name: /zoom in/i });
+    const key = new KeyboardEvent("keydown", {
+      key: "Enter",
+      bubbles: true,
+      cancelable: true,
+    });
+    zoom.dispatchEvent(key);
+    expect(key.defaultPrevented).toBe(true);
+
+    const search = getByRole(root, "textbox", { name: /find agent/i });
+    search.focus();
+    fireEvent.input(search, { target: { value: "active" } });
+    expect(document.activeElement).toBe(
+      getByRole(root, "textbox", { name: /find agent/i }),
+    );
+
+    const fit = getByRole(root, "button", { name: /fit all/i });
+    fit.focus();
+    app.update(view([node("done", "completed"), node("active", "working")]));
+    expect(document.activeElement).toBe(
+      getByRole(root, "button", { name: /fit all/i }),
+    );
   });
 });

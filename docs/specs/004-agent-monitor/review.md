@@ -68,4 +68,64 @@ None.
 migration jobs skipped. No reported PR check exercises the new extension, so
 those results do not resolve the extension-specific findings above.
 
+## Round 2
+
+### Previous findings
+
+All six round-1 must-fix findings are resolved in the current diff: graph edges
+and diagnostics render, dispatch/return activity is retained, terminal filtering
+uses the reported boundary, concurrent tool outcomes remain ambiguous, source
+restoration/discovery is wired into activation, and bounded incremental host and
+webview paths now have tests and measured evidence.
+
+### Must-fix
+
+1. `extensions/agent-monitor/src/host/sourceReader.ts:96-121` reads and exposes
+   every sibling heartbeat JSON file even when `session.json` is absent,
+   malformed, or does not match the selected stream. The approved plan requires
+   an exact sibling session match before companion reads for an arbitrary
+   selected file. Without that gate, selecting an unrelated JSONL can read
+   irrelevant local heartbeat data, violating the read-only privacy boundary in
+   AC15. Gate heartbeat reads on verified matching session metadata and cover
+   the missing, malformed, and mismatched cases.
+
+2. `extensions/agent-monitor/src/core/reconcile.ts:135-161` only appends valid
+   edges and never removes an edge that later becomes cyclic. For example,
+   ingesting child-with-missing-parent, then the parent, then a report that
+   assigns that parent back to the child leaves the previously accepted
+   parent-to-child edge in `snapshot().edges` after both relationships become
+   unresolved. The renderer will still draw the rejected cycle, contrary to
+   AC12. Reconcile the edge set from currently valid relationships and add this
+   late-cycle regression case.
+
+3. `extensions/agent-monitor/src/webview/main.ts:34-42` computes Fit All from
+   node origins but omits each node's 180-by-60 extent, so the rightmost and
+   bottommost nodes are clipped outside the resulting viewBox.
+   `extensions/agent-monitor/src/webview/main.ts:260-276` also applies the
+   active-only filter to the SVG but not the navigator, leaving terminal nodes
+   visible and selectable while the filter is enabled. These behaviors violate
+   AC4's reachable Fit All view and AC7's explicit visibility filtering. Include
+   node extents in bounds and apply one consistent visible-node set.
+
+### Should-fix
+
+1. `extensions/agent-monitor/src/webview/main.ts:23-28` adds Enter/Space
+   handlers to native buttons in addition to their native click activation, so
+   keyboard activation can execute zoom, pan, paging, and selection actions
+   twice. `extensions/agent-monitor/src/webview/main.ts:250-258` replaces the
+   entire DOM on every search input event, dropping focus after the first typed
+   character; state updates similarly do not restore focused controls. Remove
+   duplicate native-button activation and preserve focus through search and
+   updates to satisfy AC14's keyboard workflow.
+
+### Nits
+
+None.
+
+### CI evidence
+
+`gh pr checks 42` reports both displayed backend, frontend, and security runs
+passing; production migration and migration-change jobs are skipped. The
+reported checks still do not run the extension-specific suite.
+
 VERDICT: CHANGES_REQUESTED

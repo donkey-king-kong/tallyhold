@@ -27,7 +27,10 @@ function button(name: string, action: () => void) {
   const value = element("button", name, { type: "button", "aria-label": name });
   value.addEventListener("click", action);
   value.addEventListener("keydown", (event) => {
-    if (event.key === "Enter" || event.key === " ") action();
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      action();
+    }
   });
   return value;
 }
@@ -42,8 +45,8 @@ function bounds(nodes: any[]): string {
   const ys = nodes.map((node) => Number(node.position?.y ?? 0));
   const minX = Math.min(0, ...xs);
   const minY = Math.min(0, ...ys);
-  const maxX = Math.max(0, ...xs);
-  const maxY = Math.max(0, ...ys);
+  const maxX = Math.max(0, ...xs.map((value) => value + 180));
+  const maxY = Math.max(0, ...ys.map((value) => value + 60));
   return `${minX} ${minY} ${Math.max(800, maxX - minX)} ${Math.max(600, maxY - minY)}`;
 }
 
@@ -97,13 +100,15 @@ export function mountMonitor(
     render();
   };
 
+  const displayedNodes = () =>
+    activeOnly
+      ? state.projection.nodes.filter((node) => !terminal(node))
+      : state.projection.nodes;
+
   const drawGraph = () => {
     if (!svgElement) return;
     svgElement.replaceChildren();
-    const graphNodes = activeOnly
-      ? state.projection.nodes.filter((node) => !terminal(node))
-      : state.projection.nodes;
-    const visible = visibleGraphNodes(graphNodes, camera);
+    const visible = visibleGraphNodes(displayedNodes(), camera);
     const visibleById = new Map(visible.map((node) => [node.id, node]));
     for (const edge of state.projection.edges ?? []) {
       const parent = visibleById.get(edge.parentId);
@@ -150,6 +155,9 @@ export function mountMonitor(
   };
 
   const render = () => {
+    const focusedLabel = root.contains(document.activeElement)
+      ? (document.activeElement as HTMLElement).getAttribute("aria-label")
+      : null;
     root.replaceChildren();
     const header = element("header");
     header.append(element("strong", "Tallyhold Agent Monitor"));
@@ -272,7 +280,7 @@ export function mountMonitor(
       render();
     });
     navigator.append(search);
-    for (const node of state.projection.nodes.filter((item) =>
+    for (const node of displayedNodes().filter((item) =>
       item.id.toLowerCase().includes(query.toLowerCase()),
     )) {
       const navigatorButton = button(
@@ -409,6 +417,12 @@ export function mountMonitor(
         history.prepend(paging);
       }
       root.append(history);
+    }
+    if (focusedLabel) {
+      const nextFocus = Array.from(
+        root.querySelectorAll<HTMLElement>("[aria-label]"),
+      ).find((item) => item.getAttribute("aria-label") === focusedLabel);
+      nextFocus?.focus();
     }
   };
 
