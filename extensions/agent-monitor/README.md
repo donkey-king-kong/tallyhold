@@ -35,10 +35,12 @@ filters by published status only and does not claim that a process is alive.
 ## Inspect And Navigate
 
 - Use the navigator to search and select a reported identity.
-- Use **Zoom in**, **Zoom out**, **Pan left**, **Pan right** and **Fit All** to
-  navigate the graph.
+- Use **Zoom in**, **Zoom out**, the four directional pan controls and
+  **Fit All** to navigate the graph.
 - The inspector reports task, status, relationship certainty, intervals and
-  chronological activity when available.
+  chronological activity with reported relative times when available.
+- Valid sibling heartbeat observations appear separately as provisional
+  companions and never overwrite event history.
 - Failed tool outcomes remain distinct from agent status.
 - All controls are keyboard accessible and use editor theme tokens.
 
