@@ -103,3 +103,38 @@ Round-1 auth, collision, orphan, absent/foreign write, page and stale-action fin
 
 Zack authorized this exceptional third round; this verdict does not begin GREEN. Add the focused CORS rejection RED case and rerun targeted and existing suites before coordinator resolution.
 VERDICT: CHANGES_REQUESTED
+
+## Zack-authorized focused round 4 independent review
+
+- Reviewer: fresh Trae RED Reviewer, this round-4 session, distinct from prior reviewer sessions; GitHub commenter `donkey-king-kong`.
+- Base: `82ec809`
+- Pushed RED head: `abdd8ca1c1eda534c0d91048c1252732f3ef1107`
+- Scope: approved spec/plan/tasks, cumulative base-to-head test diff, RED run, prior rounds and relevant existing tests. Read-only independent reruns at the reviewed head.
+
+### Coverage mapping
+
+| Criterion / numbered plan verification | Tests and remaining coverage |
+| --- | --- |
+| AC1 / 1 | `test_head_seeds_shared_sg_brokers_and_replaces_exact_name_constraint`, pre-existing-ID round-trip, both reserved-ID collisions, `test_brokers_with_the_same_name_are_ordered_by_stable_id`, shared HTTP catalog and UI broker choice/not-listed message. None uncovered. |
+| AC2 / 2 | `test_brokers_and_owned_accounts_have_stable_name_order_and_broker_labels`, orphaned-broker failure, two-user HTTP list/detail and absent/foreign 404. None uncovered. |
+| AC3 / 3 | Application trim/255-character/currency/partial-update cases; HTTP 201/Location, strict 422, padded/renamed/concurrent 409 and immutable fields; direct PostgreSQL per-user index and two-connection race. None uncovered. |
+| AC4 / 4 | Owned/foreign/absent DELETE, transaction-preserving 409, guarded migration downgrade and UI confirmation. None uncovered. |
+| AC5 / 5 | HTTP malformed/extra/empty 422, opaque 404/409, bearer 401 on detail/writes with retained rows, verifier/DB 503 and UI conflict/outage/expiry/401. None uncovered. |
+| AC6 / 6 | Home link, `/accounts` page mount, visible broker label, `/me` default and editable lowercase currency normalization, CRUD and recovery, loading/empty/outage, labeled focus and session clearing in `account-manager.test.tsx`. Narrow-screen pixel usability remains an implementation-stage browser check, not a jsdom claim. |
+| AC7 / 7 | PostgreSQL migration/index/race, existing scoped repositories, two-user HTTP isolation, allowed configured-origin write preflights, denied foreign origin **and denied allowed-origin PUT** in `test_write_preflight_allows_configured_origin_without_cookies`. Import-linter, mypy, metadata drift, coverage, lint/build and scans remain GREEN/ship checks, not claimed RED test passes. None uncovered at the RED test seam. |
+
+### Prior findings
+
+Rounds 1 and 2 remain addressed by the cumulative tests as detailed in the preserved reviews. Round 3's sole gap is closed: `backend/tests/integration/test_accounts_http.py` now sends an allowed-origin PUT preflight and asserts 400 and that `access-control-allow-methods` does not include PUT. An overbroad configured-origin method list cannot pass it. No approved spec or plan revision is proposed.
+
+### Checklist findings
+
+1. **Acceptance and numbered verification: none.** AC1-AC7 and plan verification items 1-7 map to the named tests above. Narrow-screen rendering and tool-level checks are explicitly deferred to GREEN/browser verification, without claiming jsdom or RED proves them.
+2. **Observable plan decisions: none.** The cumulative tests assert migration preflight/rollback, reserved UUID collision even for a matching seed key, guarded downgrade, scoped internal-user operations, response codes and ordering, SQL-enforced concurrent name uniqueness, session invalidation and the four-method CORS allow-list with foreign-origin and unnecessary-method rejections.
+3. **RED cause: none.** Independent rerun: 50 focused backend failures, zero collection/setup errors; representative failures show missing SG seed, absent application module and current CORS rejecting an intended method. Frontend: 10 feature failures (missing manager/page/link), eight passes. These are missing 006 behavior, not dependency, fixture or network failures.
+4. **Behavioral assertions: none.** PostgreSQL tests inspect rows/revisions and a two-connection conflict; HTTP tests inspect status, bodies, persisted row retention and preflight headers; UI tests inspect visible DOM, write payloads and stale-session behavior. The new PUT assertion rejects the plausible overbroad CORS implementation identified in round 3.
+5. **Allowed infrastructure: none.** `backend/tests/integration/conftest.py` restricts migrations to uniquely named disposable local PostgreSQL 17 databases. HTTP uses offline dependency overrides, UI uses offline auth/fetch fakes, and the outage test targets a local closed port. No live secrets or external network are used.
+6. **Existing suite: none.** Cumulative diff preserves the 003 assertions at revision 0002 and renames seed-colliding broker fixtures without removing assertions. Independent reruns: 146 pre-existing backend tests pass; 13 pre-existing frontend tests pass with only the new home-link test excluded (one skip). `git diff --check 82ec809..abdd8ca1c1eda534c0d91048c1252732f3ef1107` passes.
+
+This approval is for RED test adequacy only; it does not authorize this reviewer to begin GREEN, commit, push or merge.
+VERDICT: APPROVE
