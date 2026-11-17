@@ -2,7 +2,7 @@
 
 ## Assignment
 
-- Status: done
+- Status: in_progress
 - Owner actor: R-0040/coordinator
 - Role: Test writer (coordinator; separate RED scope from later Implementer)
 - Run: [R-0040](../runs/R-0040.md)
@@ -11,7 +11,7 @@
 - Dependencies: [T-0041](T-0041-plan-accounts.md), Feature 003/005
 - Branch / worktree: `feature/006-accounts` / `../tallyhold-feature-006-accounts`
 - Issue / PR: [#36](https://github.com/donkey-king-kong/tallyhold/issues/36) / none
-- Updated: 2026-11-17T07:45:26Z
+- Updated: 2026-11-17T07:50:33Z
 
 ## Scope
 
@@ -41,12 +41,15 @@ Approved seams and limits:
 
 ## Checkpoint
 
-- Last completed action: pushed test-only RED through `771e9ad` and sanitized evidence at `a0f8435`; remote head verified.
-- Evidence: [RED run](../../specs/006-accounts/red-test-run.md): backend 44 expected failures, 146 existing passes; frontend 9 expected failures and 8 passes, 13 existing passes plus one deliberately excluded new case. First rerun omitted the local test URL and had fixture errors; corrected run has zero setup errors.
-- Worktree state: clean at `a0f8435` before reviewer-assignment checkpoint; no production code.
-- Remaining work: independent review owned by [T-0043](T-0043-accounts-red-review.md).
-- Blocker / unblock action: none; RED review after handoff is mandatory before GREEN.
-- Next action: coordinator dispatches fresh reviewer from base `82ec809` to the pushed RED handoff head.
+- Last completed action: committed test-only round 1 corrections at
+  `4843f4d`; reran new and existing suites at that commit, updated evidence.
+- Evidence: [round 1 review](../../specs/006-accounts/red-review.md),
+  identical [comment](https://github.com/donkey-king-kong/tallyhold/commit/112848554a86aae44d605dfa7e5052c0fe8d4c1a#commitcomment-210413865).
+- Worktree state: test commit local, corrected evidence and checkpoint uncommitted.
+- Remaining work: push evidence before a different fresh round 2 reviewer.
+- Blocker / unblock action: GREEN gated on round 2 approval.
+- Next action: commit/push corrected evidence and checkpoint, verify remote head,
+  then assign fresh round 2 review.
 - Handoff recipient: independent RED Reviewer via coordinator.
 
 ## History
@@ -57,3 +60,5 @@ Approved seams and limits:
 | 2026-11-17T07:35:09Z | R-0040/coordinator | Approval `82ec809` pushed after one transient remote rejection; locked dependencies installed; shared PG17 test port usable, own Compose start failed on occupied port | Use only uniquely named disposable DBs; adapt 003 seed fixtures and write RED |
 | 2026-11-17T07:45:26Z | R-0040/coordinator | Five RED slices and a focused browser expansion committed through `771e9ad`; pinned reruns show missing behavior only; existing suites pass | Commit/push evidence and hand off to a fresh RED Reviewer; no GREEN before approval |
 | 2026-11-17T07:45:26Z | R-0040/coordinator | Evidence and checkpoint committed/pushed at `a0f8435`; remote SHA matches; T-0043 assigned for independent review | Dispatch a fresh reviewer; GREEN still gated |
+| 2026-11-17T07:50:33Z | R-0040/coordinator | Reopened Test writer after independent round 1 `CHANGES_REQUESTED`; added test-only auth, matching reserved-ID, orphan, page wiring and session assertions | Commit correction and rerun suites before fresh round 2 |
+| 2026-11-17T07:56:14Z | R-0040/coordinator | Corrected test-only commit `4843f4d`: 49 backend RED failures, 146 existing passes; 10 frontend RED failures and 8 passes, 13 existing passes with one deliberately excluded new case | Push updated evidence and dispatch different fresh round 2 reviewer |
