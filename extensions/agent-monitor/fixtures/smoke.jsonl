@@ -1,0 +1,5 @@
+{"time":0,"type":"agent_spawn","payload":{"name":"orchestrator","task":"Coordinate synthetic smoke test"},"sessionId":"agent-monitor-smoke"}
+{"time":0.1,"type":"agent_spawn","payload":{"name":"worker","parent":"orchestrator","task":"Verify monitor rendering"},"sessionId":"agent-monitor-smoke"}
+{"time":0.2,"type":"message","payload":{"agent":"worker","status":"working","summary":"Rendering synthetic activity"},"sessionId":"agent-monitor-smoke"}
+{"time":0.3,"type":"tool_call_end","payload":{"agent":"worker","tool":"Test","outcome":"failed"},"sessionId":"agent-monitor-smoke"}
+{"time":0.4,"type":"agent_complete","payload":{"name":"worker","status":"completed","summary":"Synthetic smoke complete"},"sessionId":"agent-monitor-smoke"}

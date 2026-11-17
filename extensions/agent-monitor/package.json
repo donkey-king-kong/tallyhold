@@ -1,0 +1,64 @@
+{
+  "name": "tallyhold-agent-monitor",
+  "displayName": "Tallyhold Agent Monitor",
+  "description": "Read-only local monitor for Tallyhold agent activity.",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "publisher": "tallyhold-local",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/donkey-king-kong/tallyhold.git"
+  },
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "main": "./dist/extension.cjs",
+  "activationEvents": [
+    "onCommand:tallyholdAgentMonitor.open"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "tallyholdAgentMonitor.open",
+        "title": "Tallyhold Agent Monitor: Open"
+      }
+    ]
+  },
+  "overrides": {
+    "@vscode/vsce": {
+      "glob": "^14.0.6",
+      "minimatch": "^11.0.9"
+    }
+  },
+  "scripts": {
+    "benchmark": "esbuild scripts/benchmark.ts --bundle --platform=node --format=esm --external:jsdom --outfile=.benchmark/benchmark.mjs && node --expose-gc .benchmark/benchmark.mjs",
+    "build": "npm run build:host && npm run build:webview",
+    "build:host": "esbuild src/extension.ts --bundle --platform=node --format=cjs --external:vscode --outfile=dist/extension.cjs",
+    "build:webview": "esbuild src/webview/bootstrap.ts --bundle --platform=browser --format=iife --outfile=media/webview.js",
+    "format": "prettier --write \"{scripts,src}/**/*.ts\" \"docs/**/*.md\" \"*.{js,json,md}\"",
+    "format:check": "prettier --check \"{scripts,src}/**/*.ts\" \"docs/**/*.md\" \"*.{js,json,md}\"",
+    "lint": "eslint scripts src test",
+    "package": "npm run build && vsce package --no-dependencies",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage --coverage.thresholds.lines=80 --coverage.thresholds.functions=80 --coverage.thresholds.statements=80",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@testing-library/dom": "^10.4.1",
+    "@types/jsdom": "^30.0.0",
+    "@types/node": "^24.0.0",
+    "@types/vscode": "1.80.0",
+    "@vitest/coverage-v8": "^4.0.0",
+    "@vscode/vsce": "^3.9.2",
+    "esbuild": "^0.28.2",
+    "eslint": "^9.39.5",
+    "globals": "^16.5.0",
+    "jsdom": "^27.2.0",
+    "prettier": "^3.10.1",
+    "typescript": "^5.9.0",
+    "typescript-eslint": "^8.73.0",
+    "vitest": "^4.0.0"
+  }
+}

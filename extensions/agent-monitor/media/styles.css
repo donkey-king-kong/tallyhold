@@ -1,0 +1,107 @@
+:root {
+  color-scheme: light dark;
+  font-family: var(--vscode-font-family);
+  color: var(--vscode-foreground);
+  background: var(--vscode-editor-background);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 16px;
+}
+
+button,
+input {
+  color: var(--vscode-input-foreground);
+  background: var(--vscode-input-background);
+  border: 1px solid var(--vscode-input-border, var(--vscode-contrastBorder));
+}
+
+button {
+  min-height: 30px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--vscode-focusBorder);
+  outline-offset: 2px;
+}
+
+header,
+section,
+nav {
+  margin-block-end: 16px;
+}
+
+[aria-label="Graph controls"] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+[aria-label="Graph controls"] p {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--vscode-descriptionForeground);
+}
+
+svg {
+  display: block;
+  width: 100%;
+  min-height: 320px;
+  margin-block-end: 16px;
+  border: 1px solid var(--vscode-panel-border);
+}
+
+svg text {
+  fill: var(--vscode-foreground);
+}
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+nav input {
+  flex-basis: 100%;
+  min-height: 30px;
+  padding: 4px 8px;
+}
+
+[aria-label="Agent details"],
+[aria-label="Activity history"] {
+  padding: 12px;
+  border: 1px solid var(--vscode-panel-border);
+}
+
+@media (max-width: 520px) {
+  body {
+    padding: 10px;
+  }
+
+  svg {
+    min-height: 220px;
+  }
+
+  [aria-label="Graph controls"] button {
+    flex: 1 1 40%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
