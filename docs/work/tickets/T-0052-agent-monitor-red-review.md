@@ -12,7 +12,7 @@
 - Branch / worktree: `feature/004-agent-monitor` / `../tallyhold-feature-004-agent-monitor`
 - Worktree path: `../tallyhold-feature-004-agent-monitor`
 - Issue / PR: [#20](https://github.com/donkey-king-kong/tallyhold/issues/20); no implementation PR
-- Updated: 2026-11-17T07:14:06Z
+- Updated: 2026-11-17T07:19:09Z
 
 ## Scope
 
@@ -26,12 +26,12 @@ Fresh Reviewer sees only the permitted role inputs, base/head SHAs and approved 
 
 ## Checkpoint
 
-- Last completed action: coordinator verified remote RED evidence HEAD `91f778350d99503d2fb3b7893a16b6538f68c50c` matches local.
-- Evidence: [red-test-run.md](../../specs/004-agent-monitor/red-test-run.md); expected 25 failures, 6 existing passes; base `0988e8e`. `claude --version` 2.1.322 and `claude auth status` authenticated.
-- Worktree state: clean before this pre-dispatch checkpoint; no Reviewer dispatched.
-- Remaining work: push this checkpoint, verify resulting RED head, dispatch fresh reviewer and record verdict/comment URL.
-- Blocker / unblock action: none for review; GREEN requires independent `APPROVE`.
-- Next action: use new headless Claude with only `docs/agents/red-reviewer.md`, feature path, round 1, base `0988e8e` and resulting pushed RED head.
+- Last completed action: pushed review HEAD `f962f6530e6d18aafa9130ffbf55dce51757ee83`; authenticated headless Claude 2.1.322 failed before any verdict with `ECONNREFUSED`.
+- Evidence: clean worktree after failed launch; no `red-review.md` or commit comment created. RED evidence: 25 expected failures, 6 existing passes; base `0988e8e`.
+- Worktree state: clean at pushed `f962f65` before this fallback checkpoint; no usable Reviewer started.
+- Remaining work: checkpoint and push actual reviewer type; fresh Trae fallback round 1, report/comment verification.
+- Blocker / unblock action: Claude API unavailable; per red-review fallback use a new Trae subagent. GREEN requires independent `APPROVE`.
+- Next action: push fallback-type checkpoint, verify new HEAD, then dispatch fresh Trae RED Reviewer with only role file, feature path, round 1 and base/head SHAs.
 - Handoff recipient: independent RED Reviewer after pushed head is verified.
 
 ## History
@@ -40,3 +40,4 @@ Fresh Reviewer sees only the permitted role inputs, base/head SHAs and approved 
 | --- | --- | --- | --- |
 | 2026-11-17T07:12:47Z | R-0051/coordinator | Reserved RED review assignment; no reviewer started | Push evidence before fresh dispatch |
 | 2026-11-17T07:14:06Z | R-0051/coordinator | Verified pushed RED evidence SHA and Claude availability; preferred reviewer type: fresh headless Claude Opus | Commit/push pre-dispatch checkpoint, then supply only permitted reviewer inputs |
+| 2026-11-17T07:19:09Z | R-0051/coordinator | Fresh headless Claude 2.1.322 failed before verdict: API `ECONNREFUSED`; no report/comment | Failed launch consumes no review round; checkpoint fresh Trae fallback and dispatch on new pushed head |
