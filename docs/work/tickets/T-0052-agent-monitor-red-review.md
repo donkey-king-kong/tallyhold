@@ -2,7 +2,7 @@
 
 ## Assignment
 
-- Status: blocked
+- Status: in_progress
 - Owner actor: R-0051/coordinator (fresh Reviewer not yet dispatched)
 - Role: coordinator records fresh RED Reviewer lifecycle externally
 - Run: [R-0051](../runs/R-0051.md)
@@ -12,7 +12,7 @@
 - Branch / worktree: `feature/004-agent-monitor` / `../tallyhold-feature-004-agent-monitor`
 - Worktree path: `../tallyhold-feature-004-agent-monitor`
 - Issue / PR: [#20](https://github.com/donkey-king-kong/tallyhold/issues/20); no implementation PR
-- Updated: 2026-11-17T07:32:24Z
+- Updated: 2026-11-17T07:37:50Z
 
 ## Scope
 
@@ -26,13 +26,13 @@ Fresh Reviewer sees only the permitted role inputs, base/head SHAs and approved 
 
 ## Checkpoint
 
-- Last completed action: different fresh Trae Reviewer round 2 returned `CHANGES_REQUESTED` against pushed `db0e9e3b735c774e0b0d56ee0f6d0901e29900ab`; report and comment match.
-- Evidence: [red-review.md](../../specs/004-agent-monitor/red-review.md) final line `VERDICT: CHANGES_REQUESTED`; identical [round 2 commit comment](https://github.com/donkey-king-kong/tallyhold/commit/db0e9e3b735c774e0b0d56ee0f6d0901e29900ab#commitcomment-210411579). Native reviewer ID `arun_6afc02b96a87805ea4cc0b67`. Reviewer reran 38 expected RED failures and 6 existing passes.
-- Worktree state: reviewed head `db0e9e3` pushed; only reviewer-updated `red-review.md` and this escalation checkpoint pending commit.
-- Remaining work: Zack resolves the two-round RED escalation before any test revision, GREEN or ship.
-- Blocker / unblock action: the second and final independent RED round did not approve. Zack must decide whether to authorize a narrowly scoped additional RED correction/review exception or another explicit resolution; no agent may infer approval.
-- Next action: commit/push the final review report and escalation checkpoint, then ask Zack to resolve the RED gate. Do not begin GREEN or create an implementation PR.
-- Handoff recipient: Zack for RED escalation.
+- Last completed action: Zack authorized targeted RED fixes plus exactly one additional independent review after round 2 `CHANGES_REQUESTED`.
+- Evidence: explicit 2026-11-17 user decision; [round 2 report](../../specs/004-agent-monitor/red-review.md) and identical [commit comment](https://github.com/donkey-king-kong/tallyhold/commit/db0e9e3b735c774e0b0d56ee0f6d0901e29900ab#commitcomment-210411579).
+- Worktree state: clean at pushed `1664e5e` before exception checkpoint.
+- Remaining work: targeted test fixes/evidence and one fresh exceptional round 3.
+- Blocker / unblock action: GREEN requires round 3 independent `APPROVE`; any non-approval returns to Zack without further autonomous rounds.
+- Next action: Test writer updates only material missing assertions, commits/pushes revised evidence and handoff, then coordinator dispatches different fresh Reviewer with cumulative diff and prior reports.
+- Handoff recipient: fresh independent round 3 RED Reviewer after pushed evidence.
 
 ## History
 
@@ -45,3 +45,4 @@ Fresh Reviewer sees only the permitted role inputs, base/head SHAs and approved 
 | 2026-11-17T07:25:18Z | R-0051/coordinator | Test fix `357e26e` adds observable behavior assertions; 38 expected failures, 6 existing passes; report `8a97432` committed | Push revised evidence and cumulative RED diff for independent round 2 |
 | 2026-11-17T07:29:48Z | R-0051/coordinator | Remote `498ac77` verified clean after RED fixes/evidence; round 1 reviewer closed | Checkpoint and push final-round fresh Trae fallback type, then round 2 |
 | 2026-11-17T07:32:24Z | R-0051/coordinator | Different fresh Trae round 2 reviewed `db0e9e3`: `CHANGES_REQUESTED`; report/comment identical | Two-round cap reached; block GREEN and ship, commit report and ask Zack to resolve |
+| 2026-11-17T07:37:50Z | R-0051/coordinator | Zack authorized one targeted exception round, not a RED approval | Fresh third reviewer only after revised tests/evidence pushed; non-approval escalates |

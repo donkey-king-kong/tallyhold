@@ -2,7 +2,7 @@
 
 ## Assignment
 
-- Status: blocked
+- Status: in_progress
 - Owner actor: R-0051/coordinator
 - Role: Test writer (same actor, no subagent dispatched)
 - Run: [R-0051](../runs/R-0051.md)
@@ -12,7 +12,7 @@
 - Branch / worktree: `feature/004-agent-monitor` / `../tallyhold-feature-004-agent-monitor`
 - Worktree path: `../tallyhold-feature-004-agent-monitor`
 - Issue / PR: [#20](https://github.com/donkey-king-kong/tallyhold/issues/20); no implementation PR
-- Updated: 2026-11-17T07:32:24Z
+- Updated: 2026-11-17T07:37:50Z
 
 ## Scope
 
@@ -26,13 +26,13 @@ After confirming public test interfaces, assign Test writer to produce synthetic
 
 ## Checkpoint
 
-- Last completed action: RED fixes pushed and reviewed in round 2; the different independent Reviewer requested changes.
-- Evidence: [round 2 report](../../specs/004-agent-monitor/red-review.md) identifies untested camera stability/bounds, inspector tool outcomes, matching-snapshot chronology and security boundaries; identical commit comment linked from T-0052. 38/38 tests fail for missing behavior, 6/6 publisher tests pass.
-- Worktree state: reviewed `db0e9e3` pushed; report and escalation checkpoint pending commit.
-- Remaining work: Zack resolves RED review escalation; GREEN and ship remain prohibited.
-- Blocker / unblock action: second RED non-approval reached the workflow cap. Only Zack can authorize an exception or otherwise resolve it.
-- Next action: after coordinator pushes final report/checkpoint, wait for Zack's specific RED gate decision.
-- Handoff recipient: Zack for escalation.
+- Last completed action: Zack authorized one targeted extra RED correction and one fresh independent review, not a GREEN waiver.
+- Evidence: explicit 2026-11-17 user decision after final [round 2 report](../../specs/004-agent-monitor/red-review.md); branch and remote clean at `1664e5efe158a26be201f5ccf5a706d03a94beb2`.
+- Worktree state: clean at pushed `1664e5e` before exception checkpoint.
+- Remaining work: write targeted missing assertions, rerun RED and existing suite, push evidence, obtain exceptional round 3 `APPROVE`.
+- Blocker / unblock action: RED fixes permitted under Zack's one-round exception; GREEN remains blocked until independent `APPROVE`.
+- Next action: test only round 2 material gaps (camera, inspector, matching-snapshot chronology and privacy/host boundaries), commit/push revised evidence.
+- Handoff recipient: fresh round 3 RED Reviewer after pushed handoff.
 
 ## History
 
@@ -45,3 +45,4 @@ After confirming public test interfaces, assign Test writer to produce synthetic
 | 2026-11-17T07:22:15Z | R-0051/coordinator | Reopened RED work after fresh round 1 `CHANGES_REQUESTED` on `4440606` | Strengthen assertions and evidence; GREEN remains closed |
 | 2026-11-17T07:25:18Z | R-0051/coordinator | Test fix `357e26e` collected 38 expected failures; publisher suite still 6/6; round 1 report committed | Commit/push updated evidence and checkpoint before fresh round 2 |
 | 2026-11-17T07:32:24Z | R-0051/coordinator | Fresh round 2 on `db0e9e3` requested changes, ending the permitted two rounds | Stop tests/implementation; Zack resolves escalation |
+| 2026-11-17T07:37:50Z | R-0051/coordinator | Zack authorized targeted RED corrections and exactly one extra independent review | Resume Test writer only; GREEN still gated on `APPROVE` |
