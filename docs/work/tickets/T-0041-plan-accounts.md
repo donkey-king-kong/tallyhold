@@ -11,7 +11,7 @@
 - Dependencies: [T-0040](T-0040-draft-accounts-spec.md), Features 003 and 005
 - Branch / worktree: `feature/006-accounts` / `../tallyhold-feature-006-accounts`
 - Issue / PR: [#36](https://github.com/donkey-king-kong/tallyhold/issues/36) / not created
-- Updated: 2026-11-17T07:15:48Z
+- Updated: 2026-11-17T07:18:35Z
 
 ## Scope
 
@@ -26,16 +26,16 @@ code, migration file, CI, Compose or AGENTS.md edit before plan approval.
 - [x] AC1-AC7 map to concrete files, layer boundaries and verification.
 - [x] Migration and existing-data/rollback safety are explicit.
 - [x] Ordered tasks preserve RED review and separate plan approval.
-- [ ] Documents and checkpoint are committed/pushed for Zack's plan gate.
+- [x] Documents and checkpoint are committed/pushed for Zack's plan gate.
 
 ## Checkpoint
 
-- Last completed action: drafted and checked plan, tasks, ADR and domain glossary; mapped AC1-AC7.
-- Evidence: [plan](../../specs/006-accounts/plan.md), [tasks](../../specs/006-accounts/tasks.md), [ADR 0004](../../adr/0004-account-name-and-broker-catalog.md); `git diff --check` and direct new-file whitespace check passed; approved spec `c5469b8`.
-- Worktree state: planning documents and Track A checkpoint uncommitted, awaiting authorized plan commit/push.
-- Remaining work: commit/push the documents and present them to Zack for separate plan approval.
+- Last completed action: committed/pushed the plan, tasks, ADR, glossary and initial planning checkpoint.
+- Evidence: pushed `387fae1` on `origin/feature/006-accounts`; [plan](../../specs/006-accounts/plan.md), [tasks](../../specs/006-accounts/tasks.md), [ADR 0004](../../adr/0004-account-name-and-broker-catalog.md); staged whitespace check passed.
+- Worktree state: clean at pushed `387fae1` before this final tracking checkpoint.
+- Remaining work: Zack's separate schema/architecture-plan decision; no RED or implementation.
 - Blocker / unblock action: separate Zack schema/architecture-plan approval before RED or implementation.
-- Next action: commit/push the plan, tasks, ADR, glossary and Track A tracking; stop for Zack's separate plan decision.
+- Next action: Zack reviews the pushed plan and tasks and explicitly approves or requests changes; do not start RED without approval.
 - Handoff recipient: Zack for plan approval.
 
 ## History
@@ -44,3 +44,4 @@ code, migration file, CI, Compose or AGENTS.md edit before plan approval.
 | --- | --- | --- | --- |
 | 2026-11-17T07:11:22Z | R-0040/coordinator | Claimed approved Feature 006 planning, spec `c5469b8` pushed; no plan approval inferred | Draft plan/tasks and migration decision |
 | 2026-11-17T07:15:48Z | R-0040/coordinator | Wrote AC1-AC7 plan, ordered RED/review/GREEN tasks and proposed migration ADR; documentation checks passed | Commit/push planning handoff; await separate approval |
+| 2026-11-17T07:18:35Z | R-0040/coordinator | Committed/pushed planning handoff `387fae1`; final tracking checkpoint follows | Stop for Zack's separate plan decision; RED prohibited |
