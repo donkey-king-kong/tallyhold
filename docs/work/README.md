@@ -39,6 +39,8 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 | [T-0029](tickets/T-0029-auth-green.md) | Implement Feature 005 auth after approved RED review | [R-0033](runs/R-0033.md) |
 | [T-0030](tickets/T-0030-ship-auth.md) | Ship Feature 005 through PR #32 and merge gate | [R-0033](runs/R-0033.md) |
 | [T-0031](tickets/T-0031-review-auth-pr.md) | Fresh independent PR review for Feature 005 | [R-0033](runs/R-0033.md) |
+| [T-0032](tickets/T-0032-parallel-track-coordination.md) | Reserve disjoint parallel-track IDs and correct the Phase 2 roadmap | [R-0034](runs/R-0034.md) |
+| [T-0033](tickets/T-0033-review-parallel-track-coordination.md) | Independently review and gate the parallel-track handoff PR | [R-0034](runs/R-0034.md) |
 
 Historical PR #6 post-dispatch records remain in T-0002's checkpoint
 branch/worktree. Future ship runs use PR comments instead.
@@ -49,6 +51,9 @@ branch; do not reuse those IDs if this branch lands first.
 Open the ticket for authoritative status, ownership, and next action.
 Completed tickets remain in this index; split an archive index when it grows.
 The [roadmap](roadmap.md) shows project priorities and feature links.
+The [parallel track handoff](parallel-tracks.md) reserves T/R-0040..0049,
+0050..0059 and 0060..0069 for three separate branches. These are allocations,
+not pre-created assignments or approvals.
 
 ## Start or resume
 
@@ -175,8 +180,12 @@ permits skipping the merge gate.
   than assuming a passed gate.
 
 Allocate the next unused `T-NNNN` and `R-NNNN` from repository filenames after
-synchronizing; never reuse IDs. If branches collide, rename the unmerged new
-record and update its links. Keep old ticket and run history.
+synchronizing; never reuse IDs. For a [reserved track](parallel-tracks.md),
+allocate only from its exclusive block and exclude those blocks from unrelated
+work even while no files exist there. The coordinator checks remote work before
+assigning an ID; the reservation alone is not a ticket or run. If branches
+collide, rename the unmerged new record and update its links. Keep old ticket
+and run history.
 
 Save checkpoints to disk immediately and follow commit cadence when authorized.
 Before a permitted commit, include the checkpoint for that work; after committing,

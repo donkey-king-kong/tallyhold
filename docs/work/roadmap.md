@@ -12,7 +12,9 @@ Ticket status and next actions live in the linked tickets, not this table.
 | Phase 1: core domain | Done | [Feature 002](../specs/002-core-domain/spec.md), [issue #7](https://github.com/donkey-king-kong/tallyhold/issues/7); domain contract PR #18 merged at `cfd22ff4b1c51de54cce3d3a731f27468d3e9451`, implementation PR #21 merged at `272d0a9c0cecbf18f27edc471ce957963cfbaf62` |
 | Phase 1: persistence | Done | [Feature 003](../specs/003-schema-repositories/spec.md), [plan](../specs/003-schema-repositories/plan.md), [issue #17](https://github.com/donkey-king-kong/tallyhold/issues/17); PR #23 merged at `d74e1c569e4fc4b371e212cfa43f5d38ebe3b7c3` |
 | Production migrations | Workflow merged | [Maintenance scope](../specs/chore-production-migrations/spec.md); PR #25 merged at `ce00ed18120dd22d17c595b836f4dd75dd552129`. Production upgrades remain gated on CI and environment approval; this merge alone does not establish that an upgrade ran. |
-| Next: Phase 2, auth and accounts | Spec drafting | Feature 005: authentication and identity; Feature 006: broker account CRUD, dependent on 005. Gate 1 is pending for 005; neither feature has implementation approval. |
+| Phase 2: auth | Merged; deployment gates open | [Feature 005](../specs/005-auth/spec.md) merged in [PR #32](https://github.com/donkey-king-kong/tallyhold/pull/32) at `7e159a63fd85e0180266857c2d78e4fcf789abaf`. Provider smoke test, production Data API inspection, retention facts and disposable erasure walkthrough are not established by the merge. |
+| Next: Phase 2, accounts | Spec drafting next | Feature 006 broker account CRUD follows merged 005; its Gate 1 and schema/architecture plan approvals are not yet granted. See the [parallel track handoff](parallel-tracks.md). |
+| Reviewer fallback maintenance | Merged | [PR #31](https://github.com/donkey-king-kong/tallyhold/pull/31) merged at `994ce8c33ab78763776d6b288486acf794a5abf5`; fresh Trae fallback is documented for failed Claude reviewer launches. |
 | Phase 3: transactions and import | Future | Depends on core domain and authenticated accounts |
 | Phase 4: dashboard MVP | Future | Depends on transaction data and valuation; hosting decision remains open |
 | Phase 5: expansion | Future | Prioritize after MVP use |
@@ -37,3 +39,6 @@ Ticket status and next actions live in the linked tickets, not this table.
 - 2026-11-16: Feature 002 implementation merged in PR #21, Feature 003 merged
   in PR #23 at `d74e1c5`, and production migration automation merged in
   PR #25 at `ce00ed1`. Phase 1 is complete; Phase 2 spec drafting is next.
+- 2026-11-17: Feature 005 merged in PR #32 at `7e159a6`; reviewer fallback
+  maintenance merged in PR #31 at `994ce8c`. The next Phase 2 contract is
+  Feature 006; operational deployment gates remain separate.
