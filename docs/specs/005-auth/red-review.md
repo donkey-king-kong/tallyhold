@@ -65,3 +65,27 @@ The plan verification table has five rows, mapped in order. These are RED assert
 The cumulative diff and evidence show no live keys, real Supabase calls or weakened existing behavior beyond the narrowly adjusted migration table-name assertion. The two verifier issues and unverifiable head checkpoint prevent approval in this final review round.
 
 VERDICT: CHANGES_REQUESTED
+
+---
+
+# Feature 005 RED review, round 3 (Zack-authorized targeted round)
+
+Base: `a96c0dae42889b8196b6ec3f9ae3b2bb79dcb25a`
+Reviewed pushed RED head: `b349e0ac5e8e994b64bfa7cc578d3c9e6de7df18`
+Scope: round-2 findings 1-3 and checklist item 6 only. Earlier rounds above are retained.
+
+## Coverage mapping (checklist 1)
+
+The approved plan's five verification rows remain mapped to AC1-AC5 by the round-2 table and the named tests there. Within this round's authorized scope, AC2 / plan item 2 is additionally constrained by `backend/tests/test_auth_jwt.py:23-26,82-95,213-231,259-280,331-369`: rotation across a process-wide 60-second gate, rejection of a second distinct unknown `kid` after a failed refresh, retention of an unexpired known key, and concurrent 59/60-second flood boundaries. AC1 / item 1, AC3 / item 3, AC4 / item 4 and AC5 / item 5 have no new test changes; their previous mapping and deferred operational gates remain as recorded in round 2. No newly uncovered item in this targeted scope.
+
+## Targeted findings (checklists 2-6)
+
+1. **Round-2 finding 1 resolved (2, 4).** The autouse fake-clock fixture advances `PROCESS_CLOCK_BASE` by 2,000,000 seconds for each verifier test, including parametrized cases; every verifier clock adds that base. The largest within-test offset is 1,000,120 seconds. Thus the earlier unknown-`kid` case and later rotation case no longer require two process-wide refresh attempts in one 60-second window. The rotation test still requires the second pinned JWKS fetch and successful verification of the new key; the flood test still checks one fetch across instances/threads and the 59/60-second boundary. No production limiter reset is requested.
+2. **Round-2 finding 2 resolved (2, 4).** `test_failed_unknown_key_refresh_keeps_unexpired_known_key` fetches a known key, simulates a timeout on an unknown `kid`, then presents a different unknown `kid` at the same fake time. It requires `ValueError` and exactly two total fetches, while the known token still verifies without another fetch. A limiter recording only successful refreshes would make a third HTTP request and fail this test.
+3. **Round-2 finding 3 resolved (3, 5).** `red-test-run.md` records the pushed `dc8e0875dcbf8aedbdaf450de45ed3682f507f77` run: backend RED 55 collected/54 failed/1 passed, backend existing 91/91 passed, frontend RED 9/9 failed, frontend existing 3/3 passed, no skips. `git diff --name-status dc8e087..b349e0a` changes only `red-test-run.md` and work-tracking documents; no test, production, dependency or fixture content changed before the reviewed head. Reported failures are absent feature modules, route and migration, not collection, dependency, connection or network errors.
+4. **Allowed infrastructure (5): none.** The cumulative relevant test diff uses locally minted P-256 tokens, `httpx.MockTransport` and the existing guarded disposable PostgreSQL 17 fixture (`backend/tests/integration/conftest.py`). The run evidence reports no live Supabase calls, keys or external network.
+5. **Existing-suite regression (6): none.** Cumulative base-to-head test diff adds the auth test files and modifies only `backend/tests/integration/test_migrations.py:83-86` among existing tests. That assertion excludes precisely the two approved additive auth tables from the old table set; `test_auth_schema.py:34-52,55-119` independently requires exactly those additions and their constraints. No existing test was deleted. The equivalent-tree run reports 91/91 existing backend and 3/3 existing frontend passing, without skips.
+
+The exact reviewed commit was not rerun; its test and production trees are unchanged from the pushed RED run revision. Operational Data API inspection and erasure walkthrough remain GREEN/deployment gates, not assertions of completed RED work.
+
+VERDICT: APPROVE
