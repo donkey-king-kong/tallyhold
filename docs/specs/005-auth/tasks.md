@@ -60,7 +60,7 @@ roles; the Implementer does not alter tests merely to pass.
 
 ## GREEN: Only after Zack reviews the RED checkpoint
 
-- [ ] **Implementer: additive identity schema (AC3, AC5).** Add
+- [x] **Implementer: additive identity schema (AC3, AC5).** Add
   `identities` and `erasure_deny_markers` mappings, indexes/constraints and
   `0003_auth_identity` after deployed `0002`; import metadata in Alembic.
   Preserve 002 tables and prove PostgreSQL migration round-trip and RED

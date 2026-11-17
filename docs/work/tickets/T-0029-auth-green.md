@@ -11,7 +11,7 @@
 - Dependencies: [T-0026](T-0026-auth-red-review.md), [T-0028](T-0028-auth-red-review-fixes.md)
 - Branch / worktree: `feature/005-auth` / `../tallyhold-feature-005-auth`
 - Issue / PR: issue #27 / no Feature 005 PR yet
-- Updated: 2026-11-17T05:32:17Z
+- Updated: 2026-11-17T05:34:40Z
 
 ## Scope
 
@@ -31,17 +31,12 @@ or execute production erasure.
 
 ## Checkpoint
 
-- Last completed action: coordinator confirmed round-3 reviewer report and
-  commit comment `210399953` are identical and end in `VERDICT: APPROVE`.
-- Evidence: [RED review](../../specs/005-auth/red-review.md), reviewed evidence
-  head `b349e0ac5e8e994b64bfa7cc578d3c9e6de7df18`; reported existing
-  tests 91 backend/3 frontend passed.
-- Worktree state: reviewer report and GREEN ownership checkpoint pending
-  coordinator commit/push; no production auth code yet.
-- Remaining work: all GREEN tasks and complete verification, then ship.
+- Last completed action: added 0003 identity/marker migration and matching SQLAlchemy mappings; three PostgreSQL auth schema tests pass.
+- Evidence: `uv run --locked pytest -q tests/integration/test_auth_schema.py` 3/3 pass; backend Ruff lint/format, mypy strict and import-linter all pass.
+- Worktree state: migration, mappings and task/checkpoint edits pending commit.
+- Remaining work: JWT verifier, resolution, HTTP composition, frontend, runbook and full verification, then ship.
 - Blocker / unblock action: none for GREEN; operator/deployment gates remain.
-- Next action: commit/push RED approval handoff, inspect current migration and
-  model conventions, implement additive identity schema first.
+- Next action: commit additive schema task and begin pinned ES256 verifier.
 - Handoff recipient: R-0033/coordinator acting as Implementer.
 
 ## History
@@ -49,3 +44,4 @@ or execute production erasure.
 | UTC time | Actor | Event and observed result | Evidence / next action |
 | --- | --- | --- | --- |
 | 2026-11-17T05:32:17Z | R-0033/coordinator | Claimed GREEN after fresh Trae (GPT) round-3 `APPROVE`; reviewer distinct from rounds 1 and 2 | Commit approved report; implement schema as first GREEN slice |
+| 2026-11-17T05:34:40Z | R-0033/coordinator | Additive 0003 schema and mappings implemented; auth schema 3/3, Ruff, mypy and import-linter pass | Commit schema slice, then implement JWT verifier |
