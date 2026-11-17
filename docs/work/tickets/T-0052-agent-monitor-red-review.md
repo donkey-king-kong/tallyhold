@@ -12,7 +12,7 @@
 - Branch / worktree: `feature/004-agent-monitor` / `../tallyhold-feature-004-agent-monitor`
 - Worktree path: `../tallyhold-feature-004-agent-monitor`
 - Issue / PR: [#20](https://github.com/donkey-king-kong/tallyhold/issues/20); no implementation PR
-- Updated: 2026-11-17T07:46:46Z
+- Updated: 2026-11-17T07:53:27Z
 
 ## Scope
 
@@ -26,12 +26,12 @@ Fresh Reviewer sees only the permitted role inputs, base/head SHAs and approved 
 
 ## Checkpoint
 
-- Last completed action: Zack authorized one targeted correction plus another fresh independent RED review after round 3 `CHANGES_REQUESTED`.
-- Evidence: explicit 2026-11-17 user selection; [round 3 report](../../specs/004-agent-monitor/red-review.md) and [identical commit comment](https://github.com/donkey-king-kong/tallyhold/commit/c92ae050f280c35b2298aa57e9561c23e1f9a4f8#commitcomment-210412877).
-- Worktree state: clean at pushed `6c1b6d5` before round 4 corrections.
-- Remaining work: targeted RED tests/evidence and exceptional fresh round 4.
+- Last completed action: targeted round 4 test commit `22f149c` produced 56 expected RED failures and 6/6 existing publisher passes.
+- Evidence: [updated RED run](../../specs/004-agent-monitor/red-test-run.md) and prior [round 3 report](../../specs/004-agent-monitor/red-review.md).
+- Worktree state: local branch two commits ahead of pushed `6c1b6d5`; evidence/checkpoints pending commit/push.
+- Remaining work: exceptional fresh round 4 on the verified pushed cumulative RED head.
 - Blocker / unblock action: GREEN and ship blocked pending independent `APPROVE`; non-approval returns to Zack.
-- Next action: wait for Test writer to push revised evidence, then dispatch fresh reviewer on cumulative diff.
+- Next action: commit/push revised evidence, verify remote SHA, then dispatch a different fresh reviewer on the cumulative diff.
 - Handoff recipient: different fresh round 4 RED Reviewer after pushed handoff.
 
 ## History
@@ -49,3 +49,4 @@ Fresh Reviewer sees only the permitted role inputs, base/head SHAs and approved 
 | 2026-11-17T07:43:15Z | R-0051/coordinator | Test revision `9e9ed7d` adds 14 targeted behavioral cases, 52/52 expected RED failures and 6/6 existing passes | Push evidence and pre-dispatch checkpoint; use one fresh independent third reviewer |
 | 2026-11-17T07:45:12Z | R-0051/coordinator | Different fresh Trae reviewer returned `CHANGES_REQUESTED` on pushed `c92ae05`; identical commit comment `210412877` | All authorized rounds exhausted; report missing outcome-specific, responsive/theme and trust-gated read assertions; escalate to Zack |
 | 2026-11-17T07:46:46Z | R-0051/coordinator | Zack authorized targeted correction and exactly one more independent review | Prepare round 4 only after pushed RED evidence; no GREEN without `APPROVE` |
+| 2026-11-17T07:53:27Z | R-0051/coordinator | Round 4 test revision `22f149c` collected 56 expected failures; publisher suite passed 6/6 | Push the evidence head, then dispatch a different fresh reviewer with restricted inputs |
