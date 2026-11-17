@@ -11,7 +11,7 @@
 - Dependencies: [T-0023](T-0023-auth-red.md) and merged PR #29
 - Branch / worktree: `feature/005-auth` / `../tallyhold-feature-005-auth`
 - Issue / PR: issue #27; no Feature 005 PR yet
-- Updated: 2026-11-17T04:19:51Z
+- Updated: 2026-11-17T04:20:29Z
 
 ## Scope
 
@@ -31,12 +31,12 @@ existing RED-review escalation rules apply.
 
 ## Checkpoint
 
-- Last completed action: Test writer committed round-1 RED fixes at `24a079782b5ccd848d006db350dda08ce1c4c50e`; new/backend 54 fail/1 pass, existing/backend 91 pass, new/frontend 9 fail and existing/frontend 3 pass.
-- Evidence: [T-0028](T-0028-auth-red-review-fixes.md) and revised `red-test-run.md`; no setup, collection or external-network failure. Round 1 used fresh Trae (GPT) subagent `arun_6afbd1238f6c1606eab14bad` under Zack's deviation.
-- Worktree state: evidence/checkpoint edits pending commit and push; no GREEN code.
-- Remaining work: fresh, different round-2 Trae reviewer with restricted inputs and prior report; conditional GREEN and ship.
+- Last completed action: pushed revised RED test commit `24a079782b5ccd848d006db350dda08ce1c4c50e` and evidence at remote `d5cee6c86839f8a227191c721c6ae4c43f4c10cc`; remote SHA matched.
+- Evidence: [T-0028](T-0028-auth-red-review-fixes.md) and revised `red-test-run.md`; reviewer base `a96c0dae42889b8196b6ec3f9ae3b2bb79dcb25a`. Round 1 used fresh Trae (GPT) subagent `arun_6afbd1238f6c1606eab14bad` under Zack's deviation.
+- Worktree state: clean at pushed evidence head before this coordinator checkpoint; no GREEN code.
+- Remaining work: different fresh Trae (GPT) round-2 reviewer with only role-permitted inputs and prior report; conditional GREEN and ship.
 - Blocker / unblock action: previous `needs-human` is resolved by Zack's explicit 2026-11-17 authorization. Escalate again only under the existing RED-review conditions.
-- Next action: commit/push revised RED evidence and checkpoint, verify remote head, then dispatch a different fresh round-2 reviewer.
+- Next action: commit/push this dispatch checkpoint, then launch the different fresh round-2 reviewer; GREEN only on APPROVE.
 - Handoff recipient: Test writer for RED fixes, then a different independent reviewer; Implementer only on APPROVE.
 
 ## History
@@ -50,3 +50,4 @@ existing RED-review escalation rules apply.
 | 2026-11-17T03:58:42Z | R-0031/coordinator | Zack explicitly authorized a fresh Trae (GPT) subagent as RED Reviewer; took over from blocked run | Pin base `a96c0da` / RED `9d4b723`; commit/push checkpoint, dispatch isolated round 1 |
 | 2026-11-17T04:04:34Z | R-0031/coordinator | Fresh Trae (GPT) reviewer `arun_6afbd1238f6c1606eab14bad` completed round 1: `CHANGES_REQUESTED` | Report and identical commit comment `210390854`; commit report, address findings in T-0028 |
 | 2026-11-17T04:19:51Z | R-0031/coordinator | Round-1 fixes tested at `24a0797`; existing suites green, new suites fail for absent auth behavior | Commit and push evidence; dispatch a different independent round-2 reviewer |
+| 2026-11-17T04:20:29Z | R-0031/coordinator | Remote evidence head `d5cee6c` matches local; round 2 planned against cumulative diff from `a96c0da`, with prior review permitted | Commit/push dispatch checkpoint; start a different fresh restricted Trae (GPT) reviewer |
