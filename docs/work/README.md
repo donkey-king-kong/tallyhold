@@ -28,9 +28,17 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 | [T-0018](tickets/T-0018-production-migrations.md) | Ship approval-gated Supabase production migrations | [R-0020](runs/R-0020.md) |
 | [T-0019](tickets/T-0019-review-production-migrations.md) | Independent review of production migration PR #25 | [R-0020](runs/R-0020.md) |
 | [T-0020](tickets/T-0020-phase1-roadmap.md) | Close out Phase 1 roadmap and ship documentation | [R-0021](runs/R-0021.md) |
+| [T-0021](tickets/T-0021-draft-auth-spec.md) | Approve Feature 005 auth contract at Gate 1 | [R-0026](runs/R-0026.md), after [R-0025](runs/R-0025.md) |
+| [T-0022](tickets/T-0022-plan-auth.md) | Approve Feature 005 architecture plan and tasks | [R-0028](runs/R-0028.md), after [R-0027](runs/R-0027.md) |
+| [T-0023](tickets/T-0023-auth-red.md) | Write Feature 005 failing tests and prepare independent RED review | [R-0028](runs/R-0028.md) |
 | [T-0024](tickets/T-0024-automated-red-review.md) | Automate independent RED review for future features | [R-0029](runs/R-0029.md) |
 | [T-0025](tickets/T-0025-review-automated-red-review.md) | Independent ship review of automated RED review PR | [R-0029](runs/R-0029.md) |
+| [T-0026](tickets/T-0026-auth-red-review.md) | Verify and independently review Feature 005 RED before GREEN | [R-0033](runs/R-0033.md), after [R-0031](runs/R-0031.md) |
 | [T-0027](tickets/T-0027-reviewer-fallback.md) | Add fresh Trae fallback for independent reviewer dispatch | [R-0032](runs/R-0032.md) |
+| [T-0028](tickets/T-0028-auth-red-review-fixes.md) | Resolve targeted Feature 005 RED findings under Zack's one-round exception | [R-0033](runs/R-0033.md), after [R-0031](runs/R-0031.md) |
+| [T-0029](tickets/T-0029-auth-green.md) | Implement Feature 005 auth after approved RED review | [R-0033](runs/R-0033.md) |
+| [T-0030](tickets/T-0030-ship-auth.md) | Ship Feature 005 through PR #32 and merge gate | [R-0033](runs/R-0033.md) |
+| [T-0031](tickets/T-0031-review-auth-pr.md) | Fresh independent PR review for Feature 005 | [R-0033](runs/R-0033.md) |
 
 Historical PR #6 post-dispatch records remain in T-0002's checkpoint
 branch/worktree. Future ship runs use PR comments instead.

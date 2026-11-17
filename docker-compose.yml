@@ -21,6 +21,9 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg://tallyhold@db:5432/tallyhold
       FRONTEND_ORIGIN: http://localhost:3000
+      SUPABASE_JWT_ISSUER: ${SUPABASE_JWT_ISSUER:-}
+      SUPABASE_JWT_AUDIENCE: ${SUPABASE_JWT_AUDIENCE:-}
+      SUPABASE_JWKS_URL: ${SUPABASE_JWKS_URL:-}
     depends_on:
       db:
         condition: service_healthy
