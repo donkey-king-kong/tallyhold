@@ -2,7 +2,7 @@
 
 ## Assignment
 
-- Status: proposed
+- Status: ready
 - Owner actor: R-0034/coordinator (records fresh Reviewer externally)
 - Role: ship coordinator / independent PR Reviewer when dispatched
 - Run: [R-0034](../runs/R-0034.md)
@@ -12,8 +12,9 @@
   docs-only PR with passing CI
 - Branch / worktree: `chore/parallel-track-coordination`
 - Worktree path: `../tallyhold-chore-parallel-track-coordination`
-- Issue / PR: [#33](https://github.com/donkey-king-kong/tallyhold/issues/33) / not opened
-- Updated: 2026-11-17T06:32:17Z
+- Issue / PR: [#33](https://github.com/donkey-king-kong/tallyhold/issues/33) /
+  [PR #34](https://github.com/donkey-king-kong/tallyhold/pull/34)
+- Updated: 2026-11-17T06:39:06Z
 
 ## Scope
 
@@ -29,13 +30,16 @@ ticket or Agent Flow to the Reviewer.
 
 ## Checkpoint
 
-- Last completed action: review assignment reserved; no reviewer dispatched.
-- Evidence: none yet; PR and CI pending.
-- Worktree state: documentation in progress.
-- Remaining work: open PR, record final pre-review head and green CI, freeze
-  tracking, dispatch Reviewer, then enforce merge gate.
-- Blocker / unblock action: wait for completed docs and CI.
-- Next action: coordinator completes and pushes T-0032 before PR creation.
+- Last completed action: PR #34 opened at `8905a3cbe23844f19aa603448f8af24d66b396a0`,
+  assigned to Zack, first-head backend/frontend/security CI green.
+- Evidence: `gh pr checks 34`; production-migrations skipped as expected.
+- Worktree state: clean pushed code/docs head; final tracking checkpoint
+  pending commit/push before review. No reviewer dispatched.
+- Remaining work: final-head green CI, frozen tracking, fresh Reviewer and
+  merge gate.
+- Blocker / unblock action: wait for CI on the final checkpoint commit.
+- Next action: coordinator commits/pushes final checkpoint, verifies current
+  PR head and green CI, then dispatches a brand-new restricted Reviewer.
 - Handoff recipient: fresh PR Reviewer only after green CI.
 
 ## History
@@ -43,3 +47,4 @@ ticket or Agent Flow to the Reviewer.
 | UTC time | Actor | Event and observed result | Evidence / next action |
 | --- | --- | --- | --- |
 | 2026-11-17T06:32:17Z | R-0034/coordinator | Registered pending independent review; no subagent launched | Complete docs and CI before dispatch |
+| 2026-11-17T06:39:06Z | R-0034/coordinator | PR #34 opened at `8905a3c`, assignee verified and first-head CI passed | Commit/push checkpoint, confirm its CI, then dispatch fresh Reviewer |
