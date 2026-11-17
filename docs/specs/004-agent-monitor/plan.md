@@ -3,7 +3,7 @@
 ## Status and approval
 
 - [Spec](spec.md): Gate 1 approved by Zack on 2026-11-16; issue [#20](https://github.com/donkey-king-kong/tallyhold/issues/20).
-- **Proposed. Zack's separate architecture-plan approval is required before RED tests, extension code or packaging.** [Tasks](tasks.md) describe future work, not permission to execute it.
+- **Approved as written at `64a4246` by Zack on 2026-11-17.** [Tasks](tasks.md) govern RED, independent RED review, GREEN and ship. This status update does not change the approved design.
 - This is an independent, read-only developer extension. No portfolio API/frontend dependency, server, publisher-protocol change, backend edit, migration or CI workflow edit. Track B does not own `.github/workflows/ci.yml`; ask Track C for any later CI integration.
 
 ## Architecture and source of truth

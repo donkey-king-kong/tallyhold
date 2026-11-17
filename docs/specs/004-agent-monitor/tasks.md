@@ -2,28 +2,29 @@
 
 ## Approval gate
 
-The [approved spec](spec.md) authorizes architecture planning only. The
-[proposed plan](plan.md) and this task list await **Zack's separate plan
-approval**. No tests, extension code, package installation or editor smoke
-work may begin before that approval. Track B owns only `T-0050..T-0059` and
+The [approved spec](spec.md) has Gate 1 approval. Zack approved the
+[architecture plan](plan.md) as written at `64a4246` on 2026-11-17. RED may
+begin after its public test interfaces are confirmed; GREEN still requires
+independent RED approval. Track B owns only `T-0050..T-0059` and
 `R-0050..R-0059`; allocate the next free IDs on this branch after synchronizing,
 and create tickets before assigning the later roles. Do not pre-claim or reuse
 IDs. Shared tracking indexes are coordinator-only and are outside this
 planning handoff. Each implementation task below is a distinct logical commit
 after the appropriate RED handoff and review, not a single bulk implementation.
 
-- [ ] **Architect, [T-0050](../../work/tickets/T-0050-plan-agent-monitor.md):**
+- [x] **Architect, [T-0050](../../work/tickets/T-0050-plan-agent-monitor.md):**
   Map AC1-AC16, document the source/host/UI boundaries, limits, compatibility
   and verification; submit plan and tasks for Zack's approval. Planning
   artifacts only.
-- [ ] **Zack plan gate:** Decide the explicit choices in
+- [x] **Zack plan gate:** Approved the explicit choices in
   [plan "Decision requested from Zack"](plan.md#decision-requested-from-zack),
   especially the file/identity model, API baseline and support envelope.
   Record approval or requested changes before dispatching RED.
 
 ## RED: Only after plan approval
 
-Assign the Test writer its own Track B ticket/run. Use synthetic fixtures only.
+Assign the Test writer through [T-0051](../../work/tickets/T-0051-agent-monitor-red.md)
+after confirming the public test interfaces. Use synthetic fixtures only.
 Each checkbox is a small behavior-focused test commit; first show that existing
 adapter tests still pass, then confirm new tests collect and fail for missing
 extension behavior rather than environment/setup errors. Commit and push the
