@@ -2,7 +2,7 @@
 
 *All your brokers. One portfolio.*
 
-Last updated: 2026-11-13 · Owner: Zack
+Last updated: 2026-11-17 · Owner: Zack
 
 ## Overview
 
@@ -91,8 +91,9 @@ The repo is a monorepo: `/backend`, `/frontend`, `/docs` (spec, constitution, AD
 Users are identified by an internal UUID, never by an email or username, so a changed email or Telegram handle never breaks an account.
 
 - **Login:** Supabase Auth handles Google sign-in and issues a JWT. The frontend sends it with each request; FastAPI verifies it and resolves the internal user.
-- **Identity linking:** each login provider gives a permanent subject ID (Google's `sub`, Telegram's numeric user ID). The `identities` table maps `(provider, provider_subject)` to a `user_id`, so one user can link several providers and new providers are just new rows.
-- **Data isolation:** every user-owned table carries `user_id`. Repositories always filter by the current user; Postgres Row Level Security is a second line of defence.
+- **Identity mapping:** the authenticated identity key is the verified Supabase JWT `(issuer, sub)`; `sub` is the Supabase Auth user ID, not Google's subject. The `identities` table maps this pair to the internal `user_id`; provider name is informational, and email or client-supplied metadata never selects an account. Additional providers and explicit account linking need separate contracts.
+- **Data isolation:** every user-owned table carries `user_id`; FastAPI is the only application data path and repositories always filter by the verified current user. Zack confirmed Supabase Data API OFF on 2026-11-17; it must remain OFF before access by anyone else. RLS is not currently an active second line of defence; before the Data API can ever be re-enabled, real tested RLS policies and appropriate database privileges must protect every exposed user-owned table. RLS enabled without policies does not satisfy that gate.
+- **Operator erasure:** before admitting anyone other than Zack, a tested runbook must be ready to erase verified requests from active app data and Supabase Auth within 30 calendar days, document and restrict retained backup/log copies until actual expiry, and reapply erasure after any restore. Feature 005 has no erasure endpoint or deletion job; a short-lived `(issuer, sub)` deny marker checked during authentication prevents stale JWTs from recreating an erased account. Operators insert the marker before app identity deletion and purge it after the maximum access-token lifetime.
 - **Secrets:** API keys and DB credentials live in environment variables and GitHub/hosting secrets, never in the repo. Agents never read or write secrets.
 - **Scaling:** stateless API instances behind JWT auth scale horizontally; indexes on `user_id` and `(user_id, broker_account_id)` keep per-user queries fast.
 
@@ -122,12 +123,16 @@ Transactions are the single source of truth; positions, values and metrics are a
 
 ## Database schema
 
-Ten tables in third normal form; positions are computed, not stored. All IDs are UUIDs, all timestamps UTC, all money `NUMERIC(20,6)`, all quantities `NUMERIC(18,8)`.
+The ten core product tables are in third normal form; Feature 005 additionally
+requires an internal, temporary erasure deny-marker table. Positions are
+computed, not stored. All internal IDs are UUIDs, all timestamps UTC, all
+money `NUMERIC(20,6)`, all quantities `NUMERIC(18,8)`.
 
 | Table | Key columns | Notes |
 | --- | --- | --- |
 | `users` | `id` PK, `display_name`, `base_currency`, `cost_basis_method`, `created_at` | Base currency and cost basis method are user settings |
-| `identities` | `id` PK, `user_id` FK, `provider`, `provider_subject`, `email` | UNIQUE(`provider`, `provider_subject`); email is informational only |
+| `identities` | `id` PK, `user_id` FK, `issuer`, `subject`, `provider`, `email` | UNIQUE(`issuer`, `subject`) for verified Supabase JWT claims; provider and email are informational only |
+| `erasure_deny_markers` | `issuer`, `subject`, expiry | Short-lived internal security control; blocks valid stale JWTs until operator purge, never exposed through the Data API |
 | `brokers` | `id` PK, `name`, `country` | Reference data: Tiger, IBKR, Moomoo… |
 | `broker_accounts` | `id` PK, `user_id` FK, `broker_id` FK, `nickname`, `base_currency` | One user can hold several accounts at one broker |
 | `exchanges` | `code` PK (e.g. `NASDAQ`, `SGX`), `name`, `currency`, `timezone` | Reference data |
@@ -315,7 +320,9 @@ Each phase ends with a deployable app; each feature inside it goes through the t
    realised P&L, unrealised P&L, and per-instrument portfolio weights. Schema,
    migrations, dividends, and remaining MVP metrics are separate later
    features. No UI yet.
-3. **Phase 2, auth and accounts:** Google login via Supabase, `identities`, broker account CRUD.
+3. **Phase 2, auth and accounts:** Feature 005 adds Google login via
+   Supabase, `identities` and `GET /me`; Feature 006 adds broker account CRUD
+   and the broker list after 005 establishes the current-user context.
 4. **Phase 3, transactions and import:** manual entry, canonical CSV import with preview, dedupe and undo, bulk edit.
 5. **Phase 4, dashboard MVP:** yfinance prices, hardcoded FX, the five metrics, overview and per-account pages, first deploy. First real use.
 6. **Phase 5, expansion:** value-over-time chart, Frankfurter FX, SGX support, broker-specific importers, selectable FIFO and other cost-basis strategies, XIRR.
@@ -330,6 +337,10 @@ Each phase ends with a deployable app; each feature inside it goes through the t
   sells, calculates realised P&L, and models `User`, `Broker`, and `Account`
   separately. Dividends and remaining MVP metrics are deferred to later
   features.
+- Phase 2 Feature 005 keys identities by verified Supabase `(issuer, sub)`,
+  defaults first-login users to SGD, and uses FastAPI as the sole data path.
+  Supabase Data API stays OFF until real RLS policies and privileges are tested
+  before any re-enablement; no RLS defence is claimed while it is absent.
 
 ## Open questions
 

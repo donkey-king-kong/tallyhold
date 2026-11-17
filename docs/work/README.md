@@ -28,6 +28,8 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 | [T-0018](tickets/T-0018-production-migrations.md) | Ship approval-gated Supabase production migrations | [R-0020](runs/R-0020.md) |
 | [T-0019](tickets/T-0019-review-production-migrations.md) | Independent review of production migration PR #25 | [R-0020](runs/R-0020.md) |
 | [T-0020](tickets/T-0020-phase1-roadmap.md) | Close out Phase 1 roadmap and ship documentation | [R-0021](runs/R-0021.md) |
+| [T-0021](tickets/T-0021-draft-auth-spec.md) | Approve Feature 005 auth contract at Gate 1 | [R-0026](runs/R-0026.md), after [R-0025](runs/R-0025.md) |
+| [T-0022](tickets/T-0022-plan-auth.md) | Draft Feature 005 architecture plan and tasks for approval | [R-0026](runs/R-0026.md) |
 
 Historical PR #6 post-dispatch records remain in T-0002's checkpoint
 branch/worktree. Future ship runs use PR comments instead.
