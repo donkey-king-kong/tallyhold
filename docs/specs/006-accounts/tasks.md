@@ -69,7 +69,7 @@ orders work and maps ACs; tickets own assignment and execution evidence.
   005's internal user ID, never change broker on PATCH and preserve
   transactions on rejected DELETE. Pass unit and repository tests;
   commit this layer slice separately.
-- [ ] **Implementer: API and composition (AC1-AC5, AC7).** Add strict
+- [x] **Implementer: API and composition (AC1-AC5, AC7).** Add strict
   request/response schemas and routes, 201/200/204 and opaque
   401/422/404/409/503 mapping, shared request session and current-user
   injection. Register router once and permit configured-origin
