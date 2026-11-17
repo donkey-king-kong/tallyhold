@@ -41,14 +41,15 @@ Approved seams and limits:
 
 ## Checkpoint
 
-- Last completed action: Zack-authorized exceptional test-only correction
-  `161a3d9` covers all three round 2 gaps; four suite partitions rerun.
+- Last completed action: focused CORS RED test `4137911` committed; four
+  suites rerun at that SHA, evidence updated.
 - Evidence: [round 1 review](../../specs/006-accounts/red-review.md),
   identical [comment](https://github.com/donkey-king-kong/tallyhold/commit/112848554a86aae44d605dfa7e5052c0fe8d4c1a#commitcomment-210413865).
-- Worktree state: corrected tests committed, evidence/checkpoint uncommitted.
-- Remaining work: push evidence, then fresh exceptional review.
+- Worktree state: test commit local, evidence/checkpoint uncommitted.
+- Remaining work: push evidence then distinct fresh RED review.
 - Blocker / unblock action: GREEN gated on fresh exceptional review APPROVE.
-- Next action: push revised evidence and assign different fresh RED Reviewer.
+- Next action: push evidence pinned to `4137911` and assign distinct fresh
+  reviewer. GREEN still gated.
 - Handoff recipient: independent RED Reviewer via coordinator.
 
 ## History
@@ -64,3 +65,5 @@ Approved seams and limits:
 | 2026-11-17T07:56:14Z | R-0040/coordinator | Corrected evidence pushed `dcb3c87`; assigned distinct reviewer ticket T-0044 | GREEN remains gated |
 | 2026-11-17T07:56:14Z | R-0040/coordinator | Zack authorized one additional corrective RED round after T-0044 escalation | Add exactly three missing assertions and seek a different fresh review; no GREEN yet |
 | 2026-11-17T08:08:26Z | R-0040/coordinator | Exceptional test-only `161a3d9` covers broker tie, row broker name, lowercase currency; pinned runs show 50 backend RED/146 existing pass and 10 frontend RED/13 existing pass | Push revised evidence; different fresh reviewer before GREEN |
+| 2026-11-17T08:08:26Z | R-0040/coordinator | Exceptional review requested missing negative PUT preflight test; Zack explicitly authorized one focused correction and another fresh verdict | Add test only, rerun, push; no GREEN yet |
+| 2026-11-17T08:22:54Z | R-0040/coordinator | Focused negative CORS test `4137911` committed; 50 expected backend failures, 146 existing backend passes, 10 expected frontend failures, 13 existing frontend passes | Push revised evidence; fresh RED verdict before GREEN |

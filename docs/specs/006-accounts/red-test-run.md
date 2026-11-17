@@ -3,7 +3,7 @@
 - Approved contract: `spec.md` and `plan.md` (plan approved at `ab58947`).
 - Base before RED: `82ec809`; round 1 test-only commit: `771e9ad`;
   corrected round 2 test-only commit: `4843f4d`; Zack-authorized exceptional
-  correction: `161a3d9`.
+  correction: `161a3d9`; focused CORS correction: `4137911`.
 - Local PostgreSQL 17 target: disposable, uniquely named `tallyhold_test_*`
   databases created by the existing integration fixture. No live auth,
   external service or production database was used.
@@ -17,19 +17,19 @@ Run from `backend/` with
 
 | Command | Exit | Result and failure cause |
 | --- | --- | --- |
-| `uv run pytest -q --tb=no tests/integration/test_accounts_migration.py tests/integration/test_accounts_http.py tests/test_accounts_application.py` | 1 | 50 collected, 50 failed, 0 setup/collection errors. Missing `0004` and its seeds/index (10 migration cases); missing HTTP routes or write CORS (27 HTTP cases); missing application operations (13 cases). |
+| `uv run pytest -q --tb=no --no-summary tests/integration/test_accounts_migration.py tests/integration/test_accounts_http.py tests/test_accounts_application.py` | 1 | 50 collected, 50 failed, 0 setup/collection errors. Missing `0004` and its seeds/index (10 migration cases); missing HTTP routes or write CORS (27 HTTP cases); missing application operations (13 cases). The new PUT rejection assertion is within an already RED HTTP case. |
 | `uv run pytest -q --tb=short --ignore=tests/integration/test_accounts_migration.py --ignore=tests/integration/test_accounts_http.py --ignore=tests/test_accounts_application.py` | 0 | 146 collected and passed, none failed or skipped. Existing 003 historical-schema assertions were relocated to their original revision; existing broker fixtures use a non-seed name without dropping assertions. |
 
 Run from `frontend/`:
 
 | Command | Exit | Result and failure cause |
 | --- | --- | --- |
-| `npm test -- components/account-manager.test.tsx components/auth-status.test.tsx app/accounts/page.test.tsx` | 1 | 18 collected: 10 failed, 8 passed, none skipped. Eight account-manager cases cannot import the as-yet-unwritten component; the new home-link case cannot find the link; the new `/accounts` page is absent. |
-| `npm test -- --exclude components/account-manager.test.tsx --exclude app/accounts/page.test.tsx --testNamePattern='^(?!signed-in home links to accounts)'` | 0 | 14 collected: 13 passed, 1 deliberately skipped (the new link case); no existing failure. Existing React `act(...)` warnings remain. |
+| `npm test -- components/account-manager.test.tsx components/auth-status.test.tsx app/accounts/page.test.tsx --reporter=dot` | 1 | 18 collected: 10 failed, 8 passed, none skipped. Eight account-manager cases cannot import the as-yet-unwritten component; the new home-link case cannot find the link; the new `/accounts` page is absent. |
+| `npm test -- --exclude components/account-manager.test.tsx --exclude app/accounts/page.test.tsx --testNamePattern='^(?!signed-in home links to accounts)' --reporter=dot` | 0 | 14 collected: 13 passed, 1 deliberately skipped (the new link case); no existing failure. Existing React `act(...)` warnings remain. |
 
 The first attempted round 1 backend run lacked the test URL and produced
 fixture setup errors. It is **not** RED evidence; the backend results above
-are exceptional-round reruns at `161a3d9` with the required local test URL.
+are focused-correction reruns at `4137911` with the required local test URL.
 Warnings are existing Starlette/httpx, Alembic configuration and React test
 environment warnings, not test failures.
 
@@ -43,7 +43,7 @@ environment warnings, not test failures.
 | AC4 / verification 4 | `test_partial_edit_and_transaction_free_delete`, `test_second_user_cannot_read_edit_or_delete_first_users_account` (also compares absent/foreign DELETE response), `test_delete_with_transactions_returns_conflict_without_losing_data`, guarded downgrade and account-manager confirmation. |
 | AC5 / verification 5 | HTTP invalid/unknown/foreign/conflict/bearer/503 cases, including malformed PATCH/DELETE IDs, absent/foreign PATCH/DELETE equivalence, denied detail/writes with row retention, missing DB for broker/create and local connection outage; account-manager conflict/outage, expired-session and API-401 cases. |
 | AC6 / verification 6 | `signed-in home links to accounts and hides link on sign-out`; `/accounts page mounts the account manager`; account-manager list and populated-row broker label, `/me` default, lowercase editable currency uppercased in form and POST, CRUD, validation, conflict, loading/empty/outage, focused labeled name input, sign-out/stale action/in-flight response, identity switch, expiry and 401 cases. Auth-status existing cases cover the unchanged login lifecycle. Actual narrow-screen layout remains an implementation-stage browser check because jsdom does not lay out pixels. |
-| AC7 / verification 7 | PostgreSQL upgrade/downgrade/re-upgrade, legacy preflight and concurrent index tests; two-user HTTP, protection of writes and local CORS-preflight tests; the 146 existing backend tests include scoped 003 repositories and migration chain. Metadata/index drift, strict mypy, import-linter, full coverage, frontend lint/types/build and scans are GREEN/ship checks, not falsely claimed as RED test cases. |
+| AC7 / verification 7 | PostgreSQL upgrade/downgrade/re-upgrade, legacy preflight and concurrent index tests; two-user HTTP, protection of writes and local CORS preflights for permitted methods, denied origin and denied unneeded PUT method; the 146 existing backend tests include scoped 003 repositories and migration chain. Metadata/index drift, strict mypy, import-linter, full coverage, frontend lint/types/build and scans are GREEN/ship checks, not falsely claimed as RED test cases. |
 
 The application seam uses fake existing 003 ports, the HTTP seam uses
 FastAPI dependency overrides and a disposable PostgreSQL database, and the
@@ -73,3 +73,14 @@ currency normalized to uppercase in the form and POST. The four commands
 above were rerun at this pinned test SHA: 50 expected backend failures,
 146 existing backend passes, 10 expected frontend failures with 8 passes,
 and 13 existing frontend passes with one new case deliberately excluded.
+
+## Focused CORS correction
+
+After exceptional round 3 identified the absent unneeded-method rejection,
+Zack authorized another focused test-only correction and different fresh
+verdict. Commit `4137911` adds an allowed-origin PUT preflight assertion to
+`test_write_preflight_allows_configured_origin_without_cookies`. The four
+commands above reran at that test SHA with unchanged counts and causes:
+50 expected backend RED failures, 146 existing backend passes, 10 expected
+frontend failures with 8 passes, 13 existing frontend passes and one excluded
+new case. No 006 production code exists.
