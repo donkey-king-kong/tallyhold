@@ -12,7 +12,7 @@
 - Branch / worktree: `feature/005-auth`
 - Worktree path: `../tallyhold-feature-005-auth`
 - Issue / PR: [issue #27](https://github.com/donkey-king-kong/tallyhold/issues/27); no PR
-- Updated: 2026-11-17T03:01:00Z
+- Updated: 2026-11-17T03:04:48Z
 
 ## Scope
 
@@ -33,12 +33,12 @@ implementation; no production code, migrations, GREEN or Feature 006 work.
 
 ## Checkpoint
 
-- Last completed action: JWT RED committed at `07fc854` after dependency `aac800f`; PostgreSQL schema RED collects and fails on missing `0003`/tables.
-- Evidence: existing migration suite 4 passed; `TALLYHOLD_TEST_DATABASE_URL=... uv run --locked pytest -q --tb=short tests/integration/test_auth_schema.py` collected 3 failures: missing revision and two missing-table assertions. Ruff passed.
-- Worktree state: schema test and checkpoint not yet committed; branch ahead of remote.
-- Remaining work: commit schema slice; write/run/commit provisioning, HTTP and frontend RED; verify existing tests.
+- Last completed action: schema RED committed at `9369949`; eight PostgreSQL identity, marker and advisory-lock cases collect and fail for missing resolver or marker table.
+- Evidence: `TALLYHOLD_TEST_DATABASE_URL=... uv run --locked pytest -q --tb=line tests/integration/test_auth_resolution.py`: 8 failed (7 missing resolver, 1 missing marker table); ruff lint and format passed. An initial PostgreSQL parameter inference issue in the test lock expression was corrected with explicit text casts.
+- Worktree state: resolution test and checkpoint not yet committed; branch ahead of remote.
+- Remaining work: commit resolution RED; write/run/commit HTTP and frontend RED; verify existing tests.
 - Blocker / unblock action: GREEN requires Zack's review of the RED checkpoint.
-- Next action: commit schema RED, then add PostgreSQL identity/provisioning and erasure-lock tests.
+- Next action: commit resolution RED, then write `/me` and CORS HTTP tests.
 - Handoff recipient: Zack at RED checkpoint.
 
 ## History
@@ -49,3 +49,4 @@ implementation; no production code, migrations, GREEN or Feature 006 work.
 | 2026-11-17T02:55:18Z | R-0028/coordinator | Approved plan pushed at `a96c0da`; inspected JWT `/me`, repository, migration and frontend test seams | Add offline test-only signing fixture; begin JWT RED |
 | 2026-11-17T02:59:30Z | R-0028/coordinator | Installed locked test-only cryptography; 19 offline JWT cases collect, all fail because verifier is absent; ruff passes | `uv run --locked pytest -q --tb=short tests/test_auth_jwt.py`; commit first RED slice |
 | 2026-11-17T03:01:00Z | R-0028/coordinator | JWT RED committed at `07fc854`; disposable PostgreSQL baseline 4 passed, schema RED 3 failed at absent 0003/tables; no PostgreSQL setup errors | Commit schema RED and test application/race |
+| 2026-11-17T03:04:48Z | R-0028/coordinator | Schema RED committed at `9369949`; eight identity/marker/lock cases fail on absent 005 behavior after correcting test SQL casts | Commit resolution RED, proceed to HTTP |
