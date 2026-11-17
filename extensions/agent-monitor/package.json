@@ -6,6 +6,10 @@
   "private": true,
   "type": "module",
   "publisher": "tallyhold-local",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/donkey-king-kong/tallyhold.git"
+  },
   "engines": {
     "vscode": "^1.80.0"
   },
@@ -28,12 +32,13 @@
     }
   },
   "scripts": {
+    "benchmark": "esbuild scripts/benchmark.ts --bundle --platform=node --format=esm --outfile=.benchmark/benchmark.mjs && node --expose-gc .benchmark/benchmark.mjs",
     "build": "npm run build:host && npm run build:webview",
     "build:host": "esbuild src/extension.ts --bundle --platform=node --format=cjs --external:vscode --outfile=dist/extension.cjs",
     "build:webview": "esbuild src/webview/bootstrap.ts --bundle --platform=browser --format=iife --outfile=media/webview.js",
-    "format": "prettier --write \"src/**/*.ts\" \"*.{js,json,md}\"",
-    "format:check": "prettier --check \"src/**/*.ts\" \"*.{js,json,md}\"",
-    "lint": "eslint src test",
+    "format": "prettier --write \"{scripts,src}/**/*.ts\" \"docs/**/*.md\" \"*.{js,json,md}\"",
+    "format:check": "prettier --check \"{scripts,src}/**/*.ts\" \"docs/**/*.md\" \"*.{js,json,md}\"",
+    "lint": "eslint scripts src test",
     "package": "npm run build && vsce package --no-dependencies",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage --coverage.thresholds.lines=80 --coverage.thresholds.functions=80 --coverage.thresholds.statements=80",

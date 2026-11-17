@@ -91,7 +91,7 @@ throughout.
   the panel. Reject hostile telemetry and stale/invalid messages. Verify
   recovery, privacy and envelope behavior end-to-end; AC2, AC10-AC11,
   AC13-AC15.
-- [ ] **Package, documentation and measured verification:** Document
+- [x] **Package, documentation and measured verification:** Document
   install/selection/recovery/limits; run extension lint, format check,
   typecheck, build, tests with >=80% extension coverage, dependency audit
   and publisher adapter tests. Measure representative ingest/update and

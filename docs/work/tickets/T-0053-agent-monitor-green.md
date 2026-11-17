@@ -2,7 +2,7 @@
 
 ## Assignment
 
-- Status: in_progress
+- Status: blocked
 - Owner actor: R-0051/implementer
 - Role: Implementer
 - Run: [R-0051](../runs/R-0051.md)
@@ -12,7 +12,7 @@
 - Branch / worktree: `feature/004-agent-monitor` / `../tallyhold-feature-004-agent-monitor`
 - Worktree path: `../tallyhold-feature-004-agent-monitor`
 - Issue / PR: [#20](https://github.com/donkey-king-kong/tallyhold/issues/20); no implementation PR yet
-- Updated: 2026-11-17T08:14:22Z
+- Updated: 2026-11-17T08:29:48Z
 
 ## Scope
 
@@ -24,19 +24,19 @@ the publisher protocol, touch backend/migrations/CI, or implement issue #38.
 
 ## Acceptance
 
-- [ ] All 56 approved extension tests pass without weakening them; existing publisher tests pass.
-- [ ] Extension lint, format, type, build, coverage at least 80%, dependency audit and package audit pass.
-- [ ] Approved performance envelope and actual VS Code/Trae smoke results are recorded honestly.
+- [x] All 56 approved extension tests pass without weakening them; existing publisher tests pass.
+- [x] Extension lint, format, type, build, coverage at least 80%, dependency audit and package audit pass.
+- [x] Approved performance envelope and actual VS Code/Trae smoke results are recorded honestly.
 - [ ] GREEN task checkboxes, verification documentation and commits are complete for ship handoff.
 
 ## Checkpoint
 
-- Last completed action: implemented and verified the core, source controller, webview, activation path and package hardening.
-- Evidence: 56/56 approved tests; 95.97% statements and 97.70% lines; lint, format, strict typecheck against VS Code 1.80.0, dual-bundle build and VSIX packaging passed; dependency audit found zero vulnerabilities.
-- Worktree state: GREEN implementation and this checkpoint are uncommitted on `bc400af`; approved tests are unchanged.
-- Remaining work: commit the behavior slice, then documentation, benchmarks, adapter tests, VSIX audit record and actual-editor smoke.
-- Blocker / unblock action: none.
-- Next action: commit the verified implementation slice, then write release documentation and measured verification.
+- Last completed action: completed automated release verification, benchmarks, documentation, clean eight-file VSIX audit and final-VSIX installation in isolated VS Code and Trae profiles.
+- Evidence: [verification report](../../../extensions/agent-monitor/docs/verification.md); 56/56 extension and 6/6 publisher tests; 95.57% statement and 97.26% line coverage; zero dependency vulnerabilities.
+- Worktree state: implementation commit `184bf72`; source switching, benchmark, docs and this checkpoint are uncommitted; approved tests remain unchanged.
+- Remaining work: intentional final-VSIX interaction checklist in both actual editors, then commit/push the final GREEN evidence.
+- Blocker / unblock action: desktop interaction is deliberately stopped after unexpected automation; resume only with explicit coordination, then record both editor results without overstating failures.
+- Next action: complete the synthetic interaction checklist in VS Code and Trae, or Zack accepts the documented compatibility gap before ship.
 - Handoff recipient: R-0051/implementer.
 
 ## History
@@ -46,3 +46,4 @@ the publisher protocol, touch backend/migrations/CI, or implement issue #38.
 | 2026-11-17T07:56:28Z | R-0051/coordinator | Created after fresh round 4 RED `APPROVE` on pushed `1ec4eed` | Commit/push approval record, then assign separate Implementer role |
 | 2026-11-17T07:57:10Z | R-0051/implementer | Claimed GREEN after pushed approval commit `bc400af` | Implement pure core projection first; do not edit RED tests |
 | 2026-11-17T08:14:22Z | R-0051/implementer | Completed core, host, UI and shell GREEN; 56 tests and 95.97% statement coverage passed; VSIX contains six intended files | Commit implementation slice, then document and measure release verification |
+| 2026-11-17T08:29:48Z | R-0051/implementer | Final automated matrix passed: 56 extension and 6 publisher tests, 95.57% statement coverage, benchmark targets, zero-vulnerability audit, clean eight-file VSIX and two-editor installation | Actual interaction remains unverified; coordinate deliberate desktop smoke before ship |
