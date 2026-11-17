@@ -26,8 +26,9 @@ completed handoff.
    On Zack's request, use [grill-me](../.claude/skills/grill-me/SKILL.md) to resolve Draft-spec questions before Gate 1; only Zack approves.
 3. **Gate 1:** Zack explicitly approves the spec; set Status to Approved. Do not plan or implement a Draft spec.
 4. **Architect:** Write `plan.md` (files, layers, classes, interfaces, migrations and tests) and ordered `tasks.md`; record significant decisions as ADRs. For schema or architecture changes, Zack approves the plan before tests or implementation.
-5. **Test writer:** On the feature branch, commit failing pytest tests mapped to criteria; confirm failures are caused by missing behavior.
-6. **Implementer:** Complete and commit tasks one at a time using Conventional Commits. Run targeted and full checks; never alter tests just to pass.
+5. **Test writer:** On the feature branch, commit and push failing pytest tests plus RED run evidence mapped to criteria and numbered plan verification items; confirm existing tests pass and failures are caused by missing behavior.
+5a. **RED review:** A fresh, independent headless Claude Code Reviewer checks the pushed RED handoff using [red-review](skills/red-review.md), posts `APPROVE` or `CHANGES_REQUESTED` as a commit comment and records it in the ticket/run. On changes, the Test writer fixes and pushes, then a new Reviewer checks round 2. Escalations and a second non-approval stop GREEN and go to Zack.
+6. **Implementer:** Only after RED `APPROVE`, complete and commit tasks one at a time using Conventional Commits. Run targeted and full checks; never alter tests just to pass.
    Use [tdd](../.claude/skills/tdd/SKILL.md) across the RED Test writer handoff and the GREEN/REFACTOR Implementer work, in separate commits.
 7. **PR:** On "create pr", "open pr", "ship" or "ship it", follow [ship](skills/ship.md) end to end. Its [create-pr](skills/create-pr.md) sub-step opens the PR linking the issue and approved spec.
 8. **CI:** Run backend ruff lint/format, mypy, pytest with >=80% overall coverage, migration check against fresh Postgres when migrations exist, frontend lint/type check/build, and dependency vulnerability scan. CI failures return to implementation.
@@ -38,7 +39,7 @@ completed handoff.
 
 Suggested tool assignment: Claude Code CLI for Planner, Architect and Reviewer; Trae for Test writer and Implementer. This keeps the reviewing model different from the coding model. DevOps can use either tool, on the feature's branch during its exclusive turn.
 
-Git is the only sync between devices: pull before starting, push when stopping. Only one tool may work on a given branch at a time; multiple branches in separate worktrees may run concurrently. Hand off by pushing and then pulling on the other device. Never run both tools on the same branch concurrently. Zack owns Gate 1, required plan approvals and merges of constitution-changing PRs.
+Git is the only sync between devices: pull before starting, push when stopping. Only one tool may work on a given branch at a time; multiple branches in separate worktrees may run concurrently. Hand off by pushing and then pulling on the other device. Never run both tools on the same branch concurrently. Zack owns Gate 1, required architecture/schema plan and production migration approvals, RED escalations and merges of constitution-changing PRs.
 
 ```mermaid
 flowchart LR
@@ -48,7 +49,10 @@ flowchart LR
     GP -->|Yes| PA[Zack approves plan]
     GP -->|No| T[Test writer: failing tests]
     PA --> T
-    T --> M[Implementer: passing tests] --> PR[Pull request] --> CI[CI checks]
+    T --> RR{Fresh RED Reviewer: max 2 rounds}
+    RR -->|CHANGES_REQUESTED| TF[Test writer: fix and push] --> RR
+    RR -->|Unresolved or escalation| ZE[Stop GREEN: Zack decides]
+    RR -->|APPROVE| M[Implementer: passing tests] --> PR[Pull request] --> CI[CI checks]
     CI -->|Fail| M
     CI -->|Pass| R[Fresh Reviewer subagent: max 3 rounds]
     CI -->|No CI configured yet| R

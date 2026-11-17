@@ -11,7 +11,7 @@ python3 .trae/agent-flow/adapter.py status --agent orchestrator --state working 
 
 For **each** numbered step below, emit `tool-start` before its real operation and `tool-end` **after** it finishes, using `--outcome failed` if it fails. Never emit a pair back-to-back without doing the work. Keep the agent active from the start of the run until the actual handoff, merge or block; do not complete it immediately after spawning. The fresh Reviewer does not publish telemetry: the coordinator reports only its lifecycle and verdict, without attributing invented tool calls to it.
 
-1. **Confirm scope:** Publish the step start, then check the feature branch and approved `docs/specs/NNN-name/{spec,plan,tasks}.md`, Gate 1 and required plan approval. Finish the tool event after the checks. If approval is missing, report to Zack and label/comment only if a PR exists.
+1. **Confirm scope:** Publish the step start, then check the feature branch and approved `docs/specs/NNN-name/{spec,plan,tasks}.md`, Gate 1 and required plan approval. For features started after [RED review](red-review.md) was adopted, also confirm its approved, pushed RED handoff and comment precede GREEN; RED review does not replace this PR review. Finish the tool event after the checks. If approval is missing, report to Zack and label/comment only if a PR exists. For a maintenance PR without a feature spec/plan/tasks, confirm its issue, authorized scope and applicable approvals instead.
    ```sh
    python3 .trae/agent-flow/adapter.py status --agent orchestrator --state working --activity "Checking approved scope"
    python3 .trae/agent-flow/adapter.py tool-start --agent orchestrator --category Read
