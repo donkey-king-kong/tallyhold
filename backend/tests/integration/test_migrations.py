@@ -1,5 +1,7 @@
 """AC1-AC3, AC6: Alembic's public revision path and PostgreSQL catalog."""
 
+from collections.abc import Iterator
+
 import pytest
 from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.engine import Engine, make_url
@@ -7,6 +9,17 @@ from sqlalchemy.engine import Engine, make_url
 from .conftest import disposable_database, migrate
 
 TABLES = {"users", "brokers", "broker_accounts", "instruments", "transactions"}
+
+
+@pytest.fixture
+def core_engine(monkeypatch: pytest.MonkeyPatch) -> Iterator[Engine]:
+    with disposable_database() as url:
+        migrate(url, "0002_core_persistence", "upgrade", monkeypatch)
+        engine = create_engine(url)
+        try:
+            yield engine
+        finally:
+            engine.dispose()
 
 
 def test_disposable_database_is_dropped_after_failure() -> None:
@@ -68,7 +81,7 @@ def test_upgrade_downgrade_reupgrade_reproduces_clean_schema(
             migrate(url, "0001_baseline", "downgrade", monkeypatch)
             assert not TABLES.intersection(inspect(engine).get_table_names())
             migrate(url, "0002_core_persistence", "upgrade", monkeypatch)
-            migrate(clean_url, "head", "upgrade", monkeypatch)
+            migrate(clean_url, "0002_core_persistence", "upgrade", monkeypatch)
             assert first == catalog(engine) == catalog(clean)
         finally:
             engine.dispose()
@@ -170,9 +183,9 @@ def test_catalog_has_only_the_approved_entities_and_exact_types(
 
 
 def test_catalog_enforces_tenant_currency_and_delete_relationships(
-    database_engine: Engine,
+    core_engine: Engine,
 ) -> None:
-    with database_engine.connect() as connection:
+    with core_engine.connect() as connection:
         constraints = {
             (row.table_name, row.constraint_type, row.definition, row.delete_action)
             for row in connection.execute(

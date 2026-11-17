@@ -23,7 +23,7 @@ def seed_rows(connection: Connection) -> dict[str, object]:
     owner, other, broker, account, instrument = (uuid4() for _ in range(5))
     insert(connection, "users", id=owner, base_currency="USD")
     insert(connection, "users", id=other, base_currency="SGD")
-    insert(connection, "brokers", id=broker, name="Tiger", country="SG")
+    insert(connection, "brokers", id=broker, name="Fixture Broker", country="SG")
     insert(
         connection,
         "broker_accounts",
@@ -174,7 +174,7 @@ def test_unique_keys_and_referenced_account_delete(
 ) -> None:
     rows = seed_rows(connection)
     with rejected_sql(connection):
-        insert(connection, "brokers", id=uuid4(), name="Tiger", country="SG")
+        insert(connection, "brokers", id=uuid4(), name="Fixture Broker", country="SG")
     with rejected_sql(connection):
         insert(
             connection,
