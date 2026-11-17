@@ -41,14 +41,14 @@ Approved seams and limits:
 
 ## Checkpoint
 
-- Last completed action: corrected RED tests `4843f4d` and evidence `dcb3c87`
-  pushed; round 2 separately assigned to T-0044.
+- Last completed action: Zack-authorized exceptional test-only correction
+  `161a3d9` covers all three round 2 gaps; four suite partitions rerun.
 - Evidence: [round 1 review](../../specs/006-accounts/red-review.md),
   identical [comment](https://github.com/donkey-king-kong/tallyhold/commit/112848554a86aae44d605dfa7e5052c0fe8d4c1a#commitcomment-210413865).
-- Worktree state: clean at `dcb3c87` before round 2 assignment.
-- Remaining work: fresh independent verdict owned by T-0044.
-- Blocker / unblock action: GREEN gated on round 2 approval.
-- Next action: coordinator dispatches T-0044; GREEN only after APPROVE.
+- Worktree state: corrected tests committed, evidence/checkpoint uncommitted.
+- Remaining work: push evidence, then fresh exceptional review.
+- Blocker / unblock action: GREEN gated on fresh exceptional review APPROVE.
+- Next action: push revised evidence and assign different fresh RED Reviewer.
 - Handoff recipient: independent RED Reviewer via coordinator.
 
 ## History
@@ -62,3 +62,5 @@ Approved seams and limits:
 | 2026-11-17T07:50:33Z | R-0040/coordinator | Reopened Test writer after independent round 1 `CHANGES_REQUESTED`; added test-only auth, matching reserved-ID, orphan, page wiring and session assertions | Commit correction and rerun suites before fresh round 2 |
 | 2026-11-17T07:56:14Z | R-0040/coordinator | Corrected test-only commit `4843f4d`: 49 backend RED failures, 146 existing passes; 10 frontend RED failures and 8 passes, 13 existing passes with one deliberately excluded new case | Push updated evidence and dispatch different fresh round 2 reviewer |
 | 2026-11-17T07:56:14Z | R-0040/coordinator | Corrected evidence pushed `dcb3c87`; assigned distinct reviewer ticket T-0044 | GREEN remains gated |
+| 2026-11-17T07:56:14Z | R-0040/coordinator | Zack authorized one additional corrective RED round after T-0044 escalation | Add exactly three missing assertions and seek a different fresh review; no GREEN yet |
+| 2026-11-17T08:08:26Z | R-0040/coordinator | Exceptional test-only `161a3d9` covers broker tie, row broker name, lowercase currency; pinned runs show 50 backend RED/146 existing pass and 10 frontend RED/13 existing pass | Push revised evidence; different fresh reviewer before GREEN |
