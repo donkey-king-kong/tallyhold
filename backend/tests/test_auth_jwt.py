@@ -17,6 +17,13 @@ from cryptography.hazmat.primitives.asymmetric import ec, utils
 ISSUER = "https://auth.invalid.test/auth/v1"
 JWKS_URL = f"{ISSUER}/.well-known/jwks.json"
 SUBJECT = str(uuid4())
+PROCESS_CLOCK_BASE = [0.0]
+
+
+@pytest.fixture(autouse=True)
+def advance_process_clock_between_tests() -> None:
+    # Preserve the process-wide limiter while giving each test a later clock window.
+    PROCESS_CLOCK_BASE[0] += 2_000_000.0
 
 
 def encoded(value: bytes) -> str:
@@ -84,7 +91,7 @@ def verifier(transport: httpx.MockTransport, clock: list[float]) -> Any:
         audience="authenticated",
         jwks_url=JWKS_URL,
         http_client=httpx.Client(transport=transport, timeout=30),
-        clock=lambda: clock[0],
+        clock=lambda: PROCESS_CLOCK_BASE[0] + clock[0],
     )
 
 
@@ -266,8 +273,10 @@ def test_failed_unknown_key_refresh_keeps_unexpired_known_key(
     subject.verify(known)
     with pytest.raises(ConnectionError):
         subject.verify(minted(signing_key, headers={"kid": "unavailable-key"}))
-    assert subject.verify(known).subject == SUBJECT
+    with pytest.raises(ValueError):
+        subject.verify(minted(signing_key, headers={"kid": "another-unavailable-key"}))
     assert fetches == 2
+    assert subject.verify(known).subject == SUBJECT
 
 
 def test_expired_cache_random_kids_still_use_shared_refresh_gate(

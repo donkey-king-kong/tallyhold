@@ -33,8 +33,8 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 | [T-0023](tickets/T-0023-auth-red.md) | Write Feature 005 failing tests and prepare independent RED review | [R-0028](runs/R-0028.md) |
 | [T-0024](tickets/T-0024-automated-red-review.md) | Automate independent RED review for future features | [R-0029](runs/R-0029.md) |
 | [T-0025](tickets/T-0025-review-automated-red-review.md) | Independent ship review of automated RED review PR | [R-0029](runs/R-0029.md) |
-| [T-0026](tickets/T-0026-auth-red-review.md) | Verify and independently review Feature 005 RED before GREEN | [R-0031](runs/R-0031.md), after [R-0030](runs/R-0030.md) |
-| [T-0028](tickets/T-0028-auth-red-review-fixes.md) | Resolve Feature 005 RED review findings before round 2 | [R-0031](runs/R-0031.md) |
+| [T-0026](tickets/T-0026-auth-red-review.md) | Verify and independently review Feature 005 RED before GREEN | [R-0033](runs/R-0033.md), after [R-0031](runs/R-0031.md) |
+| [T-0028](tickets/T-0028-auth-red-review-fixes.md) | Resolve targeted Feature 005 RED findings under Zack's one-round exception | [R-0033](runs/R-0033.md), after [R-0031](runs/R-0031.md) |
 
 Historical PR #6 post-dispatch records remain in T-0002's checkpoint
 branch/worktree. Future ship runs use PR comments instead.

@@ -2,16 +2,16 @@
 
 ## Assignment
 
-- Status: blocked
-- Owner actor: R-0031/coordinator (resumed after authorized reviewer deviation)
+- Status: in_progress
+- Owner actor: R-0033/coordinator (resumed after Zack's targeted RED escalation decision)
 - Role: coordinator (Test writer evidence, fresh RED Reviewer dispatch)
-- Run: [R-0031](../runs/R-0031.md), after [R-0030](../runs/R-0030.md)
+- Run: [R-0033](../runs/R-0033.md), after [R-0031](../runs/R-0031.md)
 - Feature / task: [005 spec](../../specs/005-auth/spec.md), [approved plan](../../specs/005-auth/plan.md), [RED tasks](../../specs/005-auth/tasks.md), [RED review](../../skills/red-review.md)
 - Authorization: Zack requested PR #29 workflow on 2026-11-17; Gate 1 and plan approved previously
 - Dependencies: [T-0023](T-0023-auth-red.md) and merged PR #29
 - Branch / worktree: `feature/005-auth` / `../tallyhold-feature-005-auth`
 - Issue / PR: issue #27; no Feature 005 PR yet
-- Updated: 2026-11-17T04:22:35Z
+- Updated: 2026-11-17T05:20:40Z
 
 ## Scope
 
@@ -28,16 +28,17 @@ existing RED-review escalation rules apply.
 - [x] RED and existing-suite results at the pinned test revision are committed and pushed.
 - [x] A fresh independent round-1 reviewer posts the checklist report and identical commit comment.
 - [ ] Verdict is handled per `red-review.md`, with no GREEN during escalation.
+- [ ] Zack's one authorized extra round checks only round-2 findings 1-3 and checklist item 6; `APPROVE` permits GREEN, otherwise stop and escalate.
 
 ## Checkpoint
 
-- Last completed action: different fresh Trae (GPT) subagent `arun_6afbd62d8f6c1606eab14cdb` completed round 2 against base `a96c0dae42889b8196b6ec3f9ae3b2bb79dcb25a` / pushed RED head `d5cee6c86839f8a227191c721c6ae4c43f4c10cc`, verdict `CHANGES_REQUESTED`.
-- Evidence: preserved [round-2 report](../../specs/005-auth/red-review.md) and identical [commit comment](https://github.com/donkey-king-kong/tallyhold/commit/d5cee6c86839f8a227191c721c6ae4c43f4c10cc#commitcomment-210393364). Reviewer type: fresh Trae (GPT) subagent under Zack's 2026-11-17 deviation; distinct from round 1.
-- Worktree state: round-2 report modified, pending coordinator commit/push; no GREEN code.
-- Remaining work: Zack resolves final-round RED escalation before any further test revision or GREEN; full verification and ship are deferred.
-- Blocker / unblock action: final permitted RED round not approved. Resolve process-wide limiter test conflict, failed-fetch throttle coverage and exact-head evidence only under Zack's decision.
-- Next action: commit/push report and blocked checkpoint, send Zack the three findings and await his decision; do not enter GREEN.
-- Handoff recipient: Zack for RED escalation.
+- Last completed action: Zack explicitly authorized one extra targeted RED review round on 2026-11-17; coordinator resumed from clean pushed `3fda8dc`.
+- Evidence: round-2 report and comment `210393364`; diff `24a0797..d5cee6c` touches only `red-test-run.md`, R-0031, T-0026, T-0028, leaving test content identical.
+- Worktree state: tracking-only takeover edits pending commit; no GREEN code.
+- Remaining work: targeted Test writer fixes/evidence, then different fresh round-3 reviewer scoped to findings 1-3 and checklist item 6.
+- Blocker / unblock action: GREEN remains blocked until round-3 `APPROVE`; on anything else stop and escalate again.
+- Next action: commit Test writer clock isolation and failed-refresh second-key assertions, rerun separate suites and capture exact-head evidence.
+- Handoff recipient: Test writer within R-0033; then fresh independent RED Reviewer.
 
 ## History
 
@@ -52,3 +53,4 @@ existing RED-review escalation rules apply.
 | 2026-11-17T04:19:51Z | R-0031/coordinator | Round-1 fixes tested at `24a0797`; existing suites green, new suites fail for absent auth behavior | Commit and push evidence; dispatch a different independent round-2 reviewer |
 | 2026-11-17T04:20:29Z | R-0031/coordinator | Remote evidence head `d5cee6c` matches local; round 2 planned against cumulative diff from `a96c0da`, with prior review permitted | Commit/push dispatch checkpoint; start a different fresh restricted Trae (GPT) reviewer |
 | 2026-11-17T04:22:35Z | R-0031/red-reviewer-2 | Fresh Trae (GPT) round 2 returned `CHANGES_REQUESTED`: shared limiter test clocks conflict; failed unknown-key fetch throttle unasserted; exact-head equivalence unstated | Report and identical commit comment `210393364`; final-round escalation to Zack, GREEN prohibited |
+| 2026-11-17T05:20:40Z | R-0033/coordinator | Zack authorized one extra targeted RED round on issue #27; took over from R-0031 at clean `3fda8dc` | Fix findings 1-3 and verify checklist item 6 only; round 3 must use a different fresh reviewer, no GREEN before APPROVE |
