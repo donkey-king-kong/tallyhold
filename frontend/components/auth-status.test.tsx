@@ -45,6 +45,24 @@ afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
+  vi.doUnmock("@supabase/ssr");
+  vi.resetModules();
+});
+
+test("browser Supabase client requests the PKCE OAuth flow", async () => {
+  const createBrowserClient = vi.fn().mockReturnValue({ auth: {} });
+  vi.doMock("@supabase/ssr", () => ({ createBrowserClient }));
+  const clientPath = "../lib/supabase/browser";
+  const { createClient } = await import(clientPath);
+  createClient();
+
+  expect(createBrowserClient).toHaveBeenCalledWith(
+    expect.any(String),
+    expect.any(String),
+    expect.objectContaining({
+      auth: expect.objectContaining({ flowType: "pkce" }),
+    }),
+  );
 });
 
 test("signed-out visitor starts Google OAuth without exposing tokens", async () => {
@@ -92,6 +110,37 @@ test("session fetches only its own current user with bearer and omitted credenti
     }),
   );
   expect(document.body.textContent).not.toContain("offline-jwt");
+});
+
+test("callback-created session becomes authenticated without leaking its token", async () => {
+  const auth = fakeAuth(null);
+  const fetch = vi.fn().mockResolvedValue({
+    ok: true,
+    json: async () => ({
+      id: "11111111-1111-4111-8111-111111111111",
+      base_currency: "SGD",
+    }),
+  });
+  vi.stubGlobal("fetch", fetch);
+  await renderAuthStatus(auth.client);
+  expect(await screen.findByRole("button", { name: /google/i })).toBeTruthy();
+
+  await act(async () =>
+    auth.emit("SIGNED_IN", {
+      access_token: "callback-jwt",
+      expires_at: 4102444800,
+    }),
+  );
+  expect(await screen.findByText(/SGD/)).toBeTruthy();
+  expect(fetch).toHaveBeenCalledWith(
+    expect.stringMatching(/\/api\/v1\/me$/),
+    expect.objectContaining({
+      headers: expect.objectContaining({ Authorization: "Bearer callback-jwt" }),
+      credentials: "omit",
+    }),
+  );
+  expect(document.body.textContent).not.toContain("callback-jwt");
+  expect(window.location.href).not.toContain("callback-jwt");
 });
 
 test("sign-out and expiry remove protected user details", async () => {

@@ -123,7 +123,7 @@ def test_expired_marker_still_denies_until_operator_purges_it(
         operator.execute(
             MARKER, {**pair, "expires": datetime.now(UTC) - timedelta(seconds=1)}
         )
-    with Session(auth_engine) as session, pytest.raises(Exception):
+    with Session(auth_engine) as session, pytest.raises(PermissionError):
         resolve(session, subject)
     assert counts(auth_engine) == (0, 0)
     with auth_engine.begin() as operator:
@@ -152,7 +152,7 @@ def test_marker_denies_even_an_existing_identity_before_lookup(
         operator.execute(
             MARKER, {**pair, "expires": datetime.now(UTC) + timedelta(seconds=3600)}
         )
-    with Session(auth_engine) as session, pytest.raises(Exception):
+    with Session(auth_engine) as session, pytest.raises(PermissionError):
         resolve(session, subject)
     assert counts(auth_engine) == (1, 1)
 
@@ -175,6 +175,39 @@ def test_simultaneous_first_logins_create_no_duplicate_or_orphan_user(
         ready.set()
         assert len({future.result(timeout=10) for future in futures}) == 1
     assert counts(auth_engine) == (1, 1)
+
+
+def test_provisioning_constraint_failure_rolls_back_candidate_not_caller_work(
+    auth_engine: Engine,
+) -> None:
+    with auth_engine.begin() as connection:
+        connection.execute(
+            text(
+                "ALTER TABLE identities ADD CONSTRAINT reject_fixture_provider "
+                "CHECK (provider <> 'google')"
+            )
+        )
+    existing_id = uuid4()
+    with Session(auth_engine) as session:
+        session.execute(
+            text("INSERT INTO users(id, base_currency) VALUES (:id, 'USD')"),
+            {"id": existing_id},
+        )
+        with pytest.raises(ValueError):
+            resolve(session, str(uuid4()))
+        assert (
+            session.execute(
+                text("SELECT count(*) FROM users WHERE id = :id"),
+                {"id": existing_id},
+            ).scalar_one()
+            == 1
+        )
+        assert session.execute(text("SELECT count(*) FROM users")).scalar_one() == 1
+        assert (
+            session.execute(text("SELECT count(*) FROM identities")).scalar_one() == 0
+        )
+        session.commit()
+    assert counts(auth_engine) == (1, 0)
 
 
 def wait_for_advisory_wait(
@@ -231,13 +264,13 @@ def test_operator_marker_commits_while_first_login_waits_and_denies_creation(
                     },
                 )
                 transaction.commit()
-                with pytest.raises(Exception):
+                with pytest.raises(PermissionError):
                     attempt.result(timeout=10)
         finally:
             if transaction.is_active:
                 transaction.rollback()
     assert counts(auth_engine) == (0, 0)
-    with Session(auth_engine) as session, pytest.raises(Exception):
+    with Session(auth_engine) as session, pytest.raises(PermissionError):
         resolve(session, subject)
     assert counts(auth_engine) == (0, 0)
 
@@ -294,6 +327,6 @@ def test_first_login_commits_before_operator_marker_then_erasure_stays_denied(
             release.set()
         first.result(timeout=10)
         operator.result(timeout=10)
-    with Session(auth_engine) as session, pytest.raises(Exception):
+    with Session(auth_engine) as session, pytest.raises(PermissionError):
         resolve(session, subject)
     assert counts(auth_engine) == (0, 0)

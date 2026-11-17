@@ -28,7 +28,9 @@ def signing_key() -> ec.EllipticCurvePrivateKey:
     return ec.generate_private_key(ec.SECP256R1())
 
 
-def public_jwks(key: ec.EllipticCurvePrivateKey) -> dict[str, Any]:
+def public_jwks(
+    key: ec.EllipticCurvePrivateKey, kid: str = "local-test-key"
+) -> dict[str, Any]:
     numbers = key.public_key().public_numbers()
     return {
         "keys": [
@@ -37,7 +39,7 @@ def public_jwks(key: ec.EllipticCurvePrivateKey) -> dict[str, Any]:
                 "crv": "P-256",
                 "alg": "ES256",
                 "use": "sig",
-                "kid": "local-test-key",
+                "kid": kid,
                 "x": encoded(numbers.x.to_bytes(32, "big")),
                 "y": encoded(numbers.y.to_bytes(32, "big")),
             }
@@ -130,7 +132,7 @@ def test_invalid_claims_and_attacker_headers_never_resolve_identity(
         return httpx.Response(200, json=public_jwks(signing_key))
 
     token = minted(signing_key, claims=claims, headers=headers)
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         verifier(httpx.MockTransport(jwks), [0.0]).verify(token)
     assert all(url == JWKS_URL for url in requested)
 
@@ -149,12 +151,14 @@ def test_missing_subject_never_resolves_identity(
     transport = httpx.MockTransport(
         lambda request: httpx.Response(200, json=public_jwks(signing_key))
     )
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         verifier(transport, [0.0]).verify(token)
 
 
+@pytest.mark.parametrize("header", ["jku", "x5u"])
 def test_signed_token_cannot_redirect_the_jwks_request(
     signing_key: ec.EllipticCurvePrivateKey,
+    header: str,
 ) -> None:
     requested: list[str] = []
 
@@ -162,7 +166,7 @@ def test_signed_token_cannot_redirect_the_jwks_request(
         requested.append(str(request.url))
         return httpx.Response(200, json=public_jwks(signing_key))
 
-    token = minted(signing_key, headers={"jku": "https://attacker.invalid.test/keys"})
+    token = minted(signing_key, headers={header: "https://attacker.invalid.test/keys"})
     assert verifier(httpx.MockTransport(jwks), [0.0]).verify(token).subject == SUBJECT
     assert requested == [JWKS_URL]
 
@@ -174,7 +178,7 @@ def test_forged_signature_is_rejected(
     transport = httpx.MockTransport(
         lambda request: httpx.Response(200, json=public_jwks(signing_key))
     )
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         verifier(transport, [0.0]).verify(minted(other))
 
 
@@ -199,6 +203,121 @@ def test_cached_keys_expire_at_600_seconds(
     assert len(requests) == 2
 
 
+def test_new_es256_key_verifies_after_pinned_jwks_rotation(
+    signing_key: ec.EllipticCurvePrivateKey,
+) -> None:
+    rotated = ec.generate_private_key(ec.SECP256R1())
+    requested: list[str] = []
+
+    def jwks(request: httpx.Request) -> httpx.Response:
+        requested.append(str(request.url))
+        key = signing_key if len(requested) == 1 else rotated
+        kid = "local-test-key" if len(requested) == 1 else "rotated-key"
+        return httpx.Response(200, json=public_jwks(key, kid))
+
+    subject = verifier(httpx.MockTransport(jwks), [0.0])
+    assert subject.verify(minted(signing_key)).subject == SUBJECT
+    assert (
+        subject.verify(minted(rotated, headers={"kid": "rotated-key"})).subject
+        == SUBJECT
+    )
+    assert requested == [JWKS_URL, JWKS_URL]
+
+
+def test_expired_key_never_survives_jwks_failure(
+    signing_key: ec.EllipticCurvePrivateKey,
+) -> None:
+    clock = [0.0]
+    fetches = 0
+
+    def jwks(request: httpx.Request) -> httpx.Response:
+        nonlocal fetches
+        fetches += 1
+        if fetches == 1:
+            return httpx.Response(200, json=public_jwks(signing_key))
+        raise httpx.ReadTimeout("offline fixture", request=request)
+
+    subject = verifier(httpx.MockTransport(jwks), clock)
+    token = minted(signing_key)
+    assert subject.verify(token).subject == SUBJECT
+    clock[0] = 599.0
+    assert subject.verify(token).subject == SUBJECT
+    assert fetches == 1
+    clock[0] = 600.0
+    with pytest.raises(ConnectionError):
+        subject.verify(token)
+    assert fetches == 2
+
+
+def test_failed_unknown_key_refresh_keeps_unexpired_known_key(
+    signing_key: ec.EllipticCurvePrivateKey,
+) -> None:
+    fetches = 0
+
+    def jwks(request: httpx.Request) -> httpx.Response:
+        nonlocal fetches
+        fetches += 1
+        if fetches == 1:
+            return httpx.Response(200, json=public_jwks(signing_key))
+        raise httpx.ReadTimeout("offline fixture", request=request)
+
+    subject = verifier(httpx.MockTransport(jwks), [0.0])
+    known = minted(signing_key)
+    subject.verify(known)
+    with pytest.raises(ConnectionError):
+        subject.verify(minted(signing_key, headers={"kid": "unavailable-key"}))
+    assert subject.verify(known).subject == SUBJECT
+    assert fetches == 2
+
+
+def test_expired_cache_random_kids_still_use_shared_refresh_gate(
+    signing_key: ec.EllipticCurvePrivateKey,
+) -> None:
+    clock = [0.0]
+    requested: list[str] = []
+
+    def jwks(request: httpx.Request) -> httpx.Response:
+        requested.append(str(request.url))
+        return httpx.Response(200, json=public_jwks(signing_key))
+
+    subject = verifier(httpx.MockTransport(jwks), clock)
+    subject.verify(minted(signing_key))
+    clock[0] = 600.0
+    for kid in ("random-one", "random-two", "random-three"):
+        with pytest.raises(ValueError):
+            subject.verify(minted(signing_key, headers={"kid": kid}))
+    assert requested == [JWKS_URL, JWKS_URL]
+
+
+@pytest.mark.parametrize(
+    ("issuer", "jwks_url"),
+    [
+        (ISSUER, "http://auth.invalid.test/auth/v1/.well-known/jwks.json"),
+        (ISSUER, "https://attacker.invalid.test/keys"),
+        ("http://auth.invalid.test/auth/v1", JWKS_URL),
+    ],
+)
+def test_untrusted_jwks_configuration_fails_before_fetch(
+    issuer: str, jwks_url: str
+) -> None:
+    requested: list[str] = []
+    module = import_module("app.modules.identity.infrastructure.jwt_verifier")
+
+    def no_fetch(request: httpx.Request) -> httpx.Response:
+        requested.append(str(request.url))
+        return httpx.Response(200, json={"keys": []})
+
+    with pytest.raises(ValueError):
+        module.SupabaseJwtVerifier(
+            issuer=issuer,
+            audience="authenticated",
+            jwks_url=jwks_url,
+            http_client=httpx.Client(transport=httpx.MockTransport(no_fetch)),
+            clock=lambda: 0.0,
+        )
+    assert requested == []
+
+
 def test_random_kid_flood_refreshes_at_most_once_per_process_per_window(
     signing_key: ec.EllipticCurvePrivateKey,
 ) -> None:
@@ -215,7 +334,7 @@ def test_random_kid_flood_refreshes_at_most_once_per_process_per_window(
 
     def rejected(index: int) -> None:
         token = minted(signing_key, headers={"kid": f"random-{index}"})
-        with pytest.raises(Exception):
+        with pytest.raises(ValueError):
             (first if index % 2 else second).verify(token)
 
     with ThreadPoolExecutor(max_workers=12) as pool:
@@ -249,7 +368,7 @@ def test_untrusted_jwks_key_types_are_never_accepted(
         transport = httpx.MockTransport(
             lambda request: httpx.Response(200, json={"keys": [jwk]})
         )
-        with pytest.raises(Exception):
+        with pytest.raises(ValueError):
             verifier(transport, [0.0]).verify(minted(signing_key))
 
 
@@ -262,7 +381,7 @@ def test_jwks_fetch_uses_three_second_timeout_and_fails_closed(
         observed.append(request)
         raise httpx.ReadTimeout("offline fixture", request=request)
 
-    with pytest.raises(Exception):
+    with pytest.raises(ConnectionError):
         verifier(httpx.MockTransport(timeout), [0.0]).verify(minted(signing_key))
     assert len(observed) == 1
     assert observed[0].extensions["timeout"]["read"] == 3.0

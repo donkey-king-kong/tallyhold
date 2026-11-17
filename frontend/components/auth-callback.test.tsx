@@ -4,9 +4,12 @@ import { afterEach, expect, test, vi } from "vitest";
 afterEach(() => {
   vi.doUnmock("../lib/supabase/server");
   vi.resetModules();
+  vi.restoreAllMocks();
 });
 
 test("callback exchanges only the one-time code and redirects without tokens", async () => {
+  const errorLog = vi.spyOn(console, "error").mockImplementation(() => {});
+  const infoLog = vi.spyOn(console, "log").mockImplementation(() => {});
   const exchangeCodeForSession = vi.fn().mockResolvedValue({
     data: { session: { access_token: "offline-jwt" } },
     error: null,
@@ -26,9 +29,13 @@ test("callback exchanges only the one-time code and redirects without tokens", a
   expect(response.headers.get("location")).not.toMatch(
     /one-time-code|offline-jwt|access_token|refresh_token/,
   );
+  expect(await response.text()).not.toMatch(/one-time-code|offline-jwt/);
+  expect(JSON.stringify(errorLog.mock.calls)).not.toMatch(/one-time-code|offline-jwt/);
+  expect(JSON.stringify(infoLog.mock.calls)).not.toMatch(/one-time-code|offline-jwt/);
 });
 
 test("cancelled callback returns a safe signed-out redirect", async () => {
+  const errorLog = vi.spyOn(console, "error").mockImplementation(() => {});
   const exchangeCodeForSession = vi.fn();
   vi.doMock("../lib/supabase/server", () => ({
     createClient: async () => ({ auth: { exchangeCodeForSession } }),
@@ -46,5 +53,12 @@ test("cancelled callback returns a safe signed-out redirect", async () => {
   expect(response.status).toBeLessThan(400);
   expect(response.headers.get("location")).not.toMatch(
     /sensitive-provider-detail|access_denied|access_token|refresh_token/,
+  );
+  expect(
+    new URL(response.headers.get("location")!, "http://localhost:3000").pathname,
+  ).toBe("/");
+  expect(await response.text()).not.toContain("sensitive-provider-detail");
+  expect(JSON.stringify(errorLog.mock.calls)).not.toContain(
+    "sensitive-provider-detail",
   );
 });
