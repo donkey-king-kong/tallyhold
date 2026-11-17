@@ -37,4 +37,104 @@
 
 The reviewer requests additional RED assertions at the approved public core, host and DOM boundaries, plus a repeatable packaged-editor/release verification checklist for items that cannot execute before GREEN. No spec or plan change is requested.
 
+Round 1 outcome: CHANGES_REQUESTED.
+
+# Feature 004 RED review, round 2
+
+- Base: `0988e8e`
+- Reviewed pushed RED head: `db0e9e3b735c774e0b0d56ee0f6d0901e29900ab`
+- Scope: the same permitted approved documents, cumulative base-to-head RED diff,
+  run evidence and existing adapter tests, plus the preserved round-1 report above.
+- References below are under `extensions/agent-monitor/test/`. Each AC also maps
+  the identically numbered verification row in the approved plan. Actual VSIX,
+  editor compatibility, contrast and measured performance remain GREEN gates.
+
+## Acceptance criteria and plan verification mapping, round 2
+
+| AC / plan item | Cumulative RED evidence | Still uncovered or not decisively asserted |
+| --- | --- | --- |
+| 1 | `packaging.test.ts:6-14` checks command contribution and API floor; `red-test-run.md` has a two-editor VSIX checklist. | Activation actually opening a panel is not tested; actual recorded-version installations are GREEN. |
+| 2 | `host.test.ts:34-54,93-105,236-248` checks source isolation, path/session, missing file and trusted discovery. | Unreadable-permission state and picker interaction are not tested; the initial error's actionable UI copy is not asserted. |
+| 3 | `core.test.ts:30-42`; `webview.test.ts:46-55` reconstruct and display terminal identities. | No failed agent fixture is rendered in the DOM at normal readability; no-playback is only implicit. |
+| 4 | `core.test.ts:109-124,168-182` checks coordinates/edges; `webview.test.ts:86-109` changes SVG on pan/zoom and resets it with Fit All. | No overflow/bounds assertion for initial Fit All or terminal/unresolved nodes; no camera equality after append/filter, multiple immutable slots or deterministic placement assertion. |
+| 5 | `core.test.ts:30-42` checks failed tool outcome and task; `webview.test.ts:57-70` checks two chronological records and unavailable age. | No DOM assertion distinguishes failed tool from success without declaring agent failure; no published-identity/identity-kind label or known last-update age in inspector. |
+| 6 | `core.test.ts:69-82,183-197` checks interval boundaries, reactivation and ambiguity; `host.test.ts:34-54,144-155` checks source replacement/isolation. | No assertion on interval labels in the inspector or independent same-ID histories across two simultaneous source controllers. |
+| 7 | `core.test.ts:109-124`; `webview.test.ts:46-55,110-121` check default/filter/reveal and explanatory text. | Filtered selection focus retention is not checked. |
+| 8 | `core.test.ts:133-144,215-223`; `webview.test.ts:122-137` check unspecified kind, verified age advance and quiet clock. | No assertion that unanchored historical age remains unavailable in the DOM or that locally observed age is separately labelled. |
+| 9 | `core.test.ts:44-67`; `host.test.ts:198-215` check split replay, repeated refresh, distinct equal lines and changed-prefix reset. | No actual read counter verifies unchanged notifications avoid reread; full host historical-versus-append equivalence and counts are not asserted. |
+| 10 | `core.test.ts:44-67,118-131,146-166,198-213` checks split UTF-8, later valid lines, invalid fields, mismatch, offsets and source order. | No diagnostic asserts its exact line/byte offset, rather than merely integer fields; nonfinite numeric JSON is not exercised. |
+| 11 | `host.test.ts:56-92,107-138,144-155,184-215,249-260` checks failure, reopen, truncate, replacement, delayed read, limits and watcher close. | Editor reload, fallback polling, timer/reader disposal and stale last-success display are not checked. |
+| 12 | `core.test.ts:84-107,168-197` checks orphan, unmatched tool end, late parent, self/cycle edges and ambiguous completion. | No UI assertion makes unresolved/cyclic identities and uncertain pairing accessible. |
+| 13 | `core.test.ts:118-144`; `host.test.ts:126-138,216-234` checks relative time, conflicting/malformed session and heartbeat status. | No stale or chronology-inconsistent *matching* session snapshot, heartbeat attribution, or affirmative display that the observation is provisional. |
+| 14 | `webview.test.ts:57-70,86-137` checks keyboard selection, navigator/search, camera controls, reveal and update. | No theme-token/contrast, narrow-panel resize, reduced-motion, non-color status, or focus-after-filter assertion; editor visual smoke is deferred. |
+| 15 | `host.test.ts:139-143,216-260`; `webview.test.ts:72-84`; `packaging.test.ts:16-48` checks local URI rejection, trust, text markup, CSP, roots and message rejection. | No hostile resource-URI/nonce interpolation test, companion-path no-write assertion, outbound-request observation, or malformed host-to-webview message validation. |
+| 16 | `packaging.test.ts:6-50` checks API/command and policy; `red-test-run.md` lists coverage, VSIX audit, checks, benchmarks and editor smoke. | No executable activation/smoke harness, allowlist assertion, within-envelope or benchmark fixture. Coverage, VSIX inspection and actual smoke are GREEN verification, not RED passes. |
+
+## Prior findings, round 2 disposition
+
+- Round-1 findings 1 and 4: **partially resolved.** Inspector chronology,
+  filtered reveal, clock advance and changing SVG now have assertions
+  (`webview.test.ts:57-70,86-137`), but a UI that always marks tool outcomes
+  successful, changes camera on every update, omits overflow nodes from Fit All
+  and ignores theme/responsive rules can still satisfy these tests.
+- Round-1 finding 2: **partially resolved.** Exact interval boundaries, invalid
+  record fields, changed prefix, late edges, a controlled stale-read race,
+  limit-preserved history, trust gating, watcher closure, nonce CSP/local roots
+  and stale/oversize message rejection were added (`core.test.ts:69-82,168-223`;
+  `host.test.ts:107-124,184-260`; `packaging.test.ts:16-48`). Snapshot
+  chronology consistency, viewport stability and the remaining security
+  boundary cases in the table are not asserted.
+- Round-1 findings 3, 5 and 6: **resolved/unchanged.** The new tests collect
+  and fail only for missing approved modules or the missing manifest contribution.
+  Synthetic local fixtures and jsdom introduce no secret or external network
+  dependency. The cumulative diff does not weaken or remove existing tests.
+
+## Checklist findings, round 2
+
+1. **Criterion and numbered verification coverage: changes requested.** All
+   AC1-AC16 and corresponding plan rows map to tests above, but the explicit
+   uncovered behaviors in rows 4, 5, 13-15 are material acceptance behavior.
+   A release checklist is appropriate for actual editor compatibility and
+   measured contrast/performance, but does not replace RED assertions of
+   observable DOM/model/host behavior.
+2. **Observable plan decisions: changes requested.** No test supplies a
+   matching session ID with a valid yet chronology-inconsistent start, so
+   absolute dates could overwrite confirmed event chronology
+   (`host.test.ts:126-138,216-234`). No camera assertion follows append or
+   filter and no multi-node bounds assertion proves Fit All includes terminal
+   and unresolved nodes (`webview.test.ts:46-55,86-109`). Hostile URI/nonce
+   inputs are not supplied to `renderPanelHtml`, and no assertion covers
+   outbound requests or companion writes (`packaging.test.ts:16-30`;
+   `host.test.ts:139-143,216-234`). These are approved decisions, not proposed
+   spec changes.
+3. **RED failure validity: none.** Reran `npm test -- --reporter=dot --silent`
+   at `db0e9e3`: four files collected, 38 failed, zero passed or skipped.
+   Core/host/webview imports fail for absent planned modules, the manifest
+   assertion fails on the absent `engines.vscode`; no collection, setup,
+   dependency or network error. This matches `red-test-run.md`.
+4. **Behavioral assertions and plausible wrong implementations: changes
+   requested.** `webview.test.ts:86-109` compares SVG HTML after manual
+   controls but never after `app.update` or filter; an implementation that
+   resets the viewport on every event passes. `core.test.ts:30-42` catches
+   failed tool projection, while `webview.test.ts:21-29,57-70` has no tool
+   outcome fixture, so an inspector that mislabels failure passes. The
+   security and snapshot examples in finding 2 likewise permit wrong
+   behavior through the approved public interfaces.
+5. **Allowed infrastructure/privacy: none observed.** `host.test.ts:15-23`
+   creates disposable files under the OS temporary directory; core/webview
+   records are synthetic. The rejected HTTP URL is not fetched. No real
+   credentials, private runtime log, PostgreSQL dependency or external
+   network fixture appears in the cumulative test diff. This does not prove
+   the future extension will avoid outbound requests.
+6. **Existing tests and cumulative diff: none.** Base-to-head adds the
+   extension tests, package files and RED evidence; no existing adapter,
+   backend or frontend test is weakened or removed. Reran
+   `python3 -m unittest discover -s .trae/agent-flow -p 'test_*.py' -v`:
+   six passed, zero failed/skipped, matching `red-test-run.md`. Backend and
+   frontend suites remain unrun and unchanged by the RED diff.
+
+This is the final independent RED review round. The remaining observable
+coverage gaps require coordinator/Zack resolution before GREEN; there is no
+spec/plan change or unwritable security test claimed here.
+
 VERDICT: CHANGES_REQUESTED
