@@ -48,6 +48,7 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 | [T-0044](tickets/T-0044-accounts-red-review-round2.md) | Verify Feature 006 RED corrections with a fresh reviewer | [R-0040](runs/R-0040.md) |
 | [T-0045](tickets/T-0045-accounts-red-review-exception.md) | Review Zack-authorized final RED correction independently | [R-0040](runs/R-0040.md) |
 | [T-0046](tickets/T-0046-accounts-red-review-cors.md) | Review Zack-authorized focused CORS RED correction | [R-0040](runs/R-0040.md) |
+| [T-0047](tickets/T-0047-accounts-green.md) | Implement approved Feature 006 migration, API and UI | [R-0040](runs/R-0040.md) |
 
 Historical PR #6 post-dispatch records remain in T-0002's checkpoint
 branch/worktree. Future ship runs use PR comments instead.
