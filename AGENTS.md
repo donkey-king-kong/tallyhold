@@ -2,6 +2,13 @@
 
 Tallyhold ("All your brokers. One portfolio.") is a multi-user, read-only portfolio view for long-term investors across brokers. It is a learning project in OOP, SOLID, relational design and end-to-end delivery. Agents work from approved feature specs; Zack approves requirements and constitution-changing PR merges.
 
+**Cost gate (non-negotiable):** Before any action that can cost money or require
+payment details, obtain Zack's two separate explicit approvals using
+`COST APPROVAL 1/2` then `COST APPROVAL 2/2`; a plan is not approval. Unknown
+pricing counts as costly. Payment-free, confirmed free-tier actions require one
+explicit approval and documented limits. Apply [constitution rule 15](docs/constitution.md)
+in full, including trials, billing, cloud resources, paid APIs and quotas.
+
 ## Read first
 
 **Session recovery:** On every new session, context recovery, or task assignment,
