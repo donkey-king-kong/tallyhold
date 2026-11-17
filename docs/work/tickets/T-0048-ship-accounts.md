@@ -16,7 +16,7 @@
 - Branch / worktree: `feature/006-accounts` / `../tallyhold-feature-006-accounts`
 - Issue / PR: [#36](https://github.com/donkey-king-kong/tallyhold/issues/36) /
   [#43](https://github.com/donkey-king-kong/tallyhold/pull/43)
-- Updated: 2026-11-17T09:16:44Z
+- Updated: 2026-11-17T09:56:55Z
 
 ## Scope
 
@@ -34,17 +34,17 @@ AGENTS.md on Track A.
 
 ## Checkpoint
 
-- Last completed action: confirmed PR #43 at `b04730a` has green backend,
-  frontend and security checks in both CI runs.
+- Last completed action: final-head `b3f118b` CI green; fresh Claude review
+  launch failed before verdict with ECONNREFUSED.
 - Evidence: GitHub repo PUBLIC, standard `ubuntu-latest`, no artifact
   upload; separate COST APPROVAL 1/2 and 2/2 recorded. PR backend/frontend/
   security passed; migration-changes and production-migrations skipped on PR.
-- Worktree state: tracking-only pre-review checkpoint pending commit/push.
+- Worktree state: failed-launch fallback checkpoint pending commit/push.
 - Remaining work: final-head CI, fresh review, merge gate.
-- Blocker / unblock action: none; Zack separately approved COST APPROVAL
-  1/2 and COST APPROVAL 2/2 for the stated GitHub PR/CI action.
-- Next action: commit/push this pre-review checkpoint, verify final-head CI,
-  then dispatch T-0049's fresh restricted Reviewer.
+- Blocker / unblock action: Claude API refused; Zack separately approved
+  both cost stages for one fresh Trae fallback as well as GitHub PR/CI.
+- Next action: commit/push the fallback checkpoint, verify final-head CI,
+  then dispatch T-0049's fresh restricted Trae Reviewer.
 - Handoff recipient: fresh Reviewer after final-head CI.
 
 ## History
@@ -56,3 +56,4 @@ AGENTS.md on Track A.
 | 2026-11-17T09:14:08Z | R-0040/coordinator | Zack separately selected "Approve stage 2" after the same GitHub action, $0 expected/unbounded paid-storage worst-case and undo terms were restated | Commit/push branch and open PR; inspect CI |
 | 2026-11-17T09:15:12Z | R-0040/coordinator | Branch pushed `b04730a`; PR #43 opened/assigned; backend/frontend/security CI still running, migration-changes skipped | Save checkpoint, then wait green before review |
 | 2026-11-17T09:16:44Z | R-0040/coordinator | PR #43 head `b04730a` green in both CI runs: backend/frontend/security pass, migration/production jobs skipped; assigned to Zack, no prior PR comments | Commit/push final tracking checkpoint; recheck CI on its new head before dispatch |
+| 2026-11-17T09:56:55Z | R-0040/coordinator | `b3f118b` CI green; fresh Claude review launch failed before verdict with ECONNREFUSED. Zack separately approved cost stages 1/2 and 2/2 for one fresh Trae fallback | Push failure/fallback checkpoint, await CI, dispatch fresh reviewer |

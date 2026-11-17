@@ -4,7 +4,7 @@
 
 - Status: ready
 - Owner actor: R-0040/coordinator (external tracking for fresh Reviewer)
-- Role: Reviewer, fresh headless Claude planned after final-head CI
+- Role: Reviewer, fresh Trae fallback planned after failed Claude launch
 - Run: [R-0040](../runs/R-0040.md)
 - Feature / task: [006 spec](../../specs/006-accounts/spec.md),
   [plan](../../specs/006-accounts/plan.md),
@@ -15,7 +15,7 @@
 - Branch / worktree: `feature/006-accounts` / `../tallyhold-feature-006-accounts`
 - Issue / PR: [#36](https://github.com/donkey-king-kong/tallyhold/issues/36) /
   [#43](https://github.com/donkey-king-kong/tallyhold/pull/43)
-- Updated: 2026-11-17T09:16:44Z
+- Updated: 2026-11-17T09:56:55Z
 
 ## Scope
 
@@ -31,16 +31,18 @@ The coordinator records lifecycle and verdict outside the Reviewer.
 
 ## Checkpoint
 
-- Last completed action: green CI confirmed on candidate head `b04730a`;
-  review has not been dispatched.
-- Evidence: two CI runs show backend/frontend/security passed, migration-
-  changes and production-migrations skipped; PR #43 assigned to Zack.
-- Worktree state: pre-review checkpoint pending commit/push.
-- Remaining work: final-head CI, fresh Reviewer, merge gate.
-- Blocker / unblock action: none; verify CI again after checkpoint push.
-- Next action: commit/push tracking, confirm final PR head and green CI,
-  freeze tracking, then launch fresh headless Claude Reviewer for round 1
-  with only PR number, round, feature path and Reviewer role.
+- Last completed action: fresh Claude launch on `b3f118b` failed before a
+  verdict with API ECONNREFUSED; no `review.md` was produced.
+- Evidence: final-head backend/frontend/security CI green; failure recorded
+  in PR comment `6944247309`. Zack separately approved stages 1 and 2
+  for one fresh Trae fallback under unknown, potentially unbounded cost.
+- Worktree state: fallback selection checkpoint pending commit/push.
+- Remaining work: CI on fallback checkpoint, fresh Reviewer, merge gate.
+- Blocker / unblock action: Claude endpoint refused connection; approved
+  fresh Trae fallback is available after final-head CI.
+- Next action: commit/push failed-launch and fallback checkpoint, confirm
+  final PR head and green CI, freeze tracking, then launch a fresh Trae
+  Reviewer with only PR number, round, feature path and Reviewer role.
 - Handoff recipient: new independent Reviewer after green checks.
 
 ## History
@@ -49,3 +51,4 @@ The coordinator records lifecycle and verdict outside the Reviewer.
 | --- | --- | --- | --- |
 | 2026-11-17T09:15:12Z | R-0040/coordinator | Planned fresh review for PR #43; CI still running | Wait for checks, push checkpoint, dispatch |
 | 2026-11-17T09:16:44Z | R-0040/coordinator | Candidate `b04730a` CI green; selected fresh headless Claude for round 1, not launched | Push pre-review checkpoint; confirm final-head CI before dispatch |
+| 2026-11-17T09:56:55Z | R-0040/coordinator | Tracking pushed at `b3f118b`, final-head CI green. Zack separately approved one Claude review launch; fresh Claude failed API ECONNREFUSED before verdict, with no report; PR failure comment `6944247309`. Zack then separately approved both cost stages for one fresh Trae fallback | Push fallback checkpoint and wait for its CI before new Reviewer dispatch |
