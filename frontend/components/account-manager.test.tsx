@@ -293,3 +293,78 @@ test("expired session makes no protected requests", async () => {
   expect(fetch).not.toHaveBeenCalled();
   expect(document.body.textContent).not.toContain("expired-jwt");
 });
+
+test("loading is distinct from empty and invalid currency blocks creation", async () => {
+  const auth = fakeAuth(valid);
+  let finishList!: (value: ReturnType<typeof reply>) => void;
+  const pending = new Promise<ReturnType<typeof reply>>((resolve) => {
+    finishList = resolve;
+  });
+  const fetch = vi.fn().mockImplementation(async (input: string) => {
+    if (input.endsWith("/me"))
+      return reply({ id: OWNER, base_currency: "SGD" });
+    if (input.endsWith("/brokers"))
+      return reply([{ id: BROKER, name: "IBKR", country: "SG" }]);
+    return pending;
+  });
+  vi.stubGlobal("fetch", fetch);
+  await renderManager(auth.client);
+  expect(await screen.findByText(/loading accounts/i)).toBeTruthy();
+  expect(screen.queryByText(/no accounts yet/i)).toBeNull();
+  finishList(reply([]));
+  expect(await screen.findByText(/no accounts yet/i)).toBeTruthy();
+
+  fireEvent.change(screen.getByLabelText(/account name/i), {
+    target: { value: "Main" },
+  });
+  fireEvent.change(screen.getByLabelText(/account currency/i), {
+    target: { value: "US1" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: /create account/i }));
+  expect(await screen.findByRole("alert")).toBeTruthy();
+  expect(screen.getByLabelText(/account currency/i)).toHaveProperty(
+    "value",
+    "US1",
+  );
+  expect(
+    fetch.mock.calls.filter(([, options]) => options?.method === "POST"),
+  ).toHaveLength(0);
+});
+
+test("an API 401 clears private accounts and prevents later writes", async () => {
+  const auth = fakeAuth(valid);
+  let rejectNextList = false;
+  const fetch = vi.fn().mockImplementation(async (input: string) => {
+    if (input.endsWith("/me"))
+      return reply({ id: OWNER, base_currency: "SGD" });
+    if (input.endsWith("/brokers"))
+      return reply([{ id: BROKER, name: "IBKR", country: "SG" }]);
+    if (rejectNextList) return reply({ detail: "Invalid token" }, 401);
+    return reply([
+      {
+        id: ACCOUNT,
+        broker_id: BROKER,
+        broker_name: "IBKR",
+        name: "Private account",
+        currency: "SGD",
+      },
+    ]);
+  });
+  vi.stubGlobal("fetch", fetch);
+  await renderManager(auth.client);
+  expect(await screen.findByText("Private account")).toBeTruthy();
+
+  rejectNextList = true;
+  await act(async () =>
+    auth.emit("TOKEN_REFRESHED", {
+      access_token: "refreshed-jwt",
+      expires_at: 4102444800,
+    }),
+  );
+  expect(await screen.findByText(/sign in/i)).toBeTruthy();
+  expect(screen.queryByText("Private account")).toBeNull();
+  expect(screen.queryByRole("button", { name: /create account/i })).toBeNull();
+  expect(
+    fetch.mock.calls.filter(([, options]) => options?.method === "POST"),
+  ).toHaveLength(0);
+});
