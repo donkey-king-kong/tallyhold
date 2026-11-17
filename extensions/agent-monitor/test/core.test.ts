@@ -253,4 +253,42 @@ describe("selected-stream projection (AC3-10, AC12-13)", () => {
     ]);
     expect(model.snapshot().nodes[0].activities).toHaveLength(2);
   });
+
+  it("retains dispatch and return activity on the reporting parent", async () => {
+    const model = await stream();
+    model.ingest(bytes(
+      record("agent_spawn", { name: "root" }, 0) +
+      record("subagent_dispatch", { parent: "root", child: "worker", task: "Review" }, 1) +
+      record("subagent_return", { parent: "root", agent: "worker", result: "Done" }, 2),
+    ));
+    expect(model.snapshot().nodes[0].activities.map((item: any) => item.type)).toEqual([
+      "agent_spawn", "subagent_dispatch", "subagent_return",
+    ]);
+  });
+
+  it("filters every reported terminal boundary regardless of status wording", async () => {
+    const model = await stream();
+    model.ingest(bytes(
+      record("agent_spawn", { name: "root" }, 0) +
+      record("agent_complete", { name: "root", status: "resolved" }, 1),
+    ));
+    expect(model.snapshot().nodes[0]).toMatchObject({ status: "resolved", terminal: true });
+    expect(model.snapshot({ activeOnly: true }).nodes).toEqual([]);
+  });
+
+  it("keeps every concurrent same-tool outcome ambiguous without call IDs", async () => {
+    const model = await stream();
+    model.ingest(bytes(
+      record("agent_spawn", { name: "root" }, 0) +
+      record("tool_call_start", { agent: "root", tool: "Read" }, 1) +
+      record("tool_call_start", { agent: "root", tool: "Read" }, 2) +
+      record("tool_call_end", { agent: "root", tool: "Read", result: "first" }, 3) +
+      record("tool_call_end", { agent: "root", tool: "Read", result: "second" }, 4),
+    ));
+    expect(
+      model.snapshot().nodes[0].activities
+        .filter((item: any) => item.type === "tool_call_end")
+        .map((item: any) => item.pairing),
+    ).toEqual(["ambiguous", "ambiguous"]);
+  });
 });

@@ -79,4 +79,12 @@ describe("independent extension contract (AC1, AC15-16)", () => {
       expect(ignore).toContain(forbidden);
     }
   });
+
+  it("wires trusted discovery and persisted source restoration into activation", async () => {
+    const activation = await readFile(resolve("src/extension.ts"), "utf8");
+    expect(activation).toContain("resolveInitialSource");
+    expect(activation).toContain("workspaceState.get");
+    expect(activation).toContain("workspaceState.update");
+    expect(activation).toContain("workspace.isTrusted");
+  });
 });

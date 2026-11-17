@@ -61,3 +61,19 @@ export async function discoverWorktreeSources(
   }
   return found;
 }
+
+export async function resolveInitialSource(
+  stored: string | null,
+  roots: string[],
+  options: { trusted: boolean },
+): Promise<string | null> {
+  if (!options.trusted) return null;
+  if (stored) {
+    try {
+      if (new URL(stored).protocol === "file:") return stored;
+    } catch {
+      // Ignore invalid persisted values and continue with discovery.
+    }
+  }
+  return (await discoverWorktreeSources(roots, options))[0] ?? null;
+}

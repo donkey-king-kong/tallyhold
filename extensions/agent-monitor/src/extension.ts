@@ -3,13 +3,19 @@ import { pathToFileURL } from "node:url";
 
 import * as vscode from "vscode";
 
-import { createPanelOptions, renderPanelHtml } from "./host/monitorPanel";
+import {
+  createPanelOptions,
+  renderPanelHtml,
+  resolveInitialSource,
+} from "./host/monitorPanel";
 import { createSourceController } from "./host/sourceReader";
 import { validateWebviewMessage } from "./shared/protocol";
 
 function nonce(): string {
   return randomBytes(18).toString("base64url");
 }
+
+const SOURCE_KEY = "tallyholdAgentMonitor.selectedSource";
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
@@ -41,12 +47,17 @@ export function activate(context: vscode.ExtensionContext) {
       const reader = createSourceController();
       let generation = 0;
       let closed = false;
-      const publish = () =>
-        panel.webview.postMessage({
+      let lastPublishedState: unknown;
+      const publish = (force = false) => {
+        const nextState = reader.getState();
+        if (!force && nextState === lastPublishedState) return;
+        lastPublishedState = nextState;
+        return panel.webview.postMessage({
           type: "state",
           generation,
-          ...reader.getState(),
+          ...nextState,
         });
+      };
       const chooseSource = async () => {
         const selected = await vscode.window.showOpenDialog({
           canSelectMany: false,
@@ -57,8 +68,10 @@ export function activate(context: vscode.ExtensionContext) {
         });
         if (!selected?.[0]) return false;
         generation++;
-        await reader.selectSource(pathToFileURL(selected[0].fsPath));
-        await publish();
+        const source = pathToFileURL(selected[0].fsPath);
+        await context.workspaceState.update(SOURCE_KEY, source.href);
+        await reader.selectSource(source);
+        await publish(true);
         return true;
       };
       const messageSubscription = panel.webview.onDidReceiveMessage(
@@ -80,7 +93,21 @@ export function activate(context: vscode.ExtensionContext) {
         reader.dispose();
       });
 
-      if (!(await chooseSource())) await publish();
+      const roots =
+        vscode.workspace.workspaceFolders?.map((folder) => folder.uri.fsPath) ??
+        [];
+      const initial = await resolveInitialSource(
+        context.workspaceState.get<string>(SOURCE_KEY) ?? null,
+        roots,
+        { trusted: vscode.workspace.isTrusted },
+      );
+      if (initial) {
+        generation++;
+        await reader.selectSource(new URL(initial));
+        await publish(true);
+      } else if (!(await chooseSource())) {
+        await publish(true);
+      }
     }),
   );
 }

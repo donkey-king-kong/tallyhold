@@ -21,30 +21,50 @@ package.
 | `npm run lint`                     | PASS                                                               |
 | `npm run format:check`             | PASS                                                               |
 | `npm run typecheck`                | PASS against VS Code 1.80 declarations                             |
-| `npm run test:coverage`            | PASS; 56/56 tests                                                  |
-| Coverage                           | 95.57% statements, 84.18% branches, 96.20% functions, 97.26% lines |
+| `npm run test:coverage`            | PASS; 65/65 tests                                                  |
+| Coverage                           | 95.19% statements, 82.39% branches, 94.73% functions, 97.14% lines |
 | `npm run build`                    | PASS; host and webview bundles                                     |
 | `npm audit --audit-level=low`      | PASS; zero vulnerabilities                                         |
 | Publisher adapter unittest command | PASS; 6/6 tests                                                    |
 | `npm run package`                  | PASS                                                               |
 
-The approved RED test files remained unchanged during GREEN.
+The approved RED assertions were not weakened. Nine regression tests were added
+while resolving the first independent PR review.
 
 ## Performance
 
 Command: `npm run benchmark`
 
-The benchmark generates exact-size synthetic JSONL in memory and measures core
-ingestion plus immutable snapshot projection. Generation time is excluded.
+The benchmark generates exact-size synthetic JSONL and excludes fixture
+generation time. It measures the pure reducer, real source-controller
+reconciliation against a temporary local file, and actual JSDOM rendering
+through the production webview mount.
 
 | Envelope                                            | Cold reconstruction | 200-record append | Fit All bounds | RSS delta | Diagnostics |
 | --------------------------------------------------- | ------------------: | ----------------: | -------------: | --------: | ----------: |
-| 10 MiB, 20,000 records, 500 identities              |            79.48 ms |           1.01 ms |        0.26 ms | 22.22 MiB |           0 |
-| 67,108,863 bytes, 100,000 records, 2,000 identities |           859.14 ms |      not measured |        0.26 ms | 25.09 MiB |           0 |
+| 10 MiB, 20,000 records, 500 identities              |            85.87 ms |           1.03 ms |        0.23 ms | 28.89 MiB |           0 |
+| 67,108,863 bytes, 100,000 records, 2,000 identities |           886.42 ms |      not measured |        0.27 ms | 24.66 MiB |           0 |
 
-The representative results pass the approved targets of 3 seconds cold,
-250 milliseconds for 200 appended records and 100 milliseconds for Fit All.
-The maximum supported envelope reconstructed without a diagnostic.
+The latest pure-reducer run measured 85.87 ms representative cold
+reconstruction, 1.03 ms for a 200-record append, 0.23 ms for Fit All and
+28.89 MiB RSS growth. The 67,108,863-byte maximum envelope reconstructed in
+886.42 ms with 2,000 identities, no diagnostics, a 0.27 ms Fit All and
+24.66 MiB RSS growth.
+
+The production source controller opened the representative local file in
+198.94 ms. After a 29,650-byte append, its continuity/range-read path exposed
+all 200 new records in 51.44 ms while remaining `following` with 500 identities
+and no diagnostics.
+
+The production webview mount rendered a maximum-envelope projection with 2,000
+identities and a selected 100,000-activity history in 68.12 ms initially and
+59.76 ms for inspector selection. The DOM contained 500 viewport-bounded graph
+nodes and 100 paged activity rows; source history remained available through
+the paging controls.
+
+These results pass the approved targets of 3 seconds cold, 250 milliseconds for
+200 appended records and 100 milliseconds for local selection/Fit All. The
+maximum supported envelope reconstructed without a diagnostic.
 
 ## Package Audit
 

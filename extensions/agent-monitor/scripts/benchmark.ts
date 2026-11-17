@@ -1,6 +1,13 @@
 import { performance } from "node:perf_hooks";
+import { appendFile, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 
+import { JSDOM } from "jsdom";
 import { createStream } from "../src/core/reconcile";
+import { createSourceController } from "../src/host/sourceReader";
+import { mountMonitor } from "../src/webview/main";
 
 const encoder = new TextEncoder();
 const MIB = 1024 * 1024;
@@ -121,6 +128,96 @@ function measure(envelope: Envelope, appendCount = 0) {
   };
 }
 
+async function measureHost(envelope: Envelope, appendCount: number) {
+  const root = await mkdtemp(join(tmpdir(), "agent-monitor-benchmark-"));
+  const path = join(root, "events.jsonl");
+  const bytes = fixture(envelope);
+  const appended = appendFixture(
+    envelope.records,
+    appendCount,
+    envelope.identities,
+  );
+  const controller = createSourceController();
+  try {
+    await writeFile(path, bytes);
+    const coldStart = performance.now();
+    await controller.selectSource(pathToFileURL(path));
+    const coldMs = performance.now() - coldStart;
+
+    await appendFile(path, appended);
+    const appendStart = performance.now();
+    await controller.refresh();
+    const appendMs = performance.now() - appendStart;
+    const state = controller.getState();
+    return {
+      coldMs: Number(coldMs.toFixed(2)),
+      appendBytes: appended.byteLength,
+      appendRecords: appendCount,
+      appendMs: Number(appendMs.toFixed(2)),
+      reader: state.reader,
+      identities: state.projection.nodes.length,
+      diagnostics: state.diagnostics.length,
+    };
+  } finally {
+    controller.dispose();
+    await rm(root, { recursive: true, force: true });
+  }
+}
+
+function measureWebview() {
+  const dom = new JSDOM("<main></main>", { url: "https://webview.local/" });
+  const previousDocument = Reflect.get(globalThis, "document");
+  const previousWindow = Reflect.get(globalThis, "window");
+  Reflect.set(globalThis, "document", dom.window.document);
+  Reflect.set(globalThis, "window", dom.window);
+  const activities = Array.from({ length: 100_000 }, (_, index) => ({
+    type: "message",
+    time: index,
+    summary: `Synthetic activity ${index}`,
+  }));
+  const nodes = Array.from({ length: 2_000 }, (_, index) => ({
+    id: `agent-${index}`,
+    status: index === 0 ? "working" : "completed",
+    terminal: index !== 0,
+    relationship: "root",
+    position: { x: (index % 20) * 240, y: Math.floor(index / 20) * 100 },
+    activities: index === 0 ? activities : [],
+    intervals: [],
+    lastUpdateAge: 0,
+  }));
+  const root = dom.window.document.querySelector("main") as HTMLElement;
+  const renderStart = performance.now();
+  const monitor = mountMonitor(root, {
+    path: "/synthetic/events.jsonl",
+    sessionId: "synthetic-benchmark",
+    reader: "following",
+    projection: { nodes, edges: [], diagnostics: [] },
+  });
+  const initialRenderMs = performance.now() - renderStart;
+  const inspectStart = performance.now();
+  (root.querySelector("nav button") as HTMLButtonElement).click();
+  const inspectorRenderMs = performance.now() - inspectStart;
+  const result = {
+    identities: nodes.length,
+    activities: activities.length,
+    initialRenderMs: Number(initialRenderMs.toFixed(2)),
+    inspectorRenderMs: Number(inspectorRenderMs.toFixed(2)),
+    renderedGraphNodes: root.querySelectorAll("svg [data-node-id]").length,
+    renderedActivities: root.querySelectorAll(
+      '[aria-label="Activity history"] > div:not(:first-child)',
+    ).length,
+  };
+  monitor.dispose();
+  dom.window.close();
+  if (previousDocument === undefined)
+    Reflect.deleteProperty(globalThis, "document");
+  else Reflect.set(globalThis, "document", previousDocument);
+  if (previousWindow === undefined)
+    Reflect.deleteProperty(globalThis, "window");
+  else Reflect.set(globalThis, "window", previousWindow);
+  return result;
+}
+
 const representative = measure(
   {
     name: "representative",
@@ -136,5 +233,17 @@ const maximum = measure({
   records: 100_000,
   identities: 2_000,
 });
+const host = await measureHost(
+  {
+    name: "representative-host",
+    targetBytes: 10 * MIB,
+    records: 20_000,
+    identities: 500,
+  },
+  200,
+);
+const webview = measureWebview();
 
-console.log(JSON.stringify({ representative, maximum }, null, 2));
+console.log(
+  JSON.stringify({ representative, maximum, host, webview }, null, 2),
+);

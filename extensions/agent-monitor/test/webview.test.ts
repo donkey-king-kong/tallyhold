@@ -10,13 +10,17 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-function view(nodes: Array<Record<string, unknown>>) {
+function view(
+  nodes: Array<Record<string, unknown>>,
+  edges: Array<Record<string, unknown>> = [],
+  diagnostics: Array<Record<string, unknown>> = [],
+) {
   return {
     path: "/worktree/.agent-flow/agent-flow-events.jsonl",
     sessionId: "s1",
     reader: "following",
-    diagnostics: [],
-    projection: { nodes },
+    diagnostics,
+    projection: { nodes, edges, diagnostics },
   };
 }
 
@@ -24,6 +28,7 @@ function node(id: string, status: string) {
   return {
     id, task: id === "done" ? "Finished review" : "Coordinate",
     status, relationship: "root", position: { x: 0, y: id === "done" ? 0 : 120 },
+    terminal: status === "completed" || status === "failed",
     activities: [
       { type: "agent_spawn", time: 0, summary: "<img src=x onerror=alert(1)>" },
       { type: "agent_complete", time: 1, summary: "Review finished" },
@@ -272,5 +277,66 @@ describe("editor webview controls (AC3-5, AC7-8, AC12, AC14-15)", () => {
     expect(details.textContent).toMatch(/observed locally.*3(?:s| seconds)/i);
     expect(details.textContent).not.toMatch(/last report.*3(?:s| seconds)/i);
     expect(history.textContent).toMatch(/ambiguous/i);
+  });
+
+  it("draws parent-child edges with valid SVG labels and exposes diagnostics", async () => {
+    const parent = { ...node("parent", "working"), position: { x: 0, y: 0 } };
+    const child = {
+      ...node("child", "working"),
+      parentId: "parent",
+      relationship: "resolved",
+      position: { x: 240, y: 120 },
+    };
+    const { root } = await mount();
+    const modulePath = ["../src/webview", "main"].join("/");
+    const { mountMonitor } = await import(/* @vite-ignore */ modulePath);
+    dispose?.();
+    root.replaceChildren();
+    const app = mountMonitor(
+      root,
+      view(
+        [parent, child],
+        [{ parentId: "parent", childId: "child" }],
+        [{ code: "session_mismatch", line: 3, byteOffset: 42 }],
+      ),
+    );
+    dispose = () => app.dispose();
+    expect(root.querySelectorAll("svg line[data-edge]")).toHaveLength(1);
+    expect(root.querySelectorAll("svg g[data-node-id] text")).toHaveLength(2);
+    expect(root.querySelector("foreignObject")).toBeNull();
+    expect(getByRole(root, "region", { name: /diagnostics/i }).textContent).toMatch(
+      /session_mismatch.*line 3.*byte 42/i,
+    );
+  });
+
+  it("filters on the reported terminal boundary instead of status spelling", async () => {
+    const resolved = { ...node("resolved", "working"), status: "resolved", terminal: true };
+    const { root } = await mount([resolved, node("active", "working")]);
+    fireEvent.click(getByRole(root, "checkbox", { name: /last reported nonterminal/i }));
+    const graph = getByRole(root, "img", { name: /agent graph/i });
+    expect(graph.textContent).not.toContain("resolved");
+    expect(graph.textContent).toContain("active");
+  });
+
+  it("bounds graph DOM nodes and pages long activity history without dropping it", async () => {
+    const many = Array.from({ length: 600 }, (_, index) => ({
+      ...node(`agent-${index}`, "working"),
+      position: { x: (index % 20) * 240, y: Math.floor(index / 20) * 120 },
+    }));
+    many[0].activities = Array.from({ length: 205 }, (_, index) => ({
+      type: "message",
+      time: index,
+      summary: `activity-${index}`,
+    }));
+    const { root } = await mount(many);
+    expect(root.querySelectorAll("svg g[data-node-id]").length).toBeLessThanOrEqual(500);
+    fireEvent.click(getByRole(root, "button", { name: /agent-0 working/i }));
+    const history = getByRole(root, "region", { name: /activity history/i });
+    expect(history.textContent).toContain("activity-0");
+    expect(history.textContent).not.toContain("activity-204");
+    fireEvent.click(getByRole(root, "button", { name: /last activity page/i }));
+    expect(
+      getByRole(root, "region", { name: /activity history/i }).textContent,
+    ).toContain("activity-204");
   });
 });

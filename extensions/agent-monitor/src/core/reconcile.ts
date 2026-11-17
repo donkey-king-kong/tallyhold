@@ -35,7 +35,7 @@ type NodeState = {
   identityKind: "unspecified";
   lastTime: number;
   terminal: boolean;
-  openTools: Map<string, number>;
+  openTools: Map<string, { count: number; ambiguous: boolean }>;
 };
 
 const supported = new Set([
@@ -222,13 +222,13 @@ export function createStream(options: {
       diagnose("invalid_record", byteOffset);
       return;
     }
-    if (
-      record.type === "subagent_dispatch" ||
-      record.type === "subagent_return"
-    )
-      return;
-
-    const node = ensureNode(id, text(payload.parent), text(payload.task));
+    const reportsRelationship =
+      record.type !== "subagent_dispatch" && record.type !== "subagent_return";
+    const node = ensureNode(
+      id,
+      reportsRelationship ? text(payload.parent) : undefined,
+      reportsRelationship ? text(payload.task) : undefined,
+    );
     const activity: Activity = {
       type: record.type,
       time: record.time,
@@ -275,14 +275,22 @@ export function createStream(options: {
           (record.type === "error" ? "blocked" : "waiting");
     } else if (record.type === "tool_call_start") {
       const tool = text(payload.tool) ?? "unknown";
-      node.openTools.set(tool, (node.openTools.get(tool) ?? 0) + 1);
+      const open = node.openTools.get(tool) ?? { count: 0, ambiguous: false };
+      open.count++;
+      if (open.count > 1) open.ambiguous = true;
+      node.openTools.set(tool, open);
     } else if (record.type === "tool_call_end") {
       const tool = text(payload.tool) ?? "unknown";
-      const open = node.openTools.get(tool) ?? 0;
-      activity.pairing =
-        open === 1 ? "paired" : open > 1 ? "ambiguous" : "unmatched";
-      if (open === 1) node.openTools.delete(tool);
-      if (open > 1) node.openTools.set(tool, open - 1);
+      const open = node.openTools.get(tool);
+      activity.pairing = !open
+        ? "unmatched"
+        : open.ambiguous
+          ? "ambiguous"
+          : "paired";
+      if (open) {
+        open.count--;
+        if (open.count === 0) node.openTools.delete(tool);
+      }
       activity.outcome = /fail|error/i.test(
         String(payload.result ?? payload.outcome ?? ""),
       )
@@ -315,7 +323,7 @@ export function createStream(options: {
     snapshot(snapshotOptions: { activeOnly?: boolean; now?: number } = {}) {
       const now = snapshotOptions.now ?? Date.now();
       const selected = snapshotOptions.activeOnly
-        ? nodes.filter((node) => !["completed", "failed"].includes(node.status))
+        ? nodes.filter((node) => !node.terminal)
         : nodes;
       return {
         source: options.source,
@@ -330,6 +338,7 @@ export function createStream(options: {
           activities: node.activities.map((activity) => ({ ...activity })),
           intervals: node.intervals.map((interval) => ({ ...interval })),
           identityKind: node.identityKind,
+          terminal: node.terminal,
           lastUpdateAge:
             options.sessionStartedAt === undefined
               ? null

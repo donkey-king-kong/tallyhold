@@ -3,7 +3,8 @@ export type MonitorState = {
   sessionId: string | null;
   reader: string;
   error?: string;
-  projection: { nodes: any[] };
+  diagnostics?: any[];
+  projection: { nodes: any[]; edges?: any[]; diagnostics?: any[] };
 };
 
 type MonitorActions = {
@@ -31,8 +32,8 @@ function button(name: string, action: () => void) {
   return value;
 }
 
-function terminal(status: string) {
-  return status === "completed" || status === "failed";
+function terminal(node: any) {
+  return node?.terminal === true;
 }
 
 function bounds(nodes: any[]): string {
@@ -46,6 +47,35 @@ function bounds(nodes: any[]): string {
   return `${minX} ${minY} ${Math.max(800, maxX - minX)} ${Math.max(600, maxY - minY)}`;
 }
 
+export function visibleGraphNodes(
+  nodes: any[],
+  camera: string,
+  maximum = 500,
+): any[] {
+  const [x, y, width, height] = camera.split(/\s+/).map(Number);
+  const margin = 200;
+  return nodes
+    .filter((node) => {
+      const nodeX = Number(node.position?.x ?? 0);
+      const nodeY = Number(node.position?.y ?? 0);
+      return (
+        nodeX >= x - margin &&
+        nodeX <= x + width + margin &&
+        nodeY >= y - margin &&
+        nodeY <= y + height + margin
+      );
+    })
+    .slice(0, maximum);
+}
+
+export function activityPage(
+  activities: any[],
+  page: number,
+  pageSize = 100,
+): any[] {
+  return activities.slice(page * pageSize, (page + 1) * pageSize);
+}
+
 export function mountMonitor(
   root: HTMLElement,
   initialState: MonitorState,
@@ -57,17 +87,66 @@ export function mountMonitor(
   let query = "";
   let camera = bounds(state.projection.nodes);
   let elapsed = 0;
+  let activityPageIndex = 0;
   let reveal: HTMLButtonElement | null = null;
   let svgElement: SVGSVGElement | null = null;
 
   const select = (id: string) => {
     selectedId = id;
+    activityPageIndex = 0;
     render();
+  };
+
+  const drawGraph = () => {
+    if (!svgElement) return;
+    svgElement.replaceChildren();
+    const graphNodes = activeOnly
+      ? state.projection.nodes.filter((node) => !terminal(node))
+      : state.projection.nodes;
+    const visible = visibleGraphNodes(graphNodes, camera);
+    const visibleById = new Map(visible.map((node) => [node.id, node]));
+    for (const edge of state.projection.edges ?? []) {
+      const parent = visibleById.get(edge.parentId);
+      const child = visibleById.get(edge.childId);
+      if (!parent || !child) continue;
+      const line = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "line",
+      );
+      line.dataset.edge = `${edge.parentId}:${edge.childId}`;
+      line.setAttribute("x1", String(Number(parent.position?.x ?? 0) + 90));
+      line.setAttribute("y1", String(Number(parent.position?.y ?? 0) + 30));
+      line.setAttribute("x2", String(Number(child.position?.x ?? 0) + 90));
+      line.setAttribute("y2", String(Number(child.position?.y ?? 0) + 30));
+      svgElement.append(line);
+    }
+    for (const node of visible) {
+      const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      group.dataset.nodeId = node.id;
+      const rectangle = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "rect",
+      );
+      rectangle.setAttribute("x", String(node.position?.x ?? 0));
+      rectangle.setAttribute("y", String(node.position?.y ?? 0));
+      rectangle.setAttribute("width", "180");
+      rectangle.setAttribute("height", "60");
+      const label = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "text",
+      );
+      label.setAttribute("x", String(Number(node.position?.x ?? 0) + 8));
+      label.setAttribute("y", String(Number(node.position?.y ?? 0) + 34));
+      label.textContent = `${node.id} ${node.status}`;
+      group.append(rectangle, label);
+      svgElement.append(group);
+    }
   };
 
   const setCamera = (transform: (values: number[]) => number[]) => {
     camera = transform(camera.split(/\s+/).map(Number)).join(" ");
     svgElement?.setAttribute("viewBox", camera);
+    drawGraph();
   };
 
   const render = () => {
@@ -93,6 +172,29 @@ export function mountMonitor(
       header.append(element("div", `Reader: ${state.reader}`));
     }
     root.append(header);
+    const diagnostics = state.diagnostics ?? state.projection.diagnostics ?? [];
+    if (diagnostics.length > 0) {
+      const region = element("section", undefined, {
+        role: "region",
+        "aria-label": "Diagnostics",
+      });
+      region.append(element("h2", `Diagnostics (${diagnostics.length})`));
+      for (const diagnostic of diagnostics.slice(0, 100)) {
+        const location =
+          diagnostic.line === undefined
+            ? ""
+            : ` line ${diagnostic.line}, byte ${diagnostic.byteOffset ?? "unavailable"}`;
+        region.append(
+          element(
+            "div",
+            `${diagnostic.code ?? "diagnostic"}${location}: ${diagnostic.message ?? "No additional detail"}`,
+          ),
+        );
+      }
+      if (diagnostics.length > 100)
+        region.append(element("div", "Additional diagnostics are not shown."));
+      root.append(region);
+    }
 
     const controls = element("section", undefined, {
       "aria-label": "Graph controls",
@@ -119,6 +221,7 @@ export function mountMonitor(
       button("Fit All", () => {
         camera = bounds(state.projection.nodes);
         svgElement?.setAttribute("viewBox", camera);
+        drawGraph();
       }),
     );
     const label = element("label", "Last reported nonterminal");
@@ -133,9 +236,7 @@ export function mountMonitor(
       if (
         activeOnly &&
         selectedId &&
-        terminal(
-          state.projection.nodes.find((node) => node.id === selectedId)?.status,
-        )
+        terminal(state.projection.nodes.find((node) => node.id === selectedId))
       ) {
         reveal?.focus();
       }
@@ -150,31 +251,13 @@ export function mountMonitor(
     );
     root.append(controls);
 
-    const graphNodes = activeOnly
-      ? state.projection.nodes.filter((node) => !terminal(node.status))
-      : state.projection.nodes;
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svgElement = svg;
     svg.setAttribute("viewBox", camera);
     svg.setAttribute("aria-label", "Agent graph");
-    for (const node of graphNodes) {
-      const foreign = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "foreignObject",
-      );
-      foreign.setAttribute("x", String(node.position?.x ?? 0));
-      foreign.setAttribute("y", String(node.position?.y ?? 0));
-      foreign.setAttribute("width", "180");
-      foreign.setAttribute("height", "80");
-      const label = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "text",
-      );
-      label.textContent = `${node.id} ${node.status}`;
-      foreign.append(label);
-      svg.append(foreign);
-    }
+    svg.setAttribute("role", "img");
     root.append(svg);
+    drawGraph();
 
     const navigator = element("nav", undefined, {
       "aria-label": "Agent navigator",
@@ -192,23 +275,26 @@ export function mountMonitor(
     for (const node of state.projection.nodes.filter((item) =>
       item.id.toLowerCase().includes(query.toLowerCase()),
     )) {
-      const age =
-        node.lastUpdateAge === null || node.lastUpdateAge === undefined
-          ? ""
-          : ` ${node.lastUpdateAge + elapsed}s`;
-      navigator.append(
-        button(
-          `${node.id} ${node.status} ${node.relationship ?? ""}${age}`,
-          () => select(node.id),
-        ),
+      const navigatorButton = button(
+        `${node.id} ${node.status} ${node.relationship ?? ""}`,
+        () => select(node.id),
       );
+      if (node.lastUpdateAge !== null && node.lastUpdateAge !== undefined) {
+        navigatorButton.append(
+          element("span", ` ${node.lastUpdateAge + elapsed}s`, {
+            "data-age-kind": "short",
+            "data-age-base": String(node.lastUpdateAge),
+          }),
+        );
+      }
+      navigator.append(navigatorButton);
     }
     root.append(navigator);
 
     const selected = state.projection.nodes.find(
       (node) => node.id === selectedId,
     );
-    if (selected && activeOnly && terminal(selected.status)) {
+    if (selected && activeOnly && terminal(selected)) {
       reveal = button(`Reveal ${selected.id}`, () => {
         activeOnly = false;
         render();
@@ -256,6 +342,10 @@ export function mountMonitor(
           element(
             "div",
             `Last report ${selected.lastUpdateAge + elapsed}s ago`,
+            {
+              "data-age-kind": "report",
+              "data-age-base": String(selected.lastUpdateAge),
+            },
           ),
         );
       }
@@ -264,6 +354,10 @@ export function mountMonitor(
           element(
             "div",
             `Observed locally ${selected.observedLocalAge + elapsed}s ago`,
+            {
+              "data-age-kind": "observed",
+              "data-age-base": String(selected.observedLocalAge),
+            },
           ),
         );
       }
@@ -273,7 +367,10 @@ export function mountMonitor(
         role: "region",
         "aria-label": "Activity history",
       });
-      for (const activity of selected.activities ?? []) {
+      const activities = selected.activities ?? [];
+      const pageCount = Math.max(1, Math.ceil(activities.length / 100));
+      activityPageIndex = Math.min(activityPageIndex, pageCount - 1);
+      for (const activity of activityPage(activities, activityPageIndex)) {
         const line = element("div");
         line.append(
           element(
@@ -289,13 +386,45 @@ export function mountMonitor(
           line.append(element("span", ` ${activity.certainty}`));
         history.append(line);
       }
+      if (pageCount > 1) {
+        const paging = element("div");
+        paging.append(
+          button("Previous activity page", () => {
+            activityPageIndex = Math.max(0, activityPageIndex - 1);
+            render();
+          }),
+          element(
+            "span",
+            `Activity page ${activityPageIndex + 1} of ${pageCount}`,
+          ),
+          button("Next activity page", () => {
+            activityPageIndex = Math.min(pageCount - 1, activityPageIndex + 1);
+            render();
+          }),
+          button("Last activity page", () => {
+            activityPageIndex = pageCount - 1;
+            render();
+          }),
+        );
+        history.prepend(paging);
+      }
       root.append(history);
     }
   };
 
   const clock = window.setInterval(() => {
     elapsed++;
-    render();
+    for (const age of Array.from(
+      root.querySelectorAll<HTMLElement>("[data-age-kind]"),
+    )) {
+      const base = Number(age.dataset.ageBase ?? 0);
+      age.textContent =
+        age.dataset.ageKind === "report"
+          ? `Last report ${base + elapsed}s ago`
+          : age.dataset.ageKind === "observed"
+            ? `Observed locally ${base + elapsed}s ago`
+            : ` ${base + elapsed}s`;
+    }
   }, 1000);
   render();
 

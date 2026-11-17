@@ -1,4 +1,4 @@
-import { readFile, readdir, stat } from "node:fs/promises";
+import { open, readFile, readdir, stat } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -7,6 +7,7 @@ import { createStream } from "../core/reconcile";
 type Disposable = { dispose?: () => void; close?: () => void };
 type Options = {
   readBytes?: (path: string) => Promise<Uint8Array>;
+  readRange?: (path: string, start: number, end: number) => Promise<Uint8Array>;
   watchSource?: (path: string, refresh: () => void) => Disposable;
   scheduleReconcile?: (refresh: () => void) => Disposable;
   workspaceRoots?: string[];
@@ -27,6 +28,23 @@ const IDENTITY_LIMIT = 2_000;
 function close(resource: Disposable | undefined) {
   resource?.close?.();
   resource?.dispose?.();
+}
+
+function concatenate(
+  left: Uint8Array<ArrayBufferLike>,
+  right: Uint8Array<ArrayBufferLike>,
+): Uint8Array<ArrayBufferLike> {
+  const value = new Uint8Array(left.length + right.length);
+  value.set(left);
+  value.set(right, left.length);
+  return value;
+}
+
+function equalBytes(left: Uint8Array, right: Uint8Array): boolean {
+  return (
+    left.length === right.length &&
+    left.every((value, index) => value === right[index])
+  );
 }
 
 function limitDiagnostic(message: string) {
@@ -130,9 +148,34 @@ async function readCompanions(path: string, sessionId: string | null) {
 
 export function createSourceController(options: Options = {}) {
   const readBytes = options.readBytes ?? ((path: string) => readFile(path));
+  const readRange =
+    options.readRange ??
+    (options.readBytes
+      ? async (path: string, start: number, end: number) =>
+          (await options.readBytes!(path)).slice(start, end)
+      : async (path: string, start: number, end: number) => {
+          const handle = await open(path, "r");
+          try {
+            const buffer = Buffer.alloc(Math.max(0, end - start));
+            const { bytesRead } = await handle.read(
+              buffer,
+              0,
+              buffer.length,
+              start,
+            );
+            return buffer.subarray(0, bytesRead);
+          } finally {
+            await handle.close();
+          }
+        });
   let generation = 0;
   let selectedPath: string | null = null;
   let signature: string | null = null;
+  let fileIdentity: string | null = null;
+  let fileSize = 0;
+  let acceptedBytes: Uint8Array<ArrayBufferLike> = new Uint8Array();
+  let model: ReturnType<typeof createStream> | null = null;
+  let metadataDiagnostics: Array<Record<string, unknown>> = [];
   let watcher: Disposable | undefined;
   let timer: Disposable | undefined;
   let disposed = false;
@@ -156,6 +199,7 @@ export function createSourceController(options: Options = {}) {
     if (!selectedPath || disposed) return;
     try {
       const details = await stat(selectedPath);
+      const nextIdentity = `${details.dev}:${details.ino}`;
       const nextSignature = `${details.dev}:${details.ino}:${details.size}:${details.mtimeMs}`;
       if (!force && signature === nextSignature) return;
       if (details.size > FILE_LIMIT) {
@@ -171,10 +215,23 @@ export function createSourceController(options: Options = {}) {
         signature = nextSignature;
         return;
       }
-      const bytes = await readBytes(selectedPath);
-      if (token !== generation || disposed) return;
-      const limit = inspectLimits(bytes);
-      if (limit) {
+      const acceptProjection = (
+        projection: any,
+        companions: Array<Record<string, unknown>>,
+      ) => {
+        const diagnostics = [...projection.diagnostics, ...metadataDiagnostics];
+        projection.diagnostics = diagnostics;
+        state = {
+          path: selectedPath,
+          sessionId: projection.sessionId,
+          reader: "following",
+          diagnostics,
+          companions,
+          projection,
+          lastSuccessfulRead: new Date().toISOString(),
+        };
+      };
+      const rejectLimit = (limit: string) => {
         const diagnostic = limitDiagnostic(limit);
         state = {
           ...state,
@@ -183,9 +240,52 @@ export function createSourceController(options: Options = {}) {
           diagnostics: [diagnostic],
         };
         signature = nextSignature;
-        return;
+      };
+
+      const currentModel = model;
+      const canAppend =
+        !force &&
+        currentModel !== null &&
+        fileIdentity === nextIdentity &&
+        details.size > fileSize;
+      if (canAppend && currentModel) {
+        const continuityStart = Math.max(0, fileSize - 4096);
+        const continuity = await readRange(
+          selectedPath,
+          continuityStart,
+          fileSize,
+        );
+        if (token !== generation || disposed) return;
+        const expected = acceptedBytes.slice(continuityStart, fileSize);
+        if (equalBytes(continuity, expected)) {
+          const appended = await readRange(
+            selectedPath,
+            fileSize,
+            details.size,
+          );
+          if (token !== generation || disposed) return;
+          const combined = concatenate(acceptedBytes, appended);
+          const limit = inspectLimits(combined);
+          if (limit) {
+            rejectLimit(limit);
+            return;
+          }
+          currentModel.ingest(appended);
+          acceptedBytes = combined;
+          fileSize = details.size;
+          signature = nextSignature;
+          acceptProjection(currentModel.snapshot(), state.companions ?? []);
+          return;
+        }
       }
 
+      const bytes = await readBytes(selectedPath);
+      if (token !== generation || disposed) return;
+      const limit = inspectLimits(bytes);
+      if (limit) {
+        rejectLimit(limit);
+        return;
+      }
       const probe = createStream({ source: selectedPath });
       probe.ingest(bytes);
       const probeProjection: any = probe.snapshot();
@@ -194,24 +294,18 @@ export function createSourceController(options: Options = {}) {
         probeProjection.sessionId,
       );
       if (token !== generation || disposed) return;
-      const model = createStream({
+      const nextModel = createStream({
         source: selectedPath,
         sessionStartedAt: metadata.sessionStartedAt,
       });
-      model.ingest(bytes);
-      const projection: any = model.snapshot();
-      const diagnostics = [...projection.diagnostics, ...metadata.diagnostics];
-      projection.diagnostics = diagnostics;
-      state = {
-        path: selectedPath,
-        sessionId: projection.sessionId,
-        reader: "following",
-        diagnostics,
-        companions: metadata.companions,
-        projection,
-        lastSuccessfulRead: new Date().toISOString(),
-      };
+      nextModel.ingest(bytes);
+      model = nextModel;
+      metadataDiagnostics = metadata.diagnostics;
+      acceptedBytes = bytes;
+      fileIdentity = nextIdentity;
+      fileSize = details.size;
       signature = nextSignature;
+      acceptProjection(nextModel.snapshot(), metadata.companions);
     } catch (error: any) {
       if (token !== generation || disposed) return;
       const hadView = state.projection?.nodes?.length > 0;
@@ -235,6 +329,11 @@ export function createSourceController(options: Options = {}) {
       release();
       selectedPath = fileURLToPath(uri);
       signature = null;
+      fileIdentity = null;
+      fileSize = 0;
+      acceptedBytes = new Uint8Array();
+      model = null;
+      metadataDiagnostics = [];
       state = {
         path: selectedPath,
         sessionId: null,

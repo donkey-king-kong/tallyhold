@@ -367,4 +367,48 @@ describe("selected local source (AC2, AC9-11, AC13, AC15)", () => {
     expect(reader.getState().projection.nodes).toHaveLength(2_000);
     expect(reader.getState().diagnostics.some((item: any) => item.code === "limit_exceeded")).toBe(false);
   });
+
+  it("reads only continuity and appended ranges after the initial replay", async () => {
+    const source = await fixture("s1");
+    let fullReads = 0;
+    const ranges: Array<[number, number]> = [];
+    const reader = await controller({
+      readBytes: async (path: string) => {
+        fullReads++;
+        return readFile(path);
+      },
+      readRange: async (path: string, start: number, end: number) => {
+        ranges.push([start, end]);
+        return (await readFile(path)).subarray(start, end);
+      },
+    });
+    await reader.selectSource(pathToFileURL(source.path));
+    expect(fullReads).toBe(1);
+    await appendFile(source.path, JSON.stringify({
+      time: 1,
+      type: "message",
+      sessionId: "s1",
+      payload: { agent: "same", content: "incremental" },
+    }) + "\n");
+    await reader.refresh();
+    expect(fullReads).toBe(1);
+    expect(ranges.some(([start]) => start >= source.line.length)).toBe(true);
+    expect(reader.getState().projection.nodes[0].activities).toHaveLength(2);
+  });
+
+  it("restores a trusted prior source, discovers a trusted worktree fallback, and never auto-selects untrusted input", async () => {
+    const source = await fixture("s1");
+    const root = roots[0];
+    const directory = join(root, ".agent-flow");
+    await mkdir(directory);
+    const discovered = join(directory, "agent-flow-events.jsonl");
+    await rename(source.path, discovered);
+    const { resolveInitialSource } = await import("../src/host/monitorPanel");
+    const explicit = pathToFileURL(join(root, "explicit.jsonl")).href;
+    expect(await resolveInitialSource(explicit, [root], { trusted: true })).toBe(explicit);
+    expect(await resolveInitialSource(null, [root], { trusted: true })).toBe(
+      pathToFileURL(discovered).href,
+    );
+    expect(await resolveInitialSource(explicit, [root], { trusted: false })).toBeNull();
+  });
 });
