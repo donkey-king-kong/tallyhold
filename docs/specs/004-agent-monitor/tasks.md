@@ -70,23 +70,23 @@ approved tests, commit each behavior slice separately, and do not edit tests
 to force a pass. The same public host/core/UI boundaries in the plan apply
 throughout.
 
-- [ ] **Extension shell and protocol:** Create the independent extension
+- [x] **Extension shell and protocol:** Create the independent extension
   package, activation command, webview lifecycle, local bundle and typed,
   bounded host/webview messages. Verify command and restricted CSP tests;
   AC1, AC15-AC16.
-- [ ] **Byte reader and reconciliation:** Implement source selection,
+- [x] **Byte reader and reconciliation:** Implement source selection,
   incremental decoder, offset/generation checks, watcher plus fallback
   reconcile, stale/recovery semantics and session diagnostics. Verify parser,
   lifecycle and no-write tests; AC2-AC3, AC9-AC11, AC13, AC15.
-- [ ] **Pure activity projection:** Implement statuses, intervals, reactivation,
+- [x] **Pure activity projection:** Implement statuses, intervals, reactivation,
   advisory metadata, ambiguous tools, orphan/cycle handling, chronological
   history and counts. Verify batch/incremental equivalence and projection
   tests; AC3, AC5-AC9, AC12-AC13.
-- [ ] **Stable graph and inspection:** Implement persistent coordinates,
+- [x] **Stable graph and inspection:** Implement persistent coordinates,
   parent edges, camera and Fit All, default/all and last-reported filter,
   inspector, clock and accessible keyboard node navigator. Verify layout,
   focus, theme and responsive tests; AC3-AC8, AC12, AC14.
-- [ ] **Host integration and hardening:** Wire local selection, read failure,
+- [x] **Host integration and hardening:** Wire local selection, read failure,
   reload/disposal, limits, diagnostics and untrusted-workspace policy into
   the panel. Reject hostile telemetry and stale/invalid messages. Verify
   recovery, privacy and envelope behavior end-to-end; AC2, AC10-AC11,

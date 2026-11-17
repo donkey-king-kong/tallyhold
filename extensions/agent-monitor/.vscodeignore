@@ -1,0 +1,10 @@
+.agent-flow/**
+.env
+.env.*
+node_modules/**
+test/**
+coverage/**
+src/**
+*.vsix
+tsconfig.json
+eslint.config.js
