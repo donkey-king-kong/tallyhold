@@ -36,6 +36,8 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 | [T-0026](tickets/T-0026-auth-red-review.md) | Verify and independently review Feature 005 RED before GREEN | [R-0033](runs/R-0033.md), after [R-0031](runs/R-0031.md) |
 | [T-0028](tickets/T-0028-auth-red-review-fixes.md) | Resolve targeted Feature 005 RED findings under Zack's one-round exception | [R-0033](runs/R-0033.md), after [R-0031](runs/R-0031.md) |
 | [T-0029](tickets/T-0029-auth-green.md) | Implement Feature 005 auth after approved RED review | [R-0033](runs/R-0033.md) |
+| [T-0030](tickets/T-0030-ship-auth.md) | Ship Feature 005 through PR #32 and merge gate | [R-0033](runs/R-0033.md) |
+| [T-0031](tickets/T-0031-review-auth-pr.md) | Fresh independent PR review for Feature 005 | [R-0033](runs/R-0033.md) |
 
 Historical PR #6 post-dispatch records remain in T-0002's checkpoint
 branch/worktree. Future ship runs use PR comments instead.
