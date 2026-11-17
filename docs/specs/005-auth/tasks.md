@@ -80,7 +80,7 @@ roles; the Implementer does not alter tests merely to pass.
   marker and identity under READ COMMITTED, then use the caller-owned
   transaction/savepoint to avoid duplicate and orphan users. Assign SGD
   only at first login. Prove interleaving and two-user tests; commit.
-- [ ] **Implementer: FastAPI wiring (AC2, AC4).** Compose verifier,
+- [x] **Implementer: FastAPI wiring (AC2, AC4).** Compose verifier,
   session and resolver in the identity dependency; expose only `GET
   /api/v1/me` with UUID/currency and generic denial. Restrict CORS to
   configured frontend origins, accept bearer not auth cookies, keep health
