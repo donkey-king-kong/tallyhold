@@ -17,3 +17,12 @@ class User:
         object.__setattr__(
             self, "base_currency", normalize_currency(self.base_currency)
         )
+
+
+@dataclass(frozen=True)
+class VerifiedPrincipal:
+    """Identity claims obtained only after trusted signature verification."""
+
+    issuer: str
+    subject: str
+    provider: str | None = None

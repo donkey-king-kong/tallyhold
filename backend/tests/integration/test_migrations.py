@@ -80,7 +80,10 @@ def test_catalog_has_only_the_approved_entities_and_exact_types(
 ) -> None:
     with database_engine.connect() as connection:
         names = set(inspect(connection).get_table_names())
-        assert names == TABLES | {"alembic_version"}
+        # Feature 005 tests separately require its two additive auth tables.
+        assert names - {"identities", "erasure_deny_markers"} == TABLES | {
+            "alembic_version"
+        }
         columns = {
             (row.table_name, row.column_name): row
             for row in connection.execute(
