@@ -1,0 +1,31 @@
+# Feature 006 RED review
+
+- Round: 1
+- Reviewer: fresh Trae RED Reviewer (`donkey-king-kong` GitHub identity)
+- Base: `82ec809`
+- Pushed RED head: `112848554a86aae44d605dfa7e5052c0fe8d4c1a`
+- Scope: approved spec/plan/tasks, cumulative base-to-head diff, `red-test-run.md`, and relevant existing tests. No implementation changes or test writes.
+
+## Coverage mapping
+
+| Approved criterion / numbered plan verification | RED evidence | Uncovered behavior |
+| --- | --- | --- |
+| AC1 / 1 | `test_brokers_are_shared_read_only_and_account_reads_are_scoped`; migration seed, pre-existing-ID round-trip and reserved-ID collision tests; account-manager catalog test | Reserved UUID already occupying the *matching* seed pair is not rejected by a test; explicit migration decision. |
+| AC2 / 2 | `test_brokers_and_owned_accounts_have_stable_name_order_and_broker_labels`; two-user HTTP list/detail; fake scoped ports | Missing broker referenced by an account is not asserted as an integrity failure; no direct proof that HTTP ownership uses resolved internal `User.id` rather than a JWT `sub` or caller-supplied identity. |
+| AC3 / 3 | Application name/currency/PATCH tests; HTTP 201/Location, validation and 409 tests; direct SQL index and two-connection race | Boundary name length 255, padded duplicate, and concurrent HTTP 409 are not directly asserted; PostgreSQL race does check the authoritative invariant. |
+| AC4 / 4 | `test_partial_edit_and_transaction_free_delete`, foreign delete, transaction-preserving 409, guarded downgrade | Unknown DELETE and its indistinguishable response from foreign DELETE are not asserted. |
+| AC5 / 5 | Strict POST/PATCH errors, opaque duplicate text, list 401/503, local connection outage, retained rows | Protected detail/write routes lack unauthenticated/invalid-token tests; unknown versus foreign PATCH/DELETE response equivalence, malformed PATCH/DELETE UUIDs, and generic 503 for broker/write paths are untested. |
+| AC6 / 6 | Home link; `account-manager.test.tsx` lists, defaults `/me` currency, CRUD, confirmation, form recovery, bearer/omit, loading/empty/outage, session transitions | No test renders `/accounts` page to prove it mounts the manager; no post-sign-out/expiry attempted write or narrow-layout/focus assertion. Browser verification may supplement visual layout later, but the required page wiring needs RED evidence. |
+| AC7 / 7 | Existing scoped repository tests, direct PostgreSQL migration/index/race tests, two-user HTTP and CORS preflight, existing auth tests | Application purity/import-boundary and metadata/index drift are not directly asserted by RED; import-linter, mypy, coverage, full frontend checks and scans remain GREEN/ship checks, not claimed RED passes. |
+
+## Checklist findings
+
+1. **Acceptance and verification mapping: changes requested.** All AC1-AC7 and plan items 1-7 have at least a related test, but the explicitly uncovered behaviors above cannot be inferred from those tests. In particular, `test_account_routes_require_bearer_and_preserve_public_health` tests only `GET /brokers` and `GET /accounts`; no protected detail or mutation is exercised without a token (`backend/tests/integration/test_accounts_http.py`). Add rejected unauthenticated/invalid-token requests for GET detail, POST, PATCH and DELETE, with retained rows after denied writes.
+2. **Observable plan decisions: changes requested.** `test_reserved_seed_id_collision_rejects_upgrade_without_overwriting` uses `Unrelated Fixture`, so an upgrade that silently reuses a reserved UUID already attached to `IBKR, SG` would pass, contrary to the migration plan's "even on a matching pair" rule (`backend/tests/integration/test_accounts_migration.py`). Add that case and assert the revision and rows stay unchanged. The fake-port read test always supplies every broker; add an orphaned account/broker read to reject returning an empty list or leaking a driver error (`backend/tests/test_accounts_application.py`). Test absent versus foreign PATCH/DELETE response equality, not only GET equality.
+3. **RED cause: none.** `red-test-run.md` reports 44 targeted backend failures with zero collection/setup errors (missing 0004, account operations and routes), and nine frontend failures from the missing component/home link. The earlier run without the local test URL is explicitly excluded. These are missing feature behavior, not network or fixture failures. The pushed head contains no production migration or account implementation.
+4. **Behavioral assertions: changes requested.** The HTTP tests do exercise public routes and persisted rows, and the migration race would reject a precheck-only uniqueness implementation. However, `account-manager.test.tsx` imports the component directly and `auth-status.test.tsx` checks only the link href: `/accounts` can remain an empty page while both pass. Add a page-level render test. The UI session tests clear an in-flight list or hide existing rows, but never attempt a write after sign-out/expiry; assert no POST/PATCH/DELETE occurs when a stale form action is attempted. The approved narrow-screen/focus behavior also has no direct assertion or recorded browser evidence.
+5. **Infrastructure: none.** Existing `integration/conftest.py` restricts disposable databases to local PostgreSQL 17 test URLs and drops them. New API tests use dependency overrides, UI tests use offline auth/fetch fakes, and the outage test uses a local closed port. No real secrets or external network calls appear in the test diff.
+6. **Existing suite: none on available evidence.** The cumulative diff changes historical migration assertions to 0002 and replaces colliding Tiger fixtures with a non-seed broker while retaining the original assertions. `red-test-run.md` records 146 pre-existing backend passes and 13 frontend passes with the one new home-link test deliberately excluded; no existing test was deleted or skipped. These are recorded runs, not independently rerun in this read-only review. `git diff --check` passes.
+
+No approved spec or plan revision is proposed. Add focused RED tests for the stated gaps, rerun targeted RED and existing suites, and submit a fresh round 2 review before GREEN.
+VERDICT: CHANGES_REQUESTED

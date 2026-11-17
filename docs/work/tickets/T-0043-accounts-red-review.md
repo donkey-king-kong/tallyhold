@@ -2,8 +2,8 @@
 
 ## Assignment
 
-- Status: in_progress
-- Owner actor: R-0040/red-reviewer-1 (fresh Trae fallback pending launch)
+- Status: in_review
+- Owner actor: R-0040/red-reviewer-1-fallback (round 1 complete)
 - Role: RED Reviewer; coordinator maintains this ticket externally
 - Run: [R-0040](../runs/R-0040.md)
 - Feature / task: [006 spec](../../specs/006-accounts/spec.md), [plan](../../specs/006-accounts/plan.md), [tasks](../../specs/006-accounts/tasks.md)
@@ -21,24 +21,24 @@ No code, tests, approved documents, tracking, telemetry, commits or pushes.
 
 ## Acceptance
 
-- [ ] Checklist verdict and identical comment cover base `82ec809`, RED test
-  SHA `771e9ad` and pushed handoff `a0f8435`.
-- [ ] Coordinator verifies report/comment and records reviewer identity,
-  findings and next action before GREEN.
+- [x] Round 1 report and identical commit comment cover base `82ec809`,
+  pinned tests `771e9ad` and pushed reviewed head `1128485`.
+- [ ] Correct findings and obtain fresh round 2 approval before GREEN.
 
 ## Checkpoint
 
-- Last completed action: pushed review assignment `4866f67`; fresh headless
-  Claude launch returned ECONNREFUSED before a verdict or file edit. No round
-  completed; fresh Trae fallback selected.
-- Evidence: `red-test-run.md` pinned to test commit `771e9ad`; base
-  `82ec809`; remote head `a0f8435`.
-- Worktree state: clean; remote matches `4866f67`.
-- Remaining work: fresh review, verify report and identical comment.
-- Blocker / unblock action: Claude API connection refused; automatic Trae
-  fallback is available under the RED review procedure.
-- Next action: commit/push this launch-failure checkpoint; dispatch a fresh
-  Trae RED Reviewer round 1 with only permitted inputs and new pushed head.
+- Last completed action: fresh Trae fallback completed round 1 with
+  `CHANGES_REQUESTED`; coordinator verified identical commit comment.
+- Evidence: [report](../../specs/006-accounts/red-review.md) and
+  [comment](https://github.com/donkey-king-kong/tallyhold/commit/112848554a86aae44d605dfa7e5052c0fe8d4c1a#commitcomment-210413865);
+  base `82ec809`, reviewed head `1128485`, pinned tests `771e9ad`.
+- Worktree state: reviewer report uncommitted, no production changes.
+- Remaining work: Test writer adds auth, migration, account integrity and UI
+  page/session RED assertions, reruns pinned suites, updates evidence and pushes;
+  a different fresh reviewer handles round 2.
+- Blocker / unblock action: GREEN gated on round 2 approval.
+- Next action: coordinator commits this report, then returns to Test writer
+  for focused test-only corrections.
 - Handoff recipient: coordinator for verdict; Implementer only after APPROVE.
 
 ## History
@@ -47,3 +47,4 @@ No code, tests, approved documents, tracking, telemetry, commits or pushes.
 | --- | --- | --- | --- |
 | 2026-11-17T07:45:26Z | R-0040/coordinator | Reserved T-0043 for fresh RED review; reviewer not launched yet | Commit/push assignment and dispatch against `a0f8435` |
 | 2026-11-17T07:50:33Z | R-0040/coordinator | Assignment pushed `4866f67`; Claude Code 2.1.322 launch failed with API ECONNREFUSED before report/verdict, worktree clean | Record fallback, push checkpoint and launch fresh Trae reviewer; round 1 still available |
+| 2026-11-17T07:50:33Z | R-0040/coordinator | Fresh Trae Reviewer (`donkey-king-kong`) reviewed base `82ec809` to `1128485`, requested changes and posted identical comment `210413865` | Add focused RED coverage; use different fresh Reviewer for round 2 |
