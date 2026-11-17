@@ -11,7 +11,7 @@
 - Dependencies: [T-0023](T-0023-auth-red.md) and merged PR #29
 - Branch / worktree: `feature/005-auth` / `../tallyhold-feature-005-auth`
 - Issue / PR: issue #27; no Feature 005 PR yet
-- Updated: 2026-11-17T03:58:42Z
+- Updated: 2026-11-17T04:04:34Z
 
 ## Scope
 
@@ -26,18 +26,18 @@ existing RED-review escalation rules apply.
 ## Acceptance
 
 - [x] RED and existing-suite results at the pinned test revision are committed and pushed.
-- [ ] A fresh independent reviewer posts the checklist report and identical commit comment.
+- [x] A fresh independent round-1 reviewer posts the checklist report and identical commit comment.
 - [ ] Verdict is handled per `red-review.md`, with no GREEN during escalation.
 
 ## Checkpoint
 
-- Last completed action: Zack authorized a fresh Trae (GPT) subagent for this RED review after the headless Claude Code 2.1.322 round-1 attempt exited with `ECONNREFUSED`. This is an explicit deviation from the current RED-review procedure; a separate maintenance PR will propose the standing automatic fallback.
-- Evidence: [RED test run](../../specs/005-auth/red-test-run.md) remains pushed; reviewer report absent, zero comments on RED commit, no Feature 005 PR. No verdict exists. Base `a96c0dae42889b8196b6ec3f9ae3b2bb79dcb25a`, RED head `9d4b723e22f339a95c0e1266d2efbd75b241fefa`.
-- Worktree state: clean at pushed `e62b59d` before this resumed checkpoint.
-- Remaining work: independent RED review, then conditional GREEN and ship.
+- Last completed action: fresh Trae (GPT) subagent `arun_6afbd1238f6c1606eab14bad` reviewed round 1 at base `a96c0da` / RED `9d4b723`; it wrote [round-1 report](../../specs/005-auth/red-review.md) and posted identical [commit comment](https://github.com/donkey-king-kong/tallyhold/commit/9d4b723e22f339a95c0e1266d2efbd75b241fefa#commitcomment-210390854). Verdict: `CHANGES_REQUESTED`.
+- Evidence: checklist finds missing HTTP security integration, overly broad negative assertions, key rotation/expiry/configuration checks and first-login/frontend cases. Existing test evidence accepted. Reviewer type: fresh Trae (GPT) subagent, authorized by Zack on 2026-11-17. No Feature 005 PR.
+- Worktree state: round-1 report untracked until coordinator commit.
+- Remaining work: [T-0028](T-0028-auth-red-review-fixes.md) fixes and new round-2 independent verdict, then conditional GREEN and ship.
 - Blocker / unblock action: previous `needs-human` is resolved by Zack's explicit 2026-11-17 authorization. Escalate again only under the existing RED-review conditions.
-- Next action: commit/push this pre-dispatch checkpoint and launch a fresh-context Trae (GPT) RED Reviewer; give only the approved spec, plan, tasks, base..RED-head diff, run evidence and role file. Round 2 alone may also read round 1's report. No test-writer chat, ticket, run, or coordinator assessment.
-- Handoff recipient: new independent RED Reviewer, then Implementer only on APPROVE.
+- Next action: commit the reviewer report and this checkpoint, then fix the RED cases and push evidence; dispatch a different fresh reviewer for round 2.
+- Handoff recipient: Test writer for RED fixes, then a different independent reviewer; Implementer only on APPROVE.
 
 ## History
 
@@ -48,3 +48,4 @@ existing RED-review escalation rules apply.
 | 2026-11-17T03:45:45Z | R-0030/coordinator | Evidence pushed at `9d4b723`, remote SHA matched; isolated round 1 planned at pinned base/head | Commit/push tracking-only checkpoint; dispatch Claude reviewer with permitted brief |
 | 2026-11-17T03:50:52Z | R-0030/coordinator | Headless Claude round-1 process exited 1 with `ECONNREFUSED`; no report/comment/verdict, branch clean | `needs-human`; commit/push block, stop GREEN and ask Zack to restore reviewer access |
 | 2026-11-17T03:58:42Z | R-0031/coordinator | Zack explicitly authorized a fresh Trae (GPT) subagent as RED Reviewer; took over from blocked run | Pin base `a96c0da` / RED `9d4b723`; commit/push checkpoint, dispatch isolated round 1 |
+| 2026-11-17T04:04:34Z | R-0031/coordinator | Fresh Trae (GPT) reviewer `arun_6afbd1238f6c1606eab14bad` completed round 1: `CHANGES_REQUESTED` | Report and identical commit comment `210390854`; commit report, address findings in T-0028 |

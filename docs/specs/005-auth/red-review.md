@@ -1,0 +1,29 @@
+# Feature 005 RED review, round 1
+
+Base: `a96c0dae42889b8196b6ec3f9ae3b2bb79dcb25a`
+Reviewed pushed RED head: `9d4b723e22f339a95c0e1266d2efbd75b241fefa`
+
+## Coverage mapping (checklist 1)
+
+The approved plan's verification table has five rows, mapped here in order.
+
+| Criterion / verification item | RED evidence | Uncovered behavior |
+| --- | --- | --- |
+| AC1 / 1 | `frontend/components/auth-status.test.tsx` exercises Google invocation, bearer fetch, sign-out event, expired initial session and failed sign-in; `auth-callback.test.tsx` exercises code exchange and cancelled redirect. | No assertion of PKCE configuration, authenticated app session after callback, token-free logs or public responses, or signed-out UI after a cancelled callback. |
+| AC2 / 2 | `backend/tests/test_auth_jwt.py` mints P-256 tokens and checks claims, signature, key types, pinned request URL, cache boundary, concurrent unknown-`kid` requests and timeout setting; `test_auth_http.py` checks some 401 responses. | No HTTP 503 on JWKS outage, no HTTP rejection/non-provisioning for individually invalid JWTs, no rotated-key acceptance or failed-refresh cache behavior, no invalid trusted configuration/HTTPS check, and no `x5u` adversary case. |
+| AC3 / 3 | `test_auth_resolution.py` exercises SGD, returning settings, pair isolation, eight simultaneous logins; `test_auth_schema.py` checks unique pair, FK and migration round-trip. | No test of conflicting first-login savepoint rollback or other constraint failure; no client-supplied metadata/ID against the real resolution path. |
+| AC4 / 4 | `test_auth_http.py` exercises two overridden current users, query `user_id`, missing/bad/cookie-only requests, CORS and public health; frontend bearer fetch is asserted. | No integrated verified-token-to-`/me` request with real resolution; no test that two `Authorization` values are rejected, nor layer/import-linter assertion in RED. |
+| AC5 / 5 | `test_auth_resolution.py` checks marker denial, manual purge and both PostgreSQL lock orders; `test_auth_schema.py` checks minimal tables and downgrade. | No automated verification of runbook order/retry/restore, 30-day record, backup/log retention, or Data API deployment setting. The plan explicitly places operator walkthrough and production-setting inspection outside CI; these remain GREEN/deployment gates, not passed RED checks. |
+
+## Findings (checklists 2-6)
+
+1. **Behavioral gaps in the API security boundary (2, 4).** `test_auth_http.py` overrides `get_current_user` for success and sends `"Bearer invalid"` for one generic rejection. It never drives an offline minted invalid JWT through the composed dependency, checks that a rejected token creates no user, or distinguishes the planned 503 for a JWKS outage from 401. A dependency that accepts forged but syntactically bearer tokens could satisfy the successful route tests and still violate AC2. Add offline composition assertions for the specified 401/503 distinctions and no provisioning.
+2. **Verifier negative assertions are too broad (2, 4).** `test_auth_jwt.py` and marker tests in `test_auth_resolution.py` use `pytest.raises(Exception)`. An implementation that crashes on every invalid token, times out incorrectly, or exposes an internal exception can satisfy these tests. Assert the expected rejection category and HTTP status through the approved interfaces; check that failures do not disclose identity or credentials.
+3. **Key lifecycle and trust configuration are under-tested (2, 4).** `test_auth_jwt.py` checks a 600-second refetch and at most one unknown-`kid` fetch across verifier instances, but not successful rotation to a new key, failure after cache expiry, use of a still-valid cached known key on refresh failure, rejection of token-supplied `x5u`, or rejection of untrusted JWKS configuration. These are explicit observable decisions in the plan. Add fake-HTTP/clock cases, including the unknown-`kid` path after cache expiry.
+4. **First-login and frontend security cases remain incomplete (2, 4).** `test_auth_resolution.py` checks concurrent success but not the stipulated savepoint rollback on a unique conflict or other constraint failure. `auth-status.test.tsx` checks `signInWithOAuth` parameters but cannot prove PKCE is configured; `auth-callback.test.tsx` checks only the redirect location, not response headers/logging or resulting session and signed-out state after cancellation. Add targeted assertions at the repository and frontend session boundaries. The real provider flow remains an acknowledged non-CI check.
+5. **RED and infrastructure evidence (3, 5).** `red-test-run.md` reports backend RED 37 collected/36 failed/1 passed and frontend RED 7/7 failed, caused by absent 005 modules/routes/tables, not collection, dependencies, fixture or network. The test diff uses in-memory P-256 keys, `httpx.MockTransport` and the guarded disposable PostgreSQL 17 fixture in `backend/tests/integration/conftest.py`; no real secrets or Supabase network are evident. The evidence was rechecked at `60d96cd92e797d92aaeadc7c2baffc6f23aa2fda`, not explicitly at the supplied head; confirm the pushed head's test content/run before GREEN.
+6. **Existing-suite regression check (6).** The cumulative diff adds auth tests and modifies only `backend/tests/integration/test_migrations.py` among existing tests: its exact table-name assertion now excludes the two planned auth tables, which `test_auth_schema.py` independently requires. No existing test was deleted. `red-test-run.md` reports 91/91 existing backend and 3/3 existing frontend passing, with no skips. No further regression finding from the permitted evidence.
+
+The uncovered observable decisions in findings 1-4 make this RED checkpoint insufficient to constrain a plausible incorrect GREEN implementation. Operational AC5 checks remain explicit later gates rather than claims of CI coverage.
+
+VERDICT: CHANGES_REQUESTED
