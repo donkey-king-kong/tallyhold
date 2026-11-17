@@ -128,4 +128,82 @@ None.
 passing; production migration and migration-change jobs are skipped. The
 reported checks still do not run the extension-specific suite.
 
+## Round 3
+
+### Previous findings
+
+The three round-2 must-fix findings are resolved: companion heartbeat reads now
+require matching session metadata, edges are rebuilt after late cycles, and Fit
+All/filtering use complete and consistent node sets. Focus is restored after
+search and state updates. The native keyboard handler cancels the browser's
+default activation before invoking the action, and the regression test verifies
+that cancellation, so the duplicate-activation concern is resolved.
+
+### Must-fix
+
+1. `extensions/agent-monitor/src/host/sourceReader.ts:249-271` treats a growing
+   file as a safe append after comparing only its final 4 KiB with accepted
+   bytes. An in-place rewrite earlier in a file larger than 4 KiB followed by an
+   append passes this check, retains stale events from the old generation, and
+   ingests only the tail. This violates the approved full-prefix continuity rule
+   and AC9/AC11 recovery semantics. Verify the accepted prefix as approved, and
+   add a regression where an early byte changes outside the final 4 KiB before
+   the file grows.
+
+2. `extensions/agent-monitor/src/webview/bootstrap.ts:8-24` mounts the monitor
+   against an empty projection, while
+   `extensions/agent-monitor/src/webview/main.ts:445-449` updates only `state`
+   when the first source or a new source generation arrives. The camera
+   therefore remains at the empty `0 0 800 600` bounds instead of initially
+   fitting the opened graph, and a source switch retains the previous stream's
+   camera. This contradicts AC4 and the approved per-selection camera contract.
+   Reset and fit the camera on the first projection and on source-generation
+   changes, while preserving it only for updates within one selection.
+
+3. `extensions/agent-monitor/src/host/sourceReader.ts:121-140` accepts any
+   JSON-parsable heartbeat value without schema or freshness validation and
+   spreads untrusted fields after `source: "heartbeat"` and
+   `certainty: "provisional"`, allowing those labels to be overwritten.
+   `extensions/agent-monitor/src/webview/main.ts:1-7` has no companion state and
+   renders none of these observations. Consequently malformed/stale snapshots
+   are not diagnosed and read snapshot information is not identified to the
+   user as provisional, contrary to AC13, AC15, and the approved plan. Validate
+   companion shape and chronology, preserve host-owned attribution fields, and
+   render accepted observations with their provisional status.
+
+4. `extensions/agent-monitor/src/host/sourceReader.ts:54-71` enforces the
+   2,000-identity limit using only `payload.name` and `payload.agent`, but the
+   reducer creates identities from `payload.parent` for `subagent_dispatch` and
+   `subagent_return`. A stream of distinct dispatch parents can therefore exceed
+   the approved identity envelope while the reader remains `following`.
+   Count identities with the same per-event rules as reconciliation and cover
+   this path at the boundary.
+
+5. `extensions/agent-monitor/src/webview/main.ts:381-395` renders activity type,
+   summary, outcome, pairing, and certainty but omits both the reported relative
+   `time` and verified `absoluteTime` already provided by the reducer. The
+   inspector therefore does not provide the approved chronological records with
+   source-relative times. Display the reported time without inventing an
+   absolute date, and use the verified absolute value only when present.
+
+### Should-fix
+
+1. `extensions/agent-monitor/src/webview/main.ts:209-219` offers horizontal pan
+   controls only, although the deterministic layout adds nodes on increasing
+   vertical rows. Large graphs cannot be explored vertically at a readable zoom
+   except by compressing the entire graph with Fit All. Add vertical pan
+   controls so AC4's pan/zoom navigation reaches overflow in both axes.
+
+### Nits
+
+None.
+
+### CI evidence and escalation
+
+`gh pr checks 42` reports both displayed backend, frontend, and security runs
+passing; production migration and migration-change jobs are skipped. These
+checks do not exercise the extension-specific suite. Because must-fix and
+should-fix findings remain after the third and final review round, escalate
+them to Zack for resolution as required by the Reviewer role.
+
 VERDICT: CHANGES_REQUESTED
