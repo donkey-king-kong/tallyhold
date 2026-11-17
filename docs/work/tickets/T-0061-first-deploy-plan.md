@@ -10,8 +10,8 @@
 - Authorization: Zack directed Phase 4 deferral and docs PR closeout, 2026-11-17
 - Dependencies: [T-0060](T-0060-first-deploy-maintenance.md) shipped
 - Branch / worktree: `chore/first-deploy-plan`, `../tallyhold-chore-first-deploy`
-- Issue / PR: #35 / none for draft
-- Updated: 2026-11-17T07:25:14Z
+- Issue / PR: #35 / [#39](https://github.com/donkey-king-kong/tallyhold/pull/39)
+- Updated: 2026-11-17T07:31:57Z
 
 ## Scope
 
@@ -25,12 +25,12 @@ all execution and provider selection, and ship the docs-only closeout PR.
 
 ## Checkpoint
 
-- Last completed action: resumed clean pushed branch `5a5a447`; replaced execution plan with Phase 4 decision note.
-- Evidence: Zack's deferral instruction; [decision note](../../specs/chore-first-deploy/first-deploy-plan.md); prior research in `5a5a447`.
-- Worktree state: decision note and tracking edits uncommitted.
-- Remaining work: verify, push, PR, CI, independent review and merge.
+- Last completed action: pushed `fe86e78`, opened assigned PR #39; backend/frontend/security CI green and migration jobs skipped.
+- Evidence: PR #39 head `fe86e789c68be2b582a4f19b273b6ec9841df407`; decision note and cited research.
+- Worktree state: final pre-review tracking checkpoint pending commit.
+- Remaining work: push checkpoint, new-head CI, independent review and merge.
 - Blocker / unblock action: none.
-- Next action: verify and commit revised decision note, then open docs PR.
+- Next action: commit/push checkpoint, confirm green CI, freeze tracking and dispatch fresh Reviewer for PR #39.
 - Handoff recipient: independent Reviewer after CI.
 
 ## History
@@ -41,3 +41,4 @@ all execution and provider selection, and ship the docs-only closeout PR.
 | 2026-11-17T07:14:08Z | R-0061/coordinator | Took over after PR #37 merge on new plan-only branch; research worker launched | Draft plan and stop for Zack approval |
 | 2026-11-17T07:16:41Z | R-0061/coordinator | Research note and plan draft saved, including pilot admission and pending old-run gates | Verify, commit/push and request approval |
 | 2026-11-17T07:25:14Z | R-0062/coordinator | Reassigned after Zack deferred execution; clean `5a5a447` resumed and decision note narrowed | Verify, push and ship docs PR |
+| 2026-11-17T07:31:57Z | R-0062/coordinator | PR #39 opened at `fe86e78`, assigned to Zack; CI green with migration jobs skipped | Push final checkpoint, wait for new-head CI and review |
