@@ -2,7 +2,7 @@
 
 ## Assignment
 
-- Status: done
+- Status: in_progress
 - Owner actor: R-0051/coordinator
 - Role: Test writer (same actor, no subagent dispatched)
 - Run: [R-0051](../runs/R-0051.md)
@@ -12,7 +12,7 @@
 - Branch / worktree: `feature/004-agent-monitor` / `../tallyhold-feature-004-agent-monitor`
 - Worktree path: `../tallyhold-feature-004-agent-monitor`
 - Issue / PR: [#20](https://github.com/donkey-king-kong/tallyhold/issues/20); no implementation PR
-- Updated: 2026-11-17T07:14:06Z
+- Updated: 2026-11-17T07:25:18Z
 
 ## Scope
 
@@ -26,12 +26,12 @@ After confirming public test interfaces, assign Test writer to produce synthetic
 
 ## Checkpoint
 
-- Last completed action: pushed test commit `f723913` and evidence at `91f778350d99503d2fb3b7893a16b6538f68c50c`; remote HEAD verified.
-- Evidence: [RED run](../../specs/004-agent-monitor/red-test-run.md): 25/25 new cases deliberately fail with missing extension interfaces; 6/6 existing publisher tests pass; base `0988e8e`; remote branch matches local.
-- Worktree state: clean at pushed `91f7783` before pre-dispatch checkpoint.
-- Remaining work: independent RED review and any requested fixes.
-- Blocker / unblock action: none for RED; GREEN still blocked on independent RED approval.
-- Next action: checkpoint pushed SHA and hand T-0052 to fresh headless Claude RED Reviewer; no GREEN until `APPROVE`.
+- Last completed action: committed strengthened RED tests at `357e26e875cce5c6febe5b7b2c20d8f0a3afca0c`; reran new and existing suites.
+- Evidence: 38/38 new cases deliberately fail for missing extension behavior; 6/6 publisher tests pass. [Updated evidence](../../specs/004-agent-monitor/red-test-run.md) maps all round 1 findings and release checks.
+- Worktree state: local test fix `357e26e`, round 1 report committed `8a97432`; evidence/tracking edits pending, no push yet.
+- Remaining work: commit/push revised evidence and report with fixes, second independent RED review.
+- Blocker / unblock action: GREEN blocked until a different round 2 reviewer approves.
+- Next action: commit/push revised evidence and reviewer report with test fix, verify remote SHA, dispatch different fresh Reviewer for round 2.
 - Handoff recipient: independent RED Reviewer after pushed evidence.
 
 ## History
@@ -42,3 +42,5 @@ After confirming public test interfaces, assign Test writer to produce synthetic
 | 2026-11-17T07:07:51Z | R-0051/coordinator | Zack confirmed three public behavioral test seams | Begin synthetic RED tests; keep implementation out of Test writer role |
 | 2026-11-17T07:12:47Z | R-0051/coordinator | Test commit `f723913` collected 25 expected failures; publisher suite passed 6/6 | Commit/push red-test-run.md and review on a fresh reviewer |
 | 2026-11-17T07:14:06Z | R-0051/coordinator | Pushed RED test/evidence through `91f7783`; remote matches local, worktree clean | Freeze RED changes for fresh review; hand off T-0052 |
+| 2026-11-17T07:22:15Z | R-0051/coordinator | Reopened RED work after fresh round 1 `CHANGES_REQUESTED` on `4440606` | Strengthen assertions and evidence; GREEN remains closed |
+| 2026-11-17T07:25:18Z | R-0051/coordinator | Test fix `357e26e` collected 38 expected failures; publisher suite still 6/6; round 1 report committed | Commit/push updated evidence and checkpoint before fresh round 2 |
