@@ -27,3 +27,41 @@ The approved plan's verification table has five rows, mapped here in order.
 The uncovered observable decisions in findings 1-4 make this RED checkpoint insufficient to constrain a plausible incorrect GREEN implementation. Operational AC5 checks remain explicit later gates rather than claims of CI coverage.
 
 VERDICT: CHANGES_REQUESTED
+
+---
+
+# Feature 005 RED review, round 2
+
+Base: `a96c0dae42889b8196b6ec3f9ae3b2bb79dcb25a`
+Reviewed pushed RED head: `d5cee6c86839f8a227191c721c6ae4c43f4c10cc`
+
+## Coverage mapping (checklist 1)
+
+The plan verification table has five rows, mapped in order. These are RED assertions, not passing feature tests.
+
+| Criterion / verification item | Tests and evidence | Uncovered or deferred |
+| --- | --- | --- |
+| AC1 / 1 | `frontend/components/auth-status.test.tsx` checks PKCE browser configuration, Google invocation, callback-created signed-in state, bearer fetch with omitted credentials, sign-out and expiry; `auth-callback.test.tsx` checks code exchange, cancellation redirect and token/provider-detail absence in response and logs. | Real OAuth and an operator/provider session are outside offline CI; the cancelled redirect's signed-out UI is inferred from the null-session component case, not exercised in one flow. |
+| AC2 / 2 | `backend/tests/test_auth_jwt.py` mints local P-256 JWTs and exercises signature, issuer, audience, role/sub, alg, key type, pinned JWKS, rotation, cache expiry, flood limit and timeout; `tests/integration/test_auth_boundary.py` asserts composed 401/503 and no user creation. | Failed unknown-`kid` fetches are not tested against the next unknown key in the same 60-second window; the rotation and limiter clock setup conflict as described below. |
+| AC3 / 3 | `tests/integration/test_auth_resolution.py` checks SGD, returning settings, issuer/sub separation, concurrent first login, caller-work preservation on a constraint failure and no orphans; `test_auth_schema.py` checks unique pair/FK and migration round-trip. | No distinct email value is submitted to the resolver, which appropriately has no email identity input under the approved plan. |
+| AC4 / 4 | `test_auth_http.py` checks `/me`, public health, CORS and cookie denial; `test_auth_boundary.py` composes minted bearer tokens with real PostgreSQL identity resolution, two-user isolation, client ID/email attempts, duplicate headers and generic denials. | Import-linter and type checks are GREEN verification, not RED behavior tests. |
+| AC5 / 5 | `test_auth_resolution.py` checks marker denial before lookup, late manual purge and both real PostgreSQL advisory-lock orders; `test_auth_schema.py` checks only the approved additive tables and reversal. | Production Data API inspection, actual backup/log retention, 30-day records and the disposable operator walkthrough remain explicit GREEN/deployment gates, not verified CI outcomes. |
+
+## Round-1 findings addressed
+
+1. API boundary: `test_auth_boundary.py` now asserts verified-token provisioning, invalid-token 401 with zero users, and JWKS outage 503 with zero users.
+2. Broad negative assertions: new verifier tests require `ValueError` for rejection and `ConnectionError` for transport failure; marker denial requires `PermissionError`, while HTTP tests check 401/503 without token disclosure.
+3. Key lifecycle: `test_auth_jwt.py` adds rotation, expired-cache outage, surviving unexpired known key, `x5u`, trusted configuration and unknown-key behavior after cache expiry. The failed-attempt throttle and cross-test clock conflict below remain.
+4. First-login/frontend: `test_provisioning_constraint_failure_rolls_back_candidate_not_caller_work` checks savepoint behavior; browser PKCE, callback response/log safety and signed-in event tests address the frontend cases. The cancellation flow is split across callback and null-session tests.
+5. RED evidence: the round-2 addendum reports 55 backend tests (54 RED, one passing CORS), 9 frontend RED tests, no collection/setup/network failures, but identifies test commit `24a0797`, not this reviewed head.
+6. Existing suite: the addendum reports 91/91 backend and 3/3 frontend existing tests passing, no skips. The cumulative base-to-head diff adds auth tests and changes only the existing migration test's table-name assertion to allow the two auth tables; `test_auth_schema.py` independently requires exactly those two. No existing test was deleted.
+
+## Round-2 findings (checklists 2-6)
+
+1. **Process-wide unknown-`kid` tests conflict (2, 4).** The parametrized unknown-key case in `test_auth_jwt.py:108-137` attempts a refresh with fake time `0.0`. Later, `test_new_es256_key_verifies_after_pinned_jwks_rotation` (`:206-225`) creates another verifier at the same time and requires a second unknown-key refresh to accept the rotated key. The approved limiter is shared across verifier instances within one process, across all kids, and permits at most one attempt per 60 seconds. No test resets the shared limiter between these cases. A conforming process-wide implementation cannot make both assertions pass in the same pytest process. Isolate/reset process state explicitly at the test boundary or advance a shared monotonic fake clock before the rotation.
+2. **Failed refresh is not throttled by an assertion (2, 4).** `test_failed_unknown_key_refresh_keeps_unexpired_known_key` (`test_auth_jwt.py:252-269`) checks a single failed refresh and the known key. The flood test (`:321-358`) has a successful JWKS response. An implementation that records only successful unknown-`kid` refreshes passes both but allows unlimited external fetches during an outage, contrary to the approved synchronized claim-before-network decision. After a failed refresh, submit another distinct unknown kid inside 60 seconds and assert no second fetch/401.
+3. **Exact-head RED evidence is missing (3, 6).** `red-test-run.md` reports the round-2 run at `24a079782b5ccd848d006db350dda08ce1c4c50e`, not `d5cee6c86839f8a227191c721c6ae4c43f4c10cc`, and does not state or prove that the reviewed head has identical test content. Its reported failure categories are missing feature modules/tables/routes, not fixture, dependency, collection or external-network errors, and the guarded PostgreSQL fixture plus in-memory keys/fake HTTP are allowed infrastructure. Recheck the pushed head or provide a content-equivalence checkpoint for the reported RED and existing-suite results.
+
+The cumulative diff and evidence show no live keys, real Supabase calls or weakened existing behavior beyond the narrowly adjusted migration table-name assertion. The two verifier issues and unverifiable head checkpoint prevent approval in this final review round.
+
+VERDICT: CHANGES_REQUESTED
