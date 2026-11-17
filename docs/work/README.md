@@ -41,6 +41,7 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 | [T-0031](tickets/T-0031-review-auth-pr.md) | Fresh independent PR review for Feature 005 | [R-0033](runs/R-0033.md) |
 | [T-0032](tickets/T-0032-parallel-track-coordination.md) | Reserve disjoint parallel-track IDs and correct the Phase 2 roadmap | [R-0034](runs/R-0034.md) |
 | [T-0033](tickets/T-0033-review-parallel-track-coordination.md) | Independently review and gate the parallel-track handoff PR | [R-0034](runs/R-0034.md) |
+| [T-0040](tickets/T-0040-draft-accounts-spec.md) | Draft and grill Feature 006 accounts spec before Gate 1 | [R-0040](runs/R-0040.md) |
 
 Historical PR #6 post-dispatch records remain in T-0002's checkpoint
 branch/worktree. Future ship runs use PR comments instead.
