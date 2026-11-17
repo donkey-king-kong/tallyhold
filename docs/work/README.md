@@ -44,6 +44,7 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 | [T-0040](tickets/T-0040-draft-accounts-spec.md) | Draft and grill Feature 006 accounts spec before Gate 1 | [R-0040](runs/R-0040.md) |
 | [T-0041](tickets/T-0041-plan-accounts.md) | Draft Feature 006 architecture and migration plan for Zack's separate gate | [R-0040](runs/R-0040.md) |
 | [T-0042](tickets/T-0042-accounts-red.md) | Write and hand off Feature 006 failing tests | [R-0040](runs/R-0040.md) |
+| [T-0043](tickets/T-0043-accounts-red-review.md) | Independently review Feature 006 RED handoff | [R-0040](runs/R-0040.md) |
 
 Historical PR #6 post-dispatch records remain in T-0002's checkpoint
 branch/worktree. Future ship runs use PR comments instead.

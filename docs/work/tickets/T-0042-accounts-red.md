@@ -2,7 +2,7 @@
 
 ## Assignment
 
-- Status: in_progress
+- Status: done
 - Owner actor: R-0040/coordinator
 - Role: Test writer (coordinator; separate RED scope from later Implementer)
 - Run: [R-0040](../runs/R-0040.md)
@@ -37,16 +37,16 @@ Approved seams and limits:
 - [x] New tests map AC1-AC7 and the plan's verification items.
 - [x] RED failures show missing feature behavior, not collection/fixture errors.
 - [x] Existing tests pass unchanged and no tests are weakened.
-- [ ] Test SHA, command counts/failure causes and mapping are pushed before review.
+- [x] Test SHA, command counts/failure causes and mapping are pushed before review.
 
 ## Checkpoint
 
-- Last completed action: committed test-only RED at `771e9ad`; reran new and existing suites separately at that SHA and drafted sanitized evidence.
+- Last completed action: pushed test-only RED through `771e9ad` and sanitized evidence at `a0f8435`; remote head verified.
 - Evidence: [RED run](../../specs/006-accounts/red-test-run.md): backend 44 expected failures, 146 existing passes; frontend 9 expected failures and 8 passes, 13 existing passes plus one deliberately excluded new case. First rerun omitted the local test URL and had fixture errors; corrected run has zero setup errors.
-- Worktree state: test commits through `771e9ad` local, evidence and checkpoint uncommitted; no production code.
-- Remaining work: commit/push evidence, verify remote head and dispatch independent RED review.
+- Worktree state: clean at `a0f8435` before reviewer-assignment checkpoint; no production code.
+- Remaining work: independent review owned by [T-0043](T-0043-accounts-red-review.md).
 - Blocker / unblock action: none; RED review after handoff is mandatory before GREEN.
-- Next action: push RED evidence and checkpoint, verify remote head, then dispatch fresh reviewer with base `82ec809` and test head `771e9ad`.
+- Next action: coordinator dispatches fresh reviewer from base `82ec809` to the pushed RED handoff head.
 - Handoff recipient: independent RED Reviewer via coordinator.
 
 ## History
@@ -56,3 +56,4 @@ Approved seams and limits:
 | 2026-11-17T07:31:13Z | R-0040/coordinator | Claimed T-0042 after explicit plan approval at `ab58947` | Add RED tests only; no migration/feature code |
 | 2026-11-17T07:35:09Z | R-0040/coordinator | Approval `82ec809` pushed after one transient remote rejection; locked dependencies installed; shared PG17 test port usable, own Compose start failed on occupied port | Use only uniquely named disposable DBs; adapt 003 seed fixtures and write RED |
 | 2026-11-17T07:45:26Z | R-0040/coordinator | Five RED slices and a focused browser expansion committed through `771e9ad`; pinned reruns show missing behavior only; existing suites pass | Commit/push evidence and hand off to a fresh RED Reviewer; no GREEN before approval |
+| 2026-11-17T07:45:26Z | R-0040/coordinator | Evidence and checkpoint committed/pushed at `a0f8435`; remote SHA matches; T-0043 assigned for independent review | Dispatch a fresh reviewer; GREEN still gated |
