@@ -34,6 +34,15 @@ npm run dev
 
 Open http://localhost:3000 to see the API status. The frontend uses `http://localhost:8000` by default; override `NEXT_PUBLIC_API_URL` before starting Next.js if the API runs elsewhere. The API allows the local frontend origin `http://localhost:3000` by default (`FRONTEND_ORIGIN` overrides it). To stop the containers, use `docker compose down`.
 
+For a second worktree, use a distinct Compose project name and host ports,
+for example `COMPOSE_PROJECT_NAME=tallyhold_second TALLYHOLD_DB_PORT=55433
+TALLYHOLD_API_PORT=8001 FRONTEND_ORIGIN=http://localhost:3001 docker compose
+up --build -d` from that worktree. Start its frontend on port 3001 with
+`NEXT_PUBLIC_API_URL=http://localhost:8001`; keep each frontend's Supabase
+callback origin in the provider allowlist. Defaults remain database port 55432,
+API port 8000 and frontend origin 3000. Database and API container ports do
+not change. Use the selected database host port for local integration tests.
+
 ### Google sign-in configuration
 
 The public Next.js settings are illustrated in
@@ -130,12 +139,14 @@ Run `gitleaks git --redact --exit-code 1 .` at the repository root for the secre
 
 ## Production database migrations
 
-On each push to `main`, CI runs the backend, frontend and security checks
-first. Only if all three pass does the `production-migrations` job wait for
-Zack's approval through the GitHub `production` environment. The workflow can
-also be started with **Run workflow** (`workflow_dispatch`) on `main`; it
-performs the same checks and requires the same approval. A manual run on
-another branch does not run the production job.
+On each push to `main`, CI runs the backend, frontend and security checks.
+The `production-migrations` job is eligible only when that push changes
+`backend/alembic/**` or `backend/app/**/infrastructure/models.py` and all
+three checks pass; then it waits for Zack's approval through the GitHub
+`production` environment. **Run workflow** (`workflow_dispatch`) runs the
+checks but never schedules production migrations; manual schema upgrades
+require a separately approved procedure. A manual run on another branch
+cannot run the production job.
 
 Once approved, the job runs `alembic upgrade head` from `backend/` using
 `DATABASE_URL` sourced from the `SUPABASE_DATABASE_URL` GitHub Actions secret.

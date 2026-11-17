@@ -104,9 +104,36 @@ jobs:
         working-directory: frontend
         run: npm audit --omit=dev --audit-level=high
 
+  migration-changes:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.paths.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Detect schema-related changes
+        id: paths
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          if [[ "$BEFORE" == "0000000000000000000000000000000000000000" ]]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            git diff --name-only "$BEFORE" "$GITHUB_SHA" -- \
+              'backend/alembic/**' ':(glob)backend/app/**/infrastructure/models.py' \
+              > "$RUNNER_TEMP/migration-changes"
+            if [[ -s "$RUNNER_TEMP/migration-changes" ]]; then
+              echo "changed=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "changed=false" >> "$GITHUB_OUTPUT"
+            fi
+          fi
+
   production-migrations:
-    if: github.ref == 'refs/heads/main'
-    needs: [backend, frontend, security]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.migration-changes.outputs.changed == 'true'
+    needs: [backend, frontend, security, migration-changes]
     runs-on: ubuntu-latest
     environment: production
     concurrency:
