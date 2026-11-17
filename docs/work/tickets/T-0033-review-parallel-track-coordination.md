@@ -14,7 +14,7 @@
 - Worktree path: `../tallyhold-chore-parallel-track-coordination`
 - Issue / PR: [#33](https://github.com/donkey-king-kong/tallyhold/issues/33) /
   [PR #34](https://github.com/donkey-king-kong/tallyhold/pull/34)
-- Updated: 2026-11-17T06:39:06Z
+- Updated: 2026-11-17T06:45:12Z
 
 ## Scope
 
@@ -30,16 +30,21 @@ ticket or Agent Flow to the Reviewer.
 
 ## Checkpoint
 
-- Last completed action: PR #34 opened at `8905a3cbe23844f19aa603448f8af24d66b396a0`,
-  assigned to Zack, first-head backend/frontend/security CI green.
-- Evidence: `gh pr checks 34`; production-migrations skipped as expected.
-- Worktree state: clean pushed code/docs head; final tracking checkpoint
-  pending commit/push before review. No reviewer dispatched.
-- Remaining work: final-head green CI, frozen tracking, fresh Reviewer and
-  merge gate.
-- Blocker / unblock action: wait for CI on the final checkpoint commit.
-- Next action: coordinator commits/pushes final checkpoint, verifies current
-  PR head and green CI, then dispatches a brand-new restricted Reviewer.
+- Last completed action: headless Claude Code Opus (native PID 92812) launched
+  against clean, green `7cce7fa17c10864db7cd553831545ddf2af7c0d8`, then
+  exited with `ECONNREFUSED` before any report, comment or verdict.
+- Evidence: shell exit 1, `API Error: Connection refused`; no
+  `docs/specs/chore-parallel-track-coordination/review.md` or reviewer
+  verdict comment. This is a failed launch, not review round 1.
+- Worktree state: no report; failure/fallback checkpoint uncommitted.
+- Remaining work: use a **new fresh Trae reviewer** (planned type: Trae
+  subagent, no history fork) on the pushed fallback checkpoint head, then
+  enforce merge gate. No reviewer launched for the fallback yet.
+- Blocker / unblock action: push this recovery checkpoint and wait for its CI.
+- Next action: coordinator commits/pushes the failure and actual fallback
+  type, confirms green CI on the new head, freezes tracking and dispatches
+  a fresh Trae subagent with only PR #34, round 1, feature path and Reviewer
+  role. Record its actual native identity after confirmed launch.
 - Handoff recipient: fresh PR Reviewer only after green CI.
 
 ## History
@@ -48,3 +53,4 @@ ticket or Agent Flow to the Reviewer.
 | --- | --- | --- | --- |
 | 2026-11-17T06:32:17Z | R-0034/coordinator | Registered pending independent review; no subagent launched | Complete docs and CI before dispatch |
 | 2026-11-17T06:39:06Z | R-0034/coordinator | PR #34 opened at `8905a3c`, assignee verified and first-head CI passed | Commit/push checkpoint, confirm its CI, then dispatch fresh Reviewer |
+| 2026-11-17T06:45:12Z | R-0034/coordinator | Fresh headless Claude Code Opus PID 92812 failed with `ECONNREFUSED` before any verdict/report/comment; planned fallback type is a new Trae subagent | Push failure checkpoint, wait for CI, dispatch fresh restricted Trae reviewer for round 1 |
