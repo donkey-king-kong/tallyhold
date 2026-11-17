@@ -86,6 +86,9 @@ test("signed-in account manager lists brokers and defaults entry currency from m
     "value",
     "SGD",
   );
+  const nameInput = screen.getByLabelText(/account name/i);
+  nameInput.focus();
+  expect(document.activeElement).toBe(nameInput);
   expect(screen.getByText(/broker not listed/i)).toBeTruthy();
   for (const [url, options] of fetch.mock.calls) {
     expect(url).toMatch(/\/api\/v1\/(me|brokers|accounts)$/);
@@ -219,7 +222,9 @@ test("sign-out drops private rows and ignores an older in-flight response", asyn
       expect.any(Object),
     ),
   );
+  const staleCreate = screen.getByRole("button", { name: /create account/i });
   await act(async () => auth.emit("SIGNED_OUT", null));
+  fireEvent.click(staleCreate);
   finishList(reply([{ id: ACCOUNT, name: "Private account" }]));
   await act(async () => pending);
   expect(screen.queryByText("Private account")).toBeNull();

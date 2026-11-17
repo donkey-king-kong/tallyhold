@@ -1,7 +1,9 @@
 """Feature 006 AC1-AC5/AC7: authenticated account API on PostgreSQL."""
 
 from collections.abc import Iterator
+from concurrent.futures import ThreadPoolExecutor
 from importlib import import_module
+from threading import Barrier
 from uuid import UUID, uuid4
 
 import pytest
@@ -126,6 +128,19 @@ def test_second_user_cannot_read_edit_or_delete_first_users_account(
     assert (
         client.delete(f"{API}/accounts/{first_id}", headers=BEARER).status_code == 404
     )
+    unknown_id = str(uuid4())
+    for method, payload in (("patch", {"name": "Changed"}), ("delete", None)):
+        request = getattr(client, method)
+        options = {"headers": BEARER}
+        if payload is not None:
+            options["json"] = payload
+        unknown = request(f"{API}/accounts/{unknown_id}", **options)
+        foreign = request(f"{API}/accounts/{first_id}", **options)
+        assert (unknown.status_code, unknown.json()) == (
+            foreign.status_code,
+            foreign.json(),
+        )
+        assert unknown.status_code == 404
     assert client.get(f"{API}/accounts", headers=BEARER).json() == []
     second = create(client, broker_id, "Main", "SGD")
     assert second.status_code == 201
@@ -199,8 +214,33 @@ def test_unknown_broker_duplicate_name_and_malformed_ids_have_private_errors(
     assert "uq_" not in conflict.text
     assert "broker_accounts" not in conflict.text
     assert client.get(f"{API}/accounts/not-a-uuid", headers=BEARER).status_code == 422
+    assert (
+        client.patch(
+            f"{API}/accounts/not-a-uuid", headers=BEARER, json={"name": "Other"}
+        ).status_code
+        == 422
+    )
+    malformed_delete = client.delete(f"{API}/accounts/not-a-uuid", headers=BEARER)
+    assert malformed_delete.status_code == 422
+    assert create(client, broker_id, " Main ").status_code == 409
     assert client.get(f"{API}/accounts/{uuid4()}", headers=BEARER).status_code == 404
     assert client.get(f"{API}/accounts", headers=BEARER).json() == [first.json()]
+
+
+def test_concurrent_case_variant_posts_have_one_success_and_one_conflict(
+    accounts_client: tuple[TestClient, list[User], UUID],
+) -> None:
+    client, _, broker_id = accounts_client
+    barrier = Barrier(2)
+
+    def submit(name: str) -> int:
+        barrier.wait(timeout=5)
+        return create(client, broker_id, name).status_code
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        results = [pool.submit(submit, name) for name in ("Main", "main")]
+        assert sorted(result.result(timeout=10) for result in results) == [201, 409]
+    assert len(client.get(f"{API}/accounts", headers=BEARER).json()) == 1
 
 
 def test_renaming_to_another_owned_name_returns_conflict_without_mutation(
@@ -328,6 +368,37 @@ def test_account_routes_require_bearer_and_preserve_public_health() -> None:
             )
 
 
+def test_detail_and_writes_reject_missing_or_invalid_bearer_without_mutation(
+    accounts_client: tuple[TestClient, list[User], UUID],
+) -> None:
+    client, _, broker_id = accounts_client
+    created = create(client, broker_id)
+    assert created.status_code == 201
+    account_id = created.json()["id"]
+    app = import_module("app.main").app
+    dependencies = import_module("app.dependencies")
+    owner_override = app.dependency_overrides.pop(dependencies.get_current_user)
+    try:
+        for headers in ({}, {"Authorization": "Bearer bad"}):
+            for method, path, payload in (
+                ("get", f"{API}/accounts/{account_id}", None),
+                (
+                    "post",
+                    f"{API}/accounts",
+                    {"broker_id": str(broker_id), "name": "Denied", "currency": "USD"},
+                ),
+                ("patch", f"{API}/accounts/{account_id}", {"name": "Denied"}),
+                ("delete", f"{API}/accounts/{account_id}", None),
+            ):
+                options = {"headers": headers}
+                if payload is not None:
+                    options["json"] = payload
+                assert getattr(client, method)(path, **options).status_code == 401
+    finally:
+        app.dependency_overrides[dependencies.get_current_user] = owner_override
+    assert client.get(f"{API}/accounts", headers=BEARER).json() == [created.json()]
+
+
 def test_unavailable_current_user_does_not_return_an_empty_list() -> None:
     app = import_module("app.main").app
     dependencies = import_module("app.dependencies")
@@ -355,6 +426,16 @@ def test_missing_request_database_is_503_not_an_empty_account_list() -> None:
             response = client.get(f"{API}/accounts", headers=BEARER)
         assert response.status_code == 503
         assert response.json() != []
+        with TestClient(app) as client:
+            assert client.get(f"{API}/brokers", headers=BEARER).status_code == 503
+            assert (
+                client.post(
+                    f"{API}/accounts",
+                    headers=BEARER,
+                    json={"broker_id": str(uuid4()), "name": "Main", "currency": "USD"},
+                ).status_code
+                == 503
+            )
     finally:
         app.dependency_overrides.clear()
 

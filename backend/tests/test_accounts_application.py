@@ -161,3 +161,25 @@ def test_unknown_broker_and_foreign_account_leave_rows_untouched() -> None:
     with pytest.raises(Exception):
         manager.delete_account(other, original.id)
     assert accounts.get(owner, original.id) == original
+
+
+def test_maximum_length_name_is_accepted_and_display_case_is_preserved() -> None:
+    owner = uuid4()
+    broker = Broker(uuid4(), "IBKR", "SG")
+    accounts = Accounts()
+    manager = service(accounts, Brokers(broker))
+
+    created = manager.create_account(owner, broker.id, f" {'A' * 255} ", "usd")
+    assert created.name == "A" * 255
+    assert manager.get_account(owner, created.id).name == "A" * 255
+
+
+def test_orphaned_account_broker_is_an_integrity_error_not_an_empty_read() -> None:
+    owner = uuid4()
+    orphan = Account(uuid4(), owner, uuid4(), "Main", "SGD")
+    manager = service(Accounts(orphan), Brokers())
+
+    with pytest.raises(Exception, match="(?i)broker"):
+        manager.list_accounts(owner)
+    with pytest.raises(Exception, match="(?i)broker"):
+        manager.get_account(owner, orphan.id)

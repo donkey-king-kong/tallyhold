@@ -115,8 +115,10 @@ def test_preexisting_broker_id_survives_upgrade_downgrade_and_reupgrade(
             engine.dispose()
 
 
+@pytest.mark.parametrize("existing_name", ["Unrelated Fixture", "IBKR"])
 def test_reserved_seed_id_collision_rejects_upgrade_without_overwriting(
     monkeypatch: pytest.MonkeyPatch,
+    existing_name: str,
 ) -> None:
     with disposable_database() as seeded_url, disposable_database() as target_url:
         migrate(seeded_url, "0004_accounts_catalog", "upgrade", monkeypatch)
@@ -133,9 +135,9 @@ def test_reserved_seed_id_collision_rejects_upgrade_without_overwriting(
                 connection.execute(
                     text(
                         "INSERT INTO brokers(id, name, country) "
-                        "VALUES (:id, 'Unrelated Fixture', 'SG')"
+                        "VALUES (:id, :name, 'SG')"
                     ),
-                    {"id": reserved},
+                    {"id": reserved, "name": existing_name},
                 )
             config = Config(str(BACKEND / "alembic.ini"))
             monkeypatch.setenv("DATABASE_URL", target_url)
@@ -147,8 +149,9 @@ def test_reserved_seed_id_collision_rejects_upgrade_without_overwriting(
                         text("SELECT name FROM brokers WHERE id = :id"),
                         {"id": reserved},
                     ).scalar_one()
-                    == "Unrelated Fixture"
+                    == existing_name
                 )
+                assert len(_broker_ids(connection)) == int(existing_name == "IBKR")
                 assert (
                     connection.execute(
                         text("SELECT version_num FROM alembic_version")
