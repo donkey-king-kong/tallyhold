@@ -62,7 +62,7 @@ orders work and maps ACs; tickets own assignment and execution evidence.
   colliding legacy names before replacing the 003 unique constraint.
   Restore that constraint on guarded downgrade. Pass PostgreSQL
   migration/index tests, then commit only schema/migration work.
-- [ ] **Implementer: account domain and use cases (AC2-AC5, AC7).**
+- [x] **Implementer: account domain and use cases (AC2-AC5, AC7).**
   Add pure name validation and module failures, account CRUD and
   read-only broker listing in one application module using the 003 ports.
   Map named account constraints in infrastructure, scope all owned calls to

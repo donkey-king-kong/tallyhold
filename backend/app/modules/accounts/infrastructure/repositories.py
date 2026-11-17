@@ -6,6 +6,7 @@ from sqlalchemy import delete, func, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
+from app.modules.accounts.domain.errors import AccountInUse, DuplicateAccountName
 from app.modules.accounts.domain.models import Account, Broker
 from app.modules.accounts.domain.repositories import AccountRepository, BrokerRepository
 from app.modules.accounts.infrastructure.models import AccountRow, BrokerRow
@@ -74,26 +75,36 @@ class SqlAlchemyAccountRepository(AccountRepository):
             name=account.name,
             currency=account.currency,
         )
-        count = execute_write(
-            self.session,
-            statement.on_conflict_do_update(
-                index_elements=[AccountRow.id],
-                set_={
-                    "broker_id": statement.excluded.broker_id,
-                    "name": statement.excluded.name,
-                    "currency": statement.excluded.currency,
-                    "updated_at": func.clock_timestamp(),
-                },
-                where=AccountRow.user_id == statement.excluded.user_id,
-            ),
-        )
+        try:
+            count = execute_write(
+                self.session,
+                statement.on_conflict_do_update(
+                    index_elements=[AccountRow.id],
+                    set_={
+                        "broker_id": statement.excluded.broker_id,
+                        "name": statement.excluded.name,
+                        "currency": statement.excluded.currency,
+                        "updated_at": func.clock_timestamp(),
+                    },
+                    where=AccountRow.user_id == statement.excluded.user_id,
+                ),
+            )
+        except PersistenceConstraintError as error:
+            if error.constraint_name == "uq_broker_accounts_user_id_name_ci":
+                raise DuplicateAccountName() from None
+            raise
         if count == 0:
             raise PersistenceConstraintError("owner_scope")
 
     def delete(self, user_id: UUID, account_id: UUID) -> None:
-        execute_write(
-            self.session,
-            delete(AccountRow).where(
-                AccountRow.user_id == user_id, AccountRow.id == account_id
-            ),
-        )
+        try:
+            execute_write(
+                self.session,
+                delete(AccountRow).where(
+                    AccountRow.user_id == user_id, AccountRow.id == account_id
+                ),
+            )
+        except PersistenceConstraintError as error:
+            if error.constraint_name == "fk_transactions_user_account":
+                raise AccountInUse() from None
+            raise

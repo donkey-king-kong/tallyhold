@@ -30,13 +30,13 @@ Alembic; CI, Compose and AGENTS.md remain untouched.
 
 ## Checkpoint
 
-- Last completed action: 0004 migration and metadata pass targeted PostgreSQL tests (10 passed).
+- Last completed action: account use cases pass 13 tests, Ruff, mypy and import-linter.
 - Evidence: base `82ec809`, RED test SHA `4137911`, reviewed head `abdd8ca`;
   identical APPROVE comment `210417698`.
-- Worktree state: schema slice awaiting commit.
-- Remaining work: implement service, API, UI; full checks and ship.
+- Worktree state: schema committed `9036940`; application slice awaiting commit.
+- Remaining work: implement API, UI; full checks and ship.
 - Blocker / unblock action: none.
-- Next action: commit schema slice, then implement account domain and use cases.
+- Next action: commit application slice, then implement HTTP routes and composition.
 - Handoff recipient: ship coordinator after GREEN checks.
 
 ## History
@@ -45,3 +45,4 @@ Alembic; CI, Compose and AGENTS.md remain untouched.
 | --- | --- | --- | --- |
 | 2026-11-17T08:22:54Z | R-0040/coordinator | Claimed GREEN after pushed independent RED APPROVE | Implement migration first; no RED test edits |
 | 2026-11-17T09:00:00Z | R-0040/coordinator | Added 0004 seed/index and metadata; initial run exposed conflicting SQL parameter inference, corrected with explicit casts; rerun 10 passed | Commit schema, implement application |
+| 2026-11-17T09:00:00Z | R-0040/coordinator | Schema committed `9036940`; application operations and named constraint translation pass 13 unit tests, Ruff, mypy, import-linter | Commit application; add API |
