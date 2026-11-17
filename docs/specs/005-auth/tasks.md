@@ -53,7 +53,7 @@ roles; the Implementer does not alter tests merely to pass.
   OAuth PKCE callback, signed-in and signed-out states, cancelled/expired
   flows, sign-out, bearer request with omitted credentials and no tokens in
   URLs/logs. Run Vitest to a behavior-failing RED checkpoint; commit.
-- [ ] **Test writer handoff:** Verify all RED tests collect and failures
+- [x] **Test writer handoff:** Verify all RED tests collect and failures
   identify missing 005 behavior. Existing domain/integration tests still
   pass; no real Supabase keys or network calls in CI. Checkpoint the exact
   failing revision and stop for Zack's review before any Implementer work.

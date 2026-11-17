@@ -2,7 +2,7 @@
 
 ## Assignment
 
-- Status: in_progress
+- Status: in_review
 - Owner actor: R-0028/coordinator
 - Role: Test writer
 - Run: [R-0028](../runs/R-0028.md)
@@ -12,7 +12,7 @@
 - Branch / worktree: `feature/005-auth`
 - Worktree path: `../tallyhold-feature-005-auth`
 - Issue / PR: [issue #27](https://github.com/donkey-king-kong/tallyhold/issues/27); no PR
-- Updated: 2026-11-17T03:15:14Z
+- Updated: 2026-11-17T03:21:31Z
 
 ## Scope
 
@@ -25,20 +25,20 @@ implementation; no production code, migrations, GREEN or Feature 006 work.
 
 ## Acceptance
 
-- [ ] Focused tests cover all approved 005 criteria with offline auth fixtures.
-- [ ] RED test invocations collect and fail for missing feature behavior;
+- [x] Focused tests cover approved 005 criteria with offline auth fixtures.
+- [x] RED test invocations collect and fail for missing feature behavior;
   existing tests remain green where test infrastructure is available.
-- [ ] RED tests are committed and pushed in focused `test:` commits; Zack
+- [x] RED tests are committed and pushed in focused `test:` commits; Zack
   receives exact commands, failures and tested revisions before GREEN.
 
 ## Checkpoint
 
-- Last completed action: frontend RED committed at `a709cbc`; full backend/frontend RED and existing suites verified. Corrected the cold-cache flood assertion, added async callers, and kept legacy migration catalog assertion additive.
-- Evidence: full backend `uv run --locked pytest -q --tb=no` had 36 missing-feature failures, 92 passes; old backend suite 91 passed with disposable PostgreSQL 17. Full frontend `npm test -- --reporter=dot` had 7 absent-component/route failures, 3 passes; old frontend suite 3 passed. Backend ruff/format/mypy/import-linter and frontend lint/typecheck/targeted Prettier all passed. No live keys, Supabase network or production schema use.
-- Worktree state: flood correction, additive existing test, tasks and this checkpoint not yet committed; branch ahead of remote.
-- Remaining work: commit final RED test refinements and checkpoint; rerun at final revision, push and hand off to Zack. GREEN remains held.
+- Last completed action: seven RED/fixture commits through `c0d0601` pushed to `origin/feature/005-auth`; Test writer handoff prepared for Zack.
+- Evidence: at code revision `c0d0601`, `TALLYHOLD_TEST_DATABASE_URL=postgresql+psycopg://tallyhold@127.0.0.1:55432/tallyhold_test uv run --locked pytest -qq --tb=no --disable-warnings` yielded 36 expected missing-feature failures and 92 passes. Old backend suite 91 passed. Frontend `npm test -- --reporter=dot` yielded 7 absent-component/route failures and 3 passes; old frontend suite 3 passed. Backend ruff/format/mypy/import-linter and frontend lint/typecheck/Prettier passed.
+- Worktree state: code pushed at `c0d0601`; this terminal tracking checkpoint awaits its documentation commit and push.
+- Remaining work: Zack reviews RED and authorizes or redirects GREEN; no production code/migration exists yet.
 - Blocker / unblock action: GREEN requires Zack's review of the RED checkpoint.
-- Next action: commit final RED adjustments, verify final revision, push, then stop at Zack's checkpoint.
+- Next action: commit/push this terminal checkpoint, then stop and await Zack's RED review before GREEN.
 - Handoff recipient: Zack at RED checkpoint.
 
 ## History
@@ -53,3 +53,4 @@ implementation; no production code, migrations, GREEN or Feature 006 work.
 | 2026-11-17T03:07:00Z | R-0028/coordinator | Resolution RED committed at `af9ec9b`; HTTP suite has 6 absent-route/dependency failures and 1 pre-existing CORS pass | Commit HTTP RED, then frontend |
 | 2026-11-17T03:10:49Z | R-0028/coordinator | HTTP RED committed at `b95bf48`; frontend auth component/callback RED 7 missing-feature failures; typecheck, lint, Prettier pass | Commit frontend RED; verify baseline/full RED |
 | 2026-11-17T03:15:14Z | R-0028/coordinator | Frontend RED committed at `a709cbc`; baseline backend 91 and frontend 3 pass, full backend 36 expected failures/92 passes and frontend 7 expected failures/3 passes; static checks green | Commit final flood/additive refinements, rerun and push; stop before GREEN |
+| 2026-11-17T03:21:31Z | R-0028/coordinator | Final RED code `c0d0601` retested with 36 expected backend failures/92 passes and pushed; frontend 7 expected failures/3 passes; no production code | Commit/push handoff checkpoint, await Zack's review |
