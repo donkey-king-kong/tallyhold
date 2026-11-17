@@ -13,6 +13,7 @@ Issue: [#35](https://github.com/donkey-king-kong/tallyhold/issues/35).
    loopback bindings and 55432/8000 defaults. Distinct project names allow
    concurrent local worktrees.
 3. The README describes the trigger and local port/origin configuration.
-4. A separate first-deploy plan is drafted for Zack's approval after this PR.
-   No hosting, provider, secret, database or production deployment action is
-   authorized by this scope.
+4. First-deploy execution is deferred until Phase 4. Cloud Run Tokyo and
+   Render Singapore remain candidates; the host is decided then. No hosting,
+   provider, secret, database or production deployment action is authorized
+   by this scope.
