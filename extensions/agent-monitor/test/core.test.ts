@@ -129,4 +129,33 @@ describe("selected-stream projection (AC3-10, AC12-13)", () => {
     expect(model.snapshot().nodes[0].lastUpdateAge).toBeNull();
     expect(model.snapshot().nodes[0].activities[0].absoluteTime).toBeNull();
   });
+
+  it("never promotes a quiet nonterminal identity to verified liveness or success", async () => {
+    const model = await stream({ sessionStartedAt: 1_700_000_000 });
+    model.ingest(bytes(
+      record("agent_spawn", { name: "reviewer", task: "Independent review" }, 0) +
+      record("message", { agent: "reviewer", content: "Review started" }, 1),
+    ));
+    const view = model.snapshot();
+    expect(view.nodes[0].status).toBe("working");
+    expect(view.nodes[0].identityKind).toBe("unspecified");
+    expect(view.nodes[0].activities[1].absoluteTime).toBe("2023-11-14T22:13:21.000Z");
+    expect(view.nodes[0].intervals[0].end).toBeNull();
+  });
+
+  it("preserves valid records after a malformed schema and does not invent activity", async () => {
+    const model = await stream();
+    model.ingest(bytes(
+      record("agent_spawn", { name: "root" }, 0) +
+      record("message", { content: "missing agent" }, 1) +
+      record("error", { agent: "root", message: "Read failed", status: "blocked" }, 2) +
+      record("message", { agent: "root", content: "Recovered" }, 3),
+    ));
+    expect(model.snapshot().nodes).toHaveLength(1);
+    expect(model.snapshot().nodes[0].activities.map((item: any) => item.type)).toEqual([
+      "agent_spawn", "error", "message",
+    ]);
+    expect(model.snapshot().nodes[0].status).toBe("working");
+    expect(model.snapshot().diagnostics.some((item: any) => item.code === "invalid_record")).toBe(true);
+  });
 });

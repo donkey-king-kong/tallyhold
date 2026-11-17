@@ -31,7 +31,8 @@ function node(id: string, status: string) {
 async function mount(nodes = [node("done", "completed"), node("active", "working")]) {
   const root = document.createElement("main");
   document.body.append(root);
-  const { mountMonitor } = await import("../src/webview/main");
+  const modulePath = ["../src/webview", "main"].join("/");
+  const { mountMonitor } = await import(/* @vite-ignore */ modulePath);
   const app = mountMonitor(root, view(nodes));
   dispose = () => app.dispose();
   return { root, app };
@@ -71,5 +72,19 @@ describe("editor webview controls (AC3-5, AC7-8, AC12, AC14-15)", () => {
     expect(root.textContent).toContain("<img src=x onerror=alert(1)>");
     expect(root.querySelector("img")).toBeNull();
     expect(root.textContent).toMatch(/completed/i);
+  });
+
+  it("offers keyboard-operated zoom and pan without losing the selected inspector on update", async () => {
+    const { root, app } = await mount();
+    fireEvent.click(getByRole(root, "button", { name: /done/i }));
+    for (const name of [/zoom in/i, /zoom out/i, /pan left/i, /pan right/i, /fit all/i]) {
+      const control = getByRole(root, "button", { name });
+      control.focus();
+      fireEvent.keyDown(control, { key: "Enter" });
+      expect(document.activeElement).toBe(control);
+    }
+    app.update(view([node("done", "completed"), node("active", "working"), node("new", "starting")]));
+    expect(getByText(root, "Finished review")).toBeTruthy();
+    expect(getByRole(root, "button", { name: /new/i })).toBeTruthy();
   });
 });

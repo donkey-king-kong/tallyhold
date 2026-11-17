@@ -5,8 +5,8 @@ import { resolve } from "node:path";
 describe("independent extension contract (AC1, AC15-16)", () => {
   it("contributes an explicitly named command on the approved stable API floor", async () => {
     const manifest = JSON.parse(await readFile(resolve("package.json"), "utf8"));
-    expect(manifest.engines.vscode).toBe("^1.80.0");
-    expect(manifest.contributes.commands).toContainEqual({
+    expect(manifest.engines?.vscode).toBe("^1.80.0");
+    expect(manifest.contributes?.commands).toContainEqual({
       command: "tallyholdAgentMonitor.open",
       title: "Tallyhold Agent Monitor: Open",
     });
