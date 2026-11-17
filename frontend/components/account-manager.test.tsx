@@ -295,6 +295,58 @@ test("a failed post-create reload keeps the account list unavailable", async () 
   expect(listReads).toBe(2);
 });
 
+test("creation waits for the initial account read before accepting a write", async () => {
+  const auth = fakeAuth(valid);
+  let finishList!: (value: ReturnType<typeof reply>) => void;
+  const pending = new Promise<ReturnType<typeof reply>>((resolve) => {
+    finishList = resolve;
+  });
+  const existing = {
+    id: ACCOUNT,
+    broker_id: BROKER,
+    broker_name: "IBKR",
+    name: "Existing",
+    currency: "SGD",
+  };
+  const fetch = vi
+    .fn()
+    .mockImplementation(async (input: string, options?: RequestInit) => {
+      if (input.endsWith("/me"))
+        return reply({ id: OWNER, base_currency: "SGD" });
+      if (input.endsWith("/brokers"))
+        return reply([{ id: BROKER, name: "IBKR", country: "SG" }]);
+      if (options?.method === "POST")
+        return reply(
+          {
+            ...existing,
+            id: "44444444-4444-4444-8444-444444444444",
+            name: "New account",
+          },
+          201,
+        );
+      return pending;
+    });
+  vi.stubGlobal("fetch", fetch);
+  await renderManager(auth.client);
+  expect(await screen.findByText(/loading accounts/i)).toBeTruthy();
+  fireEvent.change(screen.getByLabelText(/account name/i), {
+    target: { value: "New account" },
+  });
+  const create = screen.getByRole("button", { name: /create account/i });
+  expect(create).toHaveProperty("disabled", true);
+  fireEvent.click(create);
+  expect(
+    fetch.mock.calls.filter(([, options]) => options?.method === "POST"),
+  ).toHaveLength(0);
+
+  finishList(reply([existing]));
+  expect(await screen.findByText("Existing")).toBeTruthy();
+  await waitFor(() => expect(create).toHaveProperty("disabled", false));
+  fireEvent.click(create);
+  expect(await screen.findByText("New account")).toBeTruthy();
+  expect(screen.getByText("Existing")).toBeTruthy();
+});
+
 test("sign-out drops private rows and ignores an older in-flight response", async () => {
   const auth = fakeAuth(valid);
   let finishList!: (value: ReturnType<typeof reply>) => void;

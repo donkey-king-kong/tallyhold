@@ -104,7 +104,7 @@ export function AccountManager({ authClient }: { authClient?: AuthClient }) {
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const token = activeToken.current;
-    if (!token || !user || busy) return;
+    if (!token || !user || busy || (accounts === null && !listError)) return;
     if (
       !name.trim() ||
       name.trim().length > 255 ||
@@ -390,7 +390,11 @@ export function AccountManager({ authClient }: { authClient?: AuthClient }) {
             />
           </label>
           <div className="flex flex-wrap gap-3">
-            <button type="submit" className={action} disabled={busy}>
+            <button
+              type="submit"
+              className={action}
+              disabled={busy || (visibleAccounts === null && !listError)}
+            >
               {editing ? "Save changes" : "Create account"}
             </button>
             {editing && (
