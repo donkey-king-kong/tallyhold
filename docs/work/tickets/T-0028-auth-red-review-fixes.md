@@ -11,7 +11,7 @@
 - Dependencies: [T-0026](T-0026-auth-red-review.md) round-1 changes requested
 - Branch / worktree: `feature/005-auth` / `../tallyhold-feature-005-auth`
 - Issue / PR: issue #27 / no Feature 005 PR
-- Updated: 2026-11-17T05:20:40Z
+- Updated: 2026-11-17T05:23:36Z
 
 ## Scope
 
@@ -29,12 +29,12 @@ failed-unknown-key refresh throttle assertion, plus exact-head RED evidence.
 
 ## Checkpoint
 
-- Last completed action: added an autouse shared monotonic fake-clock advance between JWT tests and a second distinct unknown-`kid` rejection after a failed fetch; targeted Ruff lint/format pass.
-- Evidence: `backend/tests/test_auth_jwt.py` working diff, [round-2 report](../../specs/005-auth/red-review.md) and `24a0797..d5cee6c` docs-only diff.
-- Worktree state: one RED test file and coordinator tracking edits pending commit; no GREEN code.
-- Remaining work: commit revised tests, rerun separate new/existing suites at the test commit, record exact-head evidence.
+- Last completed action: targeted tests committed at `8d2a82c` and `dc8e087`; pushed `dc8e0875dcbf8aedbdaf450de45ed3682f507f77` matches remote and separate RED/existing suites reran at that exact head.
+- Evidence: [round-3 evidence addendum](../../specs/005-auth/red-test-run.md): backend 54 RED fail/1 pass, existing 91 pass; frontend 9 RED fail, existing 3 pass; backend Ruff and frontend lint/typecheck pass. `24a0797..d5cee6c` was docs-only.
+- Worktree state: evidence and checkpoint edits pending commit/push; no GREEN code.
+- Remaining work: push docs-only evidence head, verify test-tree equivalence, dispatch a different fresh scoped round-3 reviewer.
 - Blocker / unblock action: none for RED fixes; GREEN still requires third-round `APPROVE`.
-- Next action: commit RED test/ownership checkpoint, run new and existing suites separately at that revision.
+- Next action: commit/push evidence and coordinator checkpoint, verify remote SHA and docs-only gap, then dispatch independent round 3.
 - Handoff recipient: R-0033/coordinator acting as Test writer; then different fresh Reviewer.
 
 ## History
@@ -47,3 +47,4 @@ failed-unknown-key refresh throttle assertion, plus exact-head RED evidence.
 | 2026-11-17T04:22:35Z | R-0031/coordinator | Different fresh Trae (GPT) round-2 reviewer requested changes after examining pushed evidence | Final-round escalation in T-0026; stop Test writer fixes and GREEN pending Zack |
 | 2026-11-17T05:20:40Z | R-0033/coordinator | Zack authorized one extra targeted RED round and took over a clean synchronized branch | Fix only round-2 findings 1-3; evidence and different fresh reviewer before GREEN |
 | 2026-11-17T05:20:40Z | R-0033/coordinator | Targeted fake process clock and failed-fetch second-key rejection added; Ruff lint/format pass | Commit the test revision and rerun RED/existing suites at its SHA |
+| 2026-11-17T05:23:36Z | R-0033/coordinator | Pushed `dc8e087`; backend RED 54 fail/1 pass and existing 91 pass, frontend RED 9 fail and existing 3 pass; lint/typecheck pass | Commit/push exact-head evidence and hand off restricted round 3 |

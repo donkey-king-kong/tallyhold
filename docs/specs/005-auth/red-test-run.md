@@ -120,3 +120,63 @@ Round-1 findings mapped to new RED assertions:
 | AC3 / 3 | `test_provisioning_constraint_failure_rolls_back_candidate_not_caller_work` checks savepoint rollback with a deliberate PostgreSQL constraint failure while preserving unrelated caller work. Existing simultaneous-login and same-email/different-sub cases remain. |
 | AC4 / 4 | Composed bearer mapping returns the internal UUID, ignores attempted client user ID/email, isolates two subjects, rejects duplicate Authorization headers and gives 503 on JWKS outage without user detail. CORS and public health remain covered by the original route tests. |
 | AC5 / 5 | Marker denial assertions now require a denial category rather than any exception; two real PostgreSQL advisory-lock orderings, late purge and schema checks remain. Data API inspection, actual backup/log retention and disposable operator walkthrough remain explicit GREEN/deployment gates, not claims of completed CI coverage. |
+
+## Authorized round 3: targeted RED evidence
+
+Zack authorized one additional, targeted RED round on 2026-11-17 after the
+round-2 `CHANGES_REQUESTED` verdict. Test revision
+`dc8e0875dcbf8aedbdaf450de45ed3682f507f77` was pushed and matched
+`origin/feature/005-auth` before the commands below ran. This is the exact
+pushed head on which the new and existing suites were rerun. The guarded
+disposable PostgreSQL 17 fixture and in-memory P-256 keys/fake HTTP were
+used; no project secrets or live Supabase/network calls.
+
+Finding 3's previous revision gap is content-equivalent:
+`git diff --name-only 24a079782b5ccd848d006db350dda08ce1c4c50e..d5cee6c86839f8a227191c721c6ae4c43f4c10cc`
+lists **only** `red-test-run.md`, `R-0031.md`, `T-0026-auth-red-review.md`
+and `T-0028-auth-red-review-fixes.md`, all under `docs/`. No test or
+production file changed between the previous test commit and reviewed
+evidence head. From that reviewed head to `dc8e087`, only
+`backend/tests/test_auth_jwt.py` changed among tests. The prior rejection,
+rotation, 59/60-second gate, 600-second cache, known-key fetch and all
+existing tests/assertions remain; the diff adds a shared monotonic fake-time
+base that advances by 2,000,000 seconds between test cases and adds a second
+distinct unknown `kid` after a failed refresh. It requires `ValueError`
+(rejection) and still exactly two total fetches, including after verifying
+the unexpired known key. This catches a limiter that records only successful
+refresh attempts without resetting production process state or limiting per
+`kid`. The test file's largest within-case fake-time offset is 1,000,120
+seconds, so consecutive cases do not overlap their 60-second windows.
+
+Commands at pushed `dc8e087` (backend commands from `backend/` with the
+strictly guarded disposable local test URL set; value omitted):
+
+```sh
+uv run --locked pytest -q --tb=no --disable-warnings tests/test_auth_jwt.py tests/test_auth_http.py tests/integration/test_auth_schema.py tests/integration/test_auth_resolution.py tests/integration/test_auth_boundary.py
+uv run --locked pytest -q --tb=no --disable-warnings --ignore=tests/test_auth_jwt.py --ignore=tests/test_auth_http.py --ignore=tests/integration/test_auth_schema.py --ignore=tests/integration/test_auth_resolution.py --ignore=tests/integration/test_auth_boundary.py
+uv run --locked ruff check tests
+uv run --locked ruff format --check tests
+```
+
+Frontend commands at that same pushed head (from `frontend/`):
+
+```sh
+npm test -- components/auth-status.test.tsx components/auth-callback.test.tsx --reporter=dot
+npm test -- components/health-status.test.tsx --reporter=dot
+npm run lint
+npm run typecheck
+```
+
+| Scope | Exit | Collected / failed / passed / skipped | Observed reason |
+| --- | ---: | --- | --- |
+| Backend RED | 1, expected | 55 / 54 / 1 / 0 | Unimplemented JWT verifier, identity resolution, `0003` tables and `/me` wiring; existing public preflight case passes. |
+| Backend existing | 0 | 91 / 0 / 91 / 0 | Unchanged existing suite remains green. |
+| Frontend RED | 1, expected | 9 / 9 / 0 / 0 | Unimplemented auth callback, browser client and status component. |
+| Frontend existing | 0 | 3 / 0 / 3 / 0 | Unchanged health tests remain green. |
+| Backend Ruff lint / format | 0 / 0 | all tests / all tests | `ruff check` and `ruff format --check` pass. |
+| Frontend ESLint / TypeScript | 0 / 0 | all / all | `npm run lint` and `npm run typecheck` pass. |
+
+The RED failures are expected missing-feature behavior, not test collection,
+missing test dependencies, unrelated fixture failures or live network
+errors. The evidence commit following `dc8e087` changes only documentation
+and work tracking; its test tree is identical to the pushed test revision.
