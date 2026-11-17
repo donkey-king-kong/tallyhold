@@ -100,7 +100,7 @@ roles; the Implementer does not alter tests merely to pass.
   marker insertion/purge code. Document production Data API OFF inspection;
   test with disposable DB/Auth identities outside CI before any second
   user; do not access production credentials as an agent. Commit docs.
-- [ ] **Implementer: full verification.** Run PostgreSQL migration
+- [x] **Implementer: full verification.** Run PostgreSQL migration
   upgrade/downgrade/re-upgrade, backend ruff/format, mypy strict,
   import-linter, pytest >=80% overall, frontend lint/Prettier/typecheck/
   Vitest/build and scans. Prove no live keys, Supabase CI calls, Feature

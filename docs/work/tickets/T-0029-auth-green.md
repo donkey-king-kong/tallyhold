@@ -11,7 +11,7 @@
 - Dependencies: [T-0026](T-0026-auth-red-review.md), [T-0028](T-0028-auth-red-review-fixes.md)
 - Branch / worktree: `feature/005-auth` / `../tallyhold-feature-005-auth`
 - Issue / PR: issue #27 / no Feature 005 PR yet
-- Updated: 2026-11-17T05:46:23Z
+- Updated: 2026-11-17T05:48:35Z
 
 ## Scope
 
@@ -23,20 +23,20 @@ or execute production erasure.
 
 ## Acceptance
 
-- [ ] All approved RED assertions and existing tests pass, with backend
+- [x] All approved RED assertions and existing tests pass, with backend
   coverage >=80%.
-- [ ] Backend lint/format/mypy/import-linter and frontend lint/format/types/
+- [x] Backend lint/format/mypy/import-linter and frontend lint/format/types/
   tests/build pass; migration round-trip and scans verified.
 - [ ] Completed tasks and focused commits are pushed for independent ship.
 
 ## Checkpoint
 
-- Last completed action: frontend committed at `cdbeda9`; operator erasure runbook and local auth configuration documented.
-- Evidence: Compose config validation and `git diff --check` pass; no production access or deletion performed.
-- Worktree state: runbook, README, example API config, Compose pass-through and task/checkpoint edits pending commit.
-- Remaining work: full verification and ship; production Data API inspection, actual provider retention and disposable Auth walkthrough remain deployment gates.
+- Last completed action: runbook committed at `e535285`; upgraded `cryptography` 46.0.7 to 50.0.2 after a failing Python dependency audit.
+- Evidence: backend full PostgreSQL suite 146/146 twice, 94.73% coverage; migration round-trip included; Ruff/format/mypy/import-linter pass; frontend locked install, 12/12 tests, lint/Prettier/types/build pass; production npm audit, fixed Python audit and gitleaks pass; Compose config valid.
+- Worktree state: cryptography constraints/lockfile and verification checkpoint pending focused commit.
+- Remaining work: push GREEN commits, ship gates; production Data API inspection, actual provider retention and disposable Auth walkthrough remain deployment gates before another user.
 - Blocker / unblock action: none for GREEN; operator/deployment gates remain.
-- Next action: commit runbook slice, then perform full local verification and scans.
+- Next action: commit dependency fix/checkpoint, push feature branch, then start ship.
 - Handoff recipient: R-0033/coordinator acting as Implementer.
 
 ## History
@@ -50,3 +50,4 @@ or execute production erasure.
 | 2026-11-17T05:41:32Z | R-0033/coordinator | Bearer-only `/me` and restricted CORS pass HTTP 7/7 and composed PostgreSQL 9/9; Ruff/format/mypy/import-linter pass; resolver committed `776a038` | Commit API slice, then implement frontend |
 | 2026-11-17T05:44:33Z | R-0033/coordinator | Frontend PKCE, callback and session UI pass Vitest 12/12, lint, typecheck, Prettier and build; API committed `2124957`; two RED tests reformatted without changing assertions | Commit frontend slice, then write operator runbook; assess npm audit findings at full verification |
 | 2026-11-17T05:46:23Z | R-0033/coordinator | Operator runbook covers same lock key, committed marker before deletion, retries, purge, restore and 30-day deadline; frontend committed `cdbeda9`; Compose validation passes | Commit docs slice; verify all suites and scans; real provider-retention and operator walkthrough still open |
+| 2026-11-17T05:48:35Z | R-0033/coordinator | Full backend 146/146 twice and 94.73% coverage; frontend locked 12/12, quality/build green; npm production audit/gitleaks pass. Python audit initially reported seven entries for cryptography 46.0.7; upgraded to 50.0.2, full suite/quality checks and audit now pass | Commit dependency fix, push GREEN, start independent ship; retain deployment gates |
