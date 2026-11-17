@@ -2,7 +2,7 @@
 
 ## Assignment
 
-- Status: ready
+- Status: in_progress
 - Owner actor: R-0028/coordinator
 - Role: Test writer
 - Run: [R-0028](../runs/R-0028.md)
@@ -12,7 +12,7 @@
 - Branch / worktree: `feature/005-auth`
 - Worktree path: `../tallyhold-feature-005-auth`
 - Issue / PR: [issue #27](https://github.com/donkey-king-kong/tallyhold/issues/27); no PR
-- Updated: 2026-11-17T02:52:38Z
+- Updated: 2026-11-17T02:59:30Z
 
 ## Scope
 
@@ -33,12 +33,12 @@ implementation; no production code, migrations, GREEN or Feature 006 work.
 
 ## Checkpoint
 
-- Last completed action: Test writer ticket claimed after explicit plan approval.
-- Evidence: Zack's 2026-11-17 authorization; approved plan pending commit.
-- Worktree state: approved planning docs uncommitted after `3e3c79c`.
-- Remaining work: commit approved plan, then write/run/commit RED slices.
+- Last completed action: offline ES256/JWKS matrix collected and failed for missing `SupabaseJwtVerifier`; test-only signing dependency locked.
+- Evidence: `uv run --locked ruff check tests/test_auth_jwt.py` passed; `uv run --locked pytest -q --tb=short tests/test_auth_jwt.py` collected 19 cases, all failed with `AC2: SupabaseJwtVerifier is not implemented yet`; MockTransport uses no Supabase network.
+- Worktree state: JWT test, test-only dependency and this checkpoint not yet committed.
+- Remaining work: commit JWT slice, write/run/commit PostgreSQL, HTTP and frontend RED slices; verify existing tests.
 - Blocker / unblock action: GREEN requires Zack's review of the RED checkpoint.
-- Next action: inspect approved interfaces and test harness after planning docs are pushed.
+- Next action: commit the offline JWT RED slice, then add disposable PostgreSQL schema/identity tests.
 - Handoff recipient: Zack at RED checkpoint.
 
 ## History
@@ -46,3 +46,5 @@ implementation; no production code, migrations, GREEN or Feature 006 work.
 | UTC time | Actor | Event and observed result | Evidence / next action |
 | --- | --- | --- | --- |
 | 2026-11-17T02:52:38Z | R-0028/coordinator | Claimed Test writer assignment after plan approval; GREEN remains held | Commit/push plan, then start RED |
+| 2026-11-17T02:55:18Z | R-0028/coordinator | Approved plan pushed at `a96c0da`; inspected JWT `/me`, repository, migration and frontend test seams | Add offline test-only signing fixture; begin JWT RED |
+| 2026-11-17T02:59:30Z | R-0028/coordinator | Installed locked test-only cryptography; 19 offline JWT cases collect, all fail because verifier is absent; ruff passes | `uv run --locked pytest -q --tb=short tests/test_auth_jwt.py`; commit first RED slice |
