@@ -56,7 +56,7 @@ orders work and maps ACs; tickets own assignment and execution evidence.
 
 ## GREEN: only after independent RED approval
 
-- [ ] **Implementer: 0004 broker seed and name index (AC1, AC3, AC7).**
+- [x] **Implementer: 0004 broker seed and name index (AC1, AC3, AC7).**
   Add the transactional migration after 0003 and matching SQLAlchemy
   metadata. Preserve pre-existing broker IDs; reject noncanonical or
   colliding legacy names before replacing the 003 unique constraint.

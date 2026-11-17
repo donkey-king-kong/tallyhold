@@ -12,7 +12,7 @@
 - Dependencies: [T-0042](T-0042-accounts-red.md), [T-0046](T-0046-accounts-red-review-cors.md)
 - Branch / worktree: `feature/006-accounts` / `../tallyhold-feature-006-accounts`
 - Issue / PR: [#36](https://github.com/donkey-king-kong/tallyhold/issues/36) / none
-- Updated: 2026-11-17T08:22:54Z
+- Updated: 2026-11-17T09:00:00Z
 
 ## Scope
 
@@ -30,14 +30,13 @@ Alembic; CI, Compose and AGENTS.md remain untouched.
 
 ## Checkpoint
 
-- Last completed action: approved RED report pushed `edeec16`, clean worktree.
+- Last completed action: 0004 migration and metadata pass targeted PostgreSQL tests (10 passed).
 - Evidence: base `82ec809`, RED test SHA `4137911`, reviewed head `abdd8ca`;
   identical APPROVE comment `210417698`.
-- Worktree state: clean before GREEN.
-- Remaining work: implement migration, service, API, UI; full checks and ship.
+- Worktree state: schema slice awaiting commit.
+- Remaining work: implement service, API, UI; full checks and ship.
 - Blocker / unblock action: none.
-- Next action: implement 0004 migration and matching metadata; pass PostgreSQL
-  migration tests and commit that slice.
+- Next action: commit schema slice, then implement account domain and use cases.
 - Handoff recipient: ship coordinator after GREEN checks.
 
 ## History
@@ -45,3 +44,4 @@ Alembic; CI, Compose and AGENTS.md remain untouched.
 | UTC time | Actor | Event and observed result | Evidence / next action |
 | --- | --- | --- | --- |
 | 2026-11-17T08:22:54Z | R-0040/coordinator | Claimed GREEN after pushed independent RED APPROVE | Implement migration first; no RED test edits |
+| 2026-11-17T09:00:00Z | R-0040/coordinator | Added 0004 seed/index and metadata; initial run exposed conflicting SQL parameter inference, corrected with explicit casts; rerun 10 passed | Commit schema, implement application |
