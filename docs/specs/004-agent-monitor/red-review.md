@@ -138,3 +138,49 @@ coverage gaps require coordinator/Zack resolution before GREEN; there is no
 spec/plan change or unwritable security test claimed here.
 
 VERDICT: CHANGES_REQUESTED
+
+# Feature 004 RED review, exceptional round 3
+
+- Base: `0988e8e`
+- Reviewed pushed RED head: `c92ae050f280c35b2298aa57e9561c23e1f9a4f8`
+- Zack authorized this additional independent round after round 2. The two preceding reports are preserved above. References below are under `extensions/agent-monitor/test/`; each AC also denotes its numbered plan verification row.
+
+## Acceptance criteria and plan verification mapping, round 3
+
+| AC / plan item | Cumulative RED test evidence | Remaining uncovered or nondecisive behavior |
+| --- | --- | --- |
+| 1 | `packaging.test.ts:6-14` checks the manifest command and API floor; the run's release checklist names both editors. | No executable activation-to-panel check; actual VSIX installation/version evidence is necessarily GREEN. |
+| 2 | `host.test.ts:35-54,93-104,238-248` checks selection isolation, missing file and trust-gated discovery; `webview.test.ts:73-84` checks stale UI. | No picker interaction, unreadable initial file or actionable initial error in the DOM. |
+| 3 | `core.test.ts:30-42`; `webview.test.ts:210-225` check historical nodes and immediate failed history. | No material gap identified for RED. |
+| 4 | `core.test.ts:109-123,224-243`; `webview.test.ts:87-109,143-170` check coordinates, camera stability and numeric Fit All bounds. | No material gap identified for RED. |
+| 5 | `core.test.ts:30-42`; `webview.test.ts:58-70,172-194` check inspector chronology, labels and a failed tool fixture. | The UI assertion never tests the `outcome` field independently of the summary string; success and failure could render identically. |
+| 6 | `core.test.ts:69-86,185-197`; `host.test.ts:35-54,146-156` check intervals, ambiguity and isolation. | Interval certainty is not checked in the inspector. |
+| 7 | `core.test.ts:109-123`; `webview.test.ts:47-55,111-123` check default/filter/reveal and focus transfer. | No material gap identified for RED. |
+| 8 | `core.test.ts:140-151,216-222`; `webview.test.ts:125-141,196-208` check quiet age, unspecified identity and unavailable age. | Locally observed age is not tested as distinct from verified wall age; the DOM fixtures inject an age without an anchor. |
+| 9 | `core.test.ts:44-67`; `host.test.ts:200-216,288-311` check split replay, distinct offsets, unchanged-read count and append equivalence. | No material gap identified for RED. |
+| 10 | `core.test.ts:44-67,125-138,199-214,245-255` checks UTF-8, malformed/unsupported/invalid records, nonfinite time, offset and continuation. | No material gap identified for RED. |
+| 11 | `host.test.ts:56-91,106-122,146-156,189-216,250-262,322-331` checks reopen, races, limits, watcher/timer disposal and recovery. | Actual editor reload and fallback timer firing are not exercised; the former is in the GREEN smoke checklist. |
+| 12 | `core.test.ts:89-123,169-197`; `webview.test.ts:143-170,196-208` check unresolved identities, late edges, cycles and reachability. | Ambiguous tool pairing is not shown in a DOM assertion (only unmatched pairing). |
+| 13 | `core.test.ts:125-151`; `host.test.ts:124-138,218-236,264-286` check relative time, malformed/conflicting/future snapshots and provisional heartbeat. | No material gap identified for RED. |
+| 14 | `webview.test.ts:58-70,87-141,196-225` checks keyboard controls, focus, navigator, labels and a narrow/reduced-motion fixture. | Theme changes only repeat text checks; resize only checks control presence; reduced motion only rules out SVG animation elements. CSS contrast, responsive access and CSS motion remain untested except planned manual smoke. |
+| 15 | `host.test.ts:140-144,238-248,264-286,313-320`; `webview.test.ts:73-84`; `packaging.test.ts:16-74` check local selection, fetch spy, companion immutability, hostile text/URIs, CSP and message validation. | No test forces an untrusted-workspace panel to forgo automatic source reading; discovery alone returning `[]` is not the host lifecycle. |
+| 16 | `packaging.test.ts:6-14,76-81`; `host.test.ts:333-345`; the run's repeatable GREEN checklist covers checks, VSIX inspection, benchmarks and editor smoke. | The ignore test checks substrings, not package contents; actual VSIX audit, coverage, performance and two-editor smoke remain explicitly pending GREEN. |
+
+## Prior findings, round 3 disposition
+
+- Round-1 findings 1, 2 and 4: improved through rounds 2 and 3, but not fully resolved. The exact intervals, diagnostics, camera and source reconciliation assertions now reject many previously plausible wrong implementations. The remaining UI outcome and theme/resize gaps above still permit wrong observable behavior.
+- Round-2 findings 1, 2 and 4: partially resolved. `webview.test.ts:143-170` now checks initial and explicit Fit All bounds and camera preservation; `host.test.ts:264-320` checks matching future metadata, no-write companions and no fetch; `packaging.test.ts:51-81` adds hostile URI/message cases. However `webview.test.ts:177-193` repeats the word "failed" in the summary and asserts that text, never a distinct failed-outcome label or mark, so a renderer ignoring `outcome` passes. The theme/narrow/reduced-motion test also cannot reject a CSS-only regression.
+- Round-1 and round-2 findings 3, 5 and 6: remain resolved. New tests collect, use synthetic/local fixtures, and the cumulative diff has not changed or removed existing adapter tests.
+
+## Checklist findings, round 3
+
+1. **AC and numbered verification mapping: changes requested.** All 16 rows are mapped above. AC5's visibly distinct failed outcome, AC14's theme/responsive/motion behavior and AC2's actionable initial error are not decisively asserted by RED tests. AC1's actual editor compatibility, AC16's release measurements and visual contrast can only be established later; the run correctly marks these GREEN gates rather than claimed passes.
+2. **Observable plan decisions: changes requested.** `webview.test.ts:172-194` can pass if the inspector ignores `outcome` and prints only `summary: "Read failed"`; there is no contrasting successful outcome with the same neutral summary. `webview.test.ts:196-225` changes body classes and window width but makes no CSS/layout or focus/accessibility assertion under those conditions, and checking for absent SVG `<animate>` does not check CSS transitions under reduced motion. `host.test.ts:238-248` checks a discovery helper, not the plan's prohibition on automatically reading an untrusted workspace. These are observable approved decisions, not a request to change the plan.
+3. **RED failure validity: none.** Reran `npm test -- --reporter=dot --silent` at the reviewed head: four files collected, 52 failed, zero passed/skipped. Core/host/webview cases fail on absent planned modules; the manifest and ignore-file cases fail because production package artifacts are absent. No collection, fixture, dependency or external-network failure appeared.
+4. **Behavioral assertions and plausible wrong implementations: changes requested.** The failed-tool fixture's text supplies the result independently of its `outcome`, allowing an always-successful or outcome-blind UI to pass (`webview.test.ts:177-193`). The theme loop would pass with hard-coded low-contrast styling, and the narrow fixture with an overlaid inspector (`webview.test.ts:196-225`); manual editor smoke is a necessary additional gate, but these tests do not establish the behaviors they claim. The package ignore substring assertion (`packaging.test.ts:76-81`) also does not prove an allowlist, though the run schedules an actual VSIX audit before release.
+5. **Allowed infrastructure/privacy: none observed in RED.** `host.test.ts:16-24` creates synthetic files in disposable local temporary directories; core uses synthetic bytes and webview uses jsdom. The rejected remote URI is not fetched. No private logs, real secrets, PostgreSQL or external network fixture was introduced. A `fetch` spy checks only that one API in two selection paths, not all future outbound mechanisms.
+6. **Existing tests and cumulative diff: none.** The base-to-head diff adds extension tests, its test-only package and RED evidence; it neither weakens nor deletes existing adapter/backend/frontend tests. Reran the relevant existing adapter suite: six passed, zero failed/skipped. Backend/frontend suites were unchanged by this diff and were not run.
+
+The unresolved RED-visible assertions require coordinator/Zack resolution before GREEN. No spec/plan change or unwritable security test is claimed; no fourth review is authorized here.
+
+VERDICT: CHANGES_REQUESTED
