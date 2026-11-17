@@ -29,3 +29,42 @@
 
 No approved spec or plan revision is proposed. Add focused RED tests for the stated gaps, rerun targeted RED and existing suites, and submit a fresh round 2 review before GREEN.
 VERDICT: CHANGES_REQUESTED
+
+## Round 2 independent review
+
+- Reviewer: fresh Trae RED Reviewer, round-2 session (distinct from the round-1 reviewer; GitHub commenter `donkey-king-kong`)
+- Base: `82ec809`
+- Pushed RED head: `47c2fdb6ca7fa71b431fe4aeef627db6f523569e`
+- Scope: approved spec/plan/tasks, cumulative base-to-head test diff, corrected RED run, round-1 review, relevant existing tests and read-only reruns at the reviewed head.
+
+### Coverage mapping
+
+| Criterion / numbered plan verification | Tests and remaining gap |
+| --- | --- |
+| AC1 / 1 | `test_head_seeds_shared_sg_brokers_and_replaces_exact_name_constraint`, pre-existing-ID round-trip, both reserved-ID collision parameters, shared HTTP catalog and account-manager broker choice. **Uncovered:** broker catalog ties by name must sort by stable ID; the unit brokers have different names and the HTTP assertion filters only Tiger/IBKR. |
+| AC2 / 2 | `test_brokers_and_owned_accounts_have_stable_name_order_and_broker_labels`, orphaned-broker error, two-user HTTP list/detail and absent/foreign 404; no uncovered AC2 item. |
+| AC3 / 3 | Application trim/255-character/currency/PATCH cases, HTTP 201/Location/422/409 and concurrent 201/409, direct PostgreSQL uniqueness/race; no uncovered AC3 item. |
+| AC4 / 4 | Owned/foreign/absent DELETE, transaction-preserving 409 and guarded downgrade; no uncovered AC4 item. |
+| AC5 / 5 | Invalid IDs/fields, opaque conflicts, bearer 401 on detail/writes, verifier/database 503, retained rows; no uncovered AC5 item. |
+| AC6 / 6 | Home link, page mount, account-manager CRUD, confirmation, loading/empty/outage, session transitions, bearer/omit, labeled focus and invalid currency. **Uncovered:** visible broker name on a populated account row; editable lowercase three-letter currency normalized to uppercase in the form/write. Narrow-screen pixel usability remains a GREEN browser check, not a jsdom claim. |
+| AC7 / 7 | PostgreSQL migration/index/race and scoped repository tests, two-user HTTP/CORS, existing auth tests. Import boundaries, metadata drift, mypy, coverage, lint, build and scans remain GREEN/ship checks; no RED test is claimed for those tool checks. |
+
+### Round-1 findings
+
+- Protected detail/write 401 and retained-row checks: addressed by `test_detail_and_writes_reject_missing_or_invalid_bearer_without_mutation`.
+- Matching reserved UUID collision: addressed by the `IBKR` parameter in `test_reserved_seed_id_collision_rejects_upgrade_without_overwriting`; preflight rollback/revision is checked.
+- Orphaned broker: addressed by `test_orphaned_account_broker_is_an_integrity_error_not_an_empty_read`.
+- Absent/foreign PATCH and DELETE equality, malformed write IDs, broker/write 503, 255-character name and padded/concurrent conflicts: addressed in the application and HTTP tests.
+- `/accounts` page mount and post-sign-out stale action: addressed by `page.test.tsx` and the sign-out/in-flight account-manager case. Labeled input focus is asserted; narrow-screen layout still needs browser verification after implementation. Application import purity and metadata drift remain explicit GREEN checks.
+
+### Checklist findings
+
+1. **Acceptance/verification mapping: changes requested.** Every AC and numbered verification item has related RED evidence, but AC1's broker `(name, id)` tie and AC6's populated-row broker name and lowercase editable currency behaviors lack the assertions identified above.
+2. **Observable plan decisions: changes requested.** `backend/tests/test_accounts_application.py:59-73` lists only distinctly named brokers, and `backend/tests/integration/test_accounts_http.py:76-83` checks only the two distinct seed names. A broker catalog ordered by name alone can pass even when two countries share a broker name. Add a same-name/different-ID ordering case. In `frontend/components/account-manager.test.tsx:107-152`, a created row has `broker_name` in the mock response but only `Main`/`Growth` are asserted visible; omitting the displayed broker passes. The form test checks default `SGD` and rejects `US1` but never types `usd` and checks uppercase normalization (`:68-88`, `:302-336`). Add those UI assertions.
+3. **RED cause: none.** At this head, targeted backend rerun collected 49 failures (10 migration, 27 HTTP, 12 application), no collection/setup errors; frontend rerun collected 18 cases, 10 feature failures and eight passes. Failures stem from missing 0004, account service/routes/CORS and UI, not fixtures or a remote network. The handoff names `4843f4d` while frontend tests changed before the supplied head; the independent head-level reruns confirm the same reported counts and causes.
+4. **Behavioral assertions: changes requested.** Most new tests exercise public HTTP/SQL interfaces and DOM interactions, and the two-connection race rejects a precheck-only uniqueness implementation. The three uncovered behaviors above still admit plausible wrong implementations (unstable broker ties, accounts without visible broker labels, and a UI that never uppercases an editable lowercase currency).
+5. **Allowed infrastructure: none.** Existing `backend/tests/integration/conftest.py` confines database creation to disposable local PostgreSQL 17 targets; HTTP overrides and frontend fakes use offline auth, and the outage test targets a local closed port. No live credentials or external network appear in the reviewed tests.
+6. **Existing suite: none.** Cumulative diff retains existing assertions while moving 003 constraint checks to revision 0002 and renaming broker fixtures to avoid seed collisions. Independently rerun at the reviewed head: 146 existing backend tests pass; 13 existing frontend tests pass with only the new home-link test excluded (one skip). No pre-existing test is deleted or weakened. `git diff --check 82ec809 47c2fdb6ca7fa71b431fe4aeef627db6f523569e` passes.
+
+Round 2 is the last reviewer round. These gaps require coordinator escalation before GREEN; no spec or plan change is proposed here.
+VERDICT: CHANGES_REQUESTED
