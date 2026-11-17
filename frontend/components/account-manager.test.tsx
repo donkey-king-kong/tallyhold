@@ -212,6 +212,89 @@ test("a conflict preserves form input and distinguishes outage from an empty lis
   );
 });
 
+test("create after a failed list read reloads existing accounts before showing a complete list", async () => {
+  const auth = fakeAuth(valid);
+  const existing = {
+    id: ACCOUNT,
+    broker_id: BROKER,
+    broker_name: "IBKR",
+    name: "Existing",
+    currency: "SGD",
+  };
+  const created = {
+    ...existing,
+    id: "44444444-4444-4444-8444-444444444444",
+    name: "New account",
+  };
+  let listReads = 0;
+  const fetch = vi
+    .fn()
+    .mockImplementation(async (input: string, options?: RequestInit) => {
+      if (input.endsWith("/me"))
+        return reply({ id: OWNER, base_currency: "SGD" });
+      if (input.endsWith("/brokers"))
+        return reply([{ id: BROKER, name: "IBKR", country: "SG" }]);
+      if (options?.method === "POST") return reply(created, 201);
+      listReads += 1;
+      return listReads === 1
+        ? reply({ detail: "Unavailable" }, 503)
+        : reply([existing, created]);
+    });
+  vi.stubGlobal("fetch", fetch);
+  await renderManager(auth.client);
+  expect(await screen.findByText(/accounts are unavailable/i)).toBeTruthy();
+  expect(screen.queryByText("Existing")).toBeNull();
+
+  fireEvent.change(screen.getByLabelText(/account name/i), {
+    target: { value: "New account" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: /create account/i }));
+
+  expect(await screen.findByText("Existing")).toBeTruthy();
+  expect(screen.getByText("New account")).toBeTruthy();
+  expect(screen.queryByText(/accounts are unavailable/i)).toBeNull();
+  expect(listReads).toBe(2);
+});
+
+test("a failed post-create reload keeps the account list unavailable", async () => {
+  const auth = fakeAuth(valid);
+  let listReads = 0;
+  const fetch = vi
+    .fn()
+    .mockImplementation(async (input: string, options?: RequestInit) => {
+      if (input.endsWith("/me"))
+        return reply({ id: OWNER, base_currency: "SGD" });
+      if (input.endsWith("/brokers"))
+        return reply([{ id: BROKER, name: "IBKR", country: "SG" }]);
+      if (options?.method === "POST")
+        return reply(
+          {
+            id: ACCOUNT,
+            broker_id: BROKER,
+            broker_name: "IBKR",
+            name: "New account",
+            currency: "SGD",
+          },
+          201,
+        );
+      listReads += 1;
+      return reply({ detail: "Unavailable" }, 503);
+    });
+  vi.stubGlobal("fetch", fetch);
+  await renderManager(auth.client);
+  expect(await screen.findByText(/accounts are unavailable/i)).toBeTruthy();
+
+  fireEvent.change(screen.getByLabelText(/account name/i), {
+    target: { value: "New account" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: /create account/i }));
+
+  expect(await screen.findByText(/account created, but/i)).toBeTruthy();
+  expect(screen.queryByText("New account")).toBeNull();
+  expect(screen.getByText(/accounts are unavailable/i)).toBeTruthy();
+  expect(listReads).toBe(2);
+});
+
 test("sign-out drops private rows and ignores an older in-flight response", async () => {
   const auth = fakeAuth(valid);
   let finishList!: (value: ReturnType<typeof reply>) => void;

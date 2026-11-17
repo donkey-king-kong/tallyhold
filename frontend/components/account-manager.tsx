@@ -132,18 +132,53 @@ export function AccountManager({ authClient }: { authClient?: AuthClient }) {
           : { broker_id: brokerId, name: name.trim(), currency },
       );
       if (controller.signal.aborted || activeToken.current !== token) return;
-      setAccounts((previous) =>
-        [
-          ...(previous ?? []).filter((account) => account.id !== saved.id),
-          saved,
-        ].sort(
-          (a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id),
-        ),
-      );
-      setLoadedFor(`${user.id}:${token}`);
+      let listAvailable = true;
+      if (
+        accounts === null ||
+        loadedFor !== `${user.id}:${token}` ||
+        listError
+      ) {
+        try {
+          const owned = await accountRequest<Account[]>(
+            "accounts",
+            token,
+            controller.signal,
+          );
+          if (controller.signal.aborted || activeToken.current !== token)
+            return;
+          setAccounts(owned);
+          setLoadedFor(`${user.id}:${token}`);
+          setListError("");
+        } catch (error) {
+          if (controller.signal.aborted) return;
+          if (error instanceof AccountApiError && error.status === 401) {
+            invalidate();
+            return;
+          }
+          setAccounts(null);
+          setLoadedFor(null);
+          setListError("Accounts are unavailable. Please try again later.");
+          listAvailable = false;
+        }
+      } else {
+        setAccounts((previous) =>
+          [
+            ...(previous ?? []).filter((account) => account.id !== saved.id),
+            saved,
+          ].sort(
+            (a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id),
+          ),
+        );
+      }
       setEditing(null);
       setName("");
-      setFeedback(editing ? "Account updated." : "Account created.");
+      setFeedback(
+        !listAvailable
+          ? "Account created, but the list could not be reloaded."
+          : editing
+            ? "Account updated."
+            : "Account created.",
+      );
     } catch (error) {
       if (controller.signal.aborted) return;
       if (error instanceof AccountApiError && error.status === 401) {
