@@ -3,7 +3,7 @@
 ## Assignment
 
 - Status: in_progress
-- Owner actor: R-0040/red-reviewer-2 (pending fresh launch)
+- Owner actor: R-0040/red-reviewer-2-fallback (fresh Trae pending launch)
 - Role: independent RED Reviewer, round 2; coordinator maintains records
 - Run: [R-0040](../runs/R-0040.md)
 - Feature / task: [006 spec](../../specs/006-accounts/spec.md), [plan](../../specs/006-accounts/plan.md), [tasks](../../specs/006-accounts/tasks.md)
@@ -28,14 +28,16 @@ comment. No code, tests, tracking, telemetry, commit, push or merge.
 
 ## Checkpoint
 
-- Last completed action: corrected test/evidence pushed through `dcb3c87`.
+- Last completed action: assignment pushed `5d52578`; fresh headless Claude
+  launch returned ECONNREFUSED before report or verdict, leaving a clean
+  worktree. A different fresh Trae fallback is selected.
 - Evidence: 49 expected backend RED failures, 146 existing passes; 10 expected
   frontend RED failures, 13 existing passes plus one excluded new case.
-- Worktree state: clean at `dcb3c87` before assignment checkpoint.
+- Worktree state: clean at pushed `5d52578`.
 - Remaining work: fresh review and verdict verification.
 - Blocker / unblock action: second non-approval requires Zack escalation.
-- Next action: push assignment and dispatch a different fresh Reviewer for
-  base `82ec809` through the new remote head.
+- Next action: push failed-launch checkpoint, then dispatch a different fresh
+  Trae reviewer for base `82ec809` through the new remote head.
 - Handoff recipient: coordinator, then Implementer only upon APPROVE.
 
 ## History
@@ -43,3 +45,4 @@ comment. No code, tests, tracking, telemetry, commit, push or merge.
 | UTC time | Actor | Event and observed result | Evidence / next action |
 | --- | --- | --- | --- |
 | 2026-11-17T07:56:14Z | R-0040/coordinator | Reserved T-0044 for a fresh second review after round 1 changes | Push assignment then dispatch; no GREEN |
+| 2026-11-17T07:56:14Z | R-0040/coordinator | Assignment pushed `5d52578`; Claude Code round 2 launch failed with ECONNREFUSED before verdict, worktree clean | Push failed-launch checkpoint and use fresh Trae fallback; round 2 remains available |
