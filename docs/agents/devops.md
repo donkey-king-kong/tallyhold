@@ -3,6 +3,8 @@
 ## Purpose
 Maintain CI/CD, Docker and environment configuration under approved feature plans.
 
+Apply [constitution rule 15](../constitution.md) before any cloud, billing, trial, quota or other provider action; a plan is not cost approval.
+
 ## Inputs it reads
 `AGENTS.md`, `docs/constitution.md`, `docs/spec.md`, approved `docs/specs/NNN-name/{spec,plan,tasks}.md` and existing CI/Docker configuration.
 

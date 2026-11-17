@@ -3,6 +3,8 @@
 ## Purpose
 Express approved acceptance criteria as failing tests before implementation.
 
+Apply [constitution rule 15](../constitution.md) before any provider or usage-based test action; RED approval is not cost approval.
+
 ## Inputs it reads
 `AGENTS.md`, `docs/constitution.md`, `docs/specs/NNN-name/{spec,plan,tasks}.md` and existing tests.
 

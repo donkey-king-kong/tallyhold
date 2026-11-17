@@ -44,6 +44,8 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 | [T-0060](tickets/T-0060-first-deploy-maintenance.md) | Ship Track C migration gate and Compose ports | [R-0060](runs/R-0060.md) |
 | [T-0061](tickets/T-0061-first-deploy-plan.md) | Draft first-deploy plan for approval | [R-0060](runs/R-0060.md) |
 | [T-0062](tickets/T-0062-review-first-deploy-maintenance.md) | Independently review Track C maintenance PR | [R-0060](runs/R-0060.md) |
+| [T-0064](tickets/T-0064-cost-safeguard.md) | Require staged approvals for cost-bearing actions | [R-0063](runs/R-0063.md) |
+| [T-0065](tickets/T-0065-review-cost-safeguard.md) | Independently review constitution safeguard PR | [R-0063](runs/R-0063.md) |
 
 Historical PR #6 post-dispatch records remain in T-0002's checkpoint
 branch/worktree. Future ship runs use PR comments instead.

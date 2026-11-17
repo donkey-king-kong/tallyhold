@@ -3,6 +3,8 @@
 ## Purpose
 Translate an approved feature spec into a layered design and ordered tasks.
 
+Before any provider action, follow [constitution rule 15](../constitution.md); plan approval is not cost approval.
+
 ## Inputs it reads
 `AGENTS.md`, `docs/constitution.md`, `docs/spec.md`, approved `docs/specs/NNN-name/spec.md`, `docs/adr/` and the feature templates.
 
