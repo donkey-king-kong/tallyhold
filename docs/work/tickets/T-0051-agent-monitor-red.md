@@ -12,7 +12,7 @@
 - Branch / worktree: `feature/004-agent-monitor` / `../tallyhold-feature-004-agent-monitor`
 - Worktree path: `../tallyhold-feature-004-agent-monitor`
 - Issue / PR: [#20](https://github.com/donkey-king-kong/tallyhold/issues/20); no implementation PR
-- Updated: 2026-11-17T07:37:50Z
+- Updated: 2026-11-17T07:43:15Z
 
 ## Scope
 
@@ -26,12 +26,12 @@ After confirming public test interfaces, assign Test writer to produce synthetic
 
 ## Checkpoint
 
-- Last completed action: Zack authorized one targeted extra RED correction and one fresh independent review, not a GREEN waiver.
-- Evidence: explicit 2026-11-17 user decision after final [round 2 report](../../specs/004-agent-monitor/red-review.md); branch and remote clean at `1664e5efe158a26be201f5ccf5a706d03a94beb2`.
-- Worktree state: clean at pushed `1664e5e` before exception checkpoint.
-- Remaining work: write targeted missing assertions, rerun RED and existing suite, push evidence, obtain exceptional round 3 `APPROVE`.
-- Blocker / unblock action: RED fixes permitted under Zack's one-round exception; GREEN remains blocked until independent `APPROVE`.
-- Next action: test only round 2 material gaps (camera, inspector, matching-snapshot chronology and privacy/host boundaries), commit/push revised evidence.
+- Last completed action: committed the targeted round 3 test revision `9e9ed7d`; 52 collecting expected failures, and the existing publisher suite passed 6/6.
+- Evidence: [updated run evidence](../../specs/004-agent-monitor/red-test-run.md) pins the test revision and AC1-AC16 map; no production code written.
+- Worktree state: local `9e9ed7d` ahead of remote `1664e5e`, with RED evidence/checkpoints pending commit and push.
+- Remaining work: commit/push evidence and obtain exceptional round 3 independent `APPROVE`.
+- Blocker / unblock action: GREEN remains blocked until independent `APPROVE`; any non-approval returns to Zack.
+- Next action: commit the evidence and pre-review checkpoint, push, verify remote head and hand off to one fresh reviewer.
 - Handoff recipient: fresh round 3 RED Reviewer after pushed handoff.
 
 ## History
@@ -46,3 +46,4 @@ After confirming public test interfaces, assign Test writer to produce synthetic
 | 2026-11-17T07:25:18Z | R-0051/coordinator | Test fix `357e26e` collected 38 expected failures; publisher suite still 6/6; round 1 report committed | Commit/push updated evidence and checkpoint before fresh round 2 |
 | 2026-11-17T07:32:24Z | R-0051/coordinator | Fresh round 2 on `db0e9e3` requested changes, ending the permitted two rounds | Stop tests/implementation; Zack resolves escalation |
 | 2026-11-17T07:37:50Z | R-0051/coordinator | Zack authorized targeted RED corrections and exactly one extra independent review | Resume Test writer only; GREEN still gated on `APPROVE` |
+| 2026-11-17T07:43:15Z | R-0051/coordinator | Committed targeted tests at `9e9ed7d`; 52/52 RED failures for absent extension behavior and 6/6 existing publisher passes | Evidence updated for AC1-AC16; commit/push before exceptional independent review |

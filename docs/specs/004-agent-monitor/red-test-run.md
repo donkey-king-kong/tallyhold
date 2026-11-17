@@ -1,18 +1,18 @@
 # Feature 004 RED run
 
-- Tested test commit: `357e26e875cce5c6febe5b7b2c20d8f0a3afca0c` (round 2 candidate); initial round 1 test commit `f723913c23f78c20d2f87e1b34d662dd4c402a47`.
+- Tested test commit: `9e9ed7d6bfb96f7d0ad0b2f5113dd9bbaf435f1f` (Zack-authorized exceptional round 3 candidate); earlier test commits `f723913` and `357e26e`.
 - Base before RED tests: `0988e8e` (confirmed public test interfaces).
 - Runtime: Node 24.19.0, npm 11.17.0; synthetic records and disposable temporary local files only.
 - `npm ci` in `extensions/agent-monitor/`: exit 0, 124 locked packages installed, npm audit reported 0 vulnerabilities.
-- `npm test -- --reporter=dot --silent` in `extensions/agent-monitor/`: exit 1 as expected; **4 files collected, 38 tests failed, 0 passed, 0 skipped**.
+- `npm test -- --reporter=dot --silent` in `extensions/agent-monitor/`: exit 1 as expected; **4 files collected, 52 tests failed, 0 passed, 0 skipped**.
 - `python3 -m unittest discover -s .trae/agent-flow -p 'test_*.py' -v` at the same commit: exit 0, **6 passed, 0 failed, 0 skipped**. This is the existing publisher suite relevant to this independent extension; no existing files were weakened or removed. Backend/frontend suites are unchanged and were not run for this RED handoff.
 
 ## Expected failure reasons
 
-- Core (`test/core.test.ts`, 13 cases): the approved `src/core/reconcile` public stream interface does not exist. Each case collects and fails when invoking it; assertions define replay, graph, interval, age and diagnostic behavior.
-- Host (`test/host.test.ts`, 15 cases): the approved `src/host/sourceReader` public controller does not exist. Tests use temporary file URLs and boundary-only watcher/read fakes, not mocked internal collaborators or the private worktree log.
-- Webview (`test/webview.test.ts`, 6 cases): the approved `src/webview/main` public DOM interface does not exist. Dynamic import occurs inside each case; all six cases collect in jsdom.
-- Package (`test/packaging.test.ts`, 4 cases): the test-only manifest lacks the planned `engines.vscode`/command contribution; the host panel and validated message protocol are not implemented.
+- Core (`test/core.test.ts`, 15 cases): the approved `src/core/reconcile` public stream interface does not exist. Each case collects and fails when invoking it; assertions define replay, graph, interval, age and diagnostic behavior.
+- Host (`test/host.test.ts`, 20 cases): the approved `src/host/sourceReader` public controller does not exist. Tests use temporary file URLs and boundary-only watcher/read/timer fakes, not mocked internal collaborators or the private worktree log.
+- Webview (`test/webview.test.ts`, 10 cases): the approved `src/webview/main` public DOM interface does not exist. Dynamic import occurs inside each case; all ten cases collect in jsdom.
+- Package (`test/packaging.test.ts`, 7 cases): the test-only manifest lacks the planned `engines.vscode`/command contribution; the host panel, validated message protocol and packaged-file policy are not implemented.
 - No setup, collection, external network, credential, fixture or dependency error remains. A prior local run at `cd0c8c4` had one webview collection error; the Test writer corrected it in `f723913`, reran all new cases and recorded only the final evidence above.
 
 ## Criteria and plan verification map
@@ -26,20 +26,20 @@ GREEN verification, since no editor implementation exists at RED.
 | --- | --- |
 | 1 | `packaging.test.ts`: contributes an explicitly named command; restricted bundled webview; actual VSIX install remains GREEN smoke |
 | 2 | `host.test.ts`: switches sources and excludes old activity, missing files, trust-gated worktree discovery, stale selection; path/session state asserted |
-| 3 | `core.test.ts`: reconstructs a finished graph without playback; `webview.test.ts`: shows every node |
-| 4 | `core.test.ts`: immutable/late-parent coordinates and rejected cyclic edges; `webview.test.ts`: zoom/pan alter rendered SVG and Fit All restores initial camera |
-| 5 | `core.test.ts`: failed tool distinct from agent status and interval certainty; `webview.test.ts`: inspector contains two chronological activities, task, status and unavailable age |
+| 3 | `core.test.ts`: reconstructs a finished graph without playback; `webview.test.ts`: completed and failed histories visible immediately |
+| 4 | `core.test.ts`: deterministic collision-free slots, immutable/late-parent coordinates and rejected cyclic edges; `webview.test.ts`: Fit All bounds include terminal/unresolved overflow, camera unchanged on append/filter |
+| 5 | `core.test.ts`: failed tool distinct from agent status and interval certainty; `webview.test.ts`: chronological inspector, unmatched failed tool without claiming agent failure, identity kind and age |
 | 6 | `core.test.ts`: exact interval boundaries, reactivation, repeated terminal ambiguity and session isolation; `host.test.ts`: replacement changes session generation |
 | 7 | `core.test.ts`: default vs active-only nodes; `webview.test.ts`: explicit filter explanation, selected terminal reveal/history |
-| 8 | `core.test.ts`: verified age advances without fabricated status; `webview.test.ts`: quiet clock advances and stale reader distinct from agent status |
-| 9 | `core.test.ts`: byte-for-byte split equivalence and distinct offsets; `host.test.ts`: unchanged notification, changed-prefix replay and recovery without duplicate history |
-| 10 | `core.test.ts`: split UTF-8, partial line, malformed/unsupported/schema/time records, line/offset and out-of-order diagnostics |
-| 11 | `host.test.ts`: failure/recovery, truncation, same-size replacement, delayed read race, reopen, prefix change, limit-preserved view and watcher close |
+| 8 | `core.test.ts`: verified age advances without fabricated status; `webview.test.ts`: quiet clock advances, unanchored age unavailable and stale reader distinct from agent status |
+| 9 | `core.test.ts`: byte-for-byte split equivalence and distinct offsets; `host.test.ts`: unchanged read counter, changed-prefix replay and historical-vs-append node equality |
+| 10 | `core.test.ts`: split UTF-8, partial line, malformed/unsupported/schema/nonfinite-time records, exact line/byte offset and out-of-order diagnostics |
+| 11 | `host.test.ts`: failure/recovery, truncation, same-size replacement, delayed read race, reopen, prefix change, limit-preserved view and watcher/timer disposal |
 | 12 | `core.test.ts`: missing boundaries and unmatched tools, late parent, immutable child, self/cycle edge rejection and reachability |
-| 13 | `core.test.ts`: relative vs verified anchored time; `host.test.ts`: conflicting/malformed/inconsistent session snapshots and heartbeat status cannot overwrite events |
-| 14 | `webview.test.ts`: keyboard navigator/search, observable pan/zoom/Fit All, focus on update and age labels; three-theme contrast, narrow editor and reduced-motion smoke remain GREEN |
-| 15 | `webview.test.ts`: hostile text not HTML; `host.test.ts`: no publisher write, trust-gated discovery and non-local rejection; `packaging.test.ts`: CSP nonce/local roots and bounded/stale message rejection |
-| 16 | `packaging.test.ts`: independent command/API floor; extension coverage, VSIX audit and actual two-editor smoke remain GREEN checks below |
+| 13 | `core.test.ts`: relative vs verified anchored time; `host.test.ts`: conflicting/malformed snapshots, matching future-start chronology rejection, provisional heartbeat and unchanged companions |
+| 14 | `webview.test.ts`: keyboard navigator/search, pan/zoom/Fit All, filter focus/reveal, non-color labels, narrow/reduced-motion accessibility and age; measured contrast remains GREEN |
+| 15 | `webview.test.ts`: hostile text not HTML; `host.test.ts`: companion no-write, fetch spy, trust-gated discovery and non-local rejection; `packaging.test.ts`: CSP, hostile URI/nonce and bidirectional message rejection |
+| 16 | `packaging.test.ts`: independent command/API floor and private-file exclusions; within-envelope 2k identities in `host.test.ts`; coverage, VSIX audit, benchmark and actual two-editor smoke remain GREEN checks below |
 
 ## Round 1 findings addressed
 
@@ -54,6 +54,31 @@ malformed/advisory metadata, trust-gated discovery, watcher disposal,
 validated messages, CSP nonce and local roots. No production code or
 existing test was changed. Fixture-only `readBytes` and `watchSource` options
 replace OS boundaries, not internal classes.
+
+## Exceptional round 3 corrections
+
+Zack authorized targeted RED corrections and exactly one additional fresh
+independent review after round 2 `CHANGES_REQUESTED`; this is not a RED gate
+waiver. Test commit `9e9ed7d` adds 14 cases through the confirmed public
+interfaces, responding to the [round 2 findings](red-review.md):
+
+- AC3-AC5, AC14: DOM assertions now include a failed completed history without
+  playback, numeric Fit All bounds over terminal and unresolved nodes, unchanged
+  camera after append/filter, a failed tool distinct from agent failure,
+  identity-kind/age labels, focus retention, non-color labels, and narrow
+  reduced-motion accessibility. Core checks deterministic non-overlapping slots.
+- AC9-AC11, AC13: exact diagnostic line/byte offsets and nonfinite time,
+  matching but future session-start rejection, provisional heartbeat,
+  companion-file immutability, unchanged-read counter, historical/append
+  equivalence, timer disposal and acceptance of the 2,000-identity boundary.
+- AC15-AC16: a fetch spy on local and rejected remote selection, hostile
+  resource URI/nonce inputs, malformed host-to-webview messages and package
+  exclusions. No production module, existing test or publisher was changed.
+
+The command, picker, reload, actual installed-editor versions, measured
+three-theme contrast, full VSIX audit, coverage and performance still require
+GREEN integration and release checks; the RED assertions do not claim these
+have passed. No fourth independent RED round is authorized.
 
 ## Repeatable GREEN release checklist (pending, not RED passes)
 
@@ -85,7 +110,9 @@ replace OS boundaries, not internal classes.
 
 ## Handoff
 
-Push the test commit and this evidence as separate commits on
-`feature/004-agent-monitor`, then use a new independent RED Reviewer against
-base `0988e8e` and the pushed evidence head. Do not begin GREEN unless that
-Reviewer posts `VERDICT: APPROVE` on the RED head.
+Push test commit `9e9ed7d` and this evidence as separate commits on
+`feature/004-agent-monitor`, then send base `0988e8e` and the verified pushed
+evidence head to a different fresh independent RED Reviewer for Zack's one
+exceptional third round. The reviewer reads the prior report and cumulative
+RED diff. Do not begin GREEN unless that Reviewer posts `VERDICT: APPROVE`
+on the reviewed head; any non-approval returns to Zack.
