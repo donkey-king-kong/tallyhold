@@ -2,7 +2,7 @@
 
 ## Assignment
 
-- Status: in_progress
+- Status: in_review
 - Owner actor: R-0093/coordinator
 - Role: Test writer, then Implementer after RED approval
 - Run: [R-0093](../runs/R-0093.md), after [R-0092](../runs/R-0092.md)
@@ -12,7 +12,7 @@
 - Branch / worktree: `feature/008-agent-monitor-ui` / `../tallyhold-feature-008-agent-monitor-ui`
 - Worktree path: `../tallyhold-feature-008-agent-monitor-ui`
 - Issue / PR: related #44; no PR requested
-- Updated: 2026-11-18T09:18:35Z
+- Updated: 2026-11-18T09:19:44Z
 
 ## Scope
 
@@ -28,16 +28,16 @@ the VSIX or open a PR.
 - [x] New Playwright guards fail over production head `c9714a5` for missing agent-card state/containment while all 125 existing Vitest cases pass.
 - [x] Wide and narrow production-bundle previews visibly satisfy Zack's nine numbered correction areas with no invented branch/track data.
 - [x] Existing lint, format, typecheck, build, package, tests, coverage, adapter tests, and benchmarks pass with the new layout checks.
-- [ ] Corrected previews and implementation are committed and pushed; handoff lists each fix as done or explains a deviation.
+- [x] Corrected previews and implementation are committed and pushed; handoff lists each fix as done or explains a deviation.
 
 ## Checkpoint
 
-- Last completed action: completed the shell, navigator, inspector, controls, footer, responsive layout, regenerated previews, and final automated verification.
+- Last completed action: committed and pushed the verified implementation and corrected previews at `b067995`.
 - Evidence: 125/125 extension tests; 97.22% statements, 96.78% functions, and 98.49% lines; both Playwright captures; lint, format, typecheck, build, eight-file VSIX package, 30 adapter tests, benchmarks, and Impeccable detector pass.
-- Worktree state: implementation and preview updates are ready to commit over `5358538`; final VSIX SHA-256 is `c6c38715e07f5348cc194af6f5e04c891dcc48d514346b2c991a4a1fc3df38de`.
-- Remaining work: commit and push the corrected implementation and previews, then record the handoff state.
+- Worktree state: remote branch contains graph commit `5358538` and final workspace/previews commit `b067995`; final VSIX SHA-256 is `c6c38715e07f5348cc194af6f5e04c891dcc48d514346b2c991a4a1fc3df38de`.
+- Remaining work: Zack compares the corrected previews before authorizing any reinstall or smoke.
 - Blocker / unblock action: none.
-- Next action: commit and push the verified implementation and corrected previews.
+- Next action: stop for Zack's preview comparison; do not reinstall, smoke, or open a PR.
 - Handoff recipient: Zack after pushed corrected previews; no reinstall and no PR.
 
 ## History
@@ -57,3 +57,4 @@ the VSIX or open a PR.
 | 2026-11-18T08:47:36Z | R-0093/coordinator | Zack confirmed corrected RED `f4d7519` and authorized GREEN                                                                                         | Implement approved preview correction without weakening tests                 |
 | 2026-11-18T08:54:48Z | R-0093/coordinator | Graph/card GREEN slice passes 60/60 focused tests, typecheck, and format check                                                                        | Commit slice, then implement shell/navigation/inspection structure             |
 | 2026-11-18T09:18:35Z | R-0093/coordinator | Completed the mock-aligned shell and final automated gate; 125 tests, coverage, layout guards, package audit, adapter tests, benchmarks, and detector pass | Commit and push implementation and corrected previews; do not reinstall or smoke |
+| 2026-11-18T09:19:44Z | R-0093/coordinator | Pushed graph `5358538` and final workspace/previews `b067995` to the feature branch | Stop for Zack's preview comparison; no reinstall, smoke, or PR |
