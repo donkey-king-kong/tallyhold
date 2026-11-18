@@ -73,6 +73,78 @@ area, lane/card density, spacing, or visible lane/card population.
 
 VERDICT: CHANGES_REQUESTED
 
+## Preview round 2 correction review, round 2
+
+- Round: 2
+- Base: `881d320`
+- Pushed cumulative RED head: `c8f6536`
+- Recorded executable test revision: `b826fac`
+- Commit comment:
+  <https://github.com/donkey-king-kong/tallyhold/commit/c8f6536b2326ef295df288619b127aa2199d5214#commitcomment-210630205>
+
+### Coverage mapping
+
+All 15 acceptance criteria and numbered verification rows have named coverage.
+AC5's two named tests specify contradictory visible-label behavior, so that row
+is not a trustworthy executable specification.
+
+### Round 1 findings addressed
+
+1. **AC5 contract conflict: partly addressed.** The approved amendment now
+   requires fixed lane width, one-line ellipsis, and an accessible complete
+   name. The corrected fixed-card test preserves the complete accessible name.
+   The unchanged AC5 test at `webview.test.ts:875-938` still requires the long
+   visible name in full, describes it as text that
+   "must-wrap-without-ellipsis", and rejects an ellipsis.
+2. **Narrow document flow: addressed.** The corrected preview check validates
+   document-width containment, pane order, a fixed readable graph, unclipped
+   inspector/activity content, and a footer at the document end. It no longer
+   requires all panes inside the initial viewport.
+3. **Exact reported slugs and invented branch copy: addressed.** Unit and
+   browser checks require exact reported slugs in lane, navigator, and
+   inspector surfaces, exact fixture root IDs and derived labels, and no slash
+   in those reported-slug surfaces.
+4. **Visible status words: addressed.** Browser checks require all card and
+   navigator status words to have nonzero rendered bounds, be visible and
+   nonempty, and match a supported status.
+
+### Checklist
+
+1. **Acceptance criteria and plan verification mapping: finding.** AC1-15 and
+   plan rows 1-15 map to named tests. AC5 remains incorrectly specified because
+   cumulative tests require both complete wrapped visible text without
+   ellipsis and single-line ellipsized visible text.
+2. **Observable plan decisions: finding.** Limits, ordering, connector
+   topology, time uncertainty, status words, keyboard behavior, security
+   rejection, fixed-width cards, accessible names, and exact reported slugs
+   have concrete assertions. The newer AC5 amendment requires single-line
+   ellipsis, but `webview.test.ts:894-938` retains the superseded
+   wrap/no-ellipsis decision. Residual plan prose at `plan.md:276-278` also says
+   "wrapped text bounds". This is a final-round test-specification escalation.
+3. **Trustworthy RED failures: finding.** Evidence records five expected
+   missing-behavior failures and 44 passes, a production-preview failure after
+   successful local rendering, 121 unaffected passing tests with five changed
+   cases skipped, and passing lint, format, and type checks at `b826fac`. No
+   setup or infrastructure failure is present. The fixed-card failure is not
+   trustworthy until the contradictory unchanged AC5 assertion is corrected.
+4. **Assertions and adversarial value: finding.** Public projection, DOM,
+   accessibility, and browser geometry interfaces reject plausible wrong
+   implementations. A conforming single-line-ellipsis implementation fails
+   `webview.test.ts:936-938`, while a wrapping implementation fails
+   `webview.test.ts:1819-1827`; the suite cannot discriminate correct behavior
+   coherently.
+5. **Allowed infrastructure: none.** Synthetic in-memory fixtures, local
+   Vitest/JSDOM, a local production bundle, and headless Playwright use no real
+   secret, private runtime stream, paid resource, external service, or external
+   network.
+6. **Existing-suite regression protection: finding.** No production source,
+   stylesheet, preview fixture, dependency, adapter, publisher, or existing
+   test file was deleted. The exact executable revision records 121 unaffected
+   tests passing and five changed cases skipped. The unaffected suite still
+   includes the superseded wrap/no-ellipsis AC5 assertion.
+
+VERDICT: CHANGES_REQUESTED
+
 ## Preview round 2 correction review
 
 - Round: 1
