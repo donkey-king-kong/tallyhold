@@ -23,23 +23,23 @@ runtime logs. Map the exact named cases in the [verification table](plan.md#veri
 Run existing 004 tests first, then commit and push failing tests with expected
 failures caused by absent UI/projection behavior, not broken setup.
 
-- [ ] **Presentation RED, AC2, AC4, AC8-AC10, AC12:** Add
+- [x] **Presentation RED, AC2, AC4, AC8-AC10, AC12:** Add
   `test/presentation.test.ts` for stable lane slots, range/unknown chronology,
   exact assigned-lane slug-prefix stripping with no-match and ungrouped
   fallbacks, honest ages and intervals, local-zone/duration formatting, and
   plain event/status mapping. Commit the focused RED slice.
-- [ ] **Projection RED, AC1, AC9-AC11, AC15:** Extend
+- [x] **Projection RED, AC1, AC9-AC11, AC15:** Extend
   `test/core.test.ts` for last accepted verified event time, explicit role,
   absolute interval bounds and unique-only tool duration/counterpart facts.
   Assert unchanged reducer status, parent links, positions, history and
   batch/incremental equivalence. Commit the focused RED slice.
-- [ ] **Graph DOM RED, AC3-AC7, AC14:** Extend
+- [x] **Graph DOM RED, AC3-AC7, AC14:** Extend
   `test/webview.test.ts` for pane order and stacking, 25-agent multi-lane
   geometry, wrapped labels inside fitted boxes with foreground paint order
   and no overlap, box-inclusive Fit all, all resolved connectors, accessible
   icon+word states, three-theme token contrast and keyboard controls.
   Commit the focused RED slice.
-- [ ] **Inspector/footer DOM RED, AC1-AC2, AC8-AC15:** Extend
+- [x] **Inspector/footer DOM RED, AC1-AC2, AC8-AC15:** Extend
   `test/webview.test.ts` for header reader/age, time-range and older-run
   disclosure, inspector ID copy/fallback and paged activity, provisional
   footer, error recovery, hostile text, camera/focus and reduced motion.
