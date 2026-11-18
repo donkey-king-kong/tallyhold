@@ -3,9 +3,8 @@
 ## Status and approvals
 
 - [Spec](spec.md): Approved — Gate 1, 2026-11-18 (Zack), at branch head `74fae10`.
-- **Draft plan. Zack's separate architecture-plan approval is required before
-  RED tests or implementation.** [Tasks](tasks.md) are ordered but not
-  authorized to execute.
+- **Approved architecture plan — 2026-11-18 (Zack), at branch head `f90265e`.**
+  [Tasks](tasks.md) may proceed through RED review before GREEN.
 - This is a local, read-only extension presentation change. No portfolio
   application, publisher/adapter, source reader, database, Alembic migration,
   CI workflow, or multi-session aggregation change. The 004 limits and privacy
@@ -260,6 +259,6 @@ synthetic 25-agent multi-lane fixture and existing 004 representative workload.
   labelled unavailable. No fake track/branch/role or guessed absolute time.
 - The same selected source/session remains authoritative; a range is not a
   second reader or a cross-session merge.
-- No unresolved design choices. **Zack's plan approval is still pending.**
-  If actual theme contrast or the 004 resource envelope cannot support this
-  design, bring measured evidence back before RED.
+- No unresolved design choices. If actual theme contrast or the 004 resource
+  envelope cannot support this design, bring measured evidence back to Zack
+  before changing the approved plan.

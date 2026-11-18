@@ -2,15 +2,15 @@
 
 ## Approval gate
 
-The [spec](spec.md) is Gate 1 approved. The [architecture plan](plan.md)
-requires Zack's **separate approval before RED or implementation**. This
-document orders future work; unchecked items are not authorization.
+The [spec](spec.md) is Gate 1 approved. Zack separately approved the
+[architecture plan](plan.md) on 2026-11-18 at `f90265e`. RED is authorized;
+GREEN still requires independent RED `APPROVE`.
 Track B owns T-0050..T-0059 and R-0050..R-0059. The coordinator allocates
 unused IDs and creates tickets only when assigning a role; no future ticket
 is pre-claimed here. Each RED/GREEN slice should be a small logical commit.
 Do not edit the publisher, reader, product app, or CI/Compose.
 
-- [ ] **Zack plan gate:** Approve or request changes to the optional
+- [x] **Zack plan gate:** Approve or request changes to the optional
   projection fields, presentation geometry, 960px breakpoint, time/range
   semantics, theme contrast verification and 004 regression envelope.
   Record the decision in [plan.md](plan.md) and tracking before RED.

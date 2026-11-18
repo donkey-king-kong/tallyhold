@@ -53,6 +53,7 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 | [T-0049](tickets/T-0049-review-accounts-pr.md) | Fresh independent PR #43 review after green CI | [R-0040](runs/R-0040.md) |
 | [T-0055](tickets/T-0055-agent-monitor-ui-spec.md) | Draft Feature 008 Agent Monitor UI contract for Gate 1 | [R-0053](runs/R-0053.md), after [R-0052](runs/R-0052.md) |
 | [T-0056](tickets/T-0056-plan-agent-monitor-ui.md) | Plan approved Feature 008 Agent Monitor UI redesign for separate Zack gate | [R-0055](runs/R-0055.md), after [R-0054](runs/R-0054.md) |
+| [T-0057](tickets/T-0057-agent-monitor-ui-red.md) | Write Feature 008 synthetic RED tests and evidence | [R-0056](runs/R-0056.md) |
 | [T-0060](tickets/T-0060-first-deploy-maintenance.md) | Ship Track C migration gate and Compose ports | [R-0060](runs/R-0060.md) |
 | [T-0061](tickets/T-0061-first-deploy-plan.md) | Defer first-deploy decision to Phase 4 and ship docs | [R-0062](runs/R-0062.md), after [R-0061](runs/R-0061.md) |
 | [T-0062](tickets/T-0062-review-first-deploy-maintenance.md) | Independently review Track C maintenance PR | [R-0060](runs/R-0060.md) |
