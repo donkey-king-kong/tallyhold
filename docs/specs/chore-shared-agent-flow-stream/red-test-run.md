@@ -68,3 +68,42 @@ Commit and push the test, approved status and this evidence on
 `chore/shared-agent-flow-stream`. A fresh independent RED Reviewer must verify
 the pushed head before any GREEN implementation. No adapter or other workflow
 documentation was changed, and no PR was opened.
+
+## Round 1 corrections (2026-11-18)
+
+- Tested test commit: `3c1dd8106abd754c983faf365c1c7d0a994f58e8`.
+  Base for cumulative round-2 review remains `c12b954`; adapter, spec and
+  plan are unchanged. Test fixture uses only disposable local Git repos and
+  offline Python processes.
+- `python3 -m unittest discover -s .trae/agent-flow -p 'test_*.py' -v`:
+  exit 1, 28 collected, 21 FAIL, seven PASS, zero ERROR or skipped. Failures
+  are the missing shared root/session, attribution, ID namespace, or
+  fail-closed behavior; no syntax, collection, dependency or network error.
+- `python3 -m unittest discover -s .trae/agent-flow -p 'test_*.py' -v -k AdapterTests`:
+  exit 0, all six legacy tests PASS unchanged.
+- `git diff --check`: exit 0.
+
+The five added cases extend numbered verification items 1, 2, 3, 5 and 9:
+`test_direct_store_calls_in_checkout_match_cli_ids` checks the planned
+Store/CLI boundary across start, status, tool and complete (1-2);
+`test_invalid_existing_session_and_log_fail_closed` checks malformed JSON,
+missing fields and invalid types without changing either file (5);
+`test_symlinked_checkout_resolves_canonical_shared_root` and
+`test_separate_git_dir_does_not_select_unrelated_root` check symlinks and
+unsupported common-dir layout (1);
+`test_existing_hand_prefixed_root_is_not_registered_twice` seeds a prior
+dispatch/spawn and asserts one registration remains after activity (9).
+Strengthened `test_slug_branch_and_detached_head` computes the eight SHA-256
+hex characters from raw branch and canonical detached path, then checks
+stability; `test_normalization_collisions_and_long_names_remain_distinct`
+computes every 15-character stem and exact hash, length 24, uniqueness and
+stability (3). Criteria 4, 6-8 and 10 retain their round-1 mappings above;
+documentation text/path hygiene remain GREEN delivery review items.
+
+The full-suite failures arise because the current adapter still uses the
+script-relative stream in Git checkouts; invalid-session and shape cases
+incorrectly succeed, while direct Store reads the wrong session. The seeded
+root case cannot publish into the shared root yet. Concurrent append
+assertions remain downstream of shared init and will be exercised at GREEN.
+Hand off this committed evidence with the test commit for a different fresh
+round-2 review before implementation.
