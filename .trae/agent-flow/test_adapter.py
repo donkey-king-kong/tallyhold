@@ -308,13 +308,14 @@ class SharedStreamContractTests(unittest.TestCase):
         self.assertNotEqual(invalid.returncode, 0)
 
     def test_invalid_parent_is_rejected_without_partial_writes(self) -> None:
-        self.init(self.alpha)
+        self.cli(self.alpha, "--root", str(self.root), "init",
+                 "--session-id", "shared-run", "--task", "Fixture run")
         log = self.root / "agent-flow-events.jsonl"
         before = log.read_bytes()
         for command in ("start", "complete"):
             args = ("--task", "Fixture invalid") if command == "start" else (
                 "--summary", "Fixture invalid")
-            result = self.cli(self.alpha, command, "--agent", "checker",
+            result = self.cli(self.alpha, "--root", str(self.root), command, "--agent", "checker",
                               "--parent", "bad/id", *args, success=False)
             self.assertNotEqual(result.returncode, 0, command)
             self.assertEqual(log.read_bytes(), before, command)
