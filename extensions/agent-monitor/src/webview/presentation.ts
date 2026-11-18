@@ -186,7 +186,7 @@ export function activityDescription(activity: Activity): string {
 }
 
 export function displayName(id: string, laneSlug: string | null): string {
-  const prefix = `${laneSlug}-`;
+  const prefix = `wt-${laneSlug}-`;
   return laneSlug && id.startsWith(prefix) && id.length > prefix.length
     ? id.slice(prefix.length)
     : id;

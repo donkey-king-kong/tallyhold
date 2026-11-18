@@ -11,7 +11,7 @@
 - Dependencies: [T-0057](T-0057-agent-monitor-ui-red.md), [T-0058](T-0058-review-agent-monitor-ui-red.md)
 - Branch / worktree: `feature/008-agent-monitor-ui` / `../tallyhold-feature-008-agent-monitor-ui`
 - Issue / PR: related #44; no PR requested.
-- Updated: 2026-11-18T06:22:20Z
+- Updated: 2026-11-18T06:25:12Z
 
 ## Scope
 
@@ -30,13 +30,13 @@ fixes, package a VSIX and stop for Zack's theme/width/keyboard smoke.
 
 ## Checkpoint
 
-- Last completed action: first RED commit `e295f4e` proved CSP and computed bundled CSS failures; host/CSS fixes pass the two targeted tests.
+- Last completed action: CSP/CSS fix `e9722f8` and display-name RED `d2fd33a`; root-ID shortening and root classification pass 52 presentation/webview tests, lint, typecheck and format.
 - Evidence: GREEN projection `57757f8`, webview `c148fc9`, benchmark `30b6ec6`; packaged `extensions/agent-monitor/tallyhold-agent-monitor-0.1.0.vsix`. Synthetic 25-agent/three-lane fixture rendered 29 identities, 3 lanes and 28 connectors in 6.37 ms; representative cold reducer 109.84 ms, maximum 985.21 ms, 2,000-identity webview 131.43 ms.
-- Worktree state: local RED head `e295f4e`; host, CSS, approved plan amendment and tracking uncommitted; no prior RED assertion changed.
+- Worktree state: local RED head `d2fd33a`; approved plan amendment, presentation/graph and tracking uncommitted; only the explicitly superseded display-name fixture was updated, with all match/unmatch/ungrouped assertions retained.
 - Remaining work: five test-first fixes, full check matrix, new VSIX, commit/push and Zack's repeat smoke.
 - Audit: `npm audit` reports 17 high dev-only findings. `npm audit fix --dry-run` offered zero compatible package changes; its direct dependency remedies require out-of-range versions (`vitest`/coverage 4 to 3, `typescript-eslint` 8.73 to 8.47.0, `vsce` 3 to 4). Registry latest `picomatch` is vulnerable 4.0.7. No force or incompatible change applied. Packaging warns that this extension has no LICENSE file.
 - Blocker / unblock action: none for authorized GREEN correction; hands-on smoke remains a required stop.
-- Next action: commit tested host/CSS fix, then update the approved display-name test to the real root-ID format and verify it fails before changing presentation code.
+- Next action: commit root-ID plan and tested presentation/graph fix, then add navigator identity/run regression before changing navigation.
 - Handoff recipient: Zack after rebuilt packaged VSIX.
 
 ## History
@@ -51,3 +51,4 @@ fixes, package a VSIX and stop for Zack's theme/width/keyboard smoke.
 | 2026-11-18T06:13:01Z | R-0070/coordinator | Benchmark committed `30b6ec6`; pushed branch `feature/008-agent-monitor-ui` through that head | Record final smoke handoff, await Zack's editor result; no PR |
 | 2026-11-18T06:18:43Z | R-0071/coordinator | Zack's real-log smoke FAIL: stylesheet not applied, wrong name prefix, per-run navigator rows, visible/duplicated footer with UTC times, jargon/full ID in navigator. Fetched clean `b09fc7a`; plan amendment explicitly approved | Write a regression test for each symptom before GREEN fixes; no PR |
 | 2026-11-18T06:22:20Z | R-0071/coordinator | RED tests `e295f4e`: host CSP used CSS file URL and malformed CSS left button min-height empty. Explicit webview CSP source and corrected CSS now pass both targeted tests | Commit item 1 and write real-ID prefix regression |
+| 2026-11-18T06:25:12Z | R-0071/coordinator | CSP/CSS fix `e9722f8`. Real root-ID RED `d2fd33a` exposed prefixed descendants misclassified as lane roots; exact-prefix and top-level-root changes pass 52 UI tests, lint/types/format | Commit item 2, then navigator regression |

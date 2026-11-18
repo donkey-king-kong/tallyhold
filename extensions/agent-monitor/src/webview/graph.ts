@@ -57,6 +57,7 @@ export class GraphLayout {
     for (const node of nodes) {
       if (
         /^wt-[a-zA-Z0-9_-]+$/.test(node.id) &&
+        (!node.parentId || node.parentId === "orchestrator") &&
         !this.laneOrder.includes(node.id)
       )
         this.laneOrder.push(node.id);

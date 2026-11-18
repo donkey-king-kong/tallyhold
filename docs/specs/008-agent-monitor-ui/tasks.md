@@ -25,7 +25,7 @@ failures caused by absent UI/projection behavior, not broken setup.
 
 - [x] **Presentation RED, AC2, AC4, AC8-AC10, AC12:** Add
   `test/presentation.test.ts` for stable lane slots, range/unknown chronology,
-  exact assigned-lane slug-prefix stripping with no-match and ungrouped
+  exact assigned-lane root-ID-prefix stripping with no-match and ungrouped
   fallbacks, honest ages and intervals, local-zone/duration formatting, and
   plain event/status mapping. Commit the focused RED slice.
 - [x] **Projection RED, AC1, AC9-AC11, AC15:** Extend
@@ -62,7 +62,7 @@ approved RED cases. Do not weaken tests to force a pass.
   `src/shared/protocol.ts`. Preserve 004 reader/reducer behavior.
 - [x] **Pure presentation model, AC2, AC4, AC7-AC12:** Implement
   `src/webview/presentation.ts` for lane/run selection, exact assigned-lane
-  display-name shortening, age/duration/local time, state icons and event
+  display-name shortening by assigned root ID, age/duration/local time, state icons and event
   copy with uncertainty fallbacks.
 - [x] **Lane graph, AC4-AC6, AC14-AC15:** Implement
   `src/webview/graph.ts` with stable slots, wrapped foreground text inside

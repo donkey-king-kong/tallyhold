@@ -5,6 +5,11 @@
 - [Spec](spec.md): Approved — Gate 1, 2026-11-18 (Zack), at branch head `74fae10`.
 - **Approved architecture plan — 2026-11-18 (Zack), at branch head `f90265e`.**
   [Tasks](tasks.md) may proceed through RED review before GREEN.
+- **Approved display-name amendment — 2026-11-18 (Zack), after failed
+  packaged smoke.** The shared-stream adapter reports descendant IDs as
+  `<root_id>-<agent>`; shorten only the exact assigned `wt-<slug>-`
+  root-ID prefix. A prefixed descendant with a reported parent is not
+  another worktree root. No change to identity or role semantics.
 - This is a local, read-only extension presentation change. No portfolio
   application, publisher/adapter, source reader, database, Alembic migration,
   CI workflow, or multi-session aggregation change. The 004 limits and privacy
@@ -92,7 +97,7 @@ inspector; moving it would violate 004's stable-position promise. A new
 source generation recomputes deterministically from its records.
 
 Use the assigned **display lane**, not a guessed role or branch, to shorten
-graph/navigator names: for root `wt-<slug>`, remove the exact `<slug>-` prefix
+graph/navigator names: for root `wt-<slug>`, remove the exact `wt-<slug>-` prefix
 only when the node's full ID starts with it and a nonempty name remains.
 Otherwise show the full ID. An ungrouped node has no assigned lane and keeps
 its full ID even if it happens to start with another lane's prefix; a
@@ -217,9 +222,11 @@ Zack approves this plan. Use synthetic `wt-a1`/`wt-b2` roots with task text,
 descendants, delayed parents, duplicate-valued records, two intervals per
 identity, no anchor, stale companions, unsupported types and out-of-order
 reports. No private logs, images, or chore-branch import.
-For the display-name case, assign `alpha-reviewer` to `wt-alpha` and assert
-`reviewer`; keep `beta-reviewer` in that lane and ungrouped `alpha-orphan`
-at full length. In all three cases the inspector/copy target remains the
+For the display-name case, assign `wt-alpha-reviewer` to `wt-alpha` and assert
+`reviewer`; keep `beta-reviewer` in that lane and ungrouped `wt-alpha-orphan`
+at full length. The real shared-stream form `wt-chore-shared-ag-0736a7b0-implementer`
+under `wt-chore-shared-ag-0736a7b0` displays `implementer`. In all cases
+the inspector/copy target remains the
 original ID and an absent reported role stays unavailable.
 
 | AC | Design path | Named test(s) |
@@ -227,7 +234,7 @@ original ID and an absent reported role stays unavailable.
 | 1 | Header from source state and last accepted verified event, independent reader errors | `webview.test.ts: header shows source session following age and stale recovery`; `core.test.ts: last event absolute time uses last accepted record` |
 | 2 | Local toolbar and intersected active/range filters, honest note | `webview.test.ts: toolbar toggles range and last reported active without liveness claim` |
 | 3 | CSS grid with 960px breakpoint, bounded panes and graph | `webview.test.ts: wide view places three panes beside visible graph and narrow view stacks in order` |
-| 4 | Source-order stable worktree slots, reported task/slug and ungrouped late parent; shorten only an assigned lane's exact slug prefix | `presentation.test.ts: lane assignment preserves slots across late root and append`; `presentation.test.ts: display name strips only assigned lane prefix and preserves unmatched and ungrouped ids`; `webview.test.ts: root task titles slug subtitles and agent counts span lanes` |
+| 4 | Source-order stable worktree slots, reported task/slug and ungrouped late parent; shorten only an assigned lane's exact root-ID prefix | `presentation.test.ts: lane assignment preserves slots across late root and append`; `presentation.test.ts: display name strips only assigned lane prefix and preserves unmatched and ungrouped ids`; `webview.test.ts: root task titles slug subtitles and agent counts span lanes` |
 | 5 | Foreground text inside padded, wrap-fitted node boxes and box-inclusive Fit all | `webview.test.ts: foreground labels fit inside boxes without overlap at fit and zoom` |
 | 6 | One keyed connector per resolved pair with both endpoints, edge layer below nodes | `webview.test.ts: all resolved links draw one connector including cross lane and late parent` |
 | 7 | Distinct icon+word states and dashed unknown-parent annotation; tool result isolated | `webview.test.ts: statuses and unknown parent show distinct symbols without fading completed`; `webview.test.ts: failed tool never changes completed agent status` |
