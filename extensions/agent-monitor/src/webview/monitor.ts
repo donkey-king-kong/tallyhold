@@ -283,36 +283,58 @@ export function mountMonitor(
     const focusName = navigator.contains(document.activeElement)
       ? (document.activeElement as HTMLElement).getAttribute("aria-label")
       : null;
-    const nodes = currentNodes();
-    const runs = nodes.flatMap((node) => runsFor(node, Date.now()));
-    const matching = (run: Run) => {
-      const label = displayName(run.node.id, layout.lane(run.node.id));
+    const groups = currentNodes().map((node) => ({
+      node,
+      runs: runsFor(node, Date.now()),
+    }));
+    const matching = ({ node }: (typeof groups)[number]) => {
+      const label = displayName(node.id, layout.lane(node.id));
       return (
         label.toLowerCase().includes(search.toLowerCase()) ||
-        run.node.id.toLowerCase().includes(search.toLowerCase())
+        node.id.toLowerCase().includes(search.toLowerCase())
       );
     };
-    const selectedRuns = runs.filter(matching);
+    const selectedGroups = groups.filter(matching);
+    const hasRun = (
+      group: (typeof groups)[number],
+      chronology: Run["chronology"],
+    ) => group.runs.some((run) => run.chronology === chronology);
     const current =
       range === "all"
-        ? selectedRuns
-        : selectedRuns.filter((run) => run.chronology === "current");
+        ? selectedGroups
+        : selectedGroups.filter((group) => hasRun(group, "current"));
     const older =
       range === "recent"
-        ? selectedRuns.filter((run) => run.chronology === "older")
+        ? selectedGroups.filter((group) => hasRun(group, "older"))
         : [];
     const unknown =
       range === "recent"
-        ? selectedRuns.filter((run) => run.chronology === "unknown")
+        ? selectedGroups.filter(
+            (group) => !hasRun(group, "current") && hasRun(group, "unknown"),
+          )
         : [];
     const list = element("div", undefined, { class: "navigator-list" });
-    const addRun = (run: Run) => {
-      const node = run.node;
+    const rendered = new Set<string>();
+    const addIdentity = (
+      group: (typeof groups)[number],
+      section: "all" | Run["chronology"],
+    ) => {
+      const { node, runs } = group;
+      if (rendered.has(node.id)) return;
+      rendered.add(node.id);
       const label = displayName(node.id, layout.lane(node.id));
+      const run =
+        section === "all"
+          ? runs.at(-1)!
+          : runs.find((item) => item.chronology === section)!;
       const suffix =
-        node.intervals && node.intervals.length > 1
-          ? ` ${run.chronology === "older" ? "older" : "current"}`
+        runs.length > 1 && range === "recent"
+          ? ` ${section === "older" ? "older" : "current"}`
           : "";
+      const row = element("div", undefined, {
+        class: "navigator-identity-row",
+        "data-identity-id": node.id,
+      });
       const item = button(
         `${label}${suffix} ${node.status ?? "unknown"} ${node.relationship ?? ""} (${node.id})`,
         () => choose(node.id, run.index),
@@ -326,21 +348,37 @@ export function mountMonitor(
         item.append(tag);
       } else if (state.projection.lastEventAbsoluteTime)
         item.append(element("span", " · Age unavailable"));
-      list.append(item);
+      row.append(item);
+      if (runs.length > 1) row.append(element("span", `${runs.length} runs`));
+      if (olderExpanded && range === "recent" && section !== "older")
+        for (const olderRun of runs.filter(
+          (candidate) => candidate.chronology === "older",
+        ))
+          row.append(
+            button(`${label} older run ${olderRun.index + 1}`, () =>
+              choose(node.id, olderRun.index),
+            ),
+          );
+      list.append(row);
     };
-    current.forEach(addRun);
+    current.forEach((group) =>
+      addIdentity(group, range === "all" ? "all" : "current"),
+    );
     if (older.length) {
       list.append(
-        button(`Older runs · ${older.length}`, () => {
-          olderExpanded = !olderExpanded;
-          renderNavigator();
-        }),
+        button(
+          `Older runs · ${older.reduce((sum, group) => sum + group.runs.filter((run) => run.chronology === "older").length, 0)}`,
+          () => {
+            olderExpanded = !olderExpanded;
+            renderNavigator();
+          },
+        ),
       );
-      if (olderExpanded) older.forEach(addRun);
+      if (olderExpanded) older.forEach((group) => addIdentity(group, "older"));
     }
     if (unknown.length) {
       list.append(element("div", "Time unavailable"));
-      unknown.forEach(addRun);
+      unknown.forEach((group) => addIdentity(group, "unknown"));
     }
     navigator.replaceChildren(searchInput, list);
     if (selectedNode() && activeOnly && selectedNode()?.terminal) {
@@ -369,6 +407,23 @@ export function mountMonitor(
       return;
     }
     const interval = node.intervals?.[selectedInterval] ?? node.intervals?.[0];
+    const runs = runsFor(node, Date.now());
+    const runSelector = element("select", undefined, {
+      "aria-label": "Select run",
+    });
+    runs.forEach((run) => {
+      const option = element(
+        "option",
+        `Run ${run.index + 1} of ${runs.length} · ${run.interval.startAbsoluteTime ? localTime(run.interval.startAbsoluteTime) : "time unavailable"}`,
+      );
+      option.value = String(run.index);
+      runSelector.append(option);
+    });
+    runSelector.value = String(Math.min(selectedInterval, runs.length - 1));
+    runSelector.addEventListener("change", () => {
+      choose(node.id, Number(runSelector.value));
+      inspector.querySelector("select")?.focus();
+    });
     const slug = layout.association(node, state.projection.nodes);
     const status = statusWord(node);
     const title = element("h2", `Reported identity: ${node.id}`);
@@ -505,6 +560,7 @@ export function mountMonitor(
       statusLine,
       meta,
       reportsTo,
+      ...(runs.length > 1 ? [runSelector] : []),
       started,
       execution,
       idInput,
