@@ -239,7 +239,8 @@ class SharedStreamContractTests(unittest.TestCase):
             self.assertEqual(self.heartbeat(f"{root}-{child}")["parent_id"], root)
         returns = [e["payload"] for e in self.records() if e["type"] == "subagent_return"]
         self.assertIn({"child": f"{root}-first", "parent": root,
-                       "summary": "Fixture complete", "status": "completed"}, returns)
+                       "summary": "Fixture complete", "status": "completed",
+                       "sourceWorktree": root[3:]}, returns)
 
     def test_slug_branch_and_detached_head(self) -> None:
         self.init(self.alpha)
@@ -291,9 +292,34 @@ class SharedStreamContractTests(unittest.TestCase):
         self.assertTrue(all(re.fullmatch(r"[a-zA-Z][a-zA-Z0-9_-]{0,63}", name)
                             for name in [*roots.values(), *ids]))
         self.assertTrue(all(len(name) <= 64 for name in ids))
+        for number, branch in enumerate(branches):
+            slug = re.sub(r"[^a-z0-9_-]+", "-", branch.lower()).strip("-_")[:15]
+            slug += "-" + hashlib.sha256(branch.encode()).hexdigest()[:8]
+            root = "wt-" + slug
+            agent = "role_" + "z" * 58 + str(number)
+            available = 64 - len(root) - 1 - 9
+            expected = root + "-" + agent[:available] + "-" + hashlib.sha256(
+                agent.encode()
+            ).hexdigest()[:8]
+            self.assertEqual(len(expected), 64)
+            self.assertIn(expected, ids)
         invalid = self.cli(self.alpha, "start", "--agent", "bad/id",
                            "--task", "Fixture invalid", success=False)
         self.assertNotEqual(invalid.returncode, 0)
+
+    def test_invalid_parent_is_rejected_without_partial_writes(self) -> None:
+        self.init(self.alpha)
+        log = self.root / "agent-flow-events.jsonl"
+        before = log.read_bytes()
+        for command in ("start", "complete"):
+            args = ("--task", "Fixture invalid") if command == "start" else (
+                "--summary", "Fixture invalid")
+            result = self.cli(self.alpha, command, "--agent", "checker",
+                              "--parent", "bad/id", *args, success=False)
+            self.assertNotEqual(result.returncode, 0, command)
+            self.assertEqual(log.read_bytes(), before, command)
+            self.assertFalse((self.root / "heartbeats" / "checker.json").exists(),
+                             command)
 
     def test_every_payload_has_source_worktree(self) -> None:
         self.init()
