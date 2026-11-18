@@ -15,12 +15,17 @@ type Activity = {
   outcome?: "succeeded" | "failed";
   pairing?: "paired" | "unmatched" | "ambiguous";
   certainty?: "reported" | "ambiguous";
+  relatedAgentId?: string | null;
+  toolCategory?: string | null;
+  toolDurationSeconds?: number | null;
 };
 
 type Interval = {
   start: number | null;
   end: number | null;
   certainty: "reported" | "incomplete";
+  startAbsoluteTime?: string | null;
+  endAbsoluteTime?: string | null;
 };
 
 type NodeState = {
@@ -35,7 +40,11 @@ type NodeState = {
   identityKind: "unspecified";
   lastTime: number;
   terminal: boolean;
-  openTools: Map<string, { count: number; ambiguous: boolean }>;
+  reportedRole: string | null;
+  openTools: Map<
+    string,
+    { count: number; ambiguous: boolean; start: number | null }
+  >;
 };
 
 const supported = new Set([
@@ -92,6 +101,7 @@ export function createStream(options: {
   let lineNumber = 0;
   let sessionId: string | null = null;
   let lastReportedTime = -1;
+  let lastEventAbsoluteTime: string | null = null;
   const nodes: NodeState[] = [];
   const byId = new Map<string, NodeState>();
   const diagnostics: Diagnostic[] = [];
@@ -125,6 +135,7 @@ export function createStream(options: {
         identityKind: "unspecified",
         lastTime: 0,
         terminal: false,
+        reportedRole: null,
         openTools: new Map(),
       };
       nodes.push(node);
@@ -182,10 +193,13 @@ export function createStream(options: {
     }
   };
 
-  const absoluteTime = (time: number) =>
-    options.sessionStartedAt === undefined
-      ? null
-      : new Date((options.sessionStartedAt + time) * 1000).toISOString();
+  const absoluteTime = (time: number): string | null => {
+    if (options.sessionStartedAt === undefined) return null;
+    const milliseconds = (options.sessionStartedAt + time) * 1000;
+    return Number.isFinite(milliseconds) && Math.abs(milliseconds) <= 8.64e15
+      ? new Date(milliseconds).toISOString()
+      : null;
+  };
 
   const processRecord = (raw: string, byteOffset: number) => {
     let record: JsonObject;
@@ -233,12 +247,19 @@ export function createStream(options: {
       reportsRelationship ? text(payload.parent) : undefined,
       reportsRelationship ? text(payload.task) : undefined,
     );
+    if (reportsRelationship && text(payload.role))
+      node.reportedRole = text(payload.role) ?? null;
+    lastEventAbsoluteTime = absoluteTime(record.time);
     const activity: Activity = {
       type: record.type,
       time: record.time,
       summary: summary(record.type, payload),
       absoluteTime: absoluteTime(record.time),
     };
+    if (record.type === "subagent_dispatch")
+      activity.relatedAgentId = text(payload.child) ?? null;
+    if (record.type === "subagent_return")
+      activity.relatedAgentId = text(payload.agent) ?? null;
 
     if (node.terminal && record.type !== "agent_spawn")
       activity.certainty = "ambiguous";
@@ -247,6 +268,8 @@ export function createStream(options: {
         start: record.time,
         end: null,
         certainty: "reported",
+        startAbsoluteTime: absoluteTime(record.time),
+        endAbsoluteTime: null,
       });
       node.status = "starting";
       node.terminal = false;
@@ -256,11 +279,14 @@ export function createStream(options: {
         .find((interval) => interval.end === null);
       if (open) {
         open.end = record.time;
+        open.endAbsoluteTime = absoluteTime(record.time);
       } else if (node.intervals.length === 0) {
         node.intervals.push({
           start: null,
           end: record.time,
           certainty: "incomplete",
+          startAbsoluteTime: null,
+          endAbsoluteTime: absoluteTime(record.time),
         });
       } else {
         activity.certainty = "ambiguous";
@@ -279,13 +305,28 @@ export function createStream(options: {
           (record.type === "error" ? "blocked" : "waiting");
     } else if (record.type === "tool_call_start") {
       const tool = text(payload.tool) ?? "unknown";
-      const open = node.openTools.get(tool) ?? { count: 0, ambiguous: false };
+      const open = node.openTools.get(tool) ?? {
+        count: 0,
+        ambiguous: false,
+        start: record.time,
+      };
       open.count++;
-      if (open.count > 1) open.ambiguous = true;
+      if (open.count > 1) {
+        open.ambiguous = true;
+        open.start = null;
+      }
       node.openTools.set(tool, open);
     } else if (record.type === "tool_call_end") {
       const tool = text(payload.tool) ?? "unknown";
       const open = node.openTools.get(tool);
+      activity.toolCategory = text(payload.tool) ?? null;
+      activity.toolDurationSeconds =
+        open &&
+        !open.ambiguous &&
+        open.start !== null &&
+        record.time >= open.start
+          ? record.time - open.start
+          : null;
       activity.pairing = !open
         ? "unmatched"
         : open.ambiguous
@@ -341,6 +382,7 @@ export function createStream(options: {
           position: { ...node.position },
           activities: node.activities.map((activity) => ({ ...activity })),
           intervals: node.intervals.map((interval) => ({ ...interval })),
+          reportedRole: node.reportedRole,
           identityKind: node.identityKind,
           terminal: node.terminal,
           lastUpdateAge:
@@ -355,6 +397,7 @@ export function createStream(options: {
         })),
         edges: edges.map((edge) => ({ ...edge })),
         diagnostics: diagnostics.map((item) => ({ ...item })),
+        lastEventAbsoluteTime,
       };
     },
   };

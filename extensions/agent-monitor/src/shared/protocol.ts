@@ -6,6 +6,30 @@ function generation(value: unknown, expected: number) {
   return Number.isInteger(value) && value === expected;
 }
 
+function safeText(value: unknown): value is string {
+  return (
+    typeof value === "string" &&
+    value.length <= 1024 &&
+    !/[<>]/.test(value) &&
+    !/^\s*(?:javascript|data|https?|file):/i.test(value)
+  );
+}
+
+function optionalText(value: unknown): boolean {
+  return value === undefined || value === null || safeText(value);
+}
+
+function optionalInstant(value: unknown): boolean {
+  return (
+    value === undefined ||
+    value === null ||
+    (typeof value === "string" &&
+      /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(value) &&
+      !Number.isNaN(Date.parse(value)) &&
+      new Date(value).toISOString() === value)
+  );
+}
+
 export function validateWebviewMessage(
   value: unknown,
   expectedGeneration: number,
@@ -58,7 +82,8 @@ export function validateHostMessage(
     !generation(value.generation, expectedGeneration) ||
     !object(value.projection) ||
     !Array.isArray(value.projection.nodes) ||
-    value.projection.nodes.length > 2000
+    value.projection.nodes.length > 2000 ||
+    !optionalInstant(value.projection.lastEventAbsoluteTime)
   ) {
     return null;
   }
@@ -67,9 +92,32 @@ export function validateHostMessage(
       !object(node) ||
       typeof node.id !== "string" ||
       node.id.length > 1024 ||
-      (node.activities !== undefined && !Array.isArray(node.activities))
+      !optionalText(node.reportedRole) ||
+      (node.activities !== undefined && !Array.isArray(node.activities)) ||
+      (node.intervals !== undefined && !Array.isArray(node.intervals))
     ) {
       return null;
+    }
+    for (const interval of node.intervals ?? []) {
+      if (
+        !object(interval) ||
+        !optionalInstant(interval.startAbsoluteTime) ||
+        !optionalInstant(interval.endAbsoluteTime)
+      )
+        return null;
+    }
+    for (const activity of node.activities ?? []) {
+      if (
+        !object(activity) ||
+        !optionalText(activity.relatedAgentId) ||
+        !optionalText(activity.toolCategory) ||
+        (activity.toolDurationSeconds !== undefined &&
+          activity.toolDurationSeconds !== null &&
+          (typeof activity.toolDurationSeconds !== "number" ||
+            !Number.isFinite(activity.toolDurationSeconds) ||
+            activity.toolDurationSeconds < 0))
+      )
+        return null;
     }
   }
   return value;

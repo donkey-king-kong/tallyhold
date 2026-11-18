@@ -44,17 +44,20 @@ failures caused by absent UI/projection behavior, not broken setup.
   disclosure, inspector ID copy/fallback and paged activity, provisional
   footer, error recovery, hostile text, camera/focus and reduced motion.
   Commit the focused RED slice.
-- [ ] **RED evidence and independent review:** Record the tested revision,
+- [x] **RED evidence and independent review:** Record the tested revision,
   expected failures, unaffected 004 checks and adapter suite in
   `red-test-run.md`; push. Obtain a fresh independent RED `APPROVE` using
   `docs/skills/red-review.md`. A failed launch or non-approval stops GREEN.
+  Zack resolved the final-round test-specification defect, confirmed the
+  corrected RED at `e734489` and explicitly authorized GREEN on 2026-11-18;
+  no third reviewer round.
 
 ## GREEN: Only after independent RED approval
 
 The Implementer works through these one-commit behavior slices against the
 approved RED cases. Do not weaken tests to force a pass.
 
-- [ ] **Projection facts, AC1, AC9-AC11, AC15:** Add the optional explicit
+- [x] **Projection facts, AC1, AC9-AC11, AC15:** Add the optional explicit
   or verified fields in `src/core/reconcile.ts` and their validation in
   `src/shared/protocol.ts`. Preserve 004 reader/reducer behavior.
 - [ ] **Pure presentation model, AC2, AC4, AC7-AC12:** Implement
