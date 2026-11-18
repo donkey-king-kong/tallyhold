@@ -2,7 +2,7 @@
 
 ## Assignment
 
-- Status: in_review
+- Status: done
 - Owner actor: R-0056/coordinator
 - Role: Test writer / coordinator
 - Run: [R-0056](../runs/R-0056.md)
@@ -11,7 +11,7 @@
 - Dependencies: [T-0056](T-0056-plan-agent-monitor-ui.md)
 - Branch / worktree: `feature/008-agent-monitor-ui` / `../tallyhold-feature-008-agent-monitor-ui`
 - Issue / PR: related #44; no PR requested.
-- Updated: 2026-11-18T05:16:01Z
+- Updated: 2026-11-18T05:17:01Z
 
 ## Scope
 
@@ -24,17 +24,17 @@ real logs, publisher changes, PR or GREEN.
 
 - [x] Named tests cover every AC and plan verification row with concrete fixtures.
 - [x] New tests fail for missing feature behavior; existing extension and adapter tests pass.
-- [ ] Tested SHA, commands, counts, failure reasons and AC map in pushed RED evidence.
+- [x] Tested SHA, commands, counts, failure reasons and AC map in pushed RED evidence.
 
 ## Checkpoint
 
-- Last completed action: committed approval as `f8bc088` and tests as `1522e5f`; verified targeted RED and unchanged suites at test SHA; wrote evidence.
+- Last completed action: pushed approval `f8bc088`, tests `1522e5f`, and [RED evidence](../../specs/008-agent-monitor-ui/red-test-run.md) `1105aac`.
 - Evidence: 25 new cases failed/40 skipped; 77 existing extension and 6 adapter passed; lint, typecheck, format passed. Each failure reason and AC mapping recorded in [RED evidence](../../specs/008-agent-monitor-ui/red-test-run.md).
-- Worktree state: evidence and checkpoint edits uncommitted; no production source edited.
-- Remaining work: commit evidence and push; independent fresh RED review after cost approval.
+- Worktree state: clean at remote head `1105aac` before tracking checkpoint; no production source edited.
+- Remaining work: independent fresh RED review under [T-0058](T-0058-review-agent-monitor-ui-red.md) after cost approvals.
 - Blocker / unblock action: independent RED review requires constitution cost approval before provider dispatch; offline RED work may proceed.
-- Next action: commit evidence/checkpoint, push and verify remote RED SHA; prepare review ticket and cost request.
-- Handoff recipient: independent fresh RED Reviewer after cost gate.
+- Next action: request two separate Zack cost approvals before any reviewer invocation.
+- Handoff recipient: Zack for cost decision, then independent fresh RED Reviewer.
 
 ## History
 
@@ -43,3 +43,4 @@ real logs, publisher changes, PR or GREEN.
 | 2026-11-18T04:20:28Z | R-0056/coordinator | Took over pushed `f90265e` and Zack's plan approval; established local baseline | 77 existing extension tests pass; create synthetic RED cases |
 | 2026-11-18T05:14:21Z | R-0056/coordinator | Added all 25 named AC1-15 synthetic tests; lint passed and targeted suite failed only on missing UI/projection behavior | Commit tests, run at pinned SHA and publish evidence |
 | 2026-11-18T05:16:01Z | R-0056/coordinator | Verified `1522e5f`: 25 expected RED, 77 unchanged extension and 6 adapter passed, lint/typecheck/format passed | Commit/push evidence then request reviewer cost approval |
+| 2026-11-18T05:17:01Z | R-0056/coordinator | Pushed RED evidence as `1105aac`; remote/local matched | T-0058 reviewer dispatch waits on two separate cost approvals |
