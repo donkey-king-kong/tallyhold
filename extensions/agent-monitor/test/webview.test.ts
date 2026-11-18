@@ -8,6 +8,14 @@ import {
   queryByText,
   within,
 } from "@testing-library/dom";
+import { readFileSync } from "node:fs";
+import {
+  mountSynthetic,
+  SESSION_START,
+  syntheticNode,
+  syntheticView,
+  twoLanes,
+} from "./ui-fixtures";
 
 let dispose: (() => void) | undefined;
 afterEach(() => {
@@ -621,5 +629,567 @@ describe("editor webview controls (AC3-5, AC7-8, AC12, AC14-15)", () => {
     expect(document.activeElement).toBe(
       getByRole(root, "button", { name: /fit all/i }),
     );
+  });
+});
+
+function mount008(
+  nodes: Array<Record<string, unknown>>,
+  edges: Array<{ parentId: string; childId: string }> = [],
+  extras: Record<string, unknown> = {},
+) {
+  const result = mountSynthetic(nodes, edges, extras);
+  dispose = () => result.app.dispose();
+  return result;
+}
+
+function graphNode(root: HTMLElement, id: string) {
+  return root.querySelector<SVGGElement>(`svg g[data-node-id="${id}"]`)!;
+}
+
+describe("Feature 008 Agent Monitor DOM acceptance", () => {
+  it("header shows source session following age and stale recovery", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2023-11-14T22:13:32.000Z"));
+    const { root, app } = mount008([syntheticNode("orchestrator")]);
+    const header = root.querySelector("header")!;
+    expect(header.textContent).toContain(
+      "/synthetic/.agent-flow/agent-flow-events.jsonl",
+    );
+    expect(header.textContent).toContain("synthetic-session");
+    expect(header.textContent).toMatch(/Following.*last event 12s ago/i);
+    expect(
+      within(header).getByRole("button", { name: /choose source/i }),
+    ).toBeTruthy();
+    app.update({
+      ...syntheticView([syntheticNode("orchestrator")]),
+      reader: "stale",
+      error: "Selected file unavailable",
+    });
+    expect(root.querySelector("header")?.textContent).toMatch(
+      /stale.*unavailable/i,
+    );
+    expect(root.querySelector('g[data-node-id="orchestrator"]')).not.toBeNull();
+  });
+
+  it("toolbar toggles range and last reported active without liveness claim", () => {
+    const { root } = mount008([
+      syntheticNode("finished", { status: "completed", terminal: true }),
+      syntheticNode("working"),
+    ]);
+    const toolbar = getByRole(root, "region", { name: /monitor toolbar/i });
+    expect(
+      within(toolbar).getByRole("button", { name: /last 24 hours/i }),
+    ).toBeTruthy();
+    fireEvent.click(within(toolbar).getByRole("button", { name: /all runs/i }));
+    fireEvent.click(
+      within(toolbar).getByRole("checkbox", {
+        name: /only last reported active/i,
+      }),
+    );
+    expect(
+      getByRole(root, "img", { name: /agent graph/i }).textContent,
+    ).not.toContain("finished");
+    expect(toolbar.textContent).toMatch(/last reported.*not.*liveness/i);
+    expect(
+      within(toolbar).getByRole("button", { name: /zoom in/i }),
+    ).toBeTruthy();
+    expect(
+      within(toolbar).getByRole("button", { name: /fit all/i }),
+    ).toBeTruthy();
+  });
+
+  it("wide view places three panes beside visible graph and narrow view stacks in order", () => {
+    const { nodes, edges } = twoLanes();
+    const { root } = mount008(nodes, edges);
+    const workspace = getByRole(root, "region", { name: /monitor workspace/i });
+    const nav = within(workspace).getByRole("navigation", {
+      name: /agent navigator/i,
+    });
+    const graph = within(workspace).getByRole("img", { name: /agent graph/i });
+    const inspector = within(workspace).getByRole("region", {
+      name: /agent details/i,
+    });
+    expect(
+      [nav, graph, inspector].map((element) =>
+        Array.from(
+          workspace.querySelectorAll("nav, svg, [aria-label='Agent details']"),
+        ).indexOf(element),
+      ),
+    ).toEqual([0, 1, 2]);
+    const style = readFileSync("media/styles.css", "utf8");
+    expect(style).toMatch(/grid-template-columns:\s*[^;]*minmax\(0,\s*1fr\)/);
+    expect(style).toMatch(/@media\s*\(max-width:\s*959px\)/);
+    expect(style).toMatch(/grid-template-columns:\s*1fr/);
+    expect(graph.closest("main") ?? graph.parentElement).toBeTruthy();
+  });
+
+  it("root task titles slug subtitles and agent counts span lanes", () => {
+    const { nodes, edges } = twoLanes();
+    const twentyFive = Array.from({ length: 25 }, (_, index) =>
+      syntheticNode(`a1-agent-${index}`, {
+        parentId: "wt-a1",
+        relationship: "resolved",
+        activities: [
+          {
+            type: "agent_spawn",
+            time: index + 3,
+            summary: `Agent ${index}`,
+            absoluteTime: SESSION_START,
+          },
+        ],
+      }),
+    );
+    const { root } = mount008(
+      [...nodes, ...twentyFive],
+      [
+        ...edges,
+        ...twentyFive.map((node) => ({
+          parentId: "wt-a1",
+          childId: node.id,
+        })),
+      ],
+    );
+    const graph = getByRole(root, "img", { name: /agent graph/i });
+    expect(graph.textContent).toContain("Review accounts");
+    expect(graph.textContent).toContain("Import portfolio");
+    expect(graph.textContent).toContain("wt-a1");
+    expect(graph.textContent).toContain("wt-b2");
+    expect(graph.textContent).toMatch(/26 agents?/i);
+    expect(graph.textContent).toMatch(/2 agents?/i);
+    const a = graphNode(root, "wt-a1").querySelector("rect")!;
+    const b = graphNode(root, "wt-b2").querySelector("rect")!;
+    expect(a.getAttribute("x")).not.toBe(b.getAttribute("x"));
+    const ys = twentyFive.map((node) =>
+      Number(graphNode(root, node.id).querySelector("rect")?.getAttribute("y")),
+    );
+    expect(Math.max(...ys) - Math.min(...ys)).toBeLessThan(25 * 120);
+    expect(graphNode(root, "orchestrator").querySelector("rect")).toBeTruthy();
+  });
+
+  it("foreground labels fit inside boxes without overlap at fit and zoom", () => {
+    const long =
+      "a1-a-very-long-reviewer-name-that-must-wrap-without-ellipsis-or-overlap";
+    const { nodes, edges } = twoLanes();
+    nodes.push(
+      syntheticNode(long, {
+        parentId: "wt-a1",
+        relationship: "resolved",
+      }),
+    );
+    edges.push({ parentId: "wt-a1", childId: long });
+    const { root } = mount008(nodes, edges);
+    const check = () => {
+      const rects: Array<{
+        id: string;
+        x: number;
+        y: number;
+        w: number;
+        h: number;
+      }> = [];
+      for (const group of root.querySelectorAll<SVGGElement>(
+        "svg g[data-node-id]",
+      )) {
+        const rect = group.querySelector("rect")!;
+        const text = group.querySelector("text")!;
+        const children = Array.from(group.children);
+        expect(children.indexOf(text)).toBeGreaterThan(children.indexOf(rect));
+        const x = Number(rect.getAttribute("x"));
+        const y = Number(rect.getAttribute("y"));
+        const w = Number(rect.getAttribute("width"));
+        const h = Number(rect.getAttribute("height"));
+        const lines = Array.from(text.querySelectorAll("tspan"));
+        expect(lines.length).toBeGreaterThan(0);
+        for (const line of lines) {
+          const tx = Number(line.getAttribute("x") ?? text.getAttribute("x"));
+          const ty = Number(line.getAttribute("y") ?? text.getAttribute("y"));
+          expect(tx).toBeGreaterThanOrEqual(x + 8);
+          expect(ty).toBeGreaterThanOrEqual(y + 8);
+          expect(tx + (line.textContent?.length ?? 0) * 7).toBeLessThanOrEqual(
+            x + w - 8,
+          );
+          expect(ty).toBeLessThanOrEqual(y + h - 8);
+        }
+        rects.push({ id: group.dataset.nodeId!, x, y, w, h });
+      }
+      expect(graphNode(root, long).textContent).toContain(long.slice(3));
+      expect(graphNode(root, long).getAttribute("aria-label")).toContain(long);
+      expect(graphNode(root, long).textContent).not.toContain("…");
+      for (let i = 0; i < rects.length; i++)
+        for (let j = i + 1; j < rects.length; j++) {
+          const a = rects[i],
+            b = rects[j];
+          expect(
+            a.x + a.w <= b.x ||
+              b.x + b.w <= a.x ||
+              a.y + a.h <= b.y ||
+              b.y + b.h <= a.y,
+          ).toBe(true);
+        }
+      const [vx, vy, vw, vh] = root
+        .querySelector("svg")!
+        .getAttribute("viewBox")!
+        .split(/\s+/)
+        .map(Number);
+      for (const box of rects) {
+        expect(vx).toBeLessThanOrEqual(box.x);
+        expect(vy).toBeLessThanOrEqual(box.y);
+        expect(vx + vw).toBeGreaterThanOrEqual(box.x + box.w);
+        expect(vy + vh).toBeGreaterThanOrEqual(box.y + box.h);
+      }
+    };
+    check();
+    fireEvent.click(getByRole(root, "button", { name: /zoom in/i }));
+    fireEvent.click(getByRole(root, "button", { name: /fit all/i }));
+    check();
+  });
+
+  it("all resolved links draw one connector including cross lane and late parent", () => {
+    const { nodes, edges } = twoLanes();
+    const late = syntheticNode("a1-late", {
+      parentId: "wt-a1",
+      relationship: "unresolved",
+    });
+    const { root, app } = mount008([late, ...nodes], edges);
+    const updatedEdges = [...edges, { parentId: "wt-a1", childId: "a1-late" }];
+    app.update(
+      syntheticView(
+        [
+          { ...late, relationship: "resolved" },
+          ...nodes,
+          syntheticNode("cycle", { relationship: "unresolved" }),
+        ],
+        updatedEdges,
+      ),
+    );
+    const graph = getByRole(root, "img", { name: /agent graph/i });
+    const connectors = Array.from(
+      graph.querySelectorAll<SVGElement>("[data-edge]"),
+    );
+    expect(connectors).toHaveLength(updatedEdges.length);
+    for (const edge of updatedEdges) {
+      const matches = connectors.filter(
+        (line) =>
+          line.getAttribute("data-parent-id") === edge.parentId &&
+          line.getAttribute("data-child-id") === edge.childId,
+      );
+      expect(matches).toHaveLength(1);
+      expect(
+        matches[0].getAttribute("stroke") ??
+          getComputedStyle(matches[0]).stroke,
+      ).not.toBe("none");
+    }
+    expect(
+      connectors.some((line) => line.getAttribute("data-child-id") === "cycle"),
+    ).toBe(false);
+    fireEvent.click(getByRole(root, "button", { name: /fit all/i }));
+    expect(graph.querySelectorAll("[data-edge]")).toHaveLength(
+      updatedEdges.length,
+    );
+  });
+
+  it("statuses and unknown parent show distinct symbols without fading completed", () => {
+    const states = ["working", "waiting", "blocked", "failed", "completed"];
+    const nodes = states.map((status) =>
+      syntheticNode(status, {
+        status,
+        terminal: status === "completed" || status === "failed",
+      }),
+    );
+    nodes.push(
+      syntheticNode("orphan", {
+        relationship: "unresolved",
+        parentId: "missing",
+      }),
+    );
+    const { root } = mount008(nodes);
+    const marks = states.map((status) => {
+      const group = graphNode(root, status);
+      expect(group.textContent?.toLowerCase()).toContain(status);
+      return group.querySelector("[data-status-icon]")?.outerHTML;
+    });
+    expect(new Set(marks).size).toBe(states.length);
+    const orphan = graphNode(root, "orphan");
+    expect(orphan.textContent).toMatch(/unknown parent/i);
+    expect(orphan.querySelector("[stroke-dasharray]")).not.toBeNull();
+    expect(graphNode(root, "completed").getAttribute("opacity")).not.toBe(
+      "0.5",
+    );
+    expect(root.textContent).toMatch(/completed/);
+  });
+
+  it("failed tool never changes completed agent status", () => {
+    const finished = syntheticNode("done", {
+      status: "completed",
+      terminal: true,
+      activities: [
+        {
+          type: "tool_call_end",
+          time: 1,
+          toolCategory: "Read",
+          toolDurationSeconds: null,
+          pairing: "unmatched",
+          outcome: "failed",
+          summary: "Read failed",
+        },
+      ],
+    });
+    const { root } = mount008([finished]);
+    fireEvent.click(
+      getByRole(root, "navigation", { name: /agent navigator/i }).querySelector(
+        "button",
+      )!,
+    );
+    const details = getByRole(root, "region", { name: /agent details/i });
+    const activity = getByRole(root, "region", { name: /activity history/i });
+    expect(details.textContent).toMatch(/Completed/);
+    expect(activity.textContent).toMatch(/Read.*Failed/i);
+    expect(details.textContent).not.toMatch(/agent failed/i);
+  });
+
+  it("quiet report tag advances without dimming", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2023-11-14T23:15:00.000Z"));
+    const { root } = mount008([
+      syntheticNode("quiet", { lastUpdateAge: 3_700 }),
+    ]);
+    const group = graphNode(root, "quiet");
+    expect(group.textContent).toMatch(/No report 1h 1m/);
+    expect(group.getAttribute("opacity")).not.toBe("0.5");
+    vi.advanceTimersByTime(60_000);
+    expect(graphNode(root, "quiet").textContent).toMatch(/No report 1h 2m/);
+    expect(root.textContent).not.toMatch(/verified live/i);
+  });
+
+  it("inspector shows worktree task unavailable role status times parent and copyable full id", async () => {
+    vi.stubEnv("TZ", "Asia/Singapore");
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal("navigator", {
+      ...navigator,
+      clipboard: { writeText },
+    });
+    const { nodes, edges } = twoLanes();
+    const { root } = mount008(nodes, edges);
+    const nav = getByRole(root, "navigation", { name: /agent navigator/i });
+    fireEvent.click(within(nav).getByRole("button", { name: /reviewer/i }));
+    const details = getByRole(root, "region", { name: /agent details/i });
+    expect(details.textContent).toContain("a1-reviewer");
+    expect(details.textContent).toMatch(/Worktree:\s*a1/i);
+    expect(details.textContent).toMatch(/Role:\s*unavailable/i);
+    expect(details.textContent).toMatch(/Review tests/);
+    expect(details.textContent).toMatch(/Working/);
+    expect(details.textContent).toMatch(/Reports to.*wt-a1/i);
+    expect(details.textContent).toMatch(/Started.*SGT|Started.*GMT\+8/i);
+    expect(details.textContent).not.toMatch(
+      /Identity kind|Relationship:|Execution interval reported/,
+    );
+    fireEvent.click(within(details).getByRole("button", { name: /copy.*id/i }));
+    expect(writeText).toHaveBeenCalledWith("a1-reviewer");
+  });
+
+  it("older run expansion search and reveal retain selection", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2023-11-20T22:13:20.000Z"));
+    const old = syntheticNode("old-run", {
+      status: "completed",
+      terminal: true,
+      intervals: [
+        {
+          start: 0,
+          end: 3,
+          certainty: "reported",
+          startAbsoluteTime: SESSION_START,
+          endAbsoluteTime: "2023-11-14T22:13:23.000Z",
+        },
+      ],
+    });
+    const { root, app } = mount008([
+      old,
+      syntheticNode("new-run", {
+        intervals: [
+          {
+            start: 0,
+            end: null,
+            certainty: "reported",
+            startAbsoluteTime: "2023-11-20T22:13:20.000Z",
+            endAbsoluteTime: null,
+          },
+        ],
+      }),
+    ]);
+    fireEvent.click(getByRole(root, "button", { name: /last 24 hours/i }));
+    fireEvent.click(getByRole(root, "button", { name: /older runs/i }));
+    const nav = getByRole(root, "navigation", { name: /agent navigator/i });
+    const search = within(nav).getByRole("textbox", { name: /find agent/i });
+    fireEvent.input(search, { target: { value: "old" } });
+    fireEvent.click(within(nav).getByRole("button", { name: /old-run/i }));
+    fireEvent.click(
+      getByRole(root, "checkbox", { name: /only last reported active/i }),
+    );
+    const reveal = getByRole(root, "button", { name: /reveal.*old-run/i });
+    fireEvent.click(reveal);
+    app.update(syntheticView([old, syntheticNode("new-run")]));
+    expect(
+      getByRole(root, "region", { name: /agent details/i }).textContent,
+    ).toContain("old-run");
+  });
+
+  it("footer keeps graph visible and expands provisional snapshots and diagnostics", () => {
+    const { root } = mount008([syntheticNode("orchestrator")], [], {
+      diagnostics: [{ code: "session_mismatch", line: 4, byteOffset: 72 }],
+      companions: [
+        {
+          agentId: "agent-x",
+          status: "working",
+          source: "heartbeat",
+          certainty: "provisional",
+        },
+      ],
+    });
+    const footer = getByRole(root, "region", { name: /monitor footer/i });
+    expect(footer.textContent).toMatch(/heartbeat.*provisional/i);
+    expect(footer.textContent).toMatch(/diagnostics.*1/i);
+    expect(footer.querySelector("details")?.open).toBe(false);
+    expect(
+      root.querySelector("svg")!.compareDocumentPosition(footer) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    fireEvent.click(within(footer).getByText(/show.*details/i));
+    expect(footer.querySelector("details")?.open).toBe(true);
+    expect(footer.textContent).toMatch(/agent-x/);
+    expect(footer.textContent).toMatch(/session_mismatch.*line 4.*byte 72/i);
+  });
+
+  it("light dark high contrast meet text and connector contrast", () => {
+    const { nodes, edges } = twoLanes();
+    const { root } = mount008(nodes, edges);
+    const css = readFileSync("media/styles.css", "utf8");
+    const palettes = [
+      { name: "vscode-light", foreground: "#202020", background: "#ffffff" },
+      { name: "vscode-dark", foreground: "#eeeeee", background: "#1e1e1e" },
+      {
+        name: "vscode-high-contrast",
+        foreground: "#ffffff",
+        background: "#000000",
+      },
+    ];
+    const luminance = (hex: string) => {
+      const channels = hex
+        .match(/[a-f\d]{2}/gi)!
+        .map((part) => parseInt(part, 16) / 255)
+        .map((c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+      return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
+    };
+    const contrast = (a: string, b: string) => {
+      const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+      return (hi + 0.05) / (lo + 0.05);
+    };
+    for (const palette of palettes) {
+      document.body.className = palette.name;
+      const resolved = css.replace(
+        /var\((--vscode-[\w-]+)(?:,\s*([^)]+))?\)/g,
+        (_, token: string) =>
+          /background/i.test(token) ? palette.background : palette.foreground,
+      );
+      const stylesheet = document.createElement("style");
+      stylesheet.textContent = resolved;
+      document.head.append(stylesheet);
+      const label = graphNode(root, "wt-a1").querySelector("text")!;
+      const line = root.querySelector<SVGElement>("svg [data-edge]")!;
+      const color = getComputedStyle(label).fill;
+      const stroke = getComputedStyle(line).stroke;
+      expect(color).toMatch(/^(?:rgb\(|#)/);
+      expect(stroke).toMatch(/^(?:rgb\(|#)/);
+      const rgbHex = (value: string) =>
+        value.startsWith("#")
+          ? value
+          : "#" +
+            (value.match(/\d+/g) ?? [])
+              .slice(0, 3)
+              .map((item) => Number(item).toString(16).padStart(2, "0"))
+              .join("");
+      expect(
+        contrast(rgbHex(color), palette.background),
+      ).toBeGreaterThanOrEqual(4.5);
+      expect(
+        contrast(rgbHex(stroke), palette.background),
+      ).toBeGreaterThanOrEqual(3);
+      stylesheet.remove();
+    }
+  });
+
+  it("keyboard and reduced motion reach controls and inspector", () => {
+    vi.stubGlobal("matchMedia", () => ({
+      matches: true,
+      media: "(prefers-reduced-motion: reduce)",
+      addListener: () => {},
+      removeListener: () => {},
+    }));
+    const { nodes, edges } = twoLanes();
+    const { root } = mount008(nodes, edges);
+    for (const name of [
+      /last 24 hours/i,
+      /all runs/i,
+      /zoom in/i,
+      /fit all/i,
+    ]) {
+      const control = getByRole(root, "button", { name });
+      control.focus();
+      fireEvent.keyDown(control, { key: "Enter" });
+      expect(document.activeElement).toBe(control);
+    }
+    const nav = getByRole(root, "navigation", { name: /agent navigator/i });
+    const selection = within(nav).getByRole("button", { name: /reviewer/i });
+    selection.focus();
+    fireEvent.keyDown(selection, { key: "Enter" });
+    expect(
+      getByRole(root, "region", { name: /agent details/i }).textContent,
+    ).toContain("a1-reviewer");
+    expect(root.querySelector("animate, animateMotion")).toBeNull();
+    expect(readFileSync("media/styles.css", "utf8")).toMatch(
+      /prefers-reduced-motion:\s*reduce/,
+    );
+  });
+
+  it("historical and incremental fixtures preserve camera and no executable telemetry", () => {
+    const { nodes, edges } = twoLanes();
+    nodes[3] = {
+      ...nodes[3],
+      task: "<img src=x onerror=alert(1)>",
+    };
+    const { root, app } = mount008(nodes, edges);
+    fireEvent.click(getByRole(root, "button", { name: /zoom in/i }));
+    const camera = root.querySelector("svg")?.getAttribute("viewBox");
+    app.update(
+      syntheticView(
+        [
+          ...nodes,
+          syntheticNode("b2-new", {
+            parentId: "wt-b2",
+            relationship: "resolved",
+          }),
+        ],
+        [...edges, { parentId: "wt-b2", childId: "b2-new" }],
+      ),
+    );
+    expect(root.querySelector("svg")?.getAttribute("viewBox")).toBe(camera);
+    fireEvent.click(
+      within(
+        getByRole(root, "navigation", {
+          name: /agent navigator/i,
+        }),
+      ).getByRole("button", { name: /reviewer/i }),
+    );
+    expect(root.textContent).toContain("<img src=x onerror=alert(1)>");
+    expect(root.querySelector("img")).toBeNull();
+    expect(root.querySelectorAll("svg [data-edge]")).toHaveLength(5);
+    expect(
+      getByRole(root, "img", { name: /agent graph/i }).textContent,
+    ).toContain("Import portfolio");
+    app.update({
+      ...syntheticView([syntheticNode("new-source")]),
+      sourceGeneration: 2,
+    });
+    expect(root.textContent).not.toContain("<img src=x onerror=alert(1)>");
+    expect(root.querySelector('g[data-node-id="new-source"]')).not.toBeNull();
   });
 });

@@ -517,3 +517,128 @@ describe("selected-stream projection (AC3-10, AC12-13)", () => {
     ).toBe(true);
   });
 });
+
+describe("Feature 008 projected presentation facts", () => {
+  it("last event absolute time uses last accepted record", async () => {
+    const model = await stream({ sessionStartedAt: 1_700_000_000 });
+    model.ingest(
+      bytes(
+        record("agent_spawn", { name: "wt-a1", task: "Review" }, 0) +
+          record("message", { agent: "wt-a1", content: "later" }, 30) +
+          record("message", { agent: "wt-a1", content: "out of order" }, 12) +
+          record(
+            "message",
+            { agent: "wt-a1", content: "wrong session" },
+            40,
+            "other",
+          ),
+      ),
+    );
+    expect(model.snapshot()).toMatchObject({
+      lastEventAbsoluteTime: "2023-11-14T22:13:32.000Z",
+    });
+    const relative = await stream();
+    relative.ingest(bytes(record("agent_spawn", { name: "wt-a1" }, 0)));
+    expect(relative.snapshot()).toMatchObject({ lastEventAbsoluteTime: null });
+  });
+
+  it("incomplete interval exposes no invented absolute end", async () => {
+    const model = await stream({ sessionStartedAt: 1_700_000_000 });
+    model.ingest(
+      bytes(
+        record("agent_complete", { name: "unspawned" }, 12) +
+          record("agent_spawn", { name: "running", role: "reviewer" }, 13),
+      ),
+    );
+    const [incomplete, running] = model.snapshot().nodes;
+    expect(incomplete.intervals[0]).toMatchObject({
+      startAbsoluteTime: null,
+      endAbsoluteTime: "2023-11-14T22:13:32.000Z",
+      certainty: "incomplete",
+    });
+    expect(running.intervals[0]).toMatchObject({
+      startAbsoluteTime: "2023-11-14T22:13:33.000Z",
+      endAbsoluteTime: null,
+    });
+    expect(running).toMatchObject({ reportedRole: "reviewer" });
+    expect(incomplete).toMatchObject({ reportedRole: null });
+  });
+
+  it("tool duration exists only for unique nonnegative pair", async () => {
+    const model = await stream({ sessionStartedAt: 1_700_000_000 });
+    model.ingest(
+      bytes(
+        record("agent_spawn", { name: "wt-a1" }, 0) +
+          record("tool_call_start", { agent: "wt-a1", tool: "Read" }, 2) +
+          record(
+            "tool_call_end",
+            { agent: "wt-a1", tool: "Read", result: "ok" },
+            5.25,
+          ) +
+          record(
+            "tool_call_end",
+            { agent: "wt-a1", tool: "Read", result: "ok" },
+            6,
+          ) +
+          record("tool_call_start", { agent: "wt-a1", tool: "Write" }, 7) +
+          record("tool_call_start", { agent: "wt-a1", tool: "Write" }, 8) +
+          record(
+            "tool_call_end",
+            { agent: "wt-a1", tool: "Write", result: "failed" },
+            9,
+          ) +
+          record("tool_call_start", { agent: "wt-a1", tool: "Edit" }, 15) +
+          record(
+            "tool_call_end",
+            { agent: "wt-a1", tool: "Edit", result: "ok" },
+            14,
+          ),
+      ),
+    );
+    const ends = model
+      .snapshot()
+      .nodes[0].activities.filter(
+        (activity: any) => activity.type === "tool_call_end",
+      );
+    expect(
+      ends.map((activity: any) => ({
+        category: activity.toolCategory,
+        duration: activity.toolDurationSeconds,
+        pairing: activity.pairing,
+      })),
+    ).toEqual([
+      { category: "Read", duration: 3.25, pairing: "paired" },
+      { category: "Read", duration: null, pairing: "unmatched" },
+      { category: "Write", duration: null, pairing: "ambiguous" },
+      { category: "Edit", duration: null, pairing: "paired" },
+    ]);
+    expect(model.snapshot().nodes[0].status).not.toBe("failed");
+  });
+
+  it("dispatch and return project only reported counterpart identities", async () => {
+    const model = await stream();
+    model.ingest(
+      bytes(
+        record("agent_spawn", { name: "wt-a1" }, 0) +
+          record(
+            "subagent_dispatch",
+            { parent: "wt-a1", child: "a1-reviewer" },
+            1,
+          ) +
+          record(
+            "subagent_return",
+            { parent: "wt-a1", agent: "a1-reviewer" },
+            2,
+          ) +
+          record("subagent_dispatch", { parent: "wt-a1" }, 3),
+      ),
+    );
+    expect(
+      model
+        .snapshot()
+        .nodes[0].activities.slice(1)
+        .map((activity: any) => activity.relatedAgentId),
+    ).toEqual(["a1-reviewer", "a1-reviewer", null]);
+    expect(model.snapshot().nodes[0].reportedRole).toBeNull();
+  });
+});
