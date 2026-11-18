@@ -11,7 +11,7 @@
 - Dependencies: [T-0057](T-0057-agent-monitor-ui-red.md), [red-review procedure](../../skills/red-review.md)
 - Branch / worktree: `feature/008-agent-monitor-ui` / `../tallyhold-feature-008-agent-monitor-ui`
 - Issue / PR: related #44; no PR requested.
-- Updated: 2026-11-18T05:31:35Z
+- Updated: 2026-11-18T05:39:52Z
 
 ## Scope
 
@@ -32,12 +32,12 @@ is not APPROVE or findings require changing spec/plan.
 
 ## Checkpoint
 
-- Last completed action: fresh Trae RED Reviewer round 1 returned `CHANGES_REQUESTED` with five test gaps and no request to change spec/plan.
+- Last completed action: fresh Trae RED Reviewer round 1 returned `CHANGES_REQUESTED`; Test writer committed corrections as `885fbe4` and pinned revised RED evidence.
 - Evidence: [report](../../specs/008-agent-monitor-ui/red-review.md) and [identical comment](https://github.com/donkey-king-kong/tallyhold/commit/1105aac5cf6bae10f89dfa8a570031325dd73068#commitcomment-210593233); base `f90265e`, reviewed RED head `1105aac`, test SHA `1522e5f`. Report/comment diff is empty.
-- Worktree state: review report uncommitted; no production edits or GREEN.
-- Remaining work: Test writer corrects five gaps, reruns RED/existing/adapter checks, pushes fresh evidence, then a different fresh reviewer does round 2.
+- Worktree state: round-1 review committed at `afab8f8`; revised evidence/tracking pending commit, no production edits or GREEN.
+- Remaining work: push revised RED evidence, then a different fresh reviewer does round 2.
 - Blocker / unblock action: none for approved reviewer scope; GREEN remains blocked on independent APPROVE.
-- Next action: commit/push round-1 report and checkpoint, then reopen T-0057 for targeted tests; stop for Zack if round 2 is not APPROVE.
+- Next action: commit/push round-2 handoff evidence, verify remote SHA, then dispatch a new headless Claude Reviewer or fresh Trae fallback; stop for Zack if round 2 is not APPROVE.
 - Handoff recipient: R-0057/coordinator/Test writer, then different fresh Reviewer round 2.
 
 ## History
@@ -49,3 +49,4 @@ is not APPROVE or findings require changing spec/plan.
 | 2026-11-18T05:24:49Z | R-0057/coordinator | User interrupted initial Claude command; verified clean branch, no report/comment or reviewer process | Fresh retry does not consume a review round |
 | 2026-11-18T05:28:55Z | R-0057/coordinator | New headless Claude retry failed with ECONNREFUSED before verdict; verified no artifacts/comment/process | Fresh Trae fallback for round 1 under existing two approvals |
 | 2026-11-18T05:31:35Z | R-0057/coordinator | Fresh Trae subagent delivered round 1 CHANGES_REQUESTED; report/comment identical; five test gaps and no plan change | Commit review, strengthen RED tests and rerun before different fresh round 2 |
+| 2026-11-18T05:39:52Z | R-0057/coordinator | Corrective RED test revision `885fbe4` pinned: 34 expected failures, 77 unchanged extension and 6 adapter passing, checks clean | Commit/push revised evidence and dispatch different fresh reviewer for final allowed round |

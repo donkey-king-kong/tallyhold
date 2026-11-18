@@ -1,6 +1,6 @@
 # 008 Agent Monitor UI RED test run
 
-- Test revision: `1522e5f23c27867dddea49739485302ad1dccbc5` (`test: specify agent monitor UI behavior in synthetic RED cases`).
+- Test revision: `885fbe4cb79c6c7a27f7d7bc42c790133b4420ab` (`test: strengthen agent monitor UI RED boundaries`), following initial RED `1522e5f`.
 - Previous plan revision: `f90265e`; approval was recorded in `f8bc088`. This is a synthetic-only RED handoff; no production source, 004 test, publisher, or adapter file changed.
 - Platform: local macOS, Node/Vitest from locked `npm ci`. No real JSONL, credentials, external service, or shared-stream chore fixture.
 - Public seams: `createStream(...).ingest(...).snapshot()` checks projection facts (not how records are stored); `mountMonitor(root, state).update(...)` checks visible DOM, controls, accessible content, graph geometry and local rendering (not private collaborators). CSS token checks use resolved synthetic themes and the shipped stylesheet.
@@ -11,10 +11,10 @@ Run from `extensions/agent-monitor/` unless noted.
 
 | Command | Exit | Collected / failed / passed / skipped | Interpretation |
 | --- | ---: | --- | --- |
-| `./node_modules/.bin/vitest run test/core.test.ts test/presentation.test.ts test/webview.test.ts -t 'Feature 008' --reporter=json` | 1 (expected) | 65 / 25 / 0 / 40 | All new cases fail on absent approved behavior; no setup, import, fixture, collection or network errors. |
-| `./node_modules/.bin/vitest run -t '^(?!.*Feature 008)' --reporter=dot` | 0 | 102 / 0 / 77 / 25 | Existing 004 extension tests in core, host, packaging and webview pass; only the 25 new cases are skipped. |
+| `./node_modules/.bin/vitest run -t 'Feature 008' --reporter=json` | 1 (expected; summary filtered through `jq`) | 111 / 34 / 0 / 77 | All new cases fail on absent optional validation, projected fields, presentation or controls; no setup, import, fixture, collection or network errors. |
+| `./node_modules/.bin/vitest run -t '^(?!.*Feature 008)' --reporter=json` | 0 | 111 / 0 / 77 / 34 | Existing 004 extension tests in core, host, packaging and webview pass; only 34 new cases are skipped. |
 | `python3 -m unittest discover -s .trae/agent-flow -p 'test_*.py' -v` (repo root) | 0 | 6 / 0 / 6 / 0 | Existing local publisher adapter tests pass. |
-| `npm run lint && npm run typecheck && npm run format:check` | 0 | n/a | ESLint, TypeScript and Prettier checks pass. |
+| `npm run lint && npm run typecheck && npm run format:check && git diff --check` | 0 | n/a | ESLint, TypeScript, Prettier and whitespace checks pass. |
 
 The RED cases use `wt-a1`, `wt-b2` and `wt-alpha` roots produced by
 synthetic projection objects or in-memory JSONL records. Out-of-order and
@@ -27,7 +27,8 @@ the worktree stream publisher or private log files.
 Every row below maps the numbered item in [plan.md](plan.md#verification) and
 the matching [spec.md](spec.md#acceptance-criteria) AC to the exact named test.
 The final column records the **first failing assertion** at `1522e5f`, not a
-claim that later assertions ran. Each failure is missing projected facts,
+claim that later assertions ran. The original 25 tests still fail on the
+same missing behavior. Each failure is missing projected facts,
 rendered content, visible styling, or a planned control.
 
 | AC / plan item | New test name (`test/`) | First missing behavior |
@@ -54,7 +55,7 @@ rendered content, visible styling, or a planned control.
 | 12 | `presentation.test.ts: last 24 hours groups older and unknown intervals without dropping history` | No Last 24 hours range control. |
 | 12 | `webview.test.ts: older run expansion search and reveal retain selection` | No Last 24 hours range control or older row. |
 | 13 | `webview.test.ts: footer keeps graph visible and expands provisional snapshots and diagnostics` | No compact monitor footer region. |
-| 14 | `webview.test.ts: light dark high contrast meet text and connector contrast` | Connectors have no computed stroke; checks require >=4.5:1 text and >=3:1 lines against adjacent surfaces. |
+| 14 | `webview.test.ts: light dark high contrast meet text and connector contrast` | Compact footer absent; later checks require >=4.5:1 text and >=3:1 lines/icons/focus against adjacent surfaces. |
 | 14 | `webview.test.ts: keyboard and reduced motion reach controls and inspector` | Range controls are absent; keyboard and reduced-motion checks follow. |
 | 15 | `webview.test.ts: historical and incremental fixtures preserve camera and no executable telemetry` | Graph does not display reported lane task on append; camera, safe text and source switch assertions follow. |
 
@@ -68,6 +69,30 @@ roots, descendants and a delayed parent, without false cyclic edges.
 The AC14 fixture resolves editor tokens for light, dark and high-contrast
 surfaces before computing contrast; JSDOM geometry is a deterministic
 estimate, with packaged-editor smoke reserved for Zack.
+
+Round-1 `CHANGES_REQUESTED` corrections add nine focused RED cases and
+strengthen existing assertions, without changing the approved spec, plan,
+004 tests, or production files:
+
+| AC / plan item | Additional named test | First missing behavior at `885fbe4` |
+| --- | --- | --- |
+| 15 | `packaging.test.ts: accepts only bounded and explicitly typed reported facts` | `validateHostMessage` accepts an invalid new optional timestamp. Valid optional values, malformed role/interval/activity fields, URI/HTML-like values, negative or incorrectly typed duration, excessive role length and >2,000 nodes are checked. |
+| 4, 15 | `presentation.test.ts: existing lane slots survive filters and ticks while a new source recomputes order` | No named active-only control; later assertions check stable x/y and deterministic source-generation reset. |
+| 9, 11, 12 | `presentation.test.ts: reactivated identity keeps two selectable runs and report-bounded open duration` | No range control; later assertions select both intervals of one ID and bound open duration by its latest reported event. |
+| 12 | `presentation.test.ts: cutoff includes intersecting runs and preserves unknown chronology separately` | No range control; later assertions include an interval crossing the cutoff and separate unknown chronology. |
+| 9 | `presentation.test.ts: future or invalid last reports never become negative ages or fabricated wall dates` | No unavailable header age; later assertions reject negative ages and invented dates. |
+| 10, 11 | `presentation.test.ts: plain activity copy preserves source order and labels unavailable facts` | Raw dispatch label rather than plain text; later assertions check source order and missing counterpart/category/duration. |
+| 6, 15 | `webview.test.ts: active-only hides incident connectors and offscreen culling keeps distant nodes reachable` | No named active-only control; later assertions bound graph shapes to 500 and navigate to an offscreen node. |
+| 11, 15 | `webview.test.ts: clipboard denial reports failure and leaves the full id selectable` | No copy control; later assertions require explicit denial feedback and selectable ID. |
+| 13, 14 | `webview.test.ts: keyboard expands older runs and footer and pages activity across updates` | No range control; later assertions exercise Enter and persistence of paging/disclosure. |
+
+Strengthened original cases now also test incomplete/stale/recovered header
+states; failed terminal active filtering; both orphan coordinates and source
+generation; 25 agents split across two lanes in source order; metric-stubbed
+wrapped label bounds, Fit all and zoom; duplicate, self and cyclic edges,
+connector ports, layer order and endpoint filtering; non-faded completed
+ancestors; distinct token surfaces for light, dark and high contrast; and
+keyboard effect/focus for range, search, filter, zoom, pan, selection and copy.
 
 ## Boundaries and follow-up risk
 
