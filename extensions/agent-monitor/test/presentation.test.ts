@@ -115,36 +115,72 @@ describe("Feature 008 presentation through the mounted webview", () => {
 
   it("display name strips only assigned lane prefix and preserves unmatched and ungrouped ids", () => {
     const rootNode = syntheticNode("wt-alpha", { task: "Review accounts" });
-    const matching = syntheticNode("alpha-reviewer", {
+    const matching = syntheticNode("wt-alpha-reviewer", {
       parentId: "wt-alpha",
       relationship: "resolved",
     });
-    const unmatched = syntheticNode("beta-reviewer", {
+    const unmatched = syntheticNode("alpha-reviewer", {
       parentId: "wt-alpha",
       relationship: "resolved",
     });
-    const ungrouped = syntheticNode("alpha-orphan");
+    const ungrouped = syntheticNode("wt-alpha-orphan");
     const { root } = mount(
       [rootNode, matching, unmatched, ungrouped],
       [
+        { parentId: "wt-alpha", childId: "wt-alpha-reviewer" },
         { parentId: "wt-alpha", childId: "alpha-reviewer" },
-        { parentId: "wt-alpha", childId: "beta-reviewer" },
       ],
     );
     const nav = getByRole(root, "navigation", { name: /agent navigator/i });
     const shortened = within(nav).getByRole("button", { name: /^reviewer\b/i });
     expect(shortened.textContent).toMatch(/^reviewer\b/i);
     expect(
-      within(nav).getByRole("button", { name: /^beta-reviewer\b/i }),
+      within(nav).getByRole("button", { name: /^alpha-reviewer\b/i }),
     ).toBeTruthy();
     expect(
-      within(nav).getByRole("button", { name: /^alpha-orphan\b/i }),
+      within(nav).getByRole("button", { name: /^wt-alpha-orphan\b/i }),
     ).toBeTruthy();
     fireEvent.click(shortened);
     const inspector = getByRole(root, "region", { name: /agent details/i });
-    expect(inspector.textContent).toContain("alpha-reviewer");
+    expect(inspector.textContent).toContain("wt-alpha-reviewer");
     expect(inspector.textContent).toMatch(/role:\s*unavailable/i);
     expect(getByRole(inspector, "button", { name: /copy.*id/i })).toBeTruthy();
+  });
+
+  it("shortens real shared-stream agent IDs only under their assigned root", () => {
+    const rootId = "wt-chore-shared-ag-0736a7b0";
+    const fullId = `${rootId}-implementer`;
+    const { root } = mount(
+      [
+        syntheticNode(rootId),
+        syntheticNode(fullId, {
+          parentId: rootId,
+          relationship: "resolved",
+        }),
+        syntheticNode("ag-0736a7b0-implementer", {
+          parentId: rootId,
+          relationship: "resolved",
+        }),
+      ],
+      [
+        { parentId: rootId, childId: fullId },
+        { parentId: rootId, childId: "ag-0736a7b0-implementer" },
+      ],
+    );
+    const nav = getByRole(root, "navigation", { name: /agent navigator/i });
+    const shortened = within(nav).getByRole("button", {
+      name: /^implementer\b/i,
+    });
+    expect(shortened.textContent).toMatch(/^implementer\b/i);
+    expect(
+      within(nav).getByRole("button", {
+        name: /^ag-0736a7b0-implementer\b/i,
+      }),
+    ).toBeTruthy();
+    fireEvent.click(shortened);
+    expect(
+      getByRole(root, "textbox", { name: /full agent id/i }),
+    ).toHaveProperty("value", fullId);
   });
 
   it("no report threshold requires verified age", () => {
