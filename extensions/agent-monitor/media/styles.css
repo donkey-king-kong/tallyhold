@@ -1,6 +1,7 @@
 :root {
   color-scheme: light dark;
   font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size, 13px);
   color: var(--vscode-foreground);
   background: var(--vscode-editor-background);
 }
@@ -11,14 +12,17 @@
 
 body {
   margin: 0;
-  padding: 16px;
+  padding: 0;
+  min-height: 100vh;
+  overflow: hidden;
 }
 
 .monitor-workspace {
   display: grid;
-  grid-template-columns: minmax(190px, 240px) minmax(0, 1fr) minmax(250px, 320px);
-  gap: 12px;
+  grid-template-columns: minmax(250px, 20%) minmax(0, 1fr) minmax(330px, 28%);
+  gap: 0;
   min-height: 0;
+  border-block: 1px solid var(--vscode-panel-border);
 }
 
 .monitor-header,
@@ -33,12 +37,98 @@ body {
 .monitor-navigator,
 .monitor-inspector {
   min-width: 0;
-  max-height: min(70vh, 760px);
+  height: calc(100vh - 174px);
   overflow: auto;
+  padding: 16px;
 }
 
 .monitor-navigator {
   align-content: start;
+  border-inline-end: 1px solid var(--vscode-panel-border);
+}
+
+.monitor-inspector {
+  border-inline-start: 1px solid var(--vscode-panel-border);
+}
+
+.monitor-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 10px 20px;
+  border-block-end: 1px solid var(--vscode-panel-border);
+}
+
+.monitor-header strong {
+  font-size: 18px;
+  white-space: nowrap;
+}
+
+.product-name,
+.session-id {
+  color: var(--vscode-descriptionForeground);
+  white-space: nowrap;
+}
+
+.source-path {
+  min-width: 0;
+  overflow: hidden;
+  padding: 7px 10px;
+  border: 1px solid var(--vscode-panel-border);
+  border-radius: 7px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--vscode-editor-font-family);
+}
+
+.reader-pill {
+  padding: 5px 10px;
+  border: 1px solid var(--vscode-focusBorder);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.monitor-header button {
+  margin-inline-start: auto;
+  white-space: nowrap;
+}
+
+.monitor-toolbar {
+  min-height: 58px;
+  margin: 0;
+  padding: 10px 20px;
+}
+
+.monitor-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  flex-wrap: nowrap;
+}
+
+.monitor-controls p {
+  margin: 0 8px;
+  color: var(--vscode-descriptionForeground);
+  white-space: nowrap;
+}
+
+.zoom-percent {
+  min-width: 48px;
+  text-align: center;
+}
+
+.monitor-controls button[aria-label="Zoom out"] {
+  margin-inline-start: auto;
+}
+
+.monitor-controls button[aria-pressed="true"] {
+  background: color-mix(
+    in srgb,
+    var(--vscode-focusBorder) 24%,
+    var(--vscode-input-background)
+  );
 }
 
 .navigator-list {
@@ -47,15 +137,36 @@ body {
   width: 100%;
 }
 
+.navigator-worktree {
+  display: grid;
+  gap: 3px;
+  margin-block-end: 12px;
+}
+
+.navigator-worktree h3 {
+  margin: 8px 0 4px;
+  font-size: 13px;
+  font-family: var(--vscode-editor-font-family);
+}
+
 .navigator-list button {
   text-align: left;
   overflow-wrap: anywhere;
 }
 
+.navigator-list button.is-selected {
+  border-color: var(--vscode-focusBorder);
+  background: color-mix(
+    in srgb,
+    var(--vscode-focusBorder) 18%,
+    var(--vscode-input-background)
+  );
+}
+
 .navigator-identity-row {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 6px;
 }
 
@@ -128,9 +239,14 @@ body {
 }
 
 .monitor-graph {
-  height: min(70vh, 760px);
+  height: calc(100vh - 174px);
   min-width: 0;
   overflow: auto;
+  background-image: radial-gradient(
+    var(--vscode-panel-border) 1px,
+    transparent 1px
+  );
+  background-size: 24px 24px;
 }
 
 .monitor-graph svg {
@@ -140,25 +256,55 @@ body {
 
 .graph-nodes rect {
   fill: var(--vscode-editorWidget-background);
-  stroke: var(--vscode-foreground);
+  stroke: var(--vscode-panel-border);
+  rx: 8px;
 }
 
 .graph-edges line,
+.graph-edges path,
 .graph-nodes path {
   stroke: var(--vscode-foreground);
   stroke-width: 2;
 }
 
+.graph-lanes > g > rect {
+  fill: var(--vscode-editorWidget-background);
+  stroke: var(--vscode-panel-border);
+  rx: 10px;
+}
+
 .graph-nodes text,
 .graph-lanes text {
   fill: var(--vscode-foreground);
+  font-family: var(--vscode-editor-font-family);
+  font-size: 14px;
+}
+
+.graph-lanes text {
+  font-size: 13px;
 }
 
 [data-status-pill] {
   color: var(--vscode-foreground);
   background-color: var(--vscode-editorWidget-background);
   border: 1px solid var(--vscode-foreground);
-  padding: 2px 6px;
+  border-radius: 999px;
+  padding: 3px 9px;
+}
+
+[data-status-pill="working"] {
+  color: var(--vscode-focusBorder);
+  border-color: var(--vscode-focusBorder);
+}
+
+[data-status-pill="failed"] {
+  color: #ff6b81;
+  border-color: #ff6b81;
+}
+
+[data-status-pill="waiting"] {
+  color: #f2b84b;
+  border-color: #f2b84b;
 }
 
 .monitor-history {
@@ -171,8 +317,12 @@ body {
 }
 
 .monitor-footer {
+  display: flex;
+  align-items: center;
+  gap: 18px;
   border-block-start: 1px solid var(--vscode-panel-border);
-  padding-block-start: 8px;
+  min-height: 50px;
+  padding: 9px 20px;
 }
 
 .monitor-footer summary {
@@ -194,12 +344,29 @@ body {
 }
 
 @media (max-width: 959px) {
+  body {
+    overflow: auto;
+  }
+
+  .monitor-header {
+    flex-wrap: wrap;
+  }
+
+  .source-path {
+    max-width: 180px;
+  }
+
+  .monitor-toolbar {
+    overflow-x: auto;
+  }
+
   .monitor-workspace {
     grid-template-columns: 1fr;
   }
 
   .monitor-navigator,
   .monitor-inspector {
+    height: auto;
     max-height: 280px;
   }
 
@@ -232,7 +399,7 @@ select:focus-visible {
 header,
 section,
 nav {
-  margin-block-end: 16px;
+  margin-block-end: 0;
 }
 
 [aria-label="Graph controls"] {
@@ -243,7 +410,6 @@ nav {
 }
 
 [aria-label="Graph controls"] p {
-  flex-basis: 100%;
   margin: 0;
   color: var(--vscode-descriptionForeground);
 }
@@ -251,9 +417,10 @@ nav {
 svg {
   display: block;
   width: 100%;
+  height: 100%;
   min-height: 320px;
-  margin-block-end: 16px;
-  border: 1px solid var(--vscode-panel-border);
+  margin-block-end: 0;
+  border: 0;
 }
 
 svg text {
@@ -274,8 +441,63 @@ nav input {
 
 [aria-label="Agent details"],
 [aria-label="Activity history"] {
-  padding: 12px;
-  border: 1px solid var(--vscode-panel-border);
+  padding: 0;
+  border: 0;
+}
+
+.accessible-pan-controls {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.monitor-inspector h2 {
+  display: inline-block;
+  margin: 10px 10px 6px 0;
+  font-family: var(--vscode-editor-font-family);
+}
+
+.inspector-status {
+  display: inline-block;
+}
+
+.inspector-worktree,
+.inspector-role {
+  margin-block: 4px 12px;
+  color: var(--vscode-descriptionForeground);
+}
+
+.inspector-fact {
+  margin-block: 9px;
+  line-height: 1.45;
+}
+
+.monitor-inspector input[aria-label="Full agent ID"] {
+  width: calc(100% - 100px);
+  min-height: 34px;
+  margin: 12px 8px 12px 0;
+  padding: 6px 8px;
+  font-family: var(--vscode-editor-font-family);
+}
+
+.monitor-history {
+  margin-block-start: 14px;
+  border-block-start: 1px solid var(--vscode-panel-border);
+}
+
+.monitor-history h3 {
+  margin: 14px 0 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 12px;
+}
+
+.activity-row {
+  display: block;
+  padding: 10px 0;
+  line-height: 1.45;
 }
 
 @media (max-width: 520px) {

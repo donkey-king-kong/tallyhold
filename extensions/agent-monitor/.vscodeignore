@@ -1,5 +1,6 @@
 .agent-flow/**
 .benchmark/**
+.preview/**
 .env
 .env.*
 .gitignore
@@ -9,6 +10,7 @@ coverage/**
 fixtures/**
 scripts/**
 src/**
+preview/**
 *.vsix
 tsconfig.json
 eslint.config.js

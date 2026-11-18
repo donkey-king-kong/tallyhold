@@ -1,3 +1,4 @@
 .benchmark/
+.preview/
 media/webview.js
 *.vsix

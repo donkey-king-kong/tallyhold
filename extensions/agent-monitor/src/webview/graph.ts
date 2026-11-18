@@ -22,7 +22,19 @@ function svg<K extends keyof SVGElementTagNameMap>(
 }
 
 function labelLines(value: string): string[] {
-  return value.match(/.{1,20}/g) ?? [value];
+  if (value.length <= 24 || !/[_\-\s]/.test(value)) return [value];
+  const parts = value.split(/(?<=[_\-\s])/);
+  const lines: string[] = [];
+  let line = "";
+  for (const part of parts) {
+    if (line && line.length + part.length > 24) {
+      lines.push(line.trimEnd());
+      line = "";
+    }
+    line += part;
+  }
+  if (line) lines.push(line.trimEnd());
+  return lines;
 }
 
 function nodeSize(
@@ -32,8 +44,8 @@ function nodeSize(
   const lines = labelLines(displayName(node.id, lane));
   return {
     width: Math.max(
-      lane ? 200 : 180,
-      Math.min(300, Math.max(...lines.map((line) => line.length * 12)) + 32),
+      180,
+      Math.max(...lines.map((line) => line.length * 12)) + 32,
     ),
     height: Math.max(60, 38 + lines.length * 18),
   };
@@ -44,20 +56,51 @@ export class GraphLayout {
   private readonly laneOrder: string[] = [];
   private readonly slotCounts = new Map<string, number>();
   private readonly displayLane = new Map<string, string | null>();
+  private readonly nodesById = new Map<string, ProjectedNode>();
 
   reset(): void {
     this.places.clear();
     this.displayLane.clear();
     this.laneOrder.length = 0;
     this.slotCounts.clear();
+    this.nodesById.clear();
   }
 
   assign(nodes: ProjectedNode[]): void {
     const byId = new Map(nodes.map((node) => [node.id, node]));
+    const spatial = new Map<string, Place[]>();
+    const bucketKeys = (place: Pick<Place, "x" | "y" | "width" | "height">) => {
+      const keys: string[] = [];
+      const left = Math.floor(place.x / 240);
+      const right = Math.floor((place.x + place.width - 1) / 240);
+      const top = Math.floor(place.y / 100);
+      const bottom = Math.floor((place.y + place.height - 1) / 100);
+      for (let x = left; x <= right; x++)
+        for (let y = top; y <= bottom; y++) keys.push(`${x}:${y}`);
+      return keys;
+    };
+    const register = (place: Place) => {
+      for (const key of bucketKeys(place)) {
+        const bucket = spatial.get(key) ?? [];
+        bucket.push(place);
+        spatial.set(key, bucket);
+      }
+    };
+    for (const place of this.places.values()) register(place);
+    for (const node of nodes) this.nodesById.set(node.id, node);
     for (const node of nodes) {
+      if (!/^wt-[a-zA-Z0-9_-]+$/.test(node.id)) continue;
+      const ownsPrefixedIdentity = nodes.some(
+        (candidate) =>
+          candidate.id !== node.id && candidate.id.startsWith(`${node.id}-`),
+      );
+      const ownsReportedChild = nodes.some(
+        (candidate) => candidate.parentId === node.id,
+      );
       if (
-        /^wt-[a-zA-Z0-9_-]+$/.test(node.id) &&
-        (!node.parentId || node.parentId === "orchestrator") &&
+        (node.parentId === "orchestrator" ||
+          ownsPrefixedIdentity ||
+          ownsReportedChild) &&
         !this.laneOrder.includes(node.id)
       )
         this.laneOrder.push(node.id);
@@ -70,9 +113,13 @@ export class GraphLayout {
         let lane: string | null = null;
         if (this.laneOrder.includes(node.id)) lane = node.id;
         else {
+          lane =
+            [...this.laneOrder]
+              .sort((left, right) => right.length - left.length)
+              .find((rootId) => node.id.startsWith(`${rootId}-`)) ?? null;
           let cursor = node;
           const seen = new Set([node.id]);
-          while (cursor.parentId && !seen.has(cursor.parentId)) {
+          while (!lane && cursor.parentId && !seen.has(cursor.parentId)) {
             seen.add(cursor.parentId);
             if (this.laneOrder.includes(cursor.parentId)) {
               lane = cursor.parentId;
@@ -92,7 +139,7 @@ export class GraphLayout {
           x = 0;
           y = 0;
         } else if (lane) {
-          x = 260 + this.laneOrder.indexOf(lane) * 340;
+          x = 180 + this.laneOrder.indexOf(lane) * 250;
           y = this.slotCounts.get(lane) ?? 160;
           this.slotCounts.set(lane, y + size.height + 40);
         } else if (this.laneOrder.length) {
@@ -101,12 +148,16 @@ export class GraphLayout {
           this.slotCounts.set("ungrouped", y + size.height + 40);
         } else {
           const proposed = node.position ?? { x: 0, y: 0 };
-          const collision = [...this.places.values()].some(
+          const candidate = { ...proposed, ...size };
+          const nearby = new Set(
+            bucketKeys(candidate).flatMap((key) => spatial.get(key) ?? []),
+          );
+          const collision = [...nearby].some(
             (place) =>
-              proposed.x < place.x + place.width &&
-              proposed.x + size.width > place.x &&
-              proposed.y < place.y + place.height &&
-              proposed.y + size.height > place.y,
+              candidate.x < place.x + place.width &&
+              candidate.x + candidate.width > place.x &&
+              candidate.y < place.y + place.height &&
+              candidate.y + candidate.height > place.y,
           );
           x = proposed.x;
           y = collision
@@ -117,7 +168,9 @@ export class GraphLayout {
               )
             : proposed.y;
         }
-        this.places.set(key, { x, y, ...size, lane: slug });
+        const place = { x, y, ...size, lane: slug };
+        this.places.set(key, place);
+        register(place);
         if (index === 0) this.displayLane.set(node.id, slug);
       }
     }
@@ -131,14 +184,19 @@ export class GraphLayout {
     return this.displayLane.get(id) ?? null;
   }
 
-  association(node: ProjectedNode, nodes: ProjectedNode[]): string | null {
-    const byId = new Map(nodes.map((item) => [item.id, item]));
+  association(node: ProjectedNode): string | null {
+    const prefixedRoot = [...this.laneOrder]
+      .sort((left, right) => right.length - left.length)
+      .find((rootId) => node.id === rootId || node.id.startsWith(`${rootId}-`));
+    if (prefixedRoot) return prefixedRoot.slice(3);
     let cursor: ProjectedNode | undefined = node;
     const seen = new Set<string>();
     while (cursor && !seen.has(cursor.id)) {
       seen.add(cursor.id);
       if (this.laneOrder.includes(cursor.id)) return cursor.id.slice(3);
-      cursor = cursor.parentId ? byId.get(cursor.parentId) : undefined;
+      cursor = cursor.parentId
+        ? this.nodesById.get(cursor.parentId)
+        : undefined;
     }
     return null;
   }
@@ -246,20 +304,41 @@ export function drawGraph(
   const ids = new Set(visible.map((node) => node.id));
   const edgeLayer = svg("g");
   edgeLayer.setAttribute("class", "graph-edges");
-  for (const edge of validEdges(nodes, edges)) {
+  for (const [edgeIndex, edge] of validEdges(nodes, edges).entries()) {
     if (!ids.has(edge.parentId) || !ids.has(edge.childId)) continue;
     const parent = layout.place(edge.parentId)!;
     const child = layout.place(edge.childId)!;
-    const line = svg("line");
-    line.dataset.edge = `${edge.parentId}:${edge.childId}`;
-    line.dataset.parentId = edge.parentId;
-    line.dataset.childId = edge.childId;
-    line.setAttribute("x1", String(parent.x + parent.width / 2));
-    line.setAttribute("y1", String(parent.y + parent.height));
-    line.setAttribute("x2", String(child.x + child.width / 2));
-    line.setAttribute("y2", String(child.y));
-    line.setAttribute("stroke", "currentColor");
-    edgeLayer.append(line);
+    const parentX = parent.x + parent.width / 2;
+    const parentY = parent.y + parent.height;
+    const childX = child.x + child.width / 2;
+    const childY = child.y;
+    if (!child.lane) {
+      const line = svg("line");
+      line.dataset.edge = `${edge.parentId}:${edge.childId}`;
+      line.dataset.parentId = edge.parentId;
+      line.dataset.childId = edge.childId;
+      line.setAttribute("x1", String(parentX));
+      line.setAttribute("y1", String(parentY));
+      line.setAttribute("x2", String(childX));
+      line.setAttribute("y2", String(childY));
+      line.setAttribute("stroke", "currentColor");
+      edgeLayer.append(line);
+      continue;
+    }
+    const path = svg("path");
+    const spineX = child.x - 14 - (edgeIndex % 4) * 4;
+    const branchY = Math.max(parentY + 18, childY - 18);
+    path.dataset.edge = `${edge.parentId}:${edge.childId}`;
+    path.dataset.parentId = edge.parentId;
+    path.dataset.childId = edge.childId;
+    path.dataset.spineX = String(spineX);
+    path.setAttribute(
+      "d",
+      `M ${parentX} ${parentY} V ${branchY} H ${spineX} V ${childY - 10} H ${childX} V ${childY}`,
+    );
+    path.setAttribute("stroke", "currentColor");
+    path.setAttribute("fill", "none");
+    edgeLayer.append(path);
   }
   svgRoot.append(edgeLayer);
   const laneLayer = svg("g");
@@ -268,11 +347,38 @@ export function drawGraph(
     const node = nodes.find((item) => item.id === rootId);
     const place = layout.place(rootId);
     if (!node || !place) continue;
+    const header = svg("g");
+    header.dataset.laneHeader = rootId;
+    const headerBox = svg("rect");
+    headerBox.setAttribute("x", String(place.x - 12));
+    headerBox.setAttribute("y", String(place.y - 108));
+    headerBox.setAttribute("width", String(Math.max(220, place.width + 24)));
+    headerBox.setAttribute("height", "82");
+    header.append(headerBox);
     const heading = svg("text");
     heading.setAttribute("x", String(place.x));
-    heading.setAttribute("y", String(place.y - 70));
-    heading.textContent = `${node.task ?? "unavailable"} · ${rootId} · ${statusWord(node)} · ${nodes.filter((item) => layout.association(item, nodes) === rootId.slice(3)).length} agents · since ${node.intervals?.[0]?.startAbsoluteTime ? "reported" : "Session-relative time unavailable"}`;
-    laneLayer.append(heading);
+    heading.setAttribute("y", String(place.y - 82));
+    const count = nodes.filter(
+      (item) => layout.association(item) === rootId.slice(3),
+    ).length;
+    const lines = [
+      node.task ?? "unavailable",
+      rootId,
+      `${statusWord(node)} · ${count} ${count === 1 ? "agent" : "agents"} · since ${
+        node.intervals?.[0]?.startAbsoluteTime
+          ? "reported"
+          : "Session-relative time unavailable"
+      }`,
+    ];
+    lines.forEach((line, index) => {
+      const span = svg("tspan");
+      span.setAttribute("x", String(place.x));
+      span.setAttribute("y", String(place.y - 82 + index * 22));
+      span.textContent = line;
+      heading.append(span);
+    });
+    header.append(heading);
+    laneLayer.append(header);
   }
   svgRoot.append(laneLayer);
   const nodeLayer = svg("g");
@@ -302,6 +408,7 @@ export function drawGraph(
       const lines = labelLines(displayName(node.id, place.lane));
       lines.forEach((value, lineIndex) => {
         const span = svg("tspan");
+        span.dataset.nameLine = "";
         span.setAttribute("x", String(place.x + 10));
         span.setAttribute("y", String(place.y + 22 + lineIndex * 18));
         span.textContent = value;
@@ -311,7 +418,10 @@ export function drawGraph(
       const state = svg("tspan");
       state.setAttribute("x", String(place.x + 10));
       state.setAttribute("y", String(place.y + place.height - 10));
-      state.textContent = status;
+      state.textContent =
+        node.lastUpdateAge == null
+          ? status
+          : `${status} · ${age(node.lastUpdateAge + elapsed)}`;
       label.append(state);
       if (node.relationship === "unresolved") {
         const mark = svg("path");
@@ -328,10 +438,15 @@ export function drawGraph(
         uncertain.textContent = "Unknown parent";
         group.append(uncertain);
       }
-      if (node.lastUpdateAge != null && node.lastUpdateAge + elapsed > 3600) {
+      if (
+        !node.terminal &&
+        ["Working", "Waiting", "Blocked"].includes(status) &&
+        node.lastUpdateAge != null &&
+        node.lastUpdateAge + elapsed > 3600
+      ) {
         const quiet = svg("text");
         quiet.setAttribute("x", String(place.x + 10));
-        quiet.setAttribute("y", String(place.y + place.height + 32));
+        quiet.setAttribute("y", String(place.y + place.height - 28));
         quiet.textContent = `No report ${age(node.lastUpdateAge + elapsed)}`;
         group.append(quiet);
       }

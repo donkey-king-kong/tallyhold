@@ -40,6 +40,7 @@
     "format:check": "prettier --check \"{scripts,src}/**/*.ts\" \"docs/**/*.md\" \"*.{js,json,md}\"",
     "lint": "eslint scripts src test",
     "package": "npm run build && vsce package --no-dependencies",
+    "preview:screenshots": "npm run build:webview && esbuild scripts/capture-preview.ts --bundle --platform=node --format=esm --external:playwright --outfile=.preview/capture-preview.mjs && node .preview/capture-preview.mjs",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage --coverage.thresholds.lines=80 --coverage.thresholds.functions=80 --coverage.thresholds.statements=80",
     "typecheck": "tsc --noEmit"
@@ -56,6 +57,7 @@
     "eslint": "^9.39.5",
     "globals": "^16.5.0",
     "jsdom": "^27.2.0",
+    "playwright": "^1.65.0",
     "prettier": "^3.10.1",
     "typescript": "^5.9.0",
     "typescript-eslint": "^8.73.0",

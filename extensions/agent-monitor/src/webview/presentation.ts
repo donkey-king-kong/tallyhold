@@ -75,9 +75,22 @@ export function localTime(
   const date = validInstant(value);
   if (!date) return "unavailable";
   const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const today = new Intl.DateTimeFormat("en-CA", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+  const eventDay = new Intl.DateTimeFormat("en-CA", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
   return new Intl.DateTimeFormat(
     zone === "Asia/Singapore" ? "en-SG" : "en-GB",
     {
+      ...(eventDay === today
+        ? {}
+        : { day: "2-digit" as const, month: "short" as const }),
       hour: "2-digit",
       minute: "2-digit",
       ...(seconds ? { second: "2-digit" } : {}),
@@ -86,6 +99,7 @@ export function localTime(
     },
   )
     .format(date)
+    .replace(",", "")
     .replace(/UTC(?=[+-])/g, "GMT");
 }
 
