@@ -2,16 +2,16 @@
 
 ## Assignment
 
-- Status: blocked
-- Owner actor: R-0071/coordinator
+- Status: in_review
+- Owner actor: R-0072/coordinator (reopened after Zack's escalation resolution)
 - Role: coordinator / Test writer (RED only)
-- Run: [R-0071](../runs/R-0071.md), after [R-0070](../runs/R-0070.md)
+- Run: [R-0072](../runs/R-0072.md), after [R-0071](../runs/R-0071.md)
 - Feature / task: [approved spec](../../specs/chore-shared-agent-flow-stream/spec.md), [approved plan](../../specs/chore-shared-agent-flow-stream/plan.md)
-- Authorization: Zack explicitly authorized one targeted RED round 3 on 2026-11-18; spec and plan unchanged. Provider cost approval remains separate.
+- Authorization: Zack explicitly authorized one targeted RED round 3, then resolved its single finding on 2026-11-18 as a missing assertion. No further RED review; spec and plan unchanged. GREEN awaits separate confirmation.
 - Dependencies: [round-2 review](../../specs/chore-shared-agent-flow-stream/red-review.md) at `bc14cb6`
 - Branch / worktree: `chore/shared-agent-flow-stream`, `../tallyhold-chore-shared-agent-flow-stream`
 - Issue / PR: related #38; no PR
-- Updated: 2026-11-18T04:23:59Z
+- Updated: 2026-11-18T05:23:44Z
 
 ## Scope
 
@@ -29,12 +29,12 @@ the review and subsequent GREEN/ship handoffs if approved.
 
 ## Checkpoint
 
-- Last completed action: different fresh Trae reviewer returned round-3 `CHANGES_REQUESTED` for base `c12b954` / RED `01c2463`; report and commit comment match byte-for-byte.
+- Last completed action: committed focused test `a874bb9`; targeted case fails on old adapter's new heartbeat file; full suite 29: 22 expected FAIL, seven PASS, zero ERROR; all six legacy PASS.
 - Evidence: [round-3 report](../../specs/chore-shared-agent-flow-stream/red-review.md); [comment](https://github.com/donkey-king-kong/tallyhold/commit/01c24637c2ef3bcdf0401b0f877b6aaf27b22ce1#commitcomment-210586983); reviewer `f46426a9-d808-483e-985e-d47909aa82eb` (not round 1 or 2). Full 29: 22 RED, seven PASS; six legacy PASS.
-- Worktree state: report/tracking pending commit/push; adapter untouched.
-- Remaining work: Zack resolves failed exceptional RED gate; GREEN and PR blocked.
-- Blocker / unblock action: invalid-parent test checks bare heartbeat only, not the namespaced heartbeat; the sole authorized extra round did not approve. Zack decides next authorization.
-- Next action: Zack reviews round-3 finding and explicitly decides whether another exception is allowed. No further test/code changes, GREEN or PR without that decision.
+- Worktree state: test commit local, evidence/tracking pending; adapter untouched.
+- Remaining work: commit/push evidence and tracking; stop for Zack's diff check.
+- Blocker / unblock action: GREEN still awaits Zack's confirmation after he checks the RED diff.
+- Next action: commit/push evidence and checkpoint, verify remote head, report test hash. No GREEN.
 - Handoff recipient: Zack.
 
 ## History
@@ -46,3 +46,5 @@ the review and subsequent GREEN/ship handoffs if approved.
 | 2026-11-18T04:17:49Z | R-0071/coordinator | Pushed RED head `01c2463`; Zack separately granted COST APPROVAL 1/2 and 2/2 for scoped round-3 Claude Opus/conditional Trae review; Claude `2.1.322` authenticated | Commit checkpoint then dispatch different fresh reviewer, `c12b954`..`01c2463` |
 | 2026-11-18T04:21:31Z | R-0071/coordinator | Fresh headless Claude Opus failed before verdict with API `ECONNREFUSED`; no report/comment or round consumed | Commit launch failure and dispatch approved different fresh Trae fallback |
 | 2026-11-18T04:23:59Z | R-0071/coordinator | Fresh Trae reviewer `f46426a9-d808-483e-985e-d47909aa82eb` returned `CHANGES_REQUESTED`; verified identical report/comment `210586983` | Namespaced heartbeat side effect untested; stop GREEN/PR and escalate to Zack |
+| 2026-11-18T05:21:31Z | R-0072/coordinator | Zack resolved round-3 escalation as a missing test assertion; no further RED review; spec and plan unchanged | Reopened under [R-0072](../runs/R-0072.md); snapshot heartbeat directory and session/log for both rejected commands, push and stop |
+| 2026-11-18T05:23:44Z | R-0072/coordinator | Test `a874bb9` snapshots heartbeat listing/bytes and session/log before each rejected command; targeted FAIL is partial heartbeat write; full 22 FAIL/7 PASS/0 ERROR; six legacy PASS | [RED evidence](../../specs/chore-shared-agent-flow-stream/red-test-run.md); push and await Zack's GREEN confirmation |

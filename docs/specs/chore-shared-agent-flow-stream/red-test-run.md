@@ -146,3 +146,36 @@ case because the old script-local adapter had not created a shared log.
 The separate `7fed3f1` test commit corrected the fixture using the supported
 explicit-root CLI option. Only the final, error-free run at `7fed3f1` is
 handoff evidence.
+
+## Zack-resolved round-3 finding (2026-11-18)
+
+- Zack resolved the sole round-3 finding as a missing test assertion. The
+  approved spec and plan remain unchanged; no further RED review round is
+  authorized. Tested test commit:
+  `a874bb9207adfc7e3772fe18ed7cf47f24160a56`.
+- `test_invalid_parent_is_rejected_without_partial_writes` snapshots the
+  complete `heartbeats/` filename listing and each file's raw bytes, plus
+  `session.json` and JSONL log bytes, immediately before **each** rejected
+  `start` and `complete`. It asserts all snapshots are unchanged afterwards
+  while retaining the existing nonzero exit, original-log and bare-heartbeat
+  assertions. This closes plan Approach 3/5's validate-before-write gap
+  without assuming the resolved agent ID or modifying the adapter.
+- `python3 -m unittest discover -s .trae/agent-flow -p 'test_*.py' -v -k
+  test_invalid_parent_is_rejected_without_partial_writes`: exit 1, one
+  behavioral FAIL, zero ERROR. The old adapter writes `checker.json` during
+  rejected `complete`, changing the directory listing from
+  `[orchestrator.json]` to `[checker.json, orchestrator.json]`.
+- `python3 -m unittest discover -s .trae/agent-flow -p 'test_*.py' -v`:
+  exit 1 (expected RED), 29 collected, 22 FAIL, seven PASS, zero
+  ERROR/skipped. Failures remain missing shared-root, namespace, session,
+  attribution and fail-closed behavior; the strengthened test fails
+  specifically on the partial heartbeat write.
+- `python3 -m unittest discover -s .trae/agent-flow -p 'test_*.py' -v -k
+  AdapterTests`: exit 0, all six legacy tests PASS unchanged.
+- `git diff --check`: exit 0.
+
+This assertion refines criterion 2 / plan verification item 2 and the
+validation/write ordering in plan Approaches 3 and 5. The cumulative
+criterion mappings and the downstream concurrency assertions remain as
+recorded above. Stop after pushing this RED evidence; Zack will check the
+diff and must separately confirm before GREEN starts.
