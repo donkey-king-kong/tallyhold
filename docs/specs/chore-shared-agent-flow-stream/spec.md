@@ -71,6 +71,20 @@ this chore does not change the Agent Monitor follow-up in #44.
    documents need no rewrites. Adapter behavior and concurrent cases are
    covered by `.trae/agent-flow/test_adapter.py`; committed files contain no
    absolute or personal paths, except synthetic paths in test fixtures.
+8. Given the adapter runs from the main checkout, when it derives a worktree
+   namespace, then branch `main` maps to `wt-main` like any other worktree.
+   Only `init` ever creates or touches the real shared `orchestrator`; a bare
+   `orchestrator` in any checkout, including main, maps to that checkout's
+   `wt-<slug>` for start, status, tool, and complete operations.
+9. Given an agent or parent ID already has the current worktree's namespace
+   prefix, or equals that worktree's `wt-<slug>`, when the adapter resolves
+   the ID, then it uses the ID as-is and never double-prefixes it. Tests
+   include IDs pre-prefixed by hand, as in the existing shared log.
+10. Given `init` reuses an existing session, when it returns, then it has
+    written no orchestrator heartbeat and no orchestrator spawn or status
+    event; a completed orchestrator is not reactivated without real activity.
+    Heartbeat snapshots are keyed by namespaced ID, and status-based
+    reactivation reads the namespaced heartbeat.
 
 ## Out of scope
 
