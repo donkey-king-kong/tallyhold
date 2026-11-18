@@ -12,7 +12,7 @@
 - Branch / worktree: `feature/008-agent-monitor-ui` / `../tallyhold-feature-008-agent-monitor-ui`
 - Worktree path: `../tallyhold-feature-008-agent-monitor-ui`
 - Issue / PR: related #44; no PR requested
-- Updated: 2026-11-18T10:55:04Z
+- Updated: 2026-11-18T10:55:54Z
 
 ## Scope
 
@@ -40,12 +40,12 @@ page flow, and apply the requested timeline/status/older-run polish.
 
 ## Checkpoint
 
-- Last completed action: committed corrected RED `b826fac` and reran all required evidence at that exact revision.
+- Last completed action: committed corrected RED `b826fac` and evidence head `2534e51`.
 - Evidence: five intended unit failures with 44 passes; 121 unaffected tests pass with five exclusions; production preview fails on missing exact hashed-slug display; lint, format, and typecheck pass.
-- Worktree state: local head `b826fac` is two commits ahead of remote `96b4b14`; corrected evidence is uncommitted.
-- Remaining work: commit and push corrected evidence, then obtain approval from a different fresh round-2 Reviewer before GREEN.
+- Worktree state: corrected RED and evidence are committed locally through `2534e51`; final pre-dispatch checkpoint remains uncommitted.
+- Remaining work: push the final checkpoint, then obtain approval from a different fresh round-2 Reviewer before GREEN.
 - Blocker / unblock action: none.
-- Next action: commit and push corrected evidence, then dispatch a different fresh restricted RED Reviewer for `881d320..<evidence head>`.
+- Next action: push the final checkpoint and dispatch a different fresh restricted RED Reviewer for base `881d320` and the pushed cumulative head.
 - Handoff recipient: Zack after pushed corrected previews; no reinstall and no PR.
 
 ## History
@@ -71,3 +71,4 @@ page flow, and apply the requested timeline/status/older-run polish.
 | 2026-11-18T10:46:53Z | R-0094/reviewer-01 | Round 1 `CHANGES_REQUESTED`: reconcile fixed-width ellipsis with AC5/plan, permit below-fold narrow flow, and require exact visible slug/status copy | Correct RED only, rerun evidence, and use a different fresh Reviewer for round 2 |
 | 2026-11-18T10:52:24Z | R-0094/coordinator | Recorded review comment `210627545`, amended the approved contract per Zack's newer decision, and strengthened all three guards; production remains frozen | Commit corrected RED, rerun at the pinned SHA, and prepare round-2 handoff |
 | 2026-11-18T10:55:04Z | R-0094/coordinator | Corrected RED `b826fac` reproduces five intended failures; 121 unaffected tests, lint, format, and typecheck pass | Commit/push evidence and dispatch a different fresh round-2 Reviewer |
+| 2026-11-18T10:55:54Z | R-0094/coordinator | Committed corrected evidence `2534e51` and prepared the frozen round-2 handoff | Commit/push this checkpoint, then dispatch reviewer-02 with restricted inputs |
