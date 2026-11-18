@@ -83,10 +83,11 @@ shared-stream worktree roots (`wt-<slug>`) provide grouping when present.
    tool step is marked Failed in activity only; it never changes agent status
    unless an agent-level report does so.
 8. **Quiet reports.** Given a last report more than one hour ago, when the
-   clock advances, then the node shows "No report <age>" without dimming or
-   inferring liveness or failure; the tag updates as time passes. Unknown
-   wall-clock age is labelled unavailable rather than compared to an invented
-   threshold.
+   clock advances, then a nonterminal Working, Waiting, or Blocked node shows
+   "No report <age>" without dimming or inferring liveness or failure; the tag
+   updates as time passes. Completed and Failed nodes never show the tag.
+   Unknown wall-clock age is labelled unavailable rather than compared to an
+   invented threshold.
 9. **Human time.** Given a verified absolute event or interval, when it is
    displayed in the header, lane, node, or inspector, then wall-clock time
    uses the user's local zone with its zone abbreviation where available

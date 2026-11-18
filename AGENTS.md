@@ -22,7 +22,7 @@ restricted inputs; the coordinator records their tickets and runs externally.
 3. For a feature, read `docs/specs/NNN-name/spec.md`, then the approved `plan.md` and `tasks.md` when present.
 4. Read [workflow](docs/workflow.md) for handoffs and the relevant [role](docs/agents/) before acting in that role.
 5. Use the [skills index](docs/skills/README.md) to find role-specific procedures when their triggers apply.
-6. Publish [Agent Flow](docs/agent-flow.md) events for every role start, step, completion and block; the coordinator reports fresh Reviewer lifecycle and verdict externally.
+6. Publish [Agent Flow](docs/agent-flow.md) events for every role start, step, completion and block to the shared main-checkout stream; bare IDs are namespaced by worktree. The coordinator reports fresh Reviewer lifecycle and verdict externally.
 
 ## Repo map
 

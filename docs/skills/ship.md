@@ -9,10 +9,16 @@ post `COST APPROVAL 1/2`, await Zack's first explicit yes, post a separate
 free-tier actions still need one explicit approval and their limits recorded.
 Neither an approved plan nor a green PR check grants cost approval.
 
-Before every run, confirm `.agent-flow/session.json` exists; initialize only when missing. Remind Zack to connect **Agent Flow: Open Agent Flow -> Connect to Running Agent -> Watch JSONL File** to `.agent-flow/agent-flow-events.jsonl`. Publish these events from the coordinator, not the fresh Reviewer:
+Before every run, safely join the shared session with `init` from the
+current worktree. It reuses an existing session without reactivating the
+shared orchestrator; no worktree-local session-file guard is needed. Remind
+Zack to connect **Agent Flow: Open Agent Flow -> Connect to Running Agent ->
+Watch JSONL File** to the **main checkout's**
+`.agent-flow/agent-flow-events.jsonl`. Publish these events from the
+coordinator, not the fresh Reviewer:
 
 ```sh
-test -f .agent-flow/session.json || python3 .trae/agent-flow/adapter.py init --session-id "ship-$(date +%s)" --task "Ship approved feature"
+python3 .trae/agent-flow/adapter.py init --session-id "ship-$(date +%s)" --task "Ship approved feature"
 python3 .trae/agent-flow/adapter.py status --agent orchestrator --state working --activity "Starting ship run"
 ```
 

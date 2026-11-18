@@ -6,62 +6,69 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 
 ## Current work
 
-| Ticket | Purpose | Run |
-| --- | --- | --- |
-| [T-0001](tickets/T-0001-durable-work-tracking.md) | Set up durable planning and agent accountability | [R-0001](runs/R-0001.md) |
-| [T-0002](tickets/T-0002-publish-work-tracking.md) | Publish and review durable tracking | [R-0001](runs/R-0001.md) |
-| [T-0003](tickets/T-0003-review-work-tracking.md) | Independent review of PR #6 | [R-0001](runs/R-0001.md) |
-| [T-0005](tickets/T-0005-ship-tracking-closeout.md) | Ship checkpoint-only closeout history | [R-0003](runs/R-0003.md) |
-| [T-0006](tickets/T-0006-ship-post-dispatch-tracking.md) | Ship PR #8 post-dispatch tracking | [R-0004](runs/R-0004.md) |
-| [T-0007](tickets/T-0007-end-recursive-closeout.md) | End recursive closeout branches and ship terminal history | [R-0005](runs/R-0005.md) |
-| [T-0008](tickets/T-0008-agent-flow-granularity.md) | Ship granular Agent Flow role telemetry | [R-0006](runs/R-0006.md) |
-| [T-0010](tickets/T-0010-parallel-worktrees.md) | Enable parallel feature worktrees | [R-0010](runs/R-0010.md) |
-| [T-0009](tickets/T-0009-comment-based-ship-tracking.md) | Replace ship-log branches with PR comments | [R-0008](runs/R-0008.md) |
-| [T-0004](tickets/T-0004-draft-core-domain-spec.md) | Approve the Feature 002 core domain contract | [R-0011](runs/R-0011.md) |
-| [T-0011](tickets/T-0011-draft-schema-repositories-spec.md) | Approve the Feature 003 persistence contract | [R-0012](runs/R-0012.md) |
-| [T-0012](tickets/T-0012-implement-core-domain.md) | Implement and ship Feature 002 core domain | [R-0013](runs/R-0013.md) |
-| [T-0013](tickets/T-0013-agent-monitor-spec.md) | Approve and ship the Agent Monitor extension contract | [R-0016](runs/R-0016.md) |
-| [T-0014](tickets/T-0014-plan-schema-repositories.md) | Approve Feature 003 schema and repository plan | [R-0017](runs/R-0017.md) |
-| [T-0015](tickets/T-0015-003-repository-red.md) | Write Feature 003 failing PostgreSQL repository tests | [R-0018](runs/R-0018.md) |
-| [T-0016](tickets/T-0016-003-repository-green.md) | Implement Feature 003 schema and repositories | [R-0019](runs/R-0019.md) |
-| [T-0017](tickets/T-0017-ship-003-schema-repositories.md) | Ship Feature 003 after GREEN verification | [R-0019](runs/R-0019.md) |
-| [T-0018](tickets/T-0018-production-migrations.md) | Ship approval-gated Supabase production migrations | [R-0020](runs/R-0020.md) |
-| [T-0019](tickets/T-0019-review-production-migrations.md) | Independent review of production migration PR #25 | [R-0020](runs/R-0020.md) |
-| [T-0020](tickets/T-0020-phase1-roadmap.md) | Close out Phase 1 roadmap and ship documentation | [R-0021](runs/R-0021.md) |
-| [T-0021](tickets/T-0021-draft-auth-spec.md) | Approve Feature 005 auth contract at Gate 1 | [R-0026](runs/R-0026.md), after [R-0025](runs/R-0025.md) |
-| [T-0022](tickets/T-0022-plan-auth.md) | Approve Feature 005 architecture plan and tasks | [R-0028](runs/R-0028.md), after [R-0027](runs/R-0027.md) |
-| [T-0023](tickets/T-0023-auth-red.md) | Write Feature 005 failing tests and prepare independent RED review | [R-0028](runs/R-0028.md) |
-| [T-0024](tickets/T-0024-automated-red-review.md) | Automate independent RED review for future features | [R-0029](runs/R-0029.md) |
-| [T-0025](tickets/T-0025-review-automated-red-review.md) | Independent ship review of automated RED review PR | [R-0029](runs/R-0029.md) |
-| [T-0026](tickets/T-0026-auth-red-review.md) | Verify and independently review Feature 005 RED before GREEN | [R-0033](runs/R-0033.md), after [R-0031](runs/R-0031.md) |
-| [T-0027](tickets/T-0027-reviewer-fallback.md) | Add fresh Trae fallback for independent reviewer dispatch | [R-0032](runs/R-0032.md) |
-| [T-0028](tickets/T-0028-auth-red-review-fixes.md) | Resolve targeted Feature 005 RED findings under Zack's one-round exception | [R-0033](runs/R-0033.md), after [R-0031](runs/R-0031.md) |
-| [T-0029](tickets/T-0029-auth-green.md) | Implement Feature 005 auth after approved RED review | [R-0033](runs/R-0033.md) |
-| [T-0030](tickets/T-0030-ship-auth.md) | Ship Feature 005 through PR #32 and merge gate | [R-0033](runs/R-0033.md) |
-| [T-0031](tickets/T-0031-review-auth-pr.md) | Fresh independent PR review for Feature 005 | [R-0033](runs/R-0033.md) |
-| [T-0032](tickets/T-0032-parallel-track-coordination.md) | Reserve disjoint parallel-track IDs and correct the Phase 2 roadmap | [R-0034](runs/R-0034.md) |
-| [T-0033](tickets/T-0033-review-parallel-track-coordination.md) | Independently review and gate the parallel-track handoff PR | [R-0034](runs/R-0034.md) |
-| [T-0040](tickets/T-0040-draft-accounts-spec.md) | Draft and grill Feature 006 accounts spec before Gate 1 | [R-0040](runs/R-0040.md) |
-| [T-0041](tickets/T-0041-plan-accounts.md) | Draft Feature 006 architecture and migration plan for Zack's separate gate | [R-0040](runs/R-0040.md) |
-| [T-0042](tickets/T-0042-accounts-red.md) | Write and hand off Feature 006 failing tests | [R-0040](runs/R-0040.md) |
-| [T-0043](tickets/T-0043-accounts-red-review.md) | Independently review Feature 006 RED handoff | [R-0040](runs/R-0040.md) |
-| [T-0044](tickets/T-0044-accounts-red-review-round2.md) | Verify Feature 006 RED corrections with a fresh reviewer | [R-0040](runs/R-0040.md) |
-| [T-0045](tickets/T-0045-accounts-red-review-exception.md) | Review Zack-authorized final RED correction independently | [R-0040](runs/R-0040.md) |
-| [T-0046](tickets/T-0046-accounts-red-review-cors.md) | Review Zack-authorized focused CORS RED correction | [R-0040](runs/R-0040.md) |
-| [T-0047](tickets/T-0047-accounts-green.md) | Implement approved Feature 006 migration, API and UI | [R-0040](runs/R-0040.md) |
-| [T-0048](tickets/T-0048-ship-accounts.md) | Ship Feature 006 after the newly required cost gate | [R-0040](runs/R-0040.md) |
-| [T-0049](tickets/T-0049-review-accounts-pr.md) | Fresh independent PR #43 review after green CI | [R-0040](runs/R-0040.md) |
-| [T-0055](tickets/T-0055-agent-monitor-ui-spec.md) | Draft Feature 008 Agent Monitor UI contract for Gate 1 | [R-0053](runs/R-0053.md), after [R-0052](runs/R-0052.md) |
-| [T-0056](tickets/T-0056-plan-agent-monitor-ui.md) | Plan approved Feature 008 Agent Monitor UI redesign for separate Zack gate | [R-0055](runs/R-0055.md), after [R-0054](runs/R-0054.md) |
-| [T-0057](tickets/T-0057-agent-monitor-ui-red.md) | Write and strengthen Feature 008 synthetic RED tests and evidence | [R-0059](runs/R-0059.md), after [R-0057](runs/R-0057.md) |
-| [T-0058](tickets/T-0058-review-agent-monitor-ui-red.md) | Fresh independent Feature 008 RED review after cost approvals | [R-0059](runs/R-0059.md), after [R-0058](runs/R-0058.md) |
-| [T-0070](tickets/T-0070-agent-monitor-ui-green.md) | Implement approved Feature 008 webview GREEN and correct failed VSIX smoke | [R-0071](runs/R-0071.md), after [R-0070](runs/R-0070.md) |
-| [T-0060](tickets/T-0060-first-deploy-maintenance.md) | Ship Track C migration gate and Compose ports | [R-0060](runs/R-0060.md) |
-| [T-0061](tickets/T-0061-first-deploy-plan.md) | Defer first-deploy decision to Phase 4 and ship docs | [R-0062](runs/R-0062.md), after [R-0061](runs/R-0061.md) |
-| [T-0062](tickets/T-0062-review-first-deploy-maintenance.md) | Independently review Track C maintenance PR | [R-0060](runs/R-0060.md) |
-| [T-0063](tickets/T-0063-review-deferred-deploy-plan.md) | Independently review deferred deployment decision PR | [R-0062](runs/R-0062.md) |
-| [T-0064](tickets/T-0064-cost-safeguard.md) | Require staged approvals for cost-bearing actions | [R-0063](runs/R-0063.md) |
-| [T-0065](tickets/T-0065-review-cost-safeguard.md) | Independently review constitution safeguard PR | [R-0063](runs/R-0063.md) |
+| Ticket                                                         | Purpose                                                                    | Run                                                                                   |
+| -------------------------------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| [T-0001](tickets/T-0001-durable-work-tracking.md)              | Set up durable planning and agent accountability                           | [R-0001](runs/R-0001.md)                                                              |
+| [T-0002](tickets/T-0002-publish-work-tracking.md)              | Publish and review durable tracking                                        | [R-0001](runs/R-0001.md)                                                              |
+| [T-0003](tickets/T-0003-review-work-tracking.md)               | Independent review of PR #6                                                | [R-0001](runs/R-0001.md)                                                              |
+| [T-0005](tickets/T-0005-ship-tracking-closeout.md)             | Ship checkpoint-only closeout history                                      | [R-0003](runs/R-0003.md)                                                              |
+| [T-0006](tickets/T-0006-ship-post-dispatch-tracking.md)        | Ship PR #8 post-dispatch tracking                                          | [R-0004](runs/R-0004.md)                                                              |
+| [T-0007](tickets/T-0007-end-recursive-closeout.md)             | End recursive closeout branches and ship terminal history                  | [R-0005](runs/R-0005.md)                                                              |
+| [T-0008](tickets/T-0008-agent-flow-granularity.md)             | Ship granular Agent Flow role telemetry                                    | [R-0006](runs/R-0006.md)                                                              |
+| [T-0010](tickets/T-0010-parallel-worktrees.md)                 | Enable parallel feature worktrees                                          | [R-0010](runs/R-0010.md)                                                              |
+| [T-0009](tickets/T-0009-comment-based-ship-tracking.md)        | Replace ship-log branches with PR comments                                 | [R-0008](runs/R-0008.md)                                                              |
+| [T-0004](tickets/T-0004-draft-core-domain-spec.md)             | Approve the Feature 002 core domain contract                               | [R-0011](runs/R-0011.md)                                                              |
+| [T-0011](tickets/T-0011-draft-schema-repositories-spec.md)     | Approve the Feature 003 persistence contract                               | [R-0012](runs/R-0012.md)                                                              |
+| [T-0012](tickets/T-0012-implement-core-domain.md)              | Implement and ship Feature 002 core domain                                 | [R-0013](runs/R-0013.md)                                                              |
+| [T-0013](tickets/T-0013-agent-monitor-spec.md)                 | Approve and ship the Agent Monitor extension contract                      | [R-0016](runs/R-0016.md)                                                              |
+| [T-0014](tickets/T-0014-plan-schema-repositories.md)           | Approve Feature 003 schema and repository plan                             | [R-0017](runs/R-0017.md)                                                              |
+| [T-0015](tickets/T-0015-003-repository-red.md)                 | Write Feature 003 failing PostgreSQL repository tests                      | [R-0018](runs/R-0018.md)                                                              |
+| [T-0016](tickets/T-0016-003-repository-green.md)               | Implement Feature 003 schema and repositories                              | [R-0019](runs/R-0019.md)                                                              |
+| [T-0017](tickets/T-0017-ship-003-schema-repositories.md)       | Ship Feature 003 after GREEN verification                                  | [R-0019](runs/R-0019.md)                                                              |
+| [T-0018](tickets/T-0018-production-migrations.md)              | Ship approval-gated Supabase production migrations                         | [R-0020](runs/R-0020.md)                                                              |
+| [T-0019](tickets/T-0019-review-production-migrations.md)       | Independent review of production migration PR #25                          | [R-0020](runs/R-0020.md)                                                              |
+| [T-0020](tickets/T-0020-phase1-roadmap.md)                     | Close out Phase 1 roadmap and ship documentation                           | [R-0021](runs/R-0021.md)                                                              |
+| [T-0021](tickets/T-0021-draft-auth-spec.md)                    | Approve Feature 005 auth contract at Gate 1                                | [R-0026](runs/R-0026.md), after [R-0025](runs/R-0025.md)                              |
+| [T-0022](tickets/T-0022-plan-auth.md)                          | Approve Feature 005 architecture plan and tasks                            | [R-0028](runs/R-0028.md), after [R-0027](runs/R-0027.md)                              |
+| [T-0023](tickets/T-0023-auth-red.md)                           | Write Feature 005 failing tests and prepare independent RED review         | [R-0028](runs/R-0028.md)                                                              |
+| [T-0024](tickets/T-0024-automated-red-review.md)               | Automate independent RED review for future features                        | [R-0029](runs/R-0029.md)                                                              |
+| [T-0025](tickets/T-0025-review-automated-red-review.md)        | Independent ship review of automated RED review PR                         | [R-0029](runs/R-0029.md)                                                              |
+| [T-0026](tickets/T-0026-auth-red-review.md)                    | Verify and independently review Feature 005 RED before GREEN               | [R-0033](runs/R-0033.md), after [R-0031](runs/R-0031.md)                              |
+| [T-0027](tickets/T-0027-reviewer-fallback.md)                  | Add fresh Trae fallback for independent reviewer dispatch                  | [R-0032](runs/R-0032.md)                                                              |
+| [T-0028](tickets/T-0028-auth-red-review-fixes.md)              | Resolve targeted Feature 005 RED findings under Zack's one-round exception | [R-0033](runs/R-0033.md), after [R-0031](runs/R-0031.md)                              |
+| [T-0029](tickets/T-0029-auth-green.md)                         | Implement Feature 005 auth after approved RED review                       | [R-0033](runs/R-0033.md)                                                              |
+| [T-0030](tickets/T-0030-ship-auth.md)                          | Ship Feature 005 through PR #32 and merge gate                             | [R-0033](runs/R-0033.md)                                                              |
+| [T-0031](tickets/T-0031-review-auth-pr.md)                     | Fresh independent PR review for Feature 005                                | [R-0033](runs/R-0033.md)                                                              |
+| [T-0032](tickets/T-0032-parallel-track-coordination.md)        | Reserve disjoint parallel-track IDs and correct the Phase 2 roadmap        | [R-0034](runs/R-0034.md)                                                              |
+| [T-0033](tickets/T-0033-review-parallel-track-coordination.md) | Independently review and gate the parallel-track handoff PR                | [R-0034](runs/R-0034.md)                                                              |
+| [T-0040](tickets/T-0040-draft-accounts-spec.md)                | Draft and grill Feature 006 accounts spec before Gate 1                    | [R-0040](runs/R-0040.md)                                                              |
+| [T-0041](tickets/T-0041-plan-accounts.md)                      | Draft Feature 006 architecture and migration plan for Zack's separate gate | [R-0040](runs/R-0040.md)                                                              |
+| [T-0042](tickets/T-0042-accounts-red.md)                       | Write and hand off Feature 006 failing tests                               | [R-0040](runs/R-0040.md)                                                              |
+| [T-0043](tickets/T-0043-accounts-red-review.md)                | Independently review Feature 006 RED handoff                               | [R-0040](runs/R-0040.md)                                                              |
+| [T-0044](tickets/T-0044-accounts-red-review-round2.md)         | Verify Feature 006 RED corrections with a fresh reviewer                   | [R-0040](runs/R-0040.md)                                                              |
+| [T-0045](tickets/T-0045-accounts-red-review-exception.md)      | Review Zack-authorized final RED correction independently                  | [R-0040](runs/R-0040.md)                                                              |
+| [T-0046](tickets/T-0046-accounts-red-review-cors.md)           | Review Zack-authorized focused CORS RED correction                         | [R-0040](runs/R-0040.md)                                                              |
+| [T-0047](tickets/T-0047-accounts-green.md)                     | Implement approved Feature 006 migration, API and UI                       | [R-0040](runs/R-0040.md)                                                              |
+| [T-0048](tickets/T-0048-ship-accounts.md)                      | Ship Feature 006 after the newly required cost gate                        | [R-0040](runs/R-0040.md)                                                              |
+| [T-0049](tickets/T-0049-review-accounts-pr.md)                 | Fresh independent PR #43 review after green CI                             | [R-0040](runs/R-0040.md)                                                              |
+| [T-0055](tickets/T-0055-agent-monitor-ui-spec.md)              | Draft Feature 008 Agent Monitor UI contract for Gate 1                     | [R-0053](runs/R-0053.md), after [R-0052](runs/R-0052.md)                              |
+| [T-0056](tickets/T-0056-plan-agent-monitor-ui.md)              | Plan approved Feature 008 Agent Monitor UI redesign for separate Zack gate | [R-0055](runs/R-0055.md), after [R-0054](runs/R-0054.md)                              |
+| [T-0057](tickets/T-0057-agent-monitor-ui-red.md)               | Write and strengthen Feature 008 synthetic RED tests and evidence          | [R-0059](runs/R-0059.md), after [R-0057](runs/R-0057.md)                              |
+| [T-0058](tickets/T-0058-review-agent-monitor-ui-red.md)        | Fresh independent Feature 008 RED review after cost approvals              | [R-0059](runs/R-0059.md), after [R-0058](runs/R-0058.md)                              |
+| [T-0090](tickets/T-0090-agent-monitor-ui-green.md)             | Match approved Feature 008 Agent Monitor visual target after smoke #3      | [R-0092](runs/R-0092.md), after [R-0091](runs/R-0091.md) and [R-0090](runs/R-0090.md) |
+| [T-0060](tickets/T-0060-first-deploy-maintenance.md)           | Ship Track C migration gate and Compose ports                              | [R-0060](runs/R-0060.md)                                                              |
+| [T-0061](tickets/T-0061-first-deploy-plan.md)                  | Defer first-deploy decision to Phase 4 and ship docs                       | [R-0062](runs/R-0062.md), after [R-0061](runs/R-0061.md)                              |
+| [T-0062](tickets/T-0062-review-first-deploy-maintenance.md)    | Independently review Track C maintenance PR                                | [R-0060](runs/R-0060.md)                                                              |
+| [T-0063](tickets/T-0063-review-deferred-deploy-plan.md)        | Independently review deferred deployment decision PR                       | [R-0062](runs/R-0062.md)                                                              |
+| [T-0064](tickets/T-0064-cost-safeguard.md)                     | Require staged approvals for cost-bearing actions                          | [R-0063](runs/R-0063.md)                                                              |
+| [T-0065](tickets/T-0065-review-cost-safeguard.md)              | Independently review constitution safeguard PR                             | [R-0063](runs/R-0063.md)                                                              |
+| [T-0066](tickets/T-0066-shared-agent-flow-stream-spec.md)      | Draft shared Agent Flow stream contract for Gate 1                         | [R-0065](runs/R-0065.md), after [R-0064](runs/R-0064.md)                              |
+| [T-0067](tickets/T-0067-shared-agent-flow-stream-plan.md)      | Plan approved shared Agent Flow stream contract                            | [R-0066](runs/R-0066.md)                                                              |
+| [T-0068](tickets/T-0068-shared-agent-flow-red-review.md)       | Coordinate shared Agent Flow stream RED review round 1                     | [R-0067](runs/R-0067.md)                                                              |
+| [T-0070](tickets/T-0070-shared-agent-flow-red-corrections.md)  | Correct shared Agent Flow RED assertions and coordinate round 2            | [R-0070](runs/R-0070.md)                                                              |
+| [T-0071](tickets/T-0071-shared-agent-flow-red-round3.md)       | Zack-authorized targeted shared Agent Flow RED round 3                     | [R-0071](runs/R-0071.md)                                                              |
+| [T-0072](tickets/T-0072-shared-agent-flow-green.md)            | Implement approved shared Agent Flow stream                                | [R-0073](runs/R-0073.md)                                                              |
+| [T-0073](tickets/T-0073-ship-shared-agent-flow.md)             | Open and review shared Agent Flow stream PR for Zack to merge              | [R-0073](runs/R-0073.md)                                                              |
 
 Historical PR #6 post-dispatch records remain in T-0002's checkpoint
 branch/worktree. Future ship runs use PR comments instead.
@@ -79,8 +86,10 @@ not pre-created assignments or approvals.
 ## Start or resume
 
 Multiple tickets and runs may be active simultaneously on different branches.
-Each branch has its own worktree and its own `.agent-flow/` session initialized
-from that worktree.
+Each branch has its own worktree and durable ticket/run records. Agent Flow
+publishes to one shared session under the main checkout; `init` from any
+worktree safely joins it and agents use worktree-qualified IDs. See
+[Agent Flow](../agent-flow.md).
 
 1. Read the relevant ticket, latest linked run, and linked spec/plan/tasks.
    Confirm the requested scope and required approvals. Roadmap entries and
@@ -135,15 +144,15 @@ after the tool confirms creation. Preserve failed dispatches and replaced owners
 
 Ticket statuses:
 
-| Status | Meaning / required evidence |
-| --- | --- |
-| `proposed` | Scope or approvals are incomplete |
-| `ready` | Assignment scope approved and dependencies satisfied |
-| `in_progress` | Named owner has started; last checkpoint identifies its work |
-| `blocked` | Named obstacle and unblock action recorded |
-| `in_review` | Outputs and verification recorded; acceptance/review pending |
-| `done` | Ticket criteria satisfied with evidence and required acceptance |
-| `cancelled` | Reason and replacement, if any, recorded |
+| Status        | Meaning / required evidence                                     |
+| ------------- | --------------------------------------------------------------- |
+| `proposed`    | Scope or approvals are incomplete                               |
+| `ready`       | Assignment scope approved and dependencies satisfied            |
+| `in_progress` | Named owner has started; last checkpoint identifies its work    |
+| `blocked`     | Named obstacle and unblock action recorded                      |
+| `in_review`   | Outputs and verification recorded; acceptance/review pending    |
+| `done`        | Ticket criteria satisfied with evidence and required acceptance |
+| `cancelled`   | Reason and replacement, if any, recorded                        |
 
 Reopen or reassign by appending the reason and prior owner. A completed RED test
 ticket can have deliberately failing tests as its evidence. Feature delivery is
