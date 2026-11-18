@@ -205,9 +205,11 @@ export function activityDescription(activity: Activity): string {
 
 export function displayName(id: string, laneSlug: string | null): string {
   const prefix = `wt-${laneSlug}-`;
-  return laneSlug && id.startsWith(prefix) && id.length > prefix.length
-    ? id.slice(prefix.length)
-    : id;
+  const shortened =
+    laneSlug && id.startsWith(prefix) && id.length > prefix.length
+      ? id.slice(prefix.length)
+      : id;
+  return shortened.replace(/-(r\d+[a-z]?)$/i, " · $1");
 }
 
 export function runsFor(node: ProjectedNode, now: number): Run[] {

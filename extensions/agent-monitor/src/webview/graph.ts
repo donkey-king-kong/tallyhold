@@ -1,6 +1,7 @@
 import {
   age,
   displayName,
+  localTime,
   statusWord,
   type ProjectedNode,
 } from "./presentation";
@@ -44,10 +45,13 @@ function nodeSize(
   const lines = labelLines(displayName(node.id, lane));
   return {
     width: Math.max(
-      180,
-      Math.max(...lines.map((line) => line.length * 12)) + 32,
+      node.id === "orchestrator" ? 300 : lane ? 220 : 180,
+      Math.max(...lines.map((line) => line.length * 12)) + 54,
     ),
-    height: Math.max(60, 38 + lines.length * 18),
+    height: Math.max(
+      lane || node.id === "orchestrator" ? 64 : 60,
+      38 + lines.length * 18,
+    ),
   };
 }
 
@@ -136,16 +140,18 @@ export class GraphLayout {
         let x: number;
         let y: number;
         if (node.id === "orchestrator") {
-          x = 0;
-          y = 0;
+          const lanesWidth = Math.max(220, this.laneOrder.length * 250 - 30);
+          x = 80 + lanesWidth / 2 - size.width / 2;
+          y = 20;
         } else if (lane) {
-          x = 180 + this.laneOrder.indexOf(lane) * 250;
-          y = this.slotCounts.get(lane) ?? 160;
-          this.slotCounts.set(lane, y + size.height + 40);
+          x = 80 + this.laneOrder.indexOf(lane) * 250;
+          const structuralRoot = node.id === lane && !node.status;
+          y = structuralRoot ? 150 : (this.slotCounts.get(lane) ?? 260);
+          if (!structuralRoot) this.slotCounts.set(lane, y + size.height + 22);
         } else if (this.laneOrder.length) {
           x = 0;
-          y = this.slotCounts.get("ungrouped") ?? 160;
-          this.slotCounts.set("ungrouped", y + size.height + 40);
+          y = this.slotCounts.get("ungrouped") ?? 260;
+          this.slotCounts.set("ungrouped", y + size.height + 22);
         } else {
           const proposed = node.position ?? { x: 0, y: 0 };
           const candidate = { ...proposed, ...size };
@@ -225,6 +231,15 @@ export class GraphLayout {
 }
 
 function icon(group: SVGGElement, status: string, x: number, y: number): void {
+  const ring = svg("circle");
+  ring.setAttribute("cx", String(x + 7));
+  ring.setAttribute("cy", String(y + 7));
+  ring.setAttribute("r", "6");
+  ring.setAttribute("fill", "none");
+  ring.setAttribute("stroke", "currentColor");
+  ring.setAttribute("stroke-width", "2");
+  ring.dataset.statusRing = status;
+  group.append(ring);
   const mark = svg("path");
   mark.dataset.statusIcon = status;
   mark.setAttribute("stroke", "currentColor");
@@ -234,11 +249,11 @@ function icon(group: SVGGElement, status: string, x: number, y: number): void {
     "d",
     (
       {
-        Working: "M 2 1 L 12 7 L 2 13 Z",
-        Waiting: "M 2 1 V 13 M 10 1 V 13",
-        Blocked: "M 1 2 H 13 V 12 H 1 Z",
-        Failed: "M 1 1 L 13 13 M 13 1 L 1 13",
-        Completed: "M 1 7 L 5 11 L 13 2",
+        Working: "M 5 4 A 3 3 0 1 1 4.9 4",
+        Waiting: "M 4 3 V 9 M 9 3 V 9",
+        Blocked: "M 3 4 H 11 V 10 H 3 Z",
+        Failed: "M 3 3 L 11 11 M 11 3 L 3 11",
+        Completed: "M 3 7 L 6 10 L 11 4",
       } as Record<string, string>
     )[status] ?? "M 7 1 A 6 6 0 1 1 6 13",
   );
@@ -304,6 +319,64 @@ export function drawGraph(
   const ids = new Set(visible.map((node) => node.id));
   const edgeLayer = svg("g");
   edgeLayer.setAttribute("class", "graph-edges");
+  const laneRoots = layout
+    .laneRoots()
+    .filter((rootId) => ids.has(rootId) && layout.place(rootId));
+  const orchestrator = ids.has("orchestrator")
+    ? layout.place("orchestrator")
+    : undefined;
+  if (orchestrator && laneRoots.length) {
+    const centers = laneRoots.map((rootId) => {
+      const place = layout.place(rootId)!;
+      return place.x + Math.min(220, place.width) / 2;
+    });
+    const busY = 120;
+    const bus = svg("g");
+    bus.dataset.connectorBus = "";
+    const path = svg("path");
+    path.setAttribute(
+      "d",
+      `M ${orchestrator.x + orchestrator.width / 2} ${
+        orchestrator.y + orchestrator.height
+      } V ${busY} M ${Math.min(...centers)} ${busY} H ${Math.max(
+        ...centers,
+      )} ${centers.map((center) => `M ${center} ${busY} V 140`).join(" ")}`,
+    );
+    path.setAttribute("fill", "none");
+    path.setAttribute("stroke", "currentColor");
+    bus.append(path);
+    edgeLayer.append(bus);
+  }
+  for (const rootId of laneRoots) {
+    const rootPlace = layout.place(rootId)!;
+    const cards = visible
+      .filter(
+        (node) =>
+          layout.association(node) === rootId.slice(3) &&
+          (node.id !== rootId || Boolean(node.status)),
+      )
+      .map((node) => layout.place(node.id))
+      .filter((place): place is Place => Boolean(place));
+    if (!cards.length) continue;
+    const railX = rootPlace.x - 18;
+    const railTop = Math.min(...cards.map((place) => place.y + 20));
+    const railBottom = Math.max(
+      ...cards.map((place) => place.y + place.height / 2),
+    );
+    const rail = svg("g");
+    rail.dataset.laneRail = rootId;
+    const path = svg("path");
+    path.setAttribute(
+      "d",
+      `M ${railX} ${railTop} V ${railBottom} ${cards
+        .map((place) => `M ${railX} ${place.y + place.height / 2} H ${place.x}`)
+        .join(" ")}`,
+    );
+    path.setAttribute("fill", "none");
+    path.setAttribute("stroke", "currentColor");
+    rail.append(path);
+    edgeLayer.append(rail);
+  }
   for (const [edgeIndex, edge] of validEdges(nodes, edges).entries()) {
     if (!ids.has(edge.parentId) || !ids.has(edge.childId)) continue;
     const parent = layout.place(edge.parentId)!;
@@ -326,7 +399,7 @@ export function drawGraph(
       continue;
     }
     const path = svg("path");
-    const spineX = child.x - 14 - (edgeIndex % 4) * 4;
+    const spineX = child.x - 18 - (edgeIndex % 3) * 3;
     const branchY = Math.max(parentY + 18, childY - 18);
     path.dataset.edge = `${edge.parentId}:${edge.childId}`;
     path.dataset.parentId = edge.parentId;
@@ -349,47 +422,83 @@ export function drawGraph(
     if (!node || !place) continue;
     const header = svg("g");
     header.dataset.laneHeader = rootId;
+    const associated = nodes.filter(
+      (item) =>
+        item.id !== rootId &&
+        layout.association(item) === rootId.slice(3) &&
+        Boolean(item.status),
+    );
+    const priority = ["Working", "Waiting", "Failed", "Blocked", "Completed"];
+    const laneStatus =
+      (node.status && statusWord(node)) ||
+      priority.find((candidate) =>
+        associated.some((item) => statusWord(item) === candidate),
+      ) ||
+      "Unknown status";
+    header.dataset.status = laneStatus.toLowerCase().replace(/\s+/g, "-");
+    header.setAttribute(
+      "aria-label",
+      `${node.task ?? "Worktree"} ${rootId} ${laneStatus}`,
+    );
     const headerBox = svg("rect");
-    headerBox.setAttribute("x", String(place.x - 12));
-    headerBox.setAttribute("y", String(place.y - 108));
-    headerBox.setAttribute("width", String(Math.max(220, place.width + 24)));
-    headerBox.setAttribute("height", "82");
+    headerBox.setAttribute("x", String(place.x));
+    headerBox.setAttribute("y", "140");
+    headerBox.setAttribute("width", "220");
+    headerBox.setAttribute("height", "104");
     header.append(headerBox);
-    const heading = svg("text");
-    heading.setAttribute("x", String(place.x));
-    heading.setAttribute("y", String(place.y - 82));
-    const count = nodes.filter(
-      (item) => layout.association(item) === rootId.slice(3),
-    ).length;
-    const lines = [
-      node.task ?? "unavailable",
-      rootId,
-      `${statusWord(node)} · ${count} ${count === 1 ? "agent" : "agents"} · since ${
-        node.intervals?.[0]?.startAbsoluteTime
-          ? "reported"
-          : "Session-relative time unavailable"
-      }`,
-    ];
-    lines.forEach((line, index) => {
-      const span = svg("tspan");
-      span.setAttribute("x", String(place.x));
-      span.setAttribute("y", String(place.y - 82 + index * 22));
-      span.textContent = line;
-      heading.append(span);
-    });
-    header.append(heading);
+    const accent = svg("line");
+    accent.setAttribute("x1", String(place.x + 2));
+    accent.setAttribute("x2", String(place.x + 218));
+    accent.setAttribute("y1", "142");
+    accent.setAttribute("y2", "142");
+    accent.setAttribute("class", "lane-accent");
+    header.append(accent);
+    const label = svg("text");
+    label.setAttribute("x", String(place.x + 12));
+    label.setAttribute("y", "164");
+    label.setAttribute("class", "lane-label");
+    label.textContent = node.task ?? "Worktree";
+    header.append(label);
+    const pill = svg("text");
+    pill.setAttribute("x", String(place.x + 208));
+    pill.setAttribute("y", "164");
+    pill.setAttribute("text-anchor", "end");
+    pill.setAttribute("class", "lane-status");
+    pill.textContent = laneStatus;
+    header.append(pill);
+    const branch = svg("text");
+    branch.setAttribute("x", String(place.x + 12));
+    branch.setAttribute("y", "193");
+    branch.setAttribute("class", "lane-branch");
+    branch.textContent =
+      rootId.length > 27 ? `${rootId.slice(0, 24)}...` : rootId;
+    header.append(branch);
+    const count = associated.length + (node.status ? 1 : 0);
+    const since = node.intervals?.[0]?.startAbsoluteTime
+      ? localTime(node.intervals[0].startAbsoluteTime).replace(/\s+\S+$/, "")
+      : "Session-relative time unavailable";
+    const meta = svg("text");
+    meta.setAttribute("x", String(place.x + 12));
+    meta.setAttribute("y", "224");
+    meta.setAttribute("class", "lane-meta");
+    meta.textContent = `${count} ${count === 1 ? "agent" : "agents"} · since ${since}`;
+    header.append(meta);
     laneLayer.append(header);
   }
   svgRoot.append(laneLayer);
   const nodeLayer = svg("g");
   nodeLayer.setAttribute("class", "graph-nodes");
   for (const node of visible) {
+    const structuralRoot = layout.laneRoots().includes(node.id) && !node.status;
+    if (structuralRoot) continue;
     const intervals = Math.max(1, node.intervals?.length ?? 0);
     for (let index = 0; index < intervals; index++) {
       const place = layout.place(node.id, index);
       if (!place) continue;
       const group = svg("g");
       group.dataset.nodeId = node.id;
+      group.dataset.nodeCard = node.id;
+      group.classList.toggle("is-selected", node.id === selectedId);
       group.setAttribute("aria-label", `${node.id} ${statusWord(node)}`);
       const box = svg("rect");
       for (const [key, value] of Object.entries({
@@ -401,27 +510,47 @@ export function drawGraph(
         box.setAttribute(key, String(value));
       group.append(box);
       const status = statusWord(node);
-      icon(group, status, place.x + place.width - 24, place.y + 11);
+      group.dataset.status = status.toLowerCase().replace(/\s+/g, "-");
+      icon(group, status, place.x + 12, place.y + 12);
       const label = svg("text");
-      label.setAttribute("x", String(place.x + 10));
-      label.setAttribute("y", String(place.y + 22));
+      label.setAttribute("x", String(place.x + 38));
+      label.setAttribute("y", String(place.y + 25));
+      label.setAttribute("class", "agent-name");
       const lines = labelLines(displayName(node.id, place.lane));
       lines.forEach((value, lineIndex) => {
         const span = svg("tspan");
         span.dataset.nameLine = "";
-        span.setAttribute("x", String(place.x + 10));
-        span.setAttribute("y", String(place.y + 22 + lineIndex * 18));
+        span.setAttribute("x", String(place.x + 38));
+        span.setAttribute("y", String(place.y + 25 + lineIndex * 18));
         span.textContent = value;
         label.append(span);
       });
       group.append(label);
+      const durationText =
+        node.lastUpdateAge == null ? "—" : age(node.lastUpdateAge + elapsed);
+      const duration = svg("tspan");
+      duration.setAttribute(
+        "x",
+        String(place.x + place.width - 12 - durationText.length * 7),
+      );
+      duration.setAttribute("y", String(place.y + 25));
+      duration.setAttribute("class", "agent-duration");
+      duration.textContent = durationText;
+      label.append(duration);
+      const latestSummary =
+        [...(node.activities ?? [])].reverse().find((item) => item.summary)
+          ?.summary ??
+        node.task ??
+        "No reported summary";
+      const compactSummary =
+        latestSummary.length > 28
+          ? `${latestSummary.slice(0, 25)}...`
+          : latestSummary;
       const state = svg("tspan");
-      state.setAttribute("x", String(place.x + 10));
-      state.setAttribute("y", String(place.y + place.height - 10));
-      state.textContent =
-        node.lastUpdateAge == null
-          ? status
-          : `${status} · ${age(node.lastUpdateAge + elapsed)}`;
+      state.setAttribute("x", String(place.x + 12));
+      state.setAttribute("y", String(place.y + place.height - 12));
+      state.setAttribute("class", "agent-summary");
+      state.textContent = `${status}  ${compactSummary}`;
       label.append(state);
       if (node.relationship === "unresolved") {
         const mark = svg("path");
@@ -444,11 +573,16 @@ export function drawGraph(
         node.lastUpdateAge != null &&
         node.lastUpdateAge + elapsed > 3600
       ) {
-        const quiet = svg("text");
-        quiet.setAttribute("x", String(place.x + 10));
-        quiet.setAttribute("y", String(place.y + place.height - 28));
-        quiet.textContent = `No report ${age(node.lastUpdateAge + elapsed)}`;
-        group.append(quiet);
+        const quietText = `No report ${age(node.lastUpdateAge + elapsed)}`;
+        const quiet = svg("tspan");
+        quiet.setAttribute(
+          "x",
+          String(place.x + place.width - 12 - quietText.length * 7),
+        );
+        quiet.setAttribute("y", String(place.y + place.height - 12));
+        quiet.setAttribute("class", "quiet-report");
+        quiet.textContent = quietText;
+        label.append(quiet);
       }
       nodeLayer.append(group);
     }
