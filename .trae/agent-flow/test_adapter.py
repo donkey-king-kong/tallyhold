@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import shutil
@@ -243,13 +244,21 @@ class SharedStreamContractTests(unittest.TestCase):
     def test_slug_branch_and_detached_head(self) -> None:
         self.init(self.alpha)
         alpha_slug = next(iter(self.roots()))
-        self.assertRegex(alpha_slug, r"^feature-red-alp-[0-9a-f]{8}$")
+        expected_alpha = "feature-red-alp-" + hashlib.sha256(
+            b"feature/red-alpha"
+        ).hexdigest()[:8]
+        self.assertEqual(alpha_slug, expected_alpha)
+        self.init(self.alpha, session="again")
+        self.assertEqual(next(iter(self.roots())), expected_alpha)
         self.git("checkout", "--detach", cwd=self.beta)
         self.init(self.beta, session="other-run")
         roots = self.roots()
-        self.assertTrue(any(re.fullmatch(r"beta-[0-9a-f]{8}", slug)
-                            for slug in roots), roots)
-        self.assertNotEqual(alpha_slug, next(slug for slug in roots if slug != alpha_slug))
+        expected_beta = "beta-" + hashlib.sha256(
+            str(self.beta.resolve()).encode("utf-8")
+        ).hexdigest()[:8]
+        self.assertEqual(set(roots), {expected_alpha, expected_beta})
+        self.init(self.beta, session="again")
+        self.assertEqual(set(self.roots()), {expected_alpha, expected_beta})
 
     def test_normalization_collisions_and_long_names_remain_distinct(self) -> None:
         branches = ("feature/a.b", "feature/a-b",
@@ -265,6 +274,16 @@ class SharedStreamContractTests(unittest.TestCase):
         self.assertEqual(len(roots), len(branches))
         self.assertEqual(len(set(roots.values())), len(branches))
         self.assertEqual(sum(slug.startswith("feature-a-b-") for slug in roots), 2)
+        for branch in branches:
+            normalized = re.sub(r"[^a-z0-9_-]+", "-", branch.lower()).strip("-_")
+            expected = normalized[:15] + "-" + hashlib.sha256(
+                branch.encode("utf-8")
+            ).hexdigest()[:8]
+            self.assertEqual(roots[expected], "wt-" + expected)
+            self.assertEqual(len(expected), 24)
+        before = dict(roots)
+        self.init(self.base / "variant-3", session="repeat-run")
+        self.assertEqual(self.roots(), before)
         ids = [e["payload"]["name"] for e in self.records()
                if e["type"] == "agent_spawn" and "-role_" in e["payload"].get("name", "")]
         self.assertEqual(len(ids), len(branches))
@@ -348,6 +367,113 @@ class SharedStreamContractTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertEqual(log.read_bytes(), sentinel)
         self.assertFalse((self.root / "session.json").exists())
+
+    def test_invalid_existing_session_and_log_fail_closed(self) -> None:
+        for invalid in (b"{not-json\n", b'{"session_id":"broken"}\n',
+                        b'{"session_id":123,"started_at":"wrong"}\n'):
+            with self.subTest(invalid=invalid):
+                self.root.mkdir(exist_ok=True)
+                session = self.root / "session.json"
+                log = self.root / "agent-flow-events.jsonl"
+                sentinel = b'{"type":"historical","payload":{}}\n'
+                session.write_bytes(invalid)
+                log.write_bytes(sentinel)
+                result = self.cli(self.alpha, "init", "--session-id", "new-run",
+                                  "--task", "Fixture run", success=False)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertEqual(session.read_bytes(), invalid)
+                self.assertEqual(log.read_bytes(), sentinel)
+
+    def test_direct_store_calls_in_checkout_match_cli_ids(self) -> None:
+        self.init(self.alpha)
+        direct = subprocess.run(
+            [sys.executable, "-c",
+             "import sys; sys.path.insert(0, sys.argv[1]); "
+             "from adapter import Store; store = Store(); "
+             "store.start('checker', 'orchestrator', 'Fixture direct'); "
+             "store.status('checker', 'working', 'Fixture direct'); "
+             "store.tool('checker', 'Read', False, 'succeeded'); "
+             "store.complete('checker', 'orchestrator', 'Fixture done', False)",
+             str(self.script.parent)],
+            cwd=self.alpha, text=True, capture_output=True, timeout=20,
+        )
+        self.assertEqual(direct.returncode, 0, direct.stderr)
+        self.cli(self.alpha, "start", "--agent", "cli_checker",
+                 "--parent", "orchestrator", "--task", "Fixture CLI")
+        root = next(iter(self.roots().values()))
+        events = self.records()
+        self.assertTrue(any(e["type"] == "agent_spawn" and
+                            e["payload"].get("name") == f"{root}-checker" and
+                            e["payload"].get("parent") == root for e in events))
+        self.assertTrue(any(e["type"] == "agent_spawn" and
+                            e["payload"].get("name") == f"{root}-cli_checker" and
+                            e["payload"].get("parent") == root for e in events))
+        self.assertTrue(any(e["type"] == "message" and
+                            e["payload"].get("agent") == f"{root}-checker"
+                            for e in events))
+        self.assertTrue(any(e["type"] == "tool_call_start" and
+                            e["payload"].get("agent") == f"{root}-checker"
+                            for e in events))
+        self.assertTrue(any(e["type"] == "subagent_return" and
+                            e["payload"].get("child") == f"{root}-checker" and
+                            e["payload"].get("parent") == root for e in events))
+        self.assertEqual(self.heartbeat(f"{root}-checker")["parent_id"], root)
+
+    def test_symlinked_checkout_resolves_canonical_shared_root(self) -> None:
+        alias = self.base / "main-alias"
+        alias.symlink_to(self.main, target_is_directory=True)
+        self.init(alias)
+        result = self.cli(alias / ".git" / "..", "status", "--agent",
+                          "orchestrator", "--state", "working",
+                          "--activity", "Fixture alias")
+        self.assertEqual(Path(result.stdout.strip()).resolve(),
+                         (self.main / ".agent-flow" / "agent-flow-events.jsonl").resolve())
+        self.assertEqual(set(self.roots()), {"main"})
+        self.assertFalse((self.base / ".agent-flow" / "session.json").exists())
+
+    def test_separate_git_dir_does_not_select_unrelated_root(self) -> None:
+        checkout = self.base / "separate-checkout"
+        metadata = self.base / "separate-metadata"
+        self.git("init", "--separate-git-dir", str(metadata), str(checkout),
+                 cwd=self.base)
+        result = self.cli(checkout, "init", "--session-id", "separate-run",
+                          "--task", "Fixture run", success=False)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse((self.base / ".agent-flow" / "session.json").exists())
+        self.assertFalse((checkout / ".agent-flow" / "session.json").exists())
+        self.assertFalse((self.script.parents[2] / ".agent-flow" / "session.json").exists())
+
+    def test_existing_hand_prefixed_root_is_not_registered_twice(self) -> None:
+        branch = "feature/red-alpha"
+        slug = "feature-red-alp-" + hashlib.sha256(branch.encode()).hexdigest()[:8]
+        root_id = "wt-" + slug
+        self.root.mkdir()
+        (self.root / "session.json").write_text(
+            json.dumps({"session_id": "shared-run", "started_at": 1.0}) + "\n"
+        )
+        log = self.root / "agent-flow-events.jsonl"
+        seeded = [
+            {"time": 0, "type": "agent_spawn", "sessionId": "shared-run",
+             "payload": {"name": "orchestrator", "isMain": True, "sourceWorktree": slug}},
+            {"time": 0, "type": "subagent_dispatch", "sessionId": "shared-run",
+             "payload": {"parent": "orchestrator", "child": root_id,
+                         "sourceWorktree": slug}},
+            {"time": 0, "type": "agent_spawn", "sessionId": "shared-run",
+             "payload": {"name": root_id, "parent": "orchestrator",
+                         "sourceWorktree": slug}},
+        ]
+        original = "".join(json.dumps(record) + "\n" for record in seeded).encode()
+        log.write_bytes(original)
+        self.cli(self.alpha, "status", "--agent", "orchestrator", "--state",
+                 "working", "--activity", "Fixture resumed")
+        self.assertTrue(log.read_bytes().startswith(original))
+        self.assertEqual(sum(e["type"] == "agent_spawn" and
+                             e["payload"].get("name") == root_id
+                             for e in self.records()), 1)
+        self.assertEqual(sum(e["type"] == "subagent_dispatch" and
+                             e["payload"].get("child") == root_id
+                             for e in self.records()), 1)
+        self.assertEqual(self.records()[-1]["payload"]["agent"], root_id)
 
     def test_concurrent_process_appends_are_complete_and_unique(self) -> None:
         self.init()
