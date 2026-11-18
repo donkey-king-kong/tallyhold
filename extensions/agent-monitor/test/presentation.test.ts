@@ -6,6 +6,7 @@ import {
   SESSION_START,
   syntheticNode,
   syntheticView,
+  twoLanes,
 } from "./ui-fixtures";
 
 let dispose: (() => void) | undefined;
@@ -38,7 +39,11 @@ describe("Feature 008 presentation through the mounted webview", () => {
     const { root, app } = mount([orphan]);
     const rect = () =>
       root.querySelector('g[data-node-id="a1-orphan"] rect')?.getAttribute("x");
-    const before = rect();
+    const position = () => {
+      const box = root.querySelector('g[data-node-id="a1-orphan"] rect')!;
+      return [box.getAttribute("x"), box.getAttribute("y")];
+    };
+    const before = position();
     const lane = syntheticNode("wt-a1", { task: "Review accounts" });
     app.update(
       syntheticView(
@@ -56,13 +61,56 @@ describe("Feature 008 presentation through the mounted webview", () => {
         ],
       ),
     );
-    expect(rect()).toBe(before);
+    expect(position()).toEqual(before);
     const nav = getByRole(root, "navigation", { name: /agent navigator/i });
     expect(
       within(nav).getByRole("button", { name: /^a1-orphan\b/i }),
     ).toBeTruthy();
     expect(root.textContent).toContain("Review accounts");
     expect(root.querySelectorAll("svg [data-edge]")).toHaveLength(2);
+    expect(rect()).toBe(before[0]);
+  });
+
+  it("existing lane slots survive filters and ticks while a new source recomputes order", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2023-11-14T22:14:20.000Z"));
+    const { nodes, edges } = twoLanes();
+    const { root, app } = mount(nodes, edges);
+    const box = (id: string) => {
+      const rect = root.querySelector(`g[data-node-id="${id}"] rect`)!;
+      return [rect.getAttribute("x"), rect.getAttribute("y")];
+    };
+    const initial = box("a1-reviewer");
+    app.update(
+      syntheticView(
+        [
+          ...nodes,
+          syntheticNode("b2-later", {
+            parentId: "wt-b2",
+            relationship: "resolved",
+          }),
+        ],
+        [...edges, { parentId: "wt-b2", childId: "b2-later" }],
+      ),
+    );
+    expect(box("a1-reviewer")).toEqual(initial);
+    fireEvent.click(
+      getByRole(root, "checkbox", { name: /only last reported active/i }),
+    );
+    vi.advanceTimersByTime(60_000);
+    expect(box("a1-reviewer")).toEqual(initial);
+    fireEvent.click(
+      getByRole(root, "checkbox", { name: /only last reported active/i }),
+    );
+    app.update({
+      ...syntheticView(
+        [nodes[0], nodes[2], nodes[1], nodes[4], nodes[3]],
+        [edges[1], edges[0], edges[3], edges[2]],
+      ),
+      sourceGeneration: 2,
+    });
+    expect(box("a1-reviewer")).not.toEqual(initial);
+    expect(root.textContent).toContain("Review accounts");
   });
 
   it("display name strips only assigned lane prefix and preserves unmatched and ungrouped ids", () => {
@@ -283,5 +331,214 @@ describe("Feature 008 presentation through the mounted webview", () => {
         }),
       ).getByRole("button", { name: /^old-run/i }),
     ).toBeTruthy();
+  });
+
+  it("reactivated identity keeps two selectable runs and report-bounded open duration", () => {
+    vi.stubEnv("TZ", "Asia/Singapore");
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2023-11-20T22:17:20.000Z"));
+    const reactivated = syntheticNode("wt-a1", {
+      task: "Review accounts",
+      intervals: [
+        {
+          start: 0,
+          end: 195,
+          certainty: "reported",
+          startAbsoluteTime: SESSION_START,
+          endAbsoluteTime: "2023-11-14T22:16:35.000Z",
+        },
+        {
+          start: 518_400,
+          end: null,
+          certainty: "reported",
+          startAbsoluteTime: "2023-11-20T22:13:20.000Z",
+          endAbsoluteTime: null,
+        },
+      ],
+      activities: [
+        {
+          type: "agent_spawn",
+          time: 0,
+          absoluteTime: SESSION_START,
+          summary: "First",
+        },
+        {
+          type: "agent_complete",
+          time: 195,
+          absoluteTime: "2023-11-14T22:16:35.000Z",
+          summary: "Done",
+        },
+        {
+          type: "agent_spawn",
+          time: 518_400,
+          absoluteTime: "2023-11-20T22:13:20.000Z",
+          summary: "Again",
+        },
+        {
+          type: "message",
+          time: 518_520,
+          absoluteTime: "2023-11-20T22:15:20.000Z",
+          summary: "Last report",
+        },
+      ],
+    });
+    const { root } = mount([reactivated]);
+    fireEvent.click(getByRole(root, "button", { name: /last 24 hours/i }));
+    const nav = () =>
+      getByRole(root, "navigation", { name: /agent navigator/i });
+    expect(
+      within(nav()).getByRole("button", { name: /older runs.*1/i }),
+    ).toBeTruthy();
+    expect(
+      within(nav()).getByRole("button", { name: /wt-a1.*current/i }),
+    ).toBeTruthy();
+    fireEvent.click(
+      within(nav()).getByRole("button", { name: /wt-a1.*current/i }),
+    );
+    const inspector = () =>
+      getByRole(root, "region", { name: /agent details/i });
+    expect(inspector().textContent).toMatch(
+      /Running for 2m.*reported through.*06:15/i,
+    );
+    expect(inspector().textContent).not.toMatch(/Running for 6d/);
+    fireEvent.click(
+      within(nav()).getByRole("button", { name: /older runs.*1/i }),
+    );
+    fireEvent.click(
+      within(nav()).getByRole("button", { name: /wt-a1.*older/i }),
+    );
+    expect(inspector().textContent).toMatch(/Ran 06:13.*06:16.*3m 15s/);
+    expect(inspector().textContent).not.toMatch(/Running for 2m/);
+    const slots = Array.from(
+      root.querySelectorAll('svg g[data-node-id="wt-a1"] rect'),
+    ).map((rect) => `${rect.getAttribute("x")},${rect.getAttribute("y")}`);
+    expect(new Set(slots).size).toBe(2);
+  });
+
+  it("cutoff includes intersecting runs and preserves unknown chronology separately", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2023-11-20T22:13:20.000Z"));
+    const crossing = syntheticNode("crossing-run", {
+      status: "completed",
+      terminal: true,
+      intervals: [
+        {
+          start: 0,
+          end: 5_400,
+          certainty: "reported",
+          startAbsoluteTime: "2023-11-19T21:00:00.000Z",
+          endAbsoluteTime: "2023-11-19T22:30:00.000Z",
+        },
+      ],
+    });
+    const before = syntheticNode("before-run", {
+      status: "completed",
+      terminal: true,
+      intervals: [
+        {
+          start: 0,
+          end: 60,
+          certainty: "reported",
+          startAbsoluteTime: "2023-11-19T21:00:00.000Z",
+          endAbsoluteTime: "2023-11-19T21:01:00.000Z",
+        },
+      ],
+    });
+    const unknown = syntheticNode("unknown-run", {
+      intervals: [{ start: 0, end: null, certainty: "incomplete" }],
+      lastUpdateAge: null,
+    });
+    const { root } = mount([crossing, before, unknown]);
+    fireEvent.click(getByRole(root, "button", { name: /last 24 hours/i }));
+    const nav = getByRole(root, "navigation", { name: /agent navigator/i });
+    expect(
+      within(nav).getByRole("button", { name: /crossing-run/i }),
+    ).toBeTruthy();
+    expect(
+      within(nav).getByRole("button", { name: /older runs.*1/i }),
+    ).toBeTruthy();
+    expect(nav.textContent).toMatch(/time unavailable.*unknown-run/i);
+  });
+
+  it("future or invalid last reports never become negative ages or fabricated wall dates", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2023-11-14T22:13:20.000Z"));
+    const { root, app } = mount([
+      syntheticNode("wt-a1", {
+        lastUpdateAge: -20,
+        activities: [
+          {
+            type: "message",
+            time: 20,
+            absoluteTime: "unverifiable",
+            summary: "Future",
+          },
+        ],
+      }),
+    ]);
+    app.update(
+      syntheticView([syntheticNode("wt-a1", { lastUpdateAge: -20 })], [], {
+        projection: {
+          nodes: [syntheticNode("wt-a1", { lastUpdateAge: -20 })],
+          edges: [],
+          diagnostics: [],
+          lastEventAbsoluteTime: "2023-11-14T22:14:00.000Z",
+        },
+      }),
+    );
+    expect(root.querySelector("header")?.textContent).toMatch(
+      /last event time unavailable/i,
+    );
+    expect(root.textContent).not.toMatch(/-\d+s ago|1970/);
+    expect(root.textContent).toMatch(/session-relative|unavailable/i);
+  });
+
+  it("plain activity copy preserves source order and labels unavailable facts", () => {
+    const { root } = mount([
+      syntheticNode("wt-a1", {
+        activities: [
+          {
+            type: "subagent_dispatch",
+            time: 30,
+            relatedAgentId: null,
+            summary: "",
+          },
+          {
+            type: "message",
+            time: 10,
+            summary: "First in file, second timestamp",
+          },
+          {
+            type: "tool_call_end",
+            time: 20,
+            toolCategory: null,
+            pairing: "unmatched",
+            outcome: "failed",
+            summary: "",
+          },
+        ],
+      }),
+    ]);
+    fireEvent.click(
+      within(
+        getByRole(root, "navigation", {
+          name: /agent navigator/i,
+        }),
+      ).getByRole("button", { name: /wt-a1/i }),
+    );
+    const history = getByRole(root, "region", {
+      name: /activity history/i,
+    }).textContent!;
+    expect(history).toMatch(/Handed work to.*identity unavailable/i);
+    expect(history).toMatch(/Reported.*First in file, second timestamp/);
+    expect(history).toMatch(
+      /Category unavailable.*Failed.*duration unavailable/i,
+    );
+    expect(history.indexOf("Handed work to")).toBeLessThan(
+      history.indexOf("Reported"),
+    );
+    expect(history.indexOf("Reported")).toBeLessThan(
+      history.indexOf("Category unavailable"),
+    );
   });
 });

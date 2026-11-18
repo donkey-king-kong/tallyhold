@@ -11,7 +11,7 @@
 - Dependencies: [T-0056](T-0056-plan-agent-monitor-ui.md)
 - Branch / worktree: `feature/008-agent-monitor-ui` / `../tallyhold-feature-008-agent-monitor-ui`
 - Issue / PR: related #44; no PR requested.
-- Updated: 2026-11-18T05:31:35Z
+- Updated: 2026-11-18T05:39:13Z
 
 ## Scope
 
@@ -28,12 +28,12 @@ real logs, publisher changes, PR or GREEN.
 
 ## Checkpoint
 
-- Last completed action: round 1 independent RED review returned CHANGES_REQUESTED for five test gaps, no plan change.
-- Evidence: [round-1 report](../../specs/008-agent-monitor-ui/red-review.md) matches [commit comment](https://github.com/donkey-king-kong/tallyhold/commit/1105aac5cf6bae10f89dfa8a570031325dd73068#commitcomment-210593233); original RED `1522e5f`, evidence `1105aac`.
-- Worktree state: reviewer report and tracking uncommitted; no production source edited.
-- Remaining work: strengthen protocol, runs/slots, layout/graph, theme/keyboard, and negative/update cases; rerun RED and unchanged suites, amend evidence with new SHA, push.
+- Last completed action: strengthened the five round-1 gaps with synthetic protocol, run, graph, theme, keyboard, and recovery cases.
+- Evidence: local unpinned RED 34 failed for missing behavior, unchanged extension 77 passed/34 skipped, adapter 6 passed, lint/typecheck/format passed; [round-1 report](../../specs/008-agent-monitor-ui/red-review.md) and [comment](https://github.com/donkey-king-kong/tallyhold/commit/1105aac5cf6bae10f89dfa8a570031325dd73068#commitcomment-210593233).
+- Worktree state: only three test files and this checkpoint modified; no production source edited.
+- Remaining work: commit tests, rerun at pinned SHA, update evidence, push, and request different fresh round-2 review.
 - Blocker / unblock action: no spec/plan escalation requested; GREEN remains blocked on round-2 independent APPROVE.
-- Next action: commit/push round-1 report then add targeted synthetic RED tests only, preserving original assertions.
+- Next action: commit corrected test revision and rerun targeted and baseline checks at its SHA.
 - Handoff recipient: different fresh RED Reviewer for round 2.
 
 ## History
@@ -45,3 +45,4 @@ real logs, publisher changes, PR or GREEN.
 | 2026-11-18T05:16:01Z | R-0056/coordinator | Verified `1522e5f`: 25 expected RED, 77 unchanged extension and 6 adapter passed, lint/typecheck/format passed | Commit/push evidence then request reviewer cost approval |
 | 2026-11-18T05:17:01Z | R-0056/coordinator | Pushed RED evidence as `1105aac`; remote/local matched | T-0058 reviewer dispatch waits on two separate cost approvals |
 | 2026-11-18T05:31:35Z | R-0057/coordinator | Reopened Test writer assignment after fresh Trae round-1 CHANGES_REQUESTED | Five test gaps, no plan change; add focused RED cases and re-review |
+| 2026-11-18T05:39:13Z | R-0057/coordinator | Strengthened RED-only tests for all five findings; local checks show 34 expected RED, 77 unchanged and 6 adapter passing, lint/typecheck/format clean | Commit test revision, rerun at SHA, publish revised evidence and hand to fresh round 2 |
