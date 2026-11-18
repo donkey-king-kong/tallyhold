@@ -311,14 +311,29 @@ class SharedStreamContractTests(unittest.TestCase):
         self.cli(self.alpha, "--root", str(self.root), "init",
                  "--session-id", "shared-run", "--task", "Fixture run")
         log = self.root / "agent-flow-events.jsonl"
+        session = self.root / "session.json"
+        heartbeats = self.root / "heartbeats"
         before = log.read_bytes()
         for command in ("start", "complete"):
+            before_log = log.read_bytes()
+            before_session = session.read_bytes()
+            before_names = sorted(path.name for path in heartbeats.iterdir())
+            before_heartbeats = {
+                name: (heartbeats / name).read_bytes() for name in before_names
+            }
             args = ("--task", "Fixture invalid") if command == "start" else (
                 "--summary", "Fixture invalid")
             result = self.cli(self.alpha, "--root", str(self.root), command, "--agent", "checker",
                               "--parent", "bad/id", *args, success=False)
             self.assertNotEqual(result.returncode, 0, command)
             self.assertEqual(log.read_bytes(), before, command)
+            self.assertEqual(log.read_bytes(), before_log, command)
+            self.assertEqual(session.read_bytes(), before_session, command)
+            self.assertEqual(sorted(path.name for path in heartbeats.iterdir()),
+                             before_names, command)
+            self.assertEqual({
+                name: (heartbeats / name).read_bytes() for name in before_names
+            }, before_heartbeats, command)
             self.assertFalse((self.root / "heartbeats" / "checker.json").exists(),
                              command)
 
