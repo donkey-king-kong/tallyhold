@@ -196,3 +196,36 @@ At exact executable revision `f4d7519`:
 No production source, style, generated preview, approved mock, or package
 dependency changed in this exception. GREEN remains pending Zack's explicit
 confirmation of this corrected RED evidence.
+
+## Preview round 2 correction
+
+Zack reviewed preview round 2 on 2026-11-18 and approved five focused
+corrections. Base `881d320`; test-only RED commit `8053e11`. No production
+source, stylesheet, fixture, generated preview, dependency, adapter, or approved
+spec/plan file changed in this RED revision.
+
+| Requested correction | RED seam and named assertion |
+| -------------------- | ---------------------------- |
+| 1: connector topology | `webview.test.ts: defaults to the recent graph with one lane rail and one attributed tick per card` requires exactly one rail path, one line tick per visible lane card, and one attributed connector per reported link. `capture-preview.ts` independently requires one orchestrator drop, one bus, one drop per lane, one rail per lane, and one tick per rendered card at both target widths. |
+| 2: fixed lane-card width | `webview.test.ts: assigns root-prefixed orphans to their lane and keeps card copy inside fitted boxes` requires ellipsized long content and a card width equal to the lane header. The browser guard checks equal rendered widths and left/right containment for every lane card. |
+| 3: real adapter IDs | `webview.test.ts: renders the reported hashed worktree slug without inventing a branch name` requires the reported eight-hex suffix in the lane, navigator, and inspector. The browser guard rejects non-adapter root forms and invented full branch text. |
+| 4: narrow document flow | The 800x900 browser guard requires a 480-560px canvas, visible toolbar note, unclipped workspace/inspector/activity, normal document scrolling through the footer, and no pane overlap. |
+| 5: copy and status polish | The dated-activity and navigator cases require separator-free visible time/label text and a visible status-word element. The browser guard also requires card/navigator status words, structured older-run copy, and separator-free activity rows. |
+
+At exact test revision `8053e11`:
+
+- `npx vitest run test/webview.test.ts --reporter=dot` exits 1 with five
+  expected failures and 44 passes. Failures are the old expanding card, grouped
+  rail/bracket path, trailing activity separator, absent visible navigator
+  status, and absent hashed-slug spans.
+- `npm run test:preview-layout` exits 1 with
+  `preview-wide.png: preview does not use and render adapter-accurate hashed
+  worktree slugs`. The production bundle and old fixture render successfully;
+  the failure is the first missing approved behavior, not setup or navigation.
+- The unaffected command using a negative test-name pattern for only those five
+  cases passes 121 tests across five files with five skipped and zero failures.
+- `npm run lint`, `npm run format:check`, and `npm run typecheck` all pass.
+
+The preview fixture remains synthetic and offline. The tests read no private
+runtime stream, invoke no external network, and make no adapter or publisher
+change.
