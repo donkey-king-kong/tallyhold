@@ -57,6 +57,13 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 | [T-0063](tickets/T-0063-review-deferred-deploy-plan.md) | Independently review deferred deployment decision PR | [R-0062](runs/R-0062.md) |
 | [T-0064](tickets/T-0064-cost-safeguard.md) | Require staged approvals for cost-bearing actions | [R-0063](runs/R-0063.md) |
 | [T-0065](tickets/T-0065-review-cost-safeguard.md) | Independently review constitution safeguard PR | [R-0063](runs/R-0063.md) |
+| [T-0066](tickets/T-0066-shared-agent-flow-stream-spec.md) | Draft shared Agent Flow stream contract for Gate 1 | [R-0065](runs/R-0065.md), after [R-0064](runs/R-0064.md) |
+| [T-0067](tickets/T-0067-shared-agent-flow-stream-plan.md) | Plan approved shared Agent Flow stream contract | [R-0066](runs/R-0066.md) |
+| [T-0068](tickets/T-0068-shared-agent-flow-red-review.md) | Coordinate shared Agent Flow stream RED review round 1 | [R-0067](runs/R-0067.md) |
+| [T-0070](tickets/T-0070-shared-agent-flow-red-corrections.md) | Correct shared Agent Flow RED assertions and coordinate round 2 | [R-0070](runs/R-0070.md) |
+| [T-0071](tickets/T-0071-shared-agent-flow-red-round3.md) | Zack-authorized targeted shared Agent Flow RED round 3 | [R-0071](runs/R-0071.md) |
+| [T-0072](tickets/T-0072-shared-agent-flow-green.md) | Implement approved shared Agent Flow stream | [R-0073](runs/R-0073.md) |
+| [T-0073](tickets/T-0073-ship-shared-agent-flow.md) | Open and review shared Agent Flow stream PR for Zack to merge | [R-0073](runs/R-0073.md) |
 
 Historical PR #6 post-dispatch records remain in T-0002's checkpoint
 branch/worktree. Future ship runs use PR comments instead.
@@ -74,8 +81,10 @@ not pre-created assignments or approvals.
 ## Start or resume
 
 Multiple tickets and runs may be active simultaneously on different branches.
-Each branch has its own worktree and its own `.agent-flow/` session initialized
-from that worktree.
+Each branch has its own worktree and durable ticket/run records. Agent Flow
+publishes to one shared session under the main checkout; `init` from any
+worktree safely joins it and agents use worktree-qualified IDs. See
+[Agent Flow](../agent-flow.md).
 
 1. Read the relevant ticket, latest linked run, and linked spec/plan/tasks.
    Confirm the requested scope and required approvals. Roadmap entries and
