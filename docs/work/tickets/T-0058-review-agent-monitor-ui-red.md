@@ -11,7 +11,7 @@
 - Dependencies: [T-0057](T-0057-agent-monitor-ui-red.md), [red-review procedure](../../skills/red-review.md)
 - Branch / worktree: `feature/008-agent-monitor-ui` / `../tallyhold-feature-008-agent-monitor-ui`
 - Issue / PR: related #44; no PR requested.
-- Updated: 2026-11-18T05:24:49Z
+- Updated: 2026-11-18T05:28:55Z
 
 ## Scope
 
@@ -32,12 +32,12 @@ is not APPROVE or findings require changing spec/plan.
 
 ## Checkpoint
 
-- Last completed action: reconciled user-interrupted Claude invocation; no report, commit comment or live process exists.
-- Evidence: clean local/remote `70b08db`; pushed RED head `1105aac`, test SHA `1522e5f`, base `f90265e`; both separate approvals previously recorded.
-- Worktree state: recovery checkpoint uncommitted; no reviewer verdict yet.
-- Remaining work: retry fresh headless reviewer round 1, validate report/comment/verdict and obey two-round gate.
+- Last completed action: fresh Claude Code retry exited 1 with `API Error: Connection refused (ECONNREFUSED)` before a verdict; verified no report, comment or process. It did not consume round 1.
+- Evidence: clean local/remote `40a005d`; reviewed RED head `1105aac`, test SHA `1522e5f`, base `f90265e`; the authorized fallback is a different fresh Trae subagent.
+- Worktree state: failure checkpoint uncommitted; no reviewer verdict yet.
+- Remaining work: launch fresh Trae fallback for round 1, validate report/comment/verdict and obey two-round gate.
 - Blocker / unblock action: none for approved reviewer scope; GREEN remains blocked on independent APPROVE.
-- Next action: commit/push recovery checkpoint; invoke **new** headless Claude Code process with only reviewer role-file brief, path, round, base and pushed RED SHA.
+- Next action: commit/push failure checkpoint, then spawn a fresh Trae subagent with no history fork and strictly role-permitted inputs; do not pass tracking or Agent Flow.
 - Handoff recipient: fresh independent RED Reviewer round 1.
 
 ## History
@@ -47,3 +47,4 @@ is not APPROVE or findings require changing spec/plan.
 | 2026-11-18T05:17:01Z | R-0056/coordinator | RED pushed at `1105aac`; reviewer dispatch paused under constitution rule 15 | Ask Zack for the first of two separate cost approvals |
 | 2026-11-18T05:21:22Z | R-0056/coordinator | Zack separately approved COST APPROVAL 1/2 then COST APPROVAL 2/2; authenticated Claude Code 2.1.322 locally | Commit/push approval record, dispatch fresh round 1 |
 | 2026-11-18T05:24:49Z | R-0057/coordinator | User interrupted initial Claude command; verified clean branch, no report/comment or reviewer process | Fresh retry does not consume a review round |
+| 2026-11-18T05:28:55Z | R-0057/coordinator | New headless Claude retry failed with ECONNREFUSED before verdict; verified no artifacts/comment/process | Fresh Trae fallback for round 1 under existing two approvals |
