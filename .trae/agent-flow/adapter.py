@@ -165,18 +165,43 @@ class Store:
     def register(self) -> None:
         if not self.root_id:
             return
+        marker = self.root / (".registered-" + self.root_id + ".json")
+        session_id = self.initialized()["session_id"]
+        stat = self.events.stat()
+        if marker.exists():
+            try:
+                saved = json.loads(marker.read_text(encoding="utf-8"))
+                if (isinstance(saved, dict) and saved.get("session_id") == session_id
+                        and saved.get("device") == stat.st_dev
+                        and saved.get("inode") == stat.st_ino
+                        and isinstance(saved.get("size"), int)
+                        and not isinstance(saved["size"], bool)
+                        and stat.st_size >= saved["size"]):
+                    return
+            except (OSError, ValueError, json.JSONDecodeError):
+                pass
         with self.events.open("r", encoding="utf-8") as stream:
             for line in stream:
                 record = json.loads(line)
                 if (record.get("type") == "agent_spawn" and
                         record.get("payload", {}).get("name") == self.root_id):
-                    return
-        self.heartbeat(self.root_id, "starting", "Worktree activity", "orchestrator")
-        self.event("subagent_dispatch", {
-            "parent": "orchestrator", "child": self.root_id, "task": "Worktree activity",
-        })
-        self.event("agent_spawn", {
-            "name": self.root_id, "parent": "orchestrator", "task": "Worktree activity",
+                    break
+            else:
+                self.heartbeat(self.root_id, "starting", "Worktree activity", "orchestrator")
+                self.event("subagent_dispatch", {
+                    "parent": "orchestrator", "child": self.root_id, "task": "Worktree activity",
+                })
+                self.event("agent_spawn", {
+                    "name": self.root_id, "parent": "orchestrator", "task": "Worktree activity",
+                })
+        # A lost marker only costs a rescan; a marker ahead of the log could skip registration.
+        with self.events.open("ab") as stream:
+            stream.flush()
+            os.fsync(stream.fileno())
+            stat = os.fstat(stream.fileno())
+        self.atomic_json(marker, {
+            "session_id": session_id, "device": stat.st_dev,
+            "inode": stat.st_ino, "size": stat.st_size,
         })
 
     def ready(self) -> None:
