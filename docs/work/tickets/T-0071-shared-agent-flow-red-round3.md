@@ -11,7 +11,7 @@
 - Dependencies: [round-2 review](../../specs/chore-shared-agent-flow-stream/red-review.md) at `bc14cb6`
 - Branch / worktree: `chore/shared-agent-flow-stream`, `../tallyhold-chore-shared-agent-flow-stream`
 - Issue / PR: related #38; no PR
-- Updated: 2026-11-18T04:16:38Z
+- Updated: 2026-11-18T04:17:49Z
 
 ## Scope
 
@@ -29,12 +29,12 @@ the review and subsequent GREEN/ship handoffs if approved.
 
 ## Checkpoint
 
-- Last completed action: pinned test revision `7fed3f1` has 29 tests, 22 expected FAIL and seven PASS, no errors; six legacy PASS.
+- Last completed action: RED evidence pushed at `01c24637c2ef3bcdf0401b0f877b6aaf27b22ce1`; Zack separately approved COST APPROVAL 1/2 then 2/2 for one fresh round-3 Claude Opus review with conditional fresh Trae fallback.
 - Evidence: [round-3 RED run](../../specs/chore-shared-agent-flow-stream/red-test-run.md); requested test commit `0f3b936`, fixture correction `7fed3f1`.
-- Worktree state: test commits local; evidence and tracking pending.
-- Remaining work: push evidence, fresh reviewer gate, GREEN/ship only after approval.
-- Blocker / unblock action: reviewer dispatch requires separate cost approval; GREEN requires APPROVE.
-- Next action: commit and push RED evidence with tracking; obtain two separate scoped cost approvals before reviewer launch.
+- Worktree state: clean and remote matches `01c2463`; dispatch checkpoint pending.
+- Remaining work: fresh reviewer gate, GREEN/ship only after approval.
+- Blocker / unblock action: GREEN requires round-3 APPROVE.
+- Next action: commit/push dispatch checkpoint, launch fresh reviewer for base `c12b954` / pushed RED `01c2463`; do not pass tracking or telemetry.
 - Handoff recipient: fresh independent RED Reviewer round 3.
 
 ## History
@@ -43,3 +43,4 @@ the review and subsequent GREEN/ship handoffs if approved.
 | --- | --- | --- | --- |
 | 2026-11-18T04:12:24Z | R-0071/coordinator | Claimed Zack-authorized one-round RED exception; verified clean `bc14cb6` and no PR | Correct three round-2 findings in tests only |
 | 2026-11-18T04:16:38Z | R-0071/coordinator | Committed targeted tests `0f3b936`, fixed a fixture-only setup error at `7fed3f1`; pinned run 29 collected, 22 expected FAIL, seven PASS, zero ERROR; six legacy PASS | Commit/push evidence and request provider approvals before fresh review |
+| 2026-11-18T04:17:49Z | R-0071/coordinator | Pushed RED head `01c2463`; Zack separately granted COST APPROVAL 1/2 and 2/2 for scoped round-3 Claude Opus/conditional Trae review; Claude `2.1.322` authenticated | Commit checkpoint then dispatch different fresh reviewer, `c12b954`..`01c2463` |
