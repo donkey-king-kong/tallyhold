@@ -173,6 +173,43 @@ try {
       `${name}: structural worktree roots render as agent cards`,
     );
 
+    const requireVisiblePopulation = async (
+      selector: string,
+      expected: number,
+      label: string,
+    ) => {
+      const items = page.locator(selector);
+      requireLayout(
+        (await items.count()) === expected,
+        `${name}: expected ${expected} ${label}`,
+      );
+      for (let index = 0; index < expected; index++) {
+        const item = items.nth(index);
+        const box = await item.boundingBox();
+        requireLayout(
+          (await item.isVisible()) &&
+            Boolean(box) &&
+            box!.width > 0 &&
+            box!.height > 0,
+          `${name}: ${label} ${index + 1} is hidden or has zero bounds`,
+        );
+      }
+    };
+    await requireVisiblePopulation("[data-lane-header]", 3, "lane headers");
+    await requireVisiblePopulation("[data-node-card]", 8, "agent cards");
+    await requireVisiblePopulation(
+      ".navigator-identity-row",
+      7,
+      "navigator rows",
+    );
+    await requireVisiblePopulation(
+      ".navigator-worktree",
+      3,
+      "navigator groups",
+    );
+    await requireVisiblePopulation("[data-connector-bus]", 1, "connector bus");
+    await requireVisiblePopulation("[data-lane-rail]", 3, "lane rails");
+
     const laneBoxes = await page
       .locator("[data-lane-header]")
       .evaluateAll((items) =>
