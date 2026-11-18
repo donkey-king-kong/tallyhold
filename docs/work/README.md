@@ -61,6 +61,7 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 | [T-0067](tickets/T-0067-shared-agent-flow-stream-plan.md) | Plan approved shared Agent Flow stream contract | [R-0066](runs/R-0066.md) |
 | [T-0068](tickets/T-0068-shared-agent-flow-red-review.md) | Coordinate shared Agent Flow stream RED review round 1 | [R-0067](runs/R-0067.md) |
 | [T-0070](tickets/T-0070-shared-agent-flow-red-corrections.md) | Correct shared Agent Flow RED assertions and coordinate round 2 | [R-0070](runs/R-0070.md) |
+| [T-0071](tickets/T-0071-shared-agent-flow-red-round3.md) | Zack-authorized targeted shared Agent Flow RED round 3 | [R-0071](runs/R-0071.md) |
 
 Historical PR #6 post-dispatch records remain in T-0002's checkpoint
 branch/worktree. Future ship runs use PR comments instead.

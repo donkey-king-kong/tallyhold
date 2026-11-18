@@ -107,3 +107,42 @@ root case cannot publish into the shared root yet. Concurrent append
 assertions remain downstream of shared init and will be exercised at GREEN.
 Hand off this committed evidence with the test commit for a different fresh
 round-2 review before implementation.
+
+## Zack-authorized targeted round 3 (2026-11-18)
+
+- Zack authorized one extra RED correction/review after round 2, limited to
+  the three test findings. Approved spec and plan remain unchanged. Base for
+  cumulative review: `c12b954`. Tested test commit:
+  `7fed3f16f4056fd009700d3f7011e969f52a386b`
+  (the requested test commit `0f3b936` followed by a focused fixture repair).
+- `python3 -m unittest discover -s .trae/agent-flow -p 'test_*.py' -v`:
+  exit 1 (expected RED), 29 collected, 22 FAIL, seven PASS, zero ERROR/skipped.
+  Failure causes: the unchanged adapter lacks the common Git stream,
+  namespaced IDs and source attribution, reusable session, fail-closed
+  handling and write-before-rejection protection. In particular the new
+  invalid-parent case fails because `complete` creates a heartbeat before
+  rejecting `bad/id`. The long-ID expectation runs after shared init becomes
+  available; it asserts the exact original-agent SHA-256 suffix. No
+  collection, syntax, network, dependency or fixture errors remain.
+- `python3 -m unittest discover -s .trae/agent-flow -p 'test_*.py' -v -k AdapterTests`:
+  exit 0, all six existing tests pass without edits.
+- `git diff --check`: exit 0.
+
+The targeted corrections map to criteria/numbered plan verification items
+2-4. `test_default_and_explicit_parents_resolve_consistently` now includes
+the expected `sourceWorktree` in the complete return payload (2, 4).
+`test_normalization_collisions_and_long_names_remain_distinct` computes
+the exact 64-character resolved ID, retaining available leading agent
+characters and the first eight hex of SHA-256 of the original bare agent
+ID (3). `test_invalid_parent_is_rejected_without_partial_writes` covers
+both `start` and `complete`, requiring failed commands to leave log and
+heartbeat unchanged; it uses an explicit root so its RED failure isolates
+the validation order from unimplemented shared-root discovery (2, 3).
+Every other criterion and numbered verification row retains its mapping
+above. Concurrent appends are still gated by shared init until GREEN.
+
+An initial local run of `0f3b936` showed a fixture error in the invalid-parent
+case because the old script-local adapter had not created a shared log.
+The separate `7fed3f1` test commit corrected the fixture using the supported
+explicit-root CLI option. Only the final, error-free run at `7fed3f1` is
+handoff evidence.
