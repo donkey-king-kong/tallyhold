@@ -25,8 +25,9 @@ failures caused by absent UI/projection behavior, not broken setup.
 
 - [ ] **Presentation RED, AC2, AC4, AC8-AC10, AC12:** Add
   `test/presentation.test.ts` for stable lane slots, range/unknown chronology,
-  honest ages and intervals, local-zone/duration formatting, and plain
-  event/status mapping. Commit the focused RED slice.
+  exact assigned-lane slug-prefix stripping with no-match and ungrouped
+  fallbacks, honest ages and intervals, local-zone/duration formatting, and
+  plain event/status mapping. Commit the focused RED slice.
 - [ ] **Projection RED, AC1, AC9-AC11, AC15:** Extend
   `test/core.test.ts` for last accepted verified event time, explicit role,
   absolute interval bounds and unique-only tool duration/counterpart facts.
@@ -34,9 +35,10 @@ failures caused by absent UI/projection behavior, not broken setup.
   batch/incremental equivalence. Commit the focused RED slice.
 - [ ] **Graph DOM RED, AC3-AC7, AC14:** Extend
   `test/webview.test.ts` for pane order and stacking, 25-agent multi-lane
-  geometry, label/box paint order and non-overlap, all resolved connectors,
-  accessible icon+word states, three-theme token contrast and keyboard
-  controls. Commit the focused RED slice.
+  geometry, wrapped labels inside fitted boxes with foreground paint order
+  and no overlap, box-inclusive Fit all, all resolved connectors, accessible
+  icon+word states, three-theme token contrast and keyboard controls.
+  Commit the focused RED slice.
 - [ ] **Inspector/footer DOM RED, AC1-AC2, AC8-AC15:** Extend
   `test/webview.test.ts` for header reader/age, time-range and older-run
   disclosure, inspector ID copy/fallback and paged activity, provisional
@@ -56,11 +58,12 @@ approved RED cases. Do not weaken tests to force a pass.
   or verified fields in `src/core/reconcile.ts` and their validation in
   `src/shared/protocol.ts`. Preserve 004 reader/reducer behavior.
 - [ ] **Pure presentation model, AC2, AC4, AC7-AC12:** Implement
-  `src/webview/presentation.ts` for lane/run selection, age/duration/local
-  time, state icons and event copy with uncertainty fallbacks.
+  `src/webview/presentation.ts` for lane/run selection, exact assigned-lane
+  display-name shortening, age/duration/local time, state icons and event
+  copy with uncertainty fallbacks.
 - [ ] **Lane graph, AC4-AC6, AC14-AC15:** Implement
-  `src/webview/graph.ts` with stable slots, label-inclusive geometry,
-  foreground text, one edge per resolved pair, culling and Fit all.
+  `src/webview/graph.ts` with stable slots, wrapped foreground text inside
+  fitted boxes, one edge per resolved pair, culling and box-inclusive Fit all.
 - [ ] **Workspace shell, AC1-AC3, AC8, AC13-AC14:** Refactor
   `src/webview/main.ts` and `media/styles.css` for header/toolbar,
   three panes at >=960px, narrow stack, clock and collapsed footer.

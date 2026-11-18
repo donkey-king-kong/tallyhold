@@ -92,17 +92,29 @@ with the newly resolved connector and worktree association in navigator and
 inspector; moving it would violate 004's stable-position promise. A new
 source generation recomputes deterministically from its records.
 
+Use the assigned **display lane**, not a guessed role or branch, to shorten
+graph/navigator names: for root `wt-<slug>`, remove the exact `<slug>-` prefix
+only when the node's full ID starts with it and a nonempty name remains.
+Otherwise show the full ID. An ungrouped node has no assigned lane and keeps
+its full ID even if it happens to start with another lane's prefix; a
+late-resolved parent does not retroactively change that display assignment.
+Do not change identity keys, searchability by full ID or accessible full
+names. The inspector always shows and copies the full ID. The publisher
+reports no role field today: `reportedRole` remains explicit-only and the
+inspector says role unavailable when it is absent.
+
 Render one graph SVG with explicit edge layer, lane/header layer and node
 layer. For every resolved pair with both rendered endpoints, draw exactly
 one `data-parent-id`/`data-child-id` connector from parent bottom port to
 child top port; across lanes route through a non-overlapping gutter. No
 connector for orphan/self/cycle links or a filtered-out endpoint. Keep
 connectors behind boxes; node text/tspans are in a foreground group **after**
-box shapes, placed in a reserved label region above each box rather than at
-the box's y-center. Measure and wrap long text in that region, enlarge row
-height and Fit-all bounds to include full labels; never hide text behind
-another node or ellipsize it. At tight zoom, pan/zoom and accessible full
-names in navigator/inspector reach any text outside the viewport.
+box shapes, **inside** each box with padding. Measure and wrap the displayed
+label; size the box's width and height to contain every line and reserve
+enough row/column space for the resulting box bounds. Include those bounds
+in Fit all; never paint text underneath its box, overlap another node or
+ellipsize it. At tight zoom, pan/zoom and accessible full names in
+navigator/inspector reach any text outside the viewport.
 
 Reuse 004 camera preservation across append, range and status filters; initial
 open and Fit all bound every accepted identity (including terminal, unknown
@@ -190,8 +202,8 @@ graph and separate reader state from node state.
 | --- | --- |
 | `extensions/agent-monitor/src/core/reconcile.ts` / projection only | Optional verified absolute bounds, last-event time, explicit role and counterpart/category/duration fields; **no** reader, parser, reducer-status, relationship, interval-policy, or core-position changes. If a field needs a semantic rewrite, return to Zack before RED. |
 | `extensions/agent-monitor/src/shared/protocol.ts` / shared boundary | Bound and validate added optional projection fields; no new webview command or host capability. |
-| `extensions/agent-monitor/src/webview/presentation.ts` / view model | Pure formatting, last-reported state mapping, range/run selection, plain activity mapping and unavailable fallbacks. |
-| `extensions/agent-monitor/src/webview/graph.ts` / view geometry | Deterministic lane/slot allocation, SVG labels/edges, bounds/culling and accessible node names. |
+| `extensions/agent-monitor/src/webview/presentation.ts` / view model | Pure formatting, exact assigned-lane prefix shortening, last-reported state mapping, range/run selection, plain activity mapping and unavailable fallbacks. |
+| `extensions/agent-monitor/src/webview/graph.ts` / view geometry | Deterministic lane/slot allocation, SVG labels inside fitted boxes, edges, bounds/culling and accessible full node names. |
 | `extensions/agent-monitor/src/webview/main.ts`, `media/styles.css` / UI | Header, toolbar, three panes, footer, inspector, navigator, local controls, theme, keyboard/focus and reduced motion. Existing bootstrap continues to mount/update. |
 | `extensions/agent-monitor/test/{core,presentation,webview}.test.ts` / verification | Named synthetic unit and DOM cases below; no real JSONL or shared-stream dependency. |
 
@@ -206,27 +218,33 @@ Zack approves this plan. Use synthetic `wt-a1`/`wt-b2` roots with task text,
 descendants, delayed parents, duplicate-valued records, two intervals per
 identity, no anchor, stale companions, unsupported types and out-of-order
 reports. No private logs, images, or chore-branch import.
+For the display-name case, assign `alpha-reviewer` to `wt-alpha` and assert
+`reviewer`; keep `beta-reviewer` in that lane and ungrouped `alpha-orphan`
+at full length. In all three cases the inspector/copy target remains the
+original ID and an absent reported role stays unavailable.
 
 | AC | Design path | Named test(s) |
 | --- | --- | --- |
 | 1 | Header from source state and last accepted verified event, independent reader errors | `webview.test.ts: header shows source session following age and stale recovery`; `core.test.ts: last event absolute time uses last accepted record` |
 | 2 | Local toolbar and intersected active/range filters, honest note | `webview.test.ts: toolbar toggles range and last reported active without liveness claim` |
 | 3 | CSS grid with 960px breakpoint, bounded panes and graph | `webview.test.ts: wide view places three panes beside visible graph and narrow view stacks in order` |
-| 4 | Source-order stable worktree slots, reported task/slug and ungrouped late parent | `presentation.test.ts: lane assignment preserves slots across late root and append`; `webview.test.ts: root task titles slug subtitles and agent counts span lanes` |
-| 5 | Foreground label region, wrapped bounds and label-inclusive Fit all | `webview.test.ts: node labels stay above boxes and clear adjacent labels at fit and zoom` |
+| 4 | Source-order stable worktree slots, reported task/slug and ungrouped late parent; shorten only an assigned lane's exact slug prefix | `presentation.test.ts: lane assignment preserves slots across late root and append`; `presentation.test.ts: display name strips only assigned lane prefix and preserves unmatched and ungrouped ids`; `webview.test.ts: root task titles slug subtitles and agent counts span lanes` |
+| 5 | Foreground text inside padded, wrap-fitted node boxes and box-inclusive Fit all | `webview.test.ts: foreground labels fit inside boxes without overlap at fit and zoom` |
 | 6 | One keyed connector per resolved pair with both endpoints, edge layer below nodes | `webview.test.ts: all resolved links draw one connector including cross lane and late parent` |
 | 7 | Distinct icon+word states and dashed unknown-parent annotation; tool result isolated | `webview.test.ts: statuses and unknown parent show distinct symbols without fading completed`; `webview.test.ts: failed tool never changes completed agent status` |
 | 8 | Age clock and >1h tag without inference | `presentation.test.ts: no report threshold requires verified age`; `webview.test.ts: quiet report tag advances without dimming` |
 | 9 | Local-zone formatter and bounded interval/age fallback | `presentation.test.ts: local time ages durations and relative fallback respect verified bounds`; `core.test.ts: incomplete interval exposes no invented absolute end` |
 | 10 | Plain per-type labels, safe counterparts and paired-only tool duration | `presentation.test.ts: event labels avoid raw repetition and preserve ambiguous tools`; `core.test.ts: tool duration exists only for unique nonnegative pair` |
-| 11 | Inspector derived root/role and selected interval; ID copy fallback, paged source order | `webview.test.ts: inspector shows worktree task role status times parent and copyable full id` |
+| 11 | Inspector derived root/explicit-only role and selected interval; full ID/copy regardless of shortened graph name, paged source order | `webview.test.ts: inspector shows worktree task unavailable role status times parent and copyable full id` |
 | 12 | Local interval range and collapsed older group; unknown separate | `presentation.test.ts: last 24 hours groups older and unknown intervals without dropping history`; `webview.test.ts: older run expansion search and reveal retain selection` |
 | 13 | Collapsed footer, advisory companions and actionable diagnostics | `webview.test.ts: footer keeps graph visible and expands provisional snapshots and diagnostics` |
 | 14 | Resolved-token contrast, keyboard/focus and reduced motion in all themes | `webview.test.ts: light dark high contrast meet text and connector contrast`; `webview.test.ts: keyboard and reduced motion reach controls and inspector` |
 | 15 | Existing source isolation, stable camera, privacy/limits and regression | `webview.test.ts: historical and incremental fixtures preserve camera and no executable telemetry`; existing `core.test.ts`, `host.test.ts`, `packaging.test.ts` and adapter tests remain green |
 
-JSDOM uses stubbed SVG text metrics/client rectangles for paint-order and
-non-overlap assertions; complement that deterministic DOM check with actual
+JSDOM uses stubbed SVG text metrics/client rectangles to assert box shape
+precedes foreground text, wrapped text bounds fit within padded box bounds,
+boxes do not overlap, and Fit all includes each full box; complement that
+deterministic DOM check with actual
 VSIX smoke in recorded light/dark/high-contrast themes and wide/narrow editor
 panels before release. Retain extension limits (64 MiB, 100,000 complete
 records, 2,000 identities, 1 MiB per line), <=500 rendered graph nodes per
