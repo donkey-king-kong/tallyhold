@@ -113,12 +113,35 @@ export function mountMonitor(
   });
   const footerCount = element("span");
   const footerDisclosure = element("details");
-  const footerToggle = button("Show details", () => {
-    footerDisclosure.open = !footerDisclosure.open;
+  const footerToggle = element("summary", "Show details", {
+    role: "button",
+    "aria-label": "Show details",
+    "aria-expanded": "false",
+    tabindex: "0",
   });
-  const footerBody = element("div");
-  footerDisclosure.append(footerBody);
-  footer.append(footerCount, footerToggle, footerDisclosure);
+  const footerBody = element("div", undefined, {
+    class: "monitor-footer-body",
+  });
+  footerBody.hidden = true;
+  const setFooterOpen = (open: boolean) => {
+    footerDisclosure.open = open;
+    footerBody.hidden = !open;
+    footerToggle.textContent = open ? "Hide details" : "Show details";
+    footerToggle.setAttribute("aria-label", footerToggle.textContent);
+    footerToggle.setAttribute("aria-expanded", String(open));
+  };
+  footerToggle.addEventListener("click", (event) => {
+    event.preventDefault();
+    setFooterOpen(!footerDisclosure.open);
+  });
+  footerToggle.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      setFooterOpen(!footerDisclosure.open);
+    }
+  });
+  footerDisclosure.append(footerToggle, footerBody);
+  footer.append(footerCount, footerDisclosure);
   const legacyDiagnostics = element("section", undefined, {
     class: "monitor-accessible-summary",
     role: "region",
@@ -587,12 +610,22 @@ export function mountMonitor(
     legacyDiagnostics.replaceChildren();
     legacyCompanions.replaceChildren();
     for (const companion of companions) {
+      const updatedAt =
+        typeof companion.updatedAt === "string" &&
+        validInstant(companion.updatedAt)
+          ? localTime(companion.updatedAt)
+          : "unavailable";
       const line = element(
         "div",
-        `${companion.agentId ?? "Unknown identity"}: ${companion.status ?? "unknown"}; ${companion.activity ?? "activity unavailable"}; updated ${companion.updatedAt ?? "unavailable"}; ${companion.certainty ?? "provisional"} ${companion.source ?? "companion"}`,
+        `${companion.agentId ?? "Unknown identity"}: ${companion.status ?? "unknown"}; ${companion.activity ?? "activity unavailable"}; updated ${updatedAt}; ${companion.certainty ?? "provisional"} ${companion.source ?? "companion"}`,
       );
       footerBody.append(line);
-      legacyCompanions.append(line.cloneNode(true));
+      legacyCompanions.append(
+        element(
+          "div",
+          `${companion.agentId ?? "Unknown identity"}: ${companion.status ?? "unknown"}; ${companion.activity ?? "activity unavailable"}; updated ${companion.updatedAt ?? "unavailable"}; ${companion.certainty ?? "provisional"} ${companion.source ?? "companion"}`,
+        ),
+      );
     }
     for (const diagnostic of diagnostics.slice(0, 100)) {
       const line = element(

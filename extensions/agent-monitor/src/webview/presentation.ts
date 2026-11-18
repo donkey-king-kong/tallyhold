@@ -74,13 +74,17 @@ export function localTime(
 ): string {
   const date = validInstant(value);
   if (!date) return "unavailable";
-  return new Intl.DateTimeFormat("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-    ...(seconds ? { second: "2-digit" } : {}),
-    hourCycle: "h23",
-    timeZoneName: "short",
-  })
+  const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  return new Intl.DateTimeFormat(
+    zone === "Asia/Singapore" ? "en-SG" : "en-GB",
+    {
+      hour: "2-digit",
+      minute: "2-digit",
+      ...(seconds ? { second: "2-digit" } : {}),
+      hourCycle: "h23",
+      timeZoneName: "short",
+    },
+  )
     .format(date)
     .replace(/UTC(?=[+-])/g, "GMT");
 }
