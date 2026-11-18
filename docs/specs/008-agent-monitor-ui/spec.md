@@ -1,4 +1,4 @@
-# 007: Agent monitor UI redesign
+# 008: Agent monitor UI redesign
 
 ## Status
 
@@ -21,7 +21,7 @@ shared-stream worktree roots (`wt-<slug>`) provide grouping when present.
 
 ## User stories
 
-- As Zack, I want to see the orchestrator and worktree tracks together so I
+- As Zack, I want to see the orchestrator and worktrees together so I
   can locate an agent and its parent without scrolling through a long list.
 - As Zack, I want readable status, local time, and plain activity descriptions
   so I can understand what was last reported without interpreting event types.
@@ -52,13 +52,16 @@ shared-stream worktree roots (`wt-<slug>`) provide grouping when present.
    graph, inspector order and none covers the graph controls or selected details.
 4. **Worktree lanes.** Given an orchestrator and `wt-<slug>` root identities in
    one selected stream, when the graph renders, then the orchestrator anchors
-   above a separate column per worktree root. Each lane header shows a human
-   track label, reported branch or "unavailable", status icon and word, agent
-   count, and a humanized since-time or labelled relative fallback. Descendant
-   agents are grouped in their worktree lane in reported chronological order;
-   25 agents across several worktrees do not form a single 25-row column.
+   above a separate column per worktree root. Each lane header uses the root
+   node's reported task text as its title (or "unavailable") and the reported
+   worktree slug/root ID verbatim as its subtitle, alongside a status icon and
+   word, agent count, and a humanized since-time or labelled relative fallback.
+   No "Track X" label or raw branch name is invented; a raw branch may be shown
+   only if a future publisher field explicitly reports one. Descendant agents
+   are grouped in their worktree lane in reported chronological order; 25
+   agents across several worktrees do not form a single 25-row column.
    Missing worktree roots stay reachable in an explicitly ungrouped area
-   without an invented branch, track, or parent.
+   without an invented worktree or parent.
 5. **Legible graph labels.** Given long and short names at normal zoom and
    after Fit all, when nodes render, then their labels are fully visible above
    their own boxes, never painted underneath a box or clipped by an adjacent
@@ -104,7 +107,8 @@ shared-stream worktree roots (`wt-<slug>`) provide grouping when present.
     unavailable/ambiguous; unknown event types have a clear fallback. No row
     repeats raw names such as "subagent_return: subagent_return".
 11. **Inspector.** Given a selected identity, when its inspector opens, then
-    it shows role as reported (or unavailable), branch (or unavailable),
+    it shows role as reported (or unavailable), "Worktree: <slug>" using the
+    reported slug (or "Worktree: unavailable" when absent),
     status pill with icon and word, task, started time, running-for/ran time,
     last report age, reports-to identity or Unknown parent, a copyable full
     ID, and source-order chronological activity with outcomes. It omits
@@ -151,6 +155,7 @@ shared-stream worktree roots (`wt-<slug>`) provide grouping when present.
 
 ## Open questions
 
-None for Gate 1. Track and branch metadata absent from a selected stream remain
-explicitly unavailable; the shared-stream root format must not be guessed from
-unrelated filenames. Zack's approved mock supplies the interaction direction.
+None for Gate 1. The stream carries no track name or raw branch, and the
+shared-stream root supplies only a normalized/hashed worktree slug. Do not
+derive track or branch names from it or unrelated filenames. Zack's approved
+mock supplies the interaction direction.
