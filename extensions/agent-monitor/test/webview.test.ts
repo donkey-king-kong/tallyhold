@@ -1363,6 +1363,51 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
     ).not.toMatch(/agent failed/i);
   });
 
+  it("footer has one disclosure with hidden content and local heartbeat times", () => {
+    vi.stubEnv("TZ", "Asia/Singapore");
+    const { root, app } = mount008([syntheticNode("agent-x")], [], {
+      companions: [
+        {
+          agentId: "agent-x",
+          status: "working",
+          updatedAt: "2023-11-14T02:41:00.000Z",
+          certainty: "provisional",
+        },
+      ],
+      diagnostics: [{ code: "incomplete", line: 4 }],
+    });
+    const footer = getByRole(root, "region", { name: /monitor footer/i });
+    const details = footer.querySelector("details")!;
+    const summary = within(footer).getByRole("button", {
+      name: /show details/i,
+    });
+    expect(footer.querySelectorAll("summary")).toHaveLength(1);
+    expect(
+      within(footer).getAllByRole("button", { name: /details/i }),
+    ).toHaveLength(1);
+    expect(details.open).toBe(false);
+    expect(details.querySelector("[hidden]")).not.toBeNull();
+    fireEvent.click(summary);
+    expect(details.open).toBe(true);
+    expect(details.querySelector("[hidden]")).toBeNull();
+    expect(footer.textContent).toMatch(/agent-x.*10:41 SGT/i);
+    expect(footer.textContent).not.toContain("2023-11-14T02:41:00.000Z");
+    app.update(
+      syntheticView([syntheticNode("agent-x")], [], {
+        companions: [
+          {
+            agentId: "agent-x",
+            status: "working",
+            updatedAt: "2023-11-14T02:42:00.000Z",
+            certainty: "provisional",
+          },
+        ],
+      }),
+    );
+    expect(details.open).toBe(true);
+    expect(footer.textContent).toMatch(/10:42 SGT/);
+  });
+
   it("light dark high contrast meet text and connector contrast", () => {
     const { nodes, edges } = twoLanes();
     const { root } = mount008(nodes, edges);
