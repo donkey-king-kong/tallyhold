@@ -1,6 +1,6 @@
 # 008 Agent Monitor UI RED test run
 
-- Test revision: `885fbe4cb79c6c7a27f7d7bc42c790133b4420ab` (`test: strengthen agent monitor UI RED boundaries`), following initial RED `1522e5f`.
+- Test revision: `e7344890e625b167bc01f6b3f4ab0e2eee70c339` (`test: remove page-size assumption from activity paging test`), following `885fbe4` and initial RED `1522e5f`.
 - Previous plan revision: `f90265e`; approval was recorded in `f8bc088`. This is a synthetic-only RED handoff; no production source, 004 test, publisher, or adapter file changed.
 - Platform: local macOS, Node/Vitest from locked `npm ci`. No real JSONL, credentials, external service, or shared-stream chore fixture.
 - Public seams: `createStream(...).ingest(...).snapshot()` checks projection facts (not how records are stored); `mountMonitor(root, state).update(...)` checks visible DOM, controls, accessible content, graph geometry and local rendering (not private collaborators). CSS token checks use resolved synthetic themes and the shipped stylesheet.
@@ -14,7 +14,9 @@ Run from `extensions/agent-monitor/` unless noted.
 | `./node_modules/.bin/vitest run -t 'Feature 008' --reporter=json` | 1 (expected; summary filtered through `jq`) | 111 / 34 / 0 / 77 | All new cases fail on absent optional validation, projected fields, presentation or controls; no setup, import, fixture, collection or network errors. |
 | `./node_modules/.bin/vitest run -t '^(?!.*Feature 008)' --reporter=json` | 0 | 111 / 0 / 77 / 34 | Existing 004 extension tests in core, host, packaging and webview pass; only 34 new cases are skipped. |
 | `python3 -m unittest discover -s .trae/agent-flow -p 'test_*.py' -v` (repo root) | 0 | 6 / 0 / 6 / 0 | Existing local publisher adapter tests pass. |
-| `npm run lint && npm run typecheck && npm run format:check && git diff --check` | 0 | n/a | ESLint, TypeScript, Prettier and whitespace checks pass. |
+| `npm run lint` | 0 | n/a | ESLint passes. |
+| `npm run typecheck && ./node_modules/.bin/prettier --check test/webview.test.ts` | 0 | n/a | TypeScript and changed test formatting pass. |
+| `git diff --check` | 0 | n/a | No whitespace errors in the focused test diff. |
 
 The RED cases use `wt-a1`, `wt-b2` and `wt-alpha` roots produced by
 synthetic projection objects or in-memory JSONL records. Out-of-order and
@@ -93,6 +95,17 @@ wrapped label bounds, Fit all and zoom; duplicate, self and cyclic edges,
 connector ports, layer order and endpoint filtering; non-faded completed
 ancestors; distinct token surfaces for light, dark and high contrast; and
 keyboard effect/focus for range, search, filter, zoom, pan, selection and copy.
+
+Zack resolved the final round-2 `CHANGES_REQUESTED` at `182f438` on
+2026-11-18 as a test-specification defect. At `e734489`, the AC11/14
+activity-paging case uses the keyboard-accessible Last activity page action
+before checking `Report 104`, captures the rendered page label, and verifies
+both the last report and selected page persist after a live update. It does
+not prescribe the page size. All 34 first failures remain missing Feature 008
+behavior, including this case's absent Last 24 hours control; later assertions
+are not yet exercised. The approved spec and plan are unchanged. Zack directed
+no further reviewer round or cost approval and will inspect the focused diff
+before confirming GREEN.
 
 ## Boundaries and follow-up risk
 
