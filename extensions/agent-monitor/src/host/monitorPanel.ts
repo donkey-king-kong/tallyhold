@@ -18,21 +18,30 @@ function safeResource(uri: string): boolean {
   }
 }
 
+function safeCspSource(source: string): boolean {
+  return /^https:\/\/(?:\*|[A-Za-z0-9-]+)(?:\.[A-Za-z0-9-]+)*\.vscode-cdn\.net$/.test(
+    source,
+  );
+}
+
 export function renderPanelHtml(input: {
   scriptUri: string;
   styleUri: string;
+  cspSource?: string;
   nonce: string;
 }): string {
   if (
     !safeResource(input.scriptUri) ||
     !safeResource(input.styleUri) ||
+    (input.cspSource !== undefined && !safeCspSource(input.cspSource)) ||
     !/^[A-Za-z0-9_-]+$/.test(input.nonce)
   ) {
     throw new Error("Unsafe webview resource");
   }
+  const styleSource = input.cspSource ?? input.styleUri;
   return [
     "<!doctype html><html><head>",
-    `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; connect-src 'none'; img-src 'none'; style-src ${input.styleUri}; script-src 'nonce-${input.nonce}'">`,
+    `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; connect-src 'none'; img-src 'none'; style-src ${styleSource}; script-src 'nonce-${input.nonce}'">`,
     `<link rel="stylesheet" href="${input.styleUri}">`,
     '</head><body><main id="app"></main>',
     `<script nonce="${input.nonce}" src="${input.scriptUri}"></script>`,

@@ -41,6 +41,7 @@ export function activate(context: vscode.ExtensionContext) {
       panel.webview.html = renderPanelHtml({
         scriptUri: script.toString(),
         styleUri: style.toString(),
+        cspSource: panel.webview.cspSource,
         nonce: nonce(),
       });
 

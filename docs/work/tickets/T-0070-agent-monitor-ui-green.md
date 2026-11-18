@@ -2,16 +2,16 @@
 
 ## Assignment
 
-- Status: in_review
-- Owner actor: R-0070/coordinator
+- Status: in_progress
+- Owner actor: R-0071/coordinator
 - Role: Implementer / coordinator
-- Run: [R-0070](../runs/R-0070.md), after [R-0059](../runs/R-0059.md)
+- Run: [R-0071](../runs/R-0071.md), after [R-0070](../runs/R-0070.md)
 - Feature: [approved spec](../../specs/008-agent-monitor-ui/spec.md), [approved plan](../../specs/008-agent-monitor-ui/plan.md), [tasks](../../specs/008-agent-monitor-ui/tasks.md)
 - Authorization: Zack confirmed RED at `e734489` on 2026-11-18 after resolving the round-2 test defect. No further RED review; GREEN authorized. Stop before PR pending hands-on VSIX smoke.
 - Dependencies: [T-0057](T-0057-agent-monitor-ui-red.md), [T-0058](T-0058-review-agent-monitor-ui-red.md)
 - Branch / worktree: `feature/008-agent-monitor-ui` / `../tallyhold-feature-008-agent-monitor-ui`
 - Issue / PR: related #44; no PR requested.
-- Updated: 2026-11-18T06:13:01Z
+- Updated: 2026-11-18T06:22:20Z
 
 ## Scope
 
@@ -25,18 +25,19 @@ fixes, package a VSIX and stop for Zack's theme/width/keyboard smoke.
 - [x] All 34 new RED cases and 77 existing extension tests pass with >=80% coverage.
 - [x] Lint, format, typecheck, build, package, six adapter tests and representative plus 25-agent multi-lane benchmark pass.
 - [x] Compatible npm audit fixes assessed; no non-breaking fix available and remainder recorded.
-- [x] GREEN commits pushed; VSIX path and exact smoke checklist prepared for Zack. No PR before Zack reports smoke.
+- [ ] GREEN smoke corrections pushed; rebuilt VSIX path and checklist prepared for Zack. No PR before Zack reports a new smoke.
+- [ ] Regressions cover host CSP and applied stylesheet, root-ID name, one identity row/run selector, footer disclosure/local times, and plain navigator/node copy.
 
 ## Checkpoint
 
-- Last completed action: GREEN pushed through benchmark commit `30b6ec6`; final locked install, 111/111 extension tests with 96.66% statements, 96.91% functions and 97.93% lines, lint, format, typecheck, build, package, six adapter tests and benchmark passed.
+- Last completed action: first RED commit `e295f4e` proved CSP and computed bundled CSS failures; host/CSS fixes pass the two targeted tests.
 - Evidence: GREEN projection `57757f8`, webview `c148fc9`, benchmark `30b6ec6`; packaged `extensions/agent-monitor/tallyhold-agent-monitor-0.1.0.vsix`. Synthetic 25-agent/three-lane fixture rendered 29 identities, 3 lanes and 28 connectors in 6.37 ms; representative cold reducer 109.84 ms, maximum 985.21 ms, 2,000-identity webview 131.43 ms.
-- Worktree state: pushed feature head `30b6ec6`; final handoff checkpoint pending commit; no RED assertion changed.
-- Remaining work: Zack's packaged-editor smoke; no PR until he reports its result.
+- Worktree state: local RED head `e295f4e`; host, CSS, approved plan amendment and tracking uncommitted; no prior RED assertion changed.
+- Remaining work: five test-first fixes, full check matrix, new VSIX, commit/push and Zack's repeat smoke.
 - Audit: `npm audit` reports 17 high dev-only findings. `npm audit fix --dry-run` offered zero compatible package changes; its direct dependency remedies require out-of-range versions (`vitest`/coverage 4 to 3, `typescript-eslint` 8.73 to 8.47.0, `vsce` 3 to 4). Registry latest `picomatch` is vulnerable 4.0.7. No force or incompatible change applied. Packaging warns that this extension has no LICENSE file.
-- Blocker / unblock action: none for local GREEN; hands-on smoke is a required stop.
-- Next action: Zack installs the VSIX and reports the hands-on smoke result. Only then decide whether fixes are needed or a ship PR is authorized.
-- Handoff recipient: Zack after packaged VSIX.
+- Blocker / unblock action: none for authorized GREEN correction; hands-on smoke remains a required stop.
+- Next action: commit tested host/CSS fix, then update the approved display-name test to the real root-ID format and verify it fails before changing presentation code.
+- Handoff recipient: Zack after rebuilt packaged VSIX.
 
 ## History
 
@@ -48,3 +49,5 @@ fixes, package a VSIX and stop for Zack's theme/width/keyboard smoke.
 | 2026-11-18T06:11:30Z | R-0070/coordinator | Final `npm ci`, 111 tests/coverage (96.66% statements, 96.91% functions, 97.93% lines), lint, format, typecheck, build, package, six adapter tests and representative/maximum/25-agent benchmark pass | Commit and push final UI revision; VSIX ready for Zack smoke, no PR |
 | 2026-11-18T06:12:23Z | R-0070/coordinator | Committed verified UI and tracking at `c148fc9`; benchmark source remains as separate local slice | Commit benchmark/checkpoint, push and stop for Zack smoke |
 | 2026-11-18T06:13:01Z | R-0070/coordinator | Benchmark committed `30b6ec6`; pushed branch `feature/008-agent-monitor-ui` through that head | Record final smoke handoff, await Zack's editor result; no PR |
+| 2026-11-18T06:18:43Z | R-0071/coordinator | Zack's real-log smoke FAIL: stylesheet not applied, wrong name prefix, per-run navigator rows, visible/duplicated footer with UTC times, jargon/full ID in navigator. Fetched clean `b09fc7a`; plan amendment explicitly approved | Write a regression test for each symptom before GREEN fixes; no PR |
+| 2026-11-18T06:22:20Z | R-0071/coordinator | RED tests `e295f4e`: host CSP used CSS file URL and malformed CSS left button min-height empty. Explicit webview CSP source and corrected CSS now pass both targeted tests | Commit item 1 and write real-ID prefix regression |
