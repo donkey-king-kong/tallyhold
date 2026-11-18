@@ -164,18 +164,21 @@ async function measureHost(envelope: Envelope, appendCount: number) {
   }
 }
 
-function measureWebview() {
+function measureWebview(multiLane = false) {
   const dom = new JSDOM("<main></main>", { url: "https://webview.local/" });
   const previousDocument = Reflect.get(globalThis, "document");
   const previousWindow = Reflect.get(globalThis, "window");
   Reflect.set(globalThis, "document", dom.window.document);
   Reflect.set(globalThis, "window", dom.window);
-  const activities = Array.from({ length: 100_000 }, (_, index) => ({
-    type: "message",
-    time: index,
-    summary: `Synthetic activity ${index}`,
-  }));
-  const nodes = Array.from({ length: 2_000 }, (_, index) => ({
+  const activities = Array.from(
+    { length: multiLane ? 0 : 100_000 },
+    (_, index) => ({
+      type: "message",
+      time: index,
+      summary: `Synthetic activity ${index}`,
+    }),
+  );
+  const workload = Array.from({ length: 2_000 }, (_, index) => ({
     id: `agent-${index}`,
     status: index === 0 ? "working" : "completed",
     terminal: index !== 0,
@@ -185,13 +188,63 @@ function measureWebview() {
     intervals: [],
     lastUpdateAge: 0,
   }));
+  const roots = ["a1", "b2", "c3"];
+  const nodes = multiLane
+    ? [
+        {
+          id: "orchestrator",
+          status: "working",
+          terminal: false,
+          relationship: "root",
+          position: { x: 0, y: 0 },
+          activities: [],
+          intervals: [],
+          lastUpdateAge: 0,
+        },
+        ...roots.map((slug) => ({
+          id: `wt-${slug}`,
+          task: `Synthetic worktree task ${slug}`,
+          parentId: "orchestrator",
+          status: "working",
+          terminal: false,
+          relationship: "resolved",
+          position: { x: 0, y: 0 },
+          activities: [],
+          intervals: [],
+          lastUpdateAge: 0,
+        })),
+        ...Array.from({ length: 25 }, (_, index) => ({
+          id: `${roots[index % roots.length]}-agent-${index}`,
+          parentId: `wt-${roots[index % roots.length]}`,
+          status: "working",
+          terminal: false,
+          relationship: "resolved",
+          position: { x: 0, y: 0 },
+          activities: [],
+          intervals: [],
+          lastUpdateAge: 0,
+        })),
+      ]
+    : workload;
+  const edges = multiLane
+    ? [
+        ...roots.map((slug) => ({
+          parentId: "orchestrator",
+          childId: `wt-${slug}`,
+        })),
+        ...Array.from({ length: 25 }, (_, index) => ({
+          parentId: `wt-${roots[index % roots.length]}`,
+          childId: `${roots[index % roots.length]}-agent-${index}`,
+        })),
+      ]
+    : [];
   const root = dom.window.document.querySelector("main") as HTMLElement;
   const renderStart = performance.now();
   const monitor = mountMonitor(root, {
     path: "/synthetic/events.jsonl",
     sessionId: "synthetic-benchmark",
     reader: "following",
-    projection: { nodes, edges: [], diagnostics: [] },
+    projection: { nodes, edges, diagnostics: [] },
   });
   const initialRenderMs = performance.now() - renderStart;
   const inspectStart = performance.now();
@@ -203,6 +256,8 @@ function measureWebview() {
     initialRenderMs: Number(initialRenderMs.toFixed(2)),
     inspectorRenderMs: Number(inspectorRenderMs.toFixed(2)),
     renderedGraphNodes: root.querySelectorAll("svg [data-node-id]").length,
+    lanes: root.querySelectorAll(".graph-lanes text").length,
+    connectors: root.querySelectorAll("svg [data-edge]").length,
     renderedActivities: root.querySelectorAll(
       '[aria-label="Activity history"] > div:not(:first-child)',
     ).length,
@@ -243,7 +298,12 @@ const host = await measureHost(
   200,
 );
 const webview = measureWebview();
+const multiLaneWebview = measureWebview(true);
 
 console.log(
-  JSON.stringify({ representative, maximum, host, webview }, null, 2),
+  JSON.stringify(
+    { representative, maximum, host, webview, multiLaneWebview },
+    null,
+    2,
+  ),
 );
