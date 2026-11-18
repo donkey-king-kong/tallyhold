@@ -1334,10 +1334,7 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
     const mark = row.querySelector<HTMLElement>("[data-status-icon]");
     expect(mark?.dataset.statusIcon).toBe("Working");
     expect(mark?.getAttribute("aria-hidden")).toBe("true");
-    const styles = readFileSync(
-      new URL("../media/styles.css", import.meta.url),
-      "utf8",
-    );
+    const styles = readFileSync("media/styles.css", "utf8");
     expect(styles).toMatch(/\.navigator-status-icon\[data-status-icon="Working"\]/);
     expect(row.textContent).not.toMatch(/resolved|\(wt-|test-writer.*test-writer/i);
     expect(row.getAttribute("aria-label")).toContain(fullId);
