@@ -1274,6 +1274,46 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
     ).toContain("old-run");
   });
 
+  it("shows one navigator row per identity and selects its runs in the inspector", () => {
+    const intervals = Array.from({ length: 13 }, (_, index) => ({
+      start: index * 60,
+      end: index * 60 + 30,
+      certainty: "reported",
+      startAbsoluteTime: `2023-11-14T22:${String(index).padStart(2, "0")}:20.000Z`,
+      endAbsoluteTime: `2023-11-14T22:${String(index).padStart(2, "0")}:50.000Z`,
+    }));
+    const orchestrator = syntheticNode("orchestrator", {
+      status: "completed",
+      terminal: true,
+      intervals,
+    });
+    const { root, app } = mount008([orchestrator]);
+    const nav = getByRole(root, "navigation", { name: /agent navigator/i });
+    expect(
+      within(nav).getAllByRole("button", { name: /^orchestrator\b/i }),
+    ).toHaveLength(1);
+    expect(nav.textContent).toMatch(/orchestrator.*13 runs/i);
+    fireEvent.click(
+      within(nav).getByRole("button", { name: /^orchestrator\b/i }),
+    );
+    const inspector = getByRole(root, "region", { name: /agent details/i });
+    const runSelect = within(inspector).getByRole("combobox", {
+      name: /select run/i,
+    }) as HTMLSelectElement;
+    expect(runSelect.options).toHaveLength(13);
+    fireEvent.change(runSelect, { target: { value: "12" } });
+    expect(runSelect.value).toBe("12");
+    expect(inspector.textContent).toMatch(/Ran 06:12.*06:12.*30s/i);
+    app.update(syntheticView([orchestrator]));
+    expect(
+      (
+        within(inspector).getByRole("combobox", {
+          name: /select run/i,
+        }) as HTMLSelectElement
+      ).value,
+    ).toBe("12");
+  });
+
   it("footer keeps graph visible and expands provisional snapshots and diagnostics", () => {
     const reported = syntheticNode("agent-x", {
       status: "completed",
