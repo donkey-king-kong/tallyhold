@@ -163,3 +163,77 @@ suffix and invalid parent rejection. Round 2 is the final RED review round;
 escalate the gate outcome to Zack rather than beginning GREEN on this report.
 
 VERDICT: CHANGES_REQUESTED
+
+## Round 3 (Zack-authorized targeted review)
+
+Base: `c12b954`
+Reviewed pushed RED head: `01c24637c2ef3bcdf0401b0f877b6aaf27b22ce1`
+
+### Coverage mapping
+
+The cumulative `.trae/agent-flow/test_adapter.py` diff retains the round-2
+mapping for criteria and numbered plan verification items 1-10 above. In
+particular, item 1 maps to the shared/default/explicit/non-Git/symlink/shape
+tests; item 2 to bare roles, parent mapping and direct Store calls; item 3
+to branch/detached slug and collision/long-ID tests; item 4 to every-payload
+attribution and explicit-root tests; item 5 to reuse, concurrent init,
+orphan log and invalid-session tests; item 6 to the 40-process append test;
+item 7 to documented CLI forms; item 8 to main-orchestrator mapping; item 9
+to prefixed IDs and seeded-root deduplication; and item 10 to silent reuse and
+namespaced-heartbeat reactivation. Documentation content and committed-path
+hygiene remain GREEN delivery reviews under plan verification item 7.
+
+### Round-2 findings
+
+- The `subagent_return` equality assertion now includes `sourceWorktree`
+  derived from the resolved root (`test_default_and_explicit_parents_resolve_consistently`,
+  lines 240-243). The contradiction with criterion 4 is addressed.
+- Long agent IDs now have an exact expected 64-character value with the
+  available leading agent characters and first eight SHA-256 hex characters
+  of the original bare ID (`test_normalization_collisions_and_long_names_remain_distinct`,
+  lines 295-305). A truncation-only implementation will fail.
+- Invalid parents are supplied to both `start` and `complete`, with a
+  nonzero exit and unchanged log required (`test_invalid_parent_is_rejected_without_partial_writes`,
+  lines 310-323). However, its heartbeat assertion still misses a possible
+  partial write in the intended namespace; see check 4.
+
+### Six checks
+
+1. **Mapping:** Every numbered acceptance criterion and plan verification
+   row still has at least one named test as mapped above; no wholly uncovered
+   numbered item. The observable validate-before-write decision in plan
+   Approach 3/5 is not fully discriminated by the new invalid-parent test.
+2. **Observable decisions:** The exact long-agent suffix, return attribution,
+   parent rejection, shared-root/session behavior, concurrency, and security
+   rejection cases are represented. The invalid-parent test's no-partial-write
+   assertion is incomplete for namespaced heartbeats (check 4).
+3. **RED validity:** Independently ran the full suite against local test and
+   adapter files identical to the pinned head: 29 tests, 22 FAIL, seven PASS,
+   zero ERROR/skipped. Failures are missing shared-root/namespace/session/
+   attribution behavior and the old `complete` heartbeat-before-invalid-parent
+   rejection, not collection, dependency, fixture, or network errors. The
+   concurrent append and exact long-ID assertions remain downstream of
+   shared init and must be exercised at GREEN.
+4. **Behavioral assertions:** **Changes requested:** line 322 checks only
+   `heartbeats/checker.json`, the legacy bare-ID path. With the planned
+   namespace, `checker` in the alpha worktree is
+   `wt-feature-red-alp-<hash>-checker`. A plausible implementation can create
+   that namespaced heartbeat during `complete`, then reject `bad/id` without
+   appending an event; the nonzero exit, unchanged log, and bare-file absence
+   all pass. Assert the namespaced heartbeat does not appear (or compare the
+   heartbeat directory before and after each rejected operation) so invalid
+   parent validation really precedes state writes.
+5. **Infrastructure:** The fixture copies the unchanged adapter into
+   disposable local Git worktrees and uses offline subprocesses and synthetic
+   data. No external network, live secret, PostgreSQL, or paid service is
+   involved; no violation found.
+6. **Existing suite/cumulative diff:** `git diff c12b954 01c2463` adds 554
+   test-file lines but leaves the six original test bodies and `adapter.py`
+   unchanged; it also contains plan approval status, RED evidence, prior
+   review, and coordinator records, none of which were read as reviewer
+   inputs. Independently ran all six existing tests at the reviewed test/
+   adapter snapshot: six PASS. `git diff --check c12b954 01c2463` passes.
+   The checkout HEAD is later, but its approved inputs, test and adapter
+   files have no diff from the pinned RED head.
+
+VERDICT: CHANGES_REQUESTED

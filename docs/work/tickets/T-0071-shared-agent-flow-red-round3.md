@@ -2,7 +2,7 @@
 
 ## Assignment
 
-- Status: in_progress
+- Status: blocked
 - Owner actor: R-0071/coordinator
 - Role: coordinator / Test writer (RED only)
 - Run: [R-0071](../runs/R-0071.md), after [R-0070](../runs/R-0070.md)
@@ -11,7 +11,7 @@
 - Dependencies: [round-2 review](../../specs/chore-shared-agent-flow-stream/red-review.md) at `bc14cb6`
 - Branch / worktree: `chore/shared-agent-flow-stream`, `../tallyhold-chore-shared-agent-flow-stream`
 - Issue / PR: related #38; no PR
-- Updated: 2026-11-18T04:21:31Z
+- Updated: 2026-11-18T04:23:59Z
 
 ## Scope
 
@@ -25,17 +25,17 @@ the review and subsequent GREEN/ship handoffs if approved.
 
 - [x] Three round-2 findings addressed in tests without weakening other RED assertions.
 - [x] Pinned RED tests fail for missing behavior; six unchanged legacy tests pass.
-- [ ] Fresh round-3 reviewer differs from rounds 1 and 2 and records verdict.
+- [x] Fresh round-3 reviewer differs from rounds 1 and 2 and records verdict.
 
 ## Checkpoint
 
-- Last completed action: fresh headless Claude Opus exited 1 before verdict with `ECONNREFUSED`; no round consumed.
-- Evidence: [round-3 RED run](../../specs/chore-shared-agent-flow-stream/red-test-run.md); requested test commit `0f3b936`, fixture correction `7fed3f1`.
-- Worktree state: report unchanged; launch-failure checkpoint pending.
-- Remaining work: fresh reviewer gate, GREEN/ship only after approval.
-- Blocker / unblock action: GREEN requires round-3 APPROVE.
-- Next action: commit/push failed-launch checkpoint, dispatch a different fresh Trae fallback against `c12b954` / RED `01c2463`.
-- Handoff recipient: fresh independent RED Reviewer round 3.
+- Last completed action: different fresh Trae reviewer returned round-3 `CHANGES_REQUESTED` for base `c12b954` / RED `01c2463`; report and commit comment match byte-for-byte.
+- Evidence: [round-3 report](../../specs/chore-shared-agent-flow-stream/red-review.md); [comment](https://github.com/donkey-king-kong/tallyhold/commit/01c24637c2ef3bcdf0401b0f877b6aaf27b22ce1#commitcomment-210586983); reviewer `f46426a9-d808-483e-985e-d47909aa82eb` (not round 1 or 2). Full 29: 22 RED, seven PASS; six legacy PASS.
+- Worktree state: report/tracking pending commit/push; adapter untouched.
+- Remaining work: Zack resolves failed exceptional RED gate; GREEN and PR blocked.
+- Blocker / unblock action: invalid-parent test checks bare heartbeat only, not the namespaced heartbeat; the sole authorized extra round did not approve. Zack decides next authorization.
+- Next action: Zack reviews round-3 finding and explicitly decides whether another exception is allowed. No further test/code changes, GREEN or PR without that decision.
+- Handoff recipient: Zack.
 
 ## History
 
@@ -45,3 +45,4 @@ the review and subsequent GREEN/ship handoffs if approved.
 | 2026-11-18T04:16:38Z | R-0071/coordinator | Committed targeted tests `0f3b936`, fixed a fixture-only setup error at `7fed3f1`; pinned run 29 collected, 22 expected FAIL, seven PASS, zero ERROR; six legacy PASS | Commit/push evidence and request provider approvals before fresh review |
 | 2026-11-18T04:17:49Z | R-0071/coordinator | Pushed RED head `01c2463`; Zack separately granted COST APPROVAL 1/2 and 2/2 for scoped round-3 Claude Opus/conditional Trae review; Claude `2.1.322` authenticated | Commit checkpoint then dispatch different fresh reviewer, `c12b954`..`01c2463` |
 | 2026-11-18T04:21:31Z | R-0071/coordinator | Fresh headless Claude Opus failed before verdict with API `ECONNREFUSED`; no report/comment or round consumed | Commit launch failure and dispatch approved different fresh Trae fallback |
+| 2026-11-18T04:23:59Z | R-0071/coordinator | Fresh Trae reviewer `f46426a9-d808-483e-985e-d47909aa82eb` returned `CHANGES_REQUESTED`; verified identical report/comment `210586983` | Namespaced heartbeat side effect untested; stop GREEN/PR and escalate to Zack |
