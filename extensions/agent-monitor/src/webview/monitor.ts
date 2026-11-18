@@ -358,9 +358,21 @@ export function mountMonitor(
         class: "navigator-identity-row",
         "data-identity-id": node.id,
       });
+      const status = statusWord(node);
       const item = button(
-        `${label}${suffix} ${node.status ?? "unknown"} ${node.relationship ?? ""} (${node.id})`,
+        `${label}${suffix} ${status} · Full ID ${node.id}`,
         () => choose(node.id, run.index),
+      );
+      const mark = element("span", undefined, {
+        class: "navigator-status-icon",
+        "data-status-icon": status,
+        "aria-hidden": "true",
+      });
+      item.replaceChildren(
+        element("span", `${label}${suffix}`),
+        document.createTextNode(" "),
+        mark,
+        element("span", status),
       );
       item.dataset.nodeId = node.id;
       item.className = selectedId === node.id ? "is-selected" : "";

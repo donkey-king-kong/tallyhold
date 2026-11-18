@@ -11,7 +11,7 @@
 - Dependencies: [T-0057](T-0057-agent-monitor-ui-red.md), [T-0058](T-0058-review-agent-monitor-ui-red.md)
 - Branch / worktree: `feature/008-agent-monitor-ui` / `../tallyhold-feature-008-agent-monitor-ui`
 - Issue / PR: related #44; no PR requested.
-- Updated: 2026-11-18T06:30:19Z
+- Updated: 2026-11-18T06:35:56Z
 
 ## Scope
 
@@ -26,17 +26,17 @@ fixes, package a VSIX and stop for Zack's theme/width/keyboard smoke.
 - [x] Lint, format, typecheck, build, package, six adapter tests and representative plus 25-agent multi-lane benchmark pass.
 - [x] Compatible npm audit fixes assessed; no non-breaking fix available and remainder recorded.
 - [ ] GREEN smoke corrections pushed; rebuilt VSIX path and checklist prepared for Zack. No PR before Zack reports a new smoke.
-- [ ] Regressions cover host CSP and applied stylesheet, root-ID name, one identity row/run selector, footer disclosure/local times, and plain navigator/node copy.
+- [x] Regressions cover host CSP and applied stylesheet, root-ID name, one identity row/run selector, footer disclosure/local times, and plain navigator/node copy.
 
 ## Checkpoint
 
-- Last completed action: navigator fix `a437778`, footer RED `79b153e`; one summary disclosure, hidden body and local heartbeat times pass 54 UI tests, lint, typecheck and format.
+- Last completed action: footer fix `55dac64`; item-5 RED `ed3bafa` and corrected non-SVG mark regression `e451837`/`c38b1e1`. Navigator status icon, plain name/status/age and full-ID accessibility pass 55 UI tests; all frozen graph-order/camera assertions pass.
 - Evidence: GREEN projection `57757f8`, webview `c148fc9`, benchmark `30b6ec6`; packaged `extensions/agent-monitor/tallyhold-agent-monitor-0.1.0.vsix`. Synthetic 25-agent/three-lane fixture rendered 29 identities, 3 lanes and 28 connectors in 6.37 ms; representative cold reducer 109.84 ms, maximum 985.21 ms, 2,000-identity webview 131.43 ms.
-- Worktree state: local RED head `79b153e`; footer/time/CSS and tracking uncommitted; prior RED assertions preserved except the explicitly superseded display-name fixture, retaining its match/unmatch/ungrouped checks.
-- Remaining work: five test-first fixes, full check matrix, new VSIX, commit/push and Zack's repeat smoke.
+- Worktree state: local test head `c38b1e1`; item-5 CSS/DOM and tracking uncommitted; prior RED assertions preserved except the explicitly superseded display-name fixture, retaining its match/unmatch/ungrouped checks.
+- Remaining work: full check matrix on final source, rebuilt VSIX, commit/push and Zack's repeat smoke.
 - Audit: `npm audit` reports 17 high dev-only findings. `npm audit fix --dry-run` offered zero compatible package changes; its direct dependency remedies require out-of-range versions (`vitest`/coverage 4 to 3, `typescript-eslint` 8.73 to 8.47.0, `vsce` 3 to 4). Registry latest `picomatch` is vulnerable 4.0.7. No force or incompatible change applied. Packaging warns that this extension has no LICENSE file.
 - Blocker / unblock action: none for authorized GREEN correction; hands-on smoke remains a required stop.
-- Next action: commit tested footer fix, then write navigator/node copy regression before changing text.
+- Next action: commit tested item-5 fix, run locked install and full verification matrix, package final VSIX and push smoke handoff.
 - Handoff recipient: Zack after rebuilt packaged VSIX.
 
 ## History
@@ -54,3 +54,4 @@ fixes, package a VSIX and stop for Zack's theme/width/keyboard smoke.
 | 2026-11-18T06:25:12Z | R-0071/coordinator | CSP/CSS fix `e9722f8`. Real root-ID RED `d2fd33a` exposed prefixed descendants misclassified as lane roots; exact-prefix and top-level-root changes pass 52 UI tests, lint/types/format | Commit item 2, then navigator regression |
 | 2026-11-18T06:27:35Z | R-0071/coordinator | Root-ID fix `28b2e9c`; navigator RED `85cccbd` showed 13 buttons for one orchestrator. Grouped identities and inspector run selector now pass 53 UI tests, lint/types/format | Commit item 3; reproduce footer smoke |
 | 2026-11-18T06:30:19Z | R-0071/coordinator | Navigator fix `a437778`; footer RED `79b153e` proved duplicate disclosure and raw ISO. Single summary/hidden body and SGT visible time now pass 54 UI tests, lint/types/format; legacy 004 timestamp remains in compatibility region | Commit item 4, then plain navigator/node copy regression |
+| 2026-11-18T06:35:56Z | R-0071/coordinator | Footer fix `55dac64`; item-5 RED `ed3bafa` exposed missing icon, jargon and repeated ID. Initial navigator SVG broke six frozen graph-selector tests; corrected new test `e451837`/`c38b1e1` requires a CSS-rendered status mark. All 55 presentation/webview tests, lint, format, typecheck pass; UI detector returns `[]` | Commit item-5 CSS/DOM and run final full checks before packaging |
