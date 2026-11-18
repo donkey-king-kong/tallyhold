@@ -11,7 +11,7 @@
 - Dependencies: [T-0057](T-0057-agent-monitor-ui-red.md), [T-0058](T-0058-review-agent-monitor-ui-red.md)
 - Branch / worktree: `feature/008-agent-monitor-ui` / `../tallyhold-feature-008-agent-monitor-ui`
 - Issue / PR: related #44; no PR requested.
-- Updated: 2026-11-18T06:38:06Z
+- Updated: 2026-11-18T06:47:23Z
 
 ## Scope
 
@@ -30,15 +30,15 @@ fixes, package a VSIX and stop for Zack's theme/width/keyboard smoke.
 
 ## Checkpoint
 
-- Last completed action: item-5 GREEN `594917f`; locked install, 117 extension tests with 96.81% statements, 97.17% functions and 98.02% lines, lint, format, typecheck, build, package and six adapter tests pass. Representative cold 100.06 ms; maximum cold 944.03 ms; synthetic 25-agent/three-lane fixture 29 identities, 28 connectors, 6.96 ms.
+- Last completed action: new host RED cases for multi-token `cspSource`, explicit failing-input errors and documented `asWebviewUri` forms fail on the current host validator. `npx vitest run test/packaging.test.ts --reporter=dot` reports 4 intended failures and 9 passes.
 - Evidence: GREEN projection `57757f8`, webview `c148fc9`, benchmark `30b6ec6`; packaged `extensions/agent-monitor/tallyhold-agent-monitor-0.1.0.vsix`. Synthetic 25-agent/three-lane fixture rendered 29 identities, 3 lanes and 28 connectors in 6.37 ms; representative cold reducer 109.84 ms, maximum 985.21 ms, 2,000-identity webview 131.43 ms.
-- Worktree state: local GREEN head `594917f` ahead of origin; only this final tracking checkpoint uncommitted. Prior RED assertions preserved except the explicitly superseded display-name fixture, retaining its match/unmatch/ungrouped checks.
-- Remaining work: commit/push the final verification checkpoint and await Zack's repeat editor smoke.
-- VSIX: `extensions/agent-monitor/tallyhold-agent-monitor-0.1.0.vsix`, SHA-256 `a731c87a3a6ca6295d6636335f3caac2276023726df489dd092a28d6550829de`; packaged CSS and JS match the final build byte for byte. Packaging warns that no extension LICENSE file is present.
+- Worktree state: pushed head `bc02cb1`; host RED tests and tracking are uncommitted. Prior RED assertions remain preserved except the explicitly superseded display-name fixture, retaining its match/unmatch/ungrouped checks.
+- Remaining work: commit the new host RED slice, implement list-valued `cspSource` validation and clearer failing-input errors, rerun the full matrix, rebuild the VSIX and stop again for Zack's smoke.
+- VSIX: prior failed-smoke build was `extensions/agent-monitor/tallyhold-agent-monitor-0.1.0.vsix`, SHA-256 `a731c87a3a6ca6295d6636335f3caac2276023726df489dd092a28d6550829de`; it opened in a real editor only until the host rejected the current `cspSource`.
 - Audit: `npm audit` reports 17 high dev-only findings. `npm audit fix --dry-run` offered zero compatible package changes; its direct dependency remedies require out-of-range versions (`vitest`/coverage 4 to 3, `typescript-eslint` 8.73 to 8.47.0, `vsce` 3 to 4). Registry latest `picomatch` is vulnerable 4.0.7. No force or incompatible change applied. Packaging warns that this extension has no LICENSE file.
-- Blocker / unblock action: none for authorized GREEN correction; hands-on smoke remains a required stop.
-- Next action: commit/push this checkpoint, then Zack installs the rebuilt VSIX and repeats light/dark/high-contrast, wide/narrow, labels and short names, connectors, lane titles/slugs, SGT times and human ages, Older runs, collapsed footer and keyboard smoke. No PR until Zack reports passing smoke.
-- Handoff recipient: Zack after rebuilt packaged VSIX.
+- Blocker / unblock action: repeat editor smoke fails before open because host CSP validation rejects the real editor-provided `cspSource`; fix host validation and error detail test-first, then rebuild and hand back to Zack. No PR.
+- Next action: commit the focused host RED slice, then implement the minimal `renderPanelHtml()` validation fix and rerun packaging tests before the full matrix.
+- Handoff recipient: Zack after another rebuilt packaged VSIX.
 
 ## History
 
@@ -57,3 +57,5 @@ fixes, package a VSIX and stop for Zack's theme/width/keyboard smoke.
 | 2026-11-18T06:30:19Z | R-0071/coordinator | Navigator fix `a437778`; footer RED `79b153e` proved duplicate disclosure and raw ISO. Single summary/hidden body and SGT visible time now pass 54 UI tests, lint/types/format; legacy 004 timestamp remains in compatibility region | Commit item 4, then plain navigator/node copy regression |
 | 2026-11-18T06:35:56Z | R-0071/coordinator | Footer fix `55dac64`; item-5 RED `ed3bafa` exposed missing icon, jargon and repeated ID. Initial navigator SVG broke six frozen graph-selector tests; corrected new test `e451837`/`c38b1e1` requires a CSS-rendered status mark. All 55 presentation/webview tests, lint, format, typecheck pass; UI detector returns `[]` | Commit item-5 CSS/DOM and run final full checks before packaging |
 | 2026-11-18T06:38:06Z | R-0071/coordinator | Item-5 GREEN `594917f`; final `npm ci`, lint, format, typecheck, 117 tests/coverage (96.81% statements, 97.17% functions, 98.02% lines), build, package, six adapter tests and representative/maximum/25-agent three-lane benchmark pass. VSIX CSS/JS hashes match final source build | Commit/push results, then stop for Zack's repeat VSIX smoke; no PR |
+| 2026-11-18T06:46:13Z | R-0071/coordinator | Zack's repeat real-editor smoke FAIL at open on pushed `bc02cb1`: Trae reports `Command 'Tallyhold Agent Monitor: Open' resulted in an error: Unsafe webview resource`. Root cause is likely `safeCspSource()` only accepting a single host token while real `panel.webview.cspSource` can be a space-separated list such as `'self' https://*.vscode-cdn.net` | Record the failure, add focused host RED cases, fix validation and rebuild the VSIX; still no PR |
+| 2026-11-18T06:47:23Z | R-0071/coordinator | Added focused host RED cases in `packaging.test.ts` for accepted/rejected `cspSource` lists, failing-input error detail and documented `https://file+.vscode-resource.vscode-cdn.net/...` / `https://vscode-remote+...vscode-resource.vscode-cdn.net/...` resource shapes. `npx vitest run test/packaging.test.ts --reporter=dot` fails 4 intended tests because the current host rejects valid list/resource forms and still throws the generic error | Commit RED tests, then implement the host fix without weakening existing assertions |

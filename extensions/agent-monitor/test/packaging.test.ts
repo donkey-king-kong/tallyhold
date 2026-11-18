@@ -48,6 +48,66 @@ describe("independent extension contract (AC1, AC15-16)", () => {
     expect(html).not.toContain("unsafe-inline");
   });
 
+  it("accepts space-separated webview CSP source lists and preserves their order", async () => {
+    const { renderPanelHtml } = await import("../src/host/monitorPanel");
+    const scriptUri =
+      "https://file+.vscode-resource.vscode-cdn.net/Users/test/media/webview.js";
+    const styleUri =
+      "https://vscode-remote+ssh-remote+devbox.vscode-resource.vscode-cdn.net/home/test/media/styles.css";
+    for (const cspSource of [
+      "https://*.vscode-cdn.net",
+      "'self' https://*.vscode-cdn.net",
+      "https://*.vscode-cdn.net 'self'",
+    ]) {
+      const html = renderPanelHtml({
+        scriptUri,
+        styleUri,
+        cspSource,
+        nonce: "synthetic-nonce",
+      });
+      expect(html).toContain(`style-src ${cspSource};`);
+      expect(html).toContain(`<link rel="stylesheet" href="${styleUri}">`);
+      expect(html).toContain(`<script nonce="synthetic-nonce" src="${scriptUri}"></script>`);
+    }
+  });
+
+  it("rejects invalid cspSource lists and reports the rejected value", async () => {
+    const { renderPanelHtml } = await import("../src/host/monitorPanel");
+    const valid = {
+      scriptUri:
+        "https://file+.vscode-resource.vscode-cdn.net/Users/test/media/webview.js",
+      styleUri:
+        "https://vscode-remote+ssh-remote+devbox.vscode-resource.vscode-cdn.net/home/test/media/styles.css",
+      nonce: "synthetic-nonce",
+    };
+    for (const cspSource of [
+      "'unsafe-inline'",
+      "https://evil.example",
+      "https://*.vscode-cdn.net; script-src *",
+      "",
+    ]) {
+      expect(() => renderPanelHtml({ ...valid, cspSource })).toThrow(
+        new RegExp(`Unsafe webview resource: cspSource .*${cspSource.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}`),
+      );
+    }
+  });
+
+  it("accepts documented vscode asWebviewUri resource shapes", async () => {
+    const { renderPanelHtml } = await import("../src/host/monitorPanel");
+    const desktopScript =
+      "https://file+.vscode-resource.vscode-cdn.net/Users/test/.vscode/extensions/tallyhold/media/webview.js";
+    const remoteStyle =
+      "https://vscode-remote+ssh-remote+devbox.vscode-resource.vscode-cdn.net/home/test/.vscode/extensions/tallyhold/media/styles.css";
+    const html = renderPanelHtml({
+      scriptUri: desktopScript,
+      styleUri: remoteStyle,
+      cspSource: "'self' https://*.vscode-cdn.net",
+      nonce: "synthetic-nonce",
+    });
+    expect(html).toContain(`src="${desktopScript}"`);
+    expect(html).toContain(`href="${remoteStyle}"`);
+  });
+
   it("rejects forged, stale and oversized webview messages at the host boundary", async () => {
     const { validateWebviewMessage } = await import("../src/shared/protocol");
     expect(
@@ -92,14 +152,14 @@ describe("independent extension contract (AC1, AC15-16)", () => {
         styleUri: "vscode-resource:/extension/main.css",
         nonce: "safe",
       }),
-    ).toThrow();
+    ).toThrow(/scriptUri/);
     expect(() =>
       renderPanelHtml({
         scriptUri: 'vscode-resource:/extension/main.js" onload="alert(1)',
         styleUri: "javascript:alert(1)",
         nonce: 'bad" onload="alert(1)',
       }),
-    ).toThrow();
+    ).toThrow(/scriptUri|styleUri|nonce/);
   });
 
   it("rejects malformed host-to-webview updates rather than rendering arbitrary payloads", async () => {
