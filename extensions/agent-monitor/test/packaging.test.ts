@@ -31,6 +31,23 @@ describe("independent extension contract (AC1, AC15-16)", () => {
     expect(html).not.toContain("unsafe-inline");
   });
 
+  it("allows the stylesheet through the webview CSP source while retaining its resource link", async () => {
+    const { renderPanelHtml } = await import("../src/host/monitorPanel");
+    const cspSource = "https://monitor.vscode-cdn.net";
+    const stylesheet = `${cspSource}/media/styles.css`;
+    const html = renderPanelHtml({
+      scriptUri: `${cspSource}/media/webview.js`,
+      styleUri: stylesheet,
+      cspSource,
+      nonce: "synthetic-nonce",
+    });
+    expect(html).toContain(`style-src ${cspSource};`);
+    expect(html).not.toContain(`style-src ${stylesheet};`);
+    expect(html).toContain(`<link rel="stylesheet" href="${stylesheet}">`);
+    expect(html).toContain("script-src 'nonce-synthetic-nonce'");
+    expect(html).not.toContain("unsafe-inline");
+  });
+
   it("rejects forged, stale and oversized webview messages at the host boundary", async () => {
     const { validateWebviewMessage } = await import("../src/shared/protocol");
     expect(

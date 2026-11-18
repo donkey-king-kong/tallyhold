@@ -650,6 +650,30 @@ function graphNode(root: HTMLElement, id: string) {
 }
 
 describe("Feature 008 Agent Monitor DOM acceptance", () => {
+  it("applies the bundled stylesheet to the workspace without inline layout", () => {
+    const { root } = mount008(twoLanes().nodes, twoLanes().edges);
+    const stylesheet = document.createElement("style");
+    stylesheet.textContent = readFileSync("media/styles.css", "utf8");
+    document.head.append(stylesheet);
+    try {
+      expect(stylesheet.sheet?.cssRules.length).toBeGreaterThan(0);
+      const workspace = getByRole(root, "region", {
+        name: /monitor workspace/i,
+      });
+      expect(getComputedStyle(workspace).display).toBe("grid");
+      expect(getComputedStyle(workspace).gridTemplateColumns).toContain(
+        "minmax(0, 1fr)",
+      );
+      expect(
+        getComputedStyle(getByRole(root, "button", { name: /fit all/i }))
+          .minHeight,
+      ).toBe("30px");
+      expect(root.querySelector("[style]")).toBeNull();
+    } finally {
+      stylesheet.remove();
+    }
+  });
+
   it("header shows source session following age and stale recovery", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2023-11-14T22:13:32.000Z"));
