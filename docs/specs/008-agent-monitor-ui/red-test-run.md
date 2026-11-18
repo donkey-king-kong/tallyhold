@@ -229,3 +229,35 @@ At exact test revision `8053e11`:
 The preview fixture remains synthetic and offline. The tests read no private
 runtime stream, invoke no external network, and make no adapter or publisher
 change.
+
+### Round-1 review corrections
+
+Fresh RED review round 1 returned `CHANGES_REQUESTED` for a contract conflict
+and three assertion defects. Zack's newer preview-round-2 instruction is now
+recorded explicitly in AC5 and the approved plan: lane cards use fixed lane
+widths and visible ellipsis while preserving complete accessible names. Test
+commit `b826fac` also:
+
+- preserves the complete long name in the card's accessible label;
+- replaces initial-viewport containment with document-width, order, footer,
+  and no-trailing-space checks for the narrow normal-flow layout;
+- requires the exact three reported preview slugs in lane, navigator, and
+  inspector surfaces, plus slug-derived lane labels;
+- requires every card and navigator status word to be visible, nonempty, and
+  one of the supported status words.
+
+At exact corrected test revision `b826fac`:
+
+- `npx vitest run test/webview.test.ts --reporter=dot` exits 1 with the same
+  five missing-behavior failures and 44 passes. The failures are fixed-width
+  visible ellipsis, a single path rail with attributed ticks, separator-free
+  activity copy, visible navigator status, and exact hashed-slug surfaces.
+- `npx vitest run -t '^(?!.*(?:assigns root-prefixed orphans|defaults to the recent graph|renders dated plain activity|groups navigator identities|renders the reported hashed worktree slug)).*$' --reporter=dot`
+  exits 0 with 121 passing tests and five skipped.
+- `npm run test:preview-layout` exits 1 after rendering the local production
+  bundle with `preview-wide.png: preview does not use and render
+  adapter-accurate hashed worktree slugs`.
+- `npm run lint`, `npm run format:check`, and `npm run typecheck` exit 0.
+
+No production source, stylesheet, preview fixture, generated preview,
+dependency, adapter, or publisher file changed in the corrected RED commit.

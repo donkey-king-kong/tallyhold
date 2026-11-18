@@ -12,7 +12,7 @@
 - Branch / worktree: `feature/008-agent-monitor-ui` / `../tallyhold-feature-008-agent-monitor-ui`
 - Worktree path: `../tallyhold-feature-008-agent-monitor-ui`
 - Issue / PR: related #44; no PR requested
-- Updated: 2026-11-18T10:52:24Z
+- Updated: 2026-11-18T10:55:04Z
 
 ## Scope
 
@@ -40,12 +40,12 @@ page flow, and apply the requested timeline/status/older-run polish.
 
 ## Checkpoint
 
-- Last completed action: reconciled fresh round-1 RED review findings in the approved AC5/plan text and strengthened the narrow-flow, exact-slug, and visible-status guards.
-- Evidence: reviewer comment `210627545` returned `CHANGES_REQUESTED`; corrected unit slice remains RED with the same five missing behaviors while format and typecheck pass.
-- Worktree state: remote RED head `96b4b14`; corrected RED, review report, tracking, and backlog records are local and uncommitted.
-- Remaining work: commit and rerun corrected RED at the pinned revision, push evidence, then obtain approval from a different fresh round-2 Reviewer before GREEN.
+- Last completed action: committed corrected RED `b826fac` and reran all required evidence at that exact revision.
+- Evidence: five intended unit failures with 44 passes; 121 unaffected tests pass with five exclusions; production preview fails on missing exact hashed-slug display; lint, format, and typecheck pass.
+- Worktree state: local head `b826fac` is two commits ahead of remote `96b4b14`; corrected evidence is uncommitted.
+- Remaining work: commit and push corrected evidence, then obtain approval from a different fresh round-2 Reviewer before GREEN.
 - Blocker / unblock action: none.
-- Next action: commit the corrected RED, record exact-revision evidence, push it, and dispatch a different fresh restricted RED Reviewer.
+- Next action: commit and push corrected evidence, then dispatch a different fresh restricted RED Reviewer for `881d320..<evidence head>`.
 - Handoff recipient: Zack after pushed corrected previews; no reinstall and no PR.
 
 ## History
@@ -70,3 +70,4 @@ page flow, and apply the requested timeline/status/older-run polish.
 | 2026-11-18T10:45:07Z | R-0094/coordinator | Pushed RED test `8053e11` and evidence head `96b4b14`; production remains unchanged | Dispatch fresh RED Reviewer round 1 for base `881d320` and head `96b4b14` |
 | 2026-11-18T10:46:53Z | R-0094/reviewer-01 | Round 1 `CHANGES_REQUESTED`: reconcile fixed-width ellipsis with AC5/plan, permit below-fold narrow flow, and require exact visible slug/status copy | Correct RED only, rerun evidence, and use a different fresh Reviewer for round 2 |
 | 2026-11-18T10:52:24Z | R-0094/coordinator | Recorded review comment `210627545`, amended the approved contract per Zack's newer decision, and strengthened all three guards; production remains frozen | Commit corrected RED, rerun at the pinned SHA, and prepare round-2 handoff |
+| 2026-11-18T10:55:04Z | R-0094/coordinator | Corrected RED `b826fac` reproduces five intended failures; 121 unaffected tests, lint, format, and typecheck pass | Commit/push evidence and dispatch a different fresh round-2 Reviewer |
