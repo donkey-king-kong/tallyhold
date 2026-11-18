@@ -12,7 +12,7 @@
 - Branch / worktree: `feature/008-agent-monitor-ui` / `../tallyhold-feature-008-agent-monitor-ui`
 - Worktree path: `../tallyhold-feature-008-agent-monitor-ui`
 - Issue / PR: related #44; no PR requested
-- Updated: 2026-11-18T08:21:20Z
+- Updated: 2026-11-18T08:22:12Z
 
 ## Scope
 
@@ -32,12 +32,12 @@ the VSIX or open a PR.
 
 ## Checkpoint
 
-- Last completed action: corrected RED at `2d98f54` with target geometry, visible population, topology, root exclusion, grouped controls, and local-overflow assertions.
-- Evidence: preview guard fails on inspector width target; all 125 existing Vitest cases pass at exact executable revision `2d98f54`.
-- Worktree state: corrected RED is committed locally; evidence update is uncommitted over pushed `a36d0bc`.
+- Last completed action: pushed cumulative corrected RED through `a49801f` and prepared final fresh round 2 review against base `c9714a5`.
+- Evidence: executable RED `2d98f54` fails on inspector width and passes 125/125 prior tests; later cumulative changes are evidence/tracking only.
+- Worktree state: final pre-dispatch checkpoint is uncommitted over clean pushed `a49801f`.
 - Remaining work: obtain final fresh RED approval, implement corrections, regenerate previews, and verify.
 - Blocker / unblock action: none.
-- Next action: commit/push corrected evidence, then dispatch a different fresh Trae RED Reviewer for round 2.
+- Next action: commit/push this checkpoint, then dispatch a different fresh Trae RED Reviewer for round 2.
 - Handoff recipient: Zack after pushed corrected previews; no reinstall and no PR.
 
 ## History
@@ -49,4 +49,5 @@ the VSIX or open a PR.
 | 2026-11-18T08:13:24Z | R-0093/coordinator | RED `ba58a24` fails for absent agent-card state/containment; all 125 prior Vitest cases pass                                                        | Commit/push evidence and obtain fresh RED approval before GREEN                 |
 | 2026-11-18T08:15:38Z | R-0093/coordinator | Pushed RED through `c62a51d`; fixed review range is `c9714a5..c62a51d`                                                                              | Dispatch fresh Trae RED Reviewer round 1; no production edit before verdict     |
 | 2026-11-18T08:19:14Z | R-0093/reviewer-01 | Round 1 `CHANGES_REQUESTED` stronger geometry/population/overflow guards and executed-revision evidence                                             | Correct RED and use a different fresh Reviewer for round 2                      |
-| 2026-11-18T08:21:20Z | R-0093/coordinator | Corrected RED `2d98f54` fails on target inspector width while all 125 existing tests pass                                                           | Commit/push evidence and dispatch final fresh RED review                        |
+| 2026-11-18T08:21:20Z | R-0093/coordinator | Corrected RED `2d98f54` fails on target inspector width while all 125 existing tests pass                                                             | Commit/push evidence and dispatch final fresh RED review                       |
+| 2026-11-18T08:22:12Z | R-0093/coordinator | Pushed cumulative RED through `a49801f`; final review range is `c9714a5..a49801f`                                                                      | Commit/push checkpoint and dispatch different fresh Reviewer round 2           |
