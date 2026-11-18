@@ -72,3 +72,106 @@ area, lane/card density, spacing, or visible lane/card population.
    coverage test entry points.
 
 VERDICT: CHANGES_REQUESTED
+
+## Round 2
+
+- Round: 2
+- Base: `c9714a5b8cc681363d128048d879afcf28a2430a`
+- Pushed cumulative RED head: `a49801ff280f05d4455f6dbd983cd8cdbbf8fbe3`
+
+### Coverage mapping
+
+| AC / plan verification item | Test evidence |
+| --- | --- |
+| 1 | `core.test.ts: last event absolute time uses last accepted record`; `webview.test.ts: header shows source session following age and stale recovery` |
+| 2 | `webview.test.ts: toolbar toggles range and last reported active without liveness claim`; preview range-control assertion |
+| 3 | `webview.test.ts: wide view places three panes beside visible graph and narrow view stacks in order`; `capture-preview.ts:63-108` pane order, width, height, and viewport assertions |
+| 4 | Lane assignment, exact display-name, and root-title tests from round 1; `capture-preview.ts:132-193` lane/population assertions |
+| 5 | `webview.test.ts: foreground labels fit inside boxes without overlap at fit and zoom`; `capture-preview.ts:111-143` local overflow assertions |
+| 6 | Resolved-link and active-only/culling tests from round 1; preview connector bus and lane-rail assertions |
+| 7 | Status/unknown-parent and failed-tool isolation tests from round 1 |
+| 8 | Verified threshold and advancing quiet-report tests from round 1 |
+| 9 | Absolute-bound, local-time, reactivated-run, and future/invalid-age tests recorded in `red-test-run.md` |
+| 10 | Unique tool-duration, counterpart, plain-label, and source-order tests recorded in `red-test-run.md` |
+| 11 | Inspector/copy and clipboard-denial tests from round 1; preview selected-card and Copy full ID assertions |
+| 12 | Older/unknown/cutoff run tests and older-run navigation tests recorded in `red-test-run.md` |
+| 13 | Footer disclosure and update-persistence tests recorded in `red-test-run.md` |
+| 14 | Theme, keyboard, reduced-motion, disclosure, and paging tests from round 1; preview runs with reduced motion |
+| 15 | Protocol bounds, source isolation, camera/culling, executable-content, and existing-suite evidence recorded in `red-test-run.md` |
+
+Every acceptance criterion and numbered plan verification item has a named
+test. The remaining gap is in the approved mock's observable visible
+population: the new production-preview assertions count DOM elements without
+proving that most of them are rendered visibly.
+
+### Round 1 findings addressed
+
+1. **Coverage and observable layout decisions: partly addressed.** The
+   correction adds wide pane order, 240-300px navigator width, 330-390px
+   inspector width, a >=700px canvas, narrow stack order and usable minimum
+   heights. It also checks aligned lane-header widths, orchestrator centering,
+   segmented range/grouped zoom controls, structural-root exclusion, and
+   expected population counts. The visibility defect below leaves the
+   lane/card density decision incompletely covered.
+2. **Reviewed-head evidence: addressed.** `red-test-run.md` records
+   `npm run test:preview-layout` failing at executable revision `2d98f54` with
+   `preview-wide.png: inspector width is outside the target band`, a missing
+   production-layout behavior. It records all 125 existing Vitest tests
+   passing at that revision. `a49801f` is its direct evidence-only child, and
+   the package, preview fixture, preview script, tests, source, and media have
+   no diff between those revisions.
+3. **Assertion discrimination: partly addressed.** Bounds, ordering,
+   population counts, and element-local overflow rules reject the previously
+   identified tiny, reordered, one-element, and descendant-ellipsis
+   implementations. The remaining hidden-element implementation below still
+   passes.
+4. **Infrastructure: addressed.** The cumulative diff uses a synthetic local
+   projection, local bundled assets, `file:` navigation, and headless
+   Playwright. It contains no secret, external service, real runtime log, or
+   external network dependency.
+5. **Regression evidence: addressed.** No existing test or production file is
+   changed in the cumulative diff. The exact executable revision has the
+   recorded 125-test passing Vitest run, and the reviewed head is executable-
+   equivalent to it.
+
+### Finding
+
+**The preview population assertions still accept hidden cards and navigator
+rows (AC3-6, AC11, plan visual-target amendment).**
+`capture-preview.ts:111-139` derives `cardCount` from all matching DOM nodes,
+not visible nodes. `capture-preview.ts:145-170` likewise uses
+`querySelectorAll(...).length` for navigator rows/groups, the connector bus,
+and lane rails. Only the selected card is explicitly checked with
+`isVisible()` at lines 214-220. A plausible wrong implementation can render
+the selected card and lane headers, keep seven additional card nodes and six
+navigator-row nodes hidden, and retain hidden bus/rail nodes; it still meets
+the exact counts and overflow predicate while failing the approved mock's
+visible population, density, and relationships. Require visibility and
+nonzero rendered bounds for every counted card, navigator row/group,
+connector bus, and lane rail.
+
+### Checklist
+
+1. **Coverage mapping: finding.** AC1-15 and plan rows 1-15 map above. The
+   visual-target population is not trustworthy because counted elements need
+   not be visible.
+2. **Observable plan decisions: finding.** Limits, ordering, error paths,
+   interval uncertainty, security rejection, layout bands, controls, and
+   overflow have concrete assertions. Visible lane/card/navigation density
+   and visible connector structure retain the finding above.
+3. **Trustworthy RED: none.** The recorded preview failure at `2d98f54` is
+   absent production layout, not collection, dependency, fixture, or network
+   failure. `a49801f` changes only evidence/tracking after that executable
+   revision.
+4. **Assertion quality: finding.** Tests use approved public stream/DOM
+   interfaces and include the recorded negative/adversarial cases. The hidden
+   population implementation above remains a plausible wrong implementation
+   that the preview test accepts.
+5. **Infrastructure: none.** Fixtures and keys/fakes are local and synthetic;
+   no real secret, PostgreSQL, paid resource, or external network is used.
+6. **Regression protection: none.** The cumulative diff does not weaken or
+   delete existing tests or change production source. The recorded exact-
+   executable run passes all 125 existing Vitest tests, and `a49801f` has no
+   executable delta from that revision.
+
+VERDICT: CHANGES_REQUESTED
