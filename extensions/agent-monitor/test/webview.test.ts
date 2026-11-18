@@ -1794,7 +1794,7 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
     ).toBe(true);
   });
 
-  it("assigns root-prefixed orphans to their lane and keeps card copy inside fitted boxes", () => {
+  it("assigns root-prefixed orphans to their lane and keeps card copy inside fixed boxes", () => {
     const rootId = "wt-alpha";
     const longName = "UnbreakableDisplayNameWithoutSeparators";
     const prefixed = `${rootId}-${longName}`;
@@ -1819,6 +1819,7 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
     const labelLines = card.querySelectorAll("text > tspan[data-name-line]");
     expect(labelLines).toHaveLength(1);
     expect(labelLines[0].textContent).toMatch(/\.\.\.$/);
+    expect(card.getAttribute("aria-label")).toContain(longName);
     const laneWidth = Number(
       root.querySelector("[data-lane-header] rect")!.getAttribute("width"),
     );
@@ -2012,12 +2013,16 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
       [{ parentId: rootId, childId: agent.id }],
     );
     const lane = root.querySelector(`[data-lane-header="${rootId}"]`)!;
+    expect(lane.querySelector("[data-worktree-slug]")?.textContent).toBe(slug);
     expect(lane.querySelector("[data-slug-hash]")?.textContent).toBe(
       "0736a7b0",
     );
     const navigator = getByRole(root, "navigation", {
       name: /agent navigator/i,
     });
+    expect(
+      navigator.querySelector("[data-worktree-slug]")?.textContent,
+    ).toBe(slug);
     expect(navigator.querySelector("[data-slug-hash]")?.textContent).toBe(
       "0736a7b0",
     );
@@ -2025,9 +2030,15 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
       within(navigator).getByRole("button", { name: /reviewer/i }),
     );
     const details = getByRole(root, "region", { name: /agent details/i });
+    expect(details.querySelector("[data-worktree-slug]")?.textContent).toBe(
+      slug,
+    );
     expect(details.querySelector("[data-slug-hash]")?.textContent).toBe(
       "0736a7b0",
     );
-    expect(root.textContent).not.toContain("chore/shared-agent-flow-stream");
+    for (const surface of [lane, navigator, details]) {
+      expect(surface.querySelectorAll("[data-worktree-slug]")).toHaveLength(1);
+      expect(surface.textContent).not.toContain("/");
+    }
   });
 });

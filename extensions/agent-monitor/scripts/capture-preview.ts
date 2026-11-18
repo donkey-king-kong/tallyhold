@@ -98,8 +98,8 @@ try {
           `${name}: ${pane} is not a full-width narrow section`,
         );
         requireLayout(
-          box.y >= 0 && box.y + box.height <= height,
-          `${name}: ${pane} is outside the viewport`,
+          box.x >= 0 && box.x + box.width <= width && box.y >= 0,
+          `${name}: ${pane} is outside the document width`,
         );
       }
       requireLayout(
@@ -122,7 +122,16 @@ try {
             document.querySelector(".monitor-graph")?.getBoundingClientRect()
               .height ?? 0,
           documentHeight: document.documentElement.scrollHeight,
-          footerBottom: footer?.getBoundingClientRect().bottom ?? 0,
+          footerBottom:
+            (footer?.getBoundingClientRect().bottom ?? 0) + window.scrollY,
+          ordered:
+            Boolean(toolbarNote && workspace && inspector && footer) &&
+            toolbarNote!.getBoundingClientRect().bottom <=
+              workspace!.getBoundingClientRect().top &&
+            workspace!.getBoundingClientRect().bottom <=
+              inspector!.getBoundingClientRect().bottom &&
+            inspector!.getBoundingClientRect().bottom <=
+              footer!.getBoundingClientRect().top,
           inspectorClips:
             Boolean(inspector) &&
             inspector!.scrollHeight > inspector!.clientHeight + 1,
@@ -144,7 +153,8 @@ try {
       );
       requireLayout(
         narrowFlow.documentHeight > height &&
-          narrowFlow.footerBottom <= narrowFlow.documentHeight + 1 &&
+          Math.abs(narrowFlow.footerBottom - narrowFlow.documentHeight) <= 1 &&
+          narrowFlow.ordered &&
           !narrowFlow.inspectorClips &&
           narrowFlow.activityInsideInspector &&
           narrowFlow.toolbarNoteVisible &&
@@ -221,13 +231,46 @@ try {
       const rootIds = Array.from(
         document.querySelectorAll<SVGGElement>("[data-lane-header]"),
       ).map((header) => header.dataset.laneHeader ?? "");
-      const visibleText = document.body.textContent ?? "";
+      const visibleStatus = (selector: string) =>
+        Array.from(document.querySelectorAll<HTMLElement>(selector)).map(
+          (item) => {
+            const bounds = item.getBoundingClientRect();
+            const style = getComputedStyle(item);
+            return {
+              text: item.textContent?.trim() ?? "",
+              visible:
+                style.display !== "none" &&
+                style.visibility !== "hidden" &&
+                bounds.width > 0 &&
+                bounds.height > 0,
+            };
+          },
+        );
       return {
         rootIds,
+        laneSlugs: Array.from(
+          document.querySelectorAll<HTMLElement>(
+            "[data-lane-header] [data-worktree-slug]",
+          ),
+        ).map((item) => item.textContent?.trim() ?? ""),
+        laneLabels: Array.from(
+          document.querySelectorAll<HTMLElement>(
+            "[data-lane-header] [data-lane-label]",
+          ),
+        ).map((item) => item.textContent?.trim().toLowerCase() ?? ""),
+        navigatorSlugs: Array.from(
+          document.querySelectorAll<HTMLElement>(
+            ".navigator-worktree [data-worktree-slug]",
+          ),
+        ).map((item) => item.textContent?.trim() ?? ""),
+        inspectorSlugs: Array.from(
+          document.querySelectorAll<HTMLElement>(
+            ".monitor-inspector [data-worktree-slug]",
+          ),
+        ).map((item) => item.textContent?.trim() ?? ""),
         slugHashes: document.querySelectorAll("[data-slug-hash]").length,
-        cardStatuses: document.querySelectorAll(".agent-status-word").length,
-        navigatorStatuses: document.querySelectorAll(".navigator-agent-status")
-          .length,
+        cardStatuses: visibleStatus(".agent-status-word"),
+        navigatorStatuses: visibleStatus(".navigator-agent-status"),
         olderLabel:
           document.querySelector(".older-runs-label")?.textContent ?? "",
         olderContext:
@@ -238,22 +281,52 @@ try {
         activityLabels: Array.from(
           document.querySelectorAll(".activity-label"),
         ).map((item) => item.textContent ?? ""),
-        inventsBranch:
-          visibleText.includes("chore/shared-agent-flow-stream") ||
-          visibleText.includes("feature/007-transactions"),
       };
     });
+    const expectedSlugs = [
+      "chore-shared-ag-0736a7b0",
+      "feature-007-tra-178e4f72",
+      "main",
+    ];
     requireLayout(
-      displayContract.rootIds.every((id) =>
-        /^wt-(?:main|[a-z0-9_-]{1,15}-[0-9a-f]{8})$/.test(id),
-      ) &&
+      JSON.stringify(displayContract.rootIds) ===
+        JSON.stringify(expectedSlugs.map((slug) => `wt-${slug}`)) &&
+        JSON.stringify(displayContract.laneSlugs) ===
+          JSON.stringify(expectedSlugs) &&
+        JSON.stringify(displayContract.navigatorSlugs) ===
+          JSON.stringify(expectedSlugs) &&
+        JSON.stringify(displayContract.inspectorSlugs) ===
+          JSON.stringify([expectedSlugs[0]]) &&
+        JSON.stringify(displayContract.laneLabels) ===
+          JSON.stringify(["chore-shared-ag", "feature-007-tra", "main"]) &&
         displayContract.slugHashes >= 5 &&
-        !displayContract.inventsBranch,
+        [
+          ...displayContract.laneSlugs,
+          ...displayContract.navigatorSlugs,
+          ...displayContract.inspectorSlugs,
+        ].every((slug) => !slug.includes("/")),
       `${name}: preview does not use and render adapter-accurate hashed worktree slugs`,
     );
+    const expectedStatuses = new Set([
+      "Working",
+      "Waiting",
+      "Blocked",
+      "Failed",
+      "Completed",
+      "Unknown status",
+    ]);
     requireLayout(
-      displayContract.cardStatuses === 8 &&
-        displayContract.navigatorStatuses === 7,
+      displayContract.cardStatuses.length === 8 &&
+        displayContract.navigatorStatuses.length === 7 &&
+        [
+          ...displayContract.cardStatuses,
+          ...displayContract.navigatorStatuses,
+        ].every(
+          (status) =>
+            status.visible &&
+            status.text.length > 0 &&
+            expectedStatuses.has(status.text),
+        ),
       `${name}: card or navigator status words are missing`,
     );
     requireLayout(
