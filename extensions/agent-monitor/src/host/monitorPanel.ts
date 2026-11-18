@@ -19,9 +19,30 @@ function safeResource(uri: string): boolean {
 }
 
 function safeCspSource(source: string): boolean {
-  return /^https:\/\/(?:\*|[A-Za-z0-9-]+)(?:\.[A-Za-z0-9-]+)*\.vscode-cdn\.net$/.test(
-    source,
-  );
+  if (source === "") return false;
+  const tokens = source.split(/\s+/);
+  if (!tokens.length) return false;
+  return tokens.every((token) => {
+    if (token === "'self'") return true;
+    return /^https:\/\/(?:(?:\*\.)|(?:[A-Za-z0-9-]+\.)+)vscode-cdn\.net$/.test(
+      token,
+    );
+  });
+}
+
+function invalidField(input: {
+  scriptUri: string;
+  styleUri: string;
+  cspSource?: string;
+  nonce: string;
+}): string | null {
+  if (!safeResource(input.scriptUri)) return "scriptUri";
+  if (!safeResource(input.styleUri)) return "styleUri";
+  if (input.cspSource !== undefined && !safeCspSource(input.cspSource)) {
+    return `cspSource ${JSON.stringify(input.cspSource)}`;
+  }
+  if (!/^[A-Za-z0-9_-]+$/.test(input.nonce)) return "nonce";
+  return null;
 }
 
 export function renderPanelHtml(input: {
@@ -30,14 +51,8 @@ export function renderPanelHtml(input: {
   cspSource?: string;
   nonce: string;
 }): string {
-  if (
-    !safeResource(input.scriptUri) ||
-    !safeResource(input.styleUri) ||
-    (input.cspSource !== undefined && !safeCspSource(input.cspSource)) ||
-    !/^[A-Za-z0-9_-]+$/.test(input.nonce)
-  ) {
-    throw new Error("Unsafe webview resource");
-  }
+  const field = invalidField(input);
+  if (field) throw new Error(`Unsafe webview resource: ${field}`);
   const styleSource = input.cspSource ?? input.styleUri;
   return [
     "<!doctype html><html><head>",

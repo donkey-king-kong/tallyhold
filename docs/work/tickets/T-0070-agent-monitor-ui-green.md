@@ -11,7 +11,7 @@
 - Dependencies: [T-0057](T-0057-agent-monitor-ui-red.md), [T-0058](T-0058-review-agent-monitor-ui-red.md)
 - Branch / worktree: `feature/008-agent-monitor-ui` / `../tallyhold-feature-008-agent-monitor-ui`
 - Issue / PR: related #44; no PR requested.
-- Updated: 2026-11-18T06:47:23Z
+- Updated: 2026-11-18T06:48:59Z
 
 ## Scope
 
@@ -30,14 +30,14 @@ fixes, package a VSIX and stop for Zack's theme/width/keyboard smoke.
 
 ## Checkpoint
 
-- Last completed action: new host RED cases for multi-token `cspSource`, explicit failing-input errors and documented `asWebviewUri` forms fail on the current host validator. `npx vitest run test/packaging.test.ts --reporter=dot` reports 4 intended failures and 9 passes.
+- Last completed action: host validator now accepts space-separated `cspSource` lists that contain only `'self'` and `https://*.vscode-cdn.net`-style tokens, while rejecting hostile lists and naming the failing input. `npx vitest run test/packaging.test.ts --reporter=dot` now passes 13 tests.
 - Evidence: GREEN projection `57757f8`, webview `c148fc9`, benchmark `30b6ec6`; packaged `extensions/agent-monitor/tallyhold-agent-monitor-0.1.0.vsix`. Synthetic 25-agent/three-lane fixture rendered 29 identities, 3 lanes and 28 connectors in 6.37 ms; representative cold reducer 109.84 ms, maximum 985.21 ms, 2,000-identity webview 131.43 ms.
-- Worktree state: pushed head `bc02cb1`; host RED tests and tracking are uncommitted. Prior RED assertions remain preserved except the explicitly superseded display-name fixture, retaining its match/unmatch/ungrouped checks.
-- Remaining work: commit the new host RED slice, implement list-valued `cspSource` validation and clearer failing-input errors, rerun the full matrix, rebuild the VSIX and stop again for Zack's smoke.
+- Worktree state: local RED head `c02db1a`; host validator fix and tracking are uncommitted. Prior RED assertions remain preserved except the explicitly superseded display-name fixture, retaining its match/unmatch/ungrouped checks.
+- Remaining work: commit the host validation fix, rerun the full matrix, rebuild the VSIX and stop again for Zack's smoke.
 - VSIX: prior failed-smoke build was `extensions/agent-monitor/tallyhold-agent-monitor-0.1.0.vsix`, SHA-256 `a731c87a3a6ca6295d6636335f3caac2276023726df489dd092a28d6550829de`; it opened in a real editor only until the host rejected the current `cspSource`.
 - Audit: `npm audit` reports 17 high dev-only findings. `npm audit fix --dry-run` offered zero compatible package changes; its direct dependency remedies require out-of-range versions (`vitest`/coverage 4 to 3, `typescript-eslint` 8.73 to 8.47.0, `vsce` 3 to 4). Registry latest `picomatch` is vulnerable 4.0.7. No force or incompatible change applied. Packaging warns that this extension has no LICENSE file.
 - Blocker / unblock action: repeat editor smoke fails before open because host CSP validation rejects the real editor-provided `cspSource`; fix host validation and error detail test-first, then rebuild and hand back to Zack. No PR.
-- Next action: commit the focused host RED slice, then implement the minimal `renderPanelHtml()` validation fix and rerun packaging tests before the full matrix.
+- Next action: commit the tested host validation fix, then rerun `npm ci`, lint, format, typecheck, coverage, build, package, adapter tests and benchmarks before another VSIX smoke handoff.
 - Handoff recipient: Zack after another rebuilt packaged VSIX.
 
 ## History
@@ -59,3 +59,4 @@ fixes, package a VSIX and stop for Zack's theme/width/keyboard smoke.
 | 2026-11-18T06:38:06Z | R-0071/coordinator | Item-5 GREEN `594917f`; final `npm ci`, lint, format, typecheck, 117 tests/coverage (96.81% statements, 97.17% functions, 98.02% lines), build, package, six adapter tests and representative/maximum/25-agent three-lane benchmark pass. VSIX CSS/JS hashes match final source build | Commit/push results, then stop for Zack's repeat VSIX smoke; no PR |
 | 2026-11-18T06:46:13Z | R-0071/coordinator | Zack's repeat real-editor smoke FAIL at open on pushed `bc02cb1`: Trae reports `Command 'Tallyhold Agent Monitor: Open' resulted in an error: Unsafe webview resource`. Root cause is likely `safeCspSource()` only accepting a single host token while real `panel.webview.cspSource` can be a space-separated list such as `'self' https://*.vscode-cdn.net` | Record the failure, add focused host RED cases, fix validation and rebuild the VSIX; still no PR |
 | 2026-11-18T06:47:23Z | R-0071/coordinator | Added focused host RED cases in `packaging.test.ts` for accepted/rejected `cspSource` lists, failing-input error detail and documented `https://file+.vscode-resource.vscode-cdn.net/...` / `https://vscode-remote+...vscode-resource.vscode-cdn.net/...` resource shapes. `npx vitest run test/packaging.test.ts --reporter=dot` fails 4 intended tests because the current host rejects valid list/resource forms and still throws the generic error | Commit RED tests, then implement the host fix without weakening existing assertions |
+| 2026-11-18T06:48:59Z | R-0071/coordinator | Host fix in `src/host/monitorPanel.ts`: `safeCspSource()` now validates space-separated source-expression lists, rejects empty and injected tokens, preserves valid order verbatim, and `renderPanelHtml()` names the failing field while echoing rejected `cspSource` values. `npx vitest run test/packaging.test.ts --reporter=dot` passes 13/13 | Commit the host fix, then rerun the full matrix and rebuild the VSIX; no PR |
