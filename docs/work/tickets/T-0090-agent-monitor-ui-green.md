@@ -2,7 +2,7 @@
 
 ## Assignment
 
-- Status: in_progress
+- Status: complete
 - Owner actor: R-0092/coordinator
 - Role: Implementer / coordinator
 - Run: [R-0092](../runs/R-0092.md), after [R-0091](../runs/R-0091.md) and [R-0090](../runs/R-0090.md)
@@ -11,7 +11,7 @@
 - Dependencies: [T-0057](T-0057-agent-monitor-ui-red.md), [T-0058](T-0058-review-agent-monitor-ui-red.md)
 - Branch / worktree: `feature/008-agent-monitor-ui` / `../tallyhold-feature-008-agent-monitor-ui`
 - Issue / PR: related #44; no PR requested.
-- Updated: 2026-11-18T07:10:15Z
+- Updated: 2026-11-18T07:41:45Z
 
 ## Scope
 
@@ -22,22 +22,22 @@ fixes, package a VSIX and stop for Zack's theme/width/keyboard smoke.
 
 ## Acceptance
 
-- [x] All 34 new RED cases and 77 existing extension tests pass with >=80% coverage.
-- [x] Lint, format, typecheck, build, package, six adapter tests and representative plus 25-agent multi-lane benchmark pass.
+- [x] All five new visual-contract cases and 120 existing extension tests pass with >=80% coverage.
+- [x] Lint, format, typecheck, build, package, 30 adapter tests and representative plus 25-agent multi-lane benchmark pass.
 - [x] Compatible npm audit fixes assessed; no non-breaking fix available and remainder recorded.
 - [x] GREEN smoke corrections ready to push; rebuilt VSIX path and checklist prepared for Zack. No PR before Zack reports a new smoke.
 - [x] Regressions cover host CSP and applied stylesheet, root-ID name, one identity row/run selector, footer disclosure/local times, and plain navigator/node copy.
 
 ## Checkpoint
 
-- Last completed action: fetched origin, merged `origin/main`, preserved Track C's merged `T/R-0070` records, and renumbered Track B's unmerged records to `T-0090`, `R-0090`, and `R-0091`. Copied Zack's approved visual target to `mock.png` and recorded the AC8 amendment.
-- Evidence: hands-on smoke #3 opened with styles applied but was rejected because the UI did not resemble the approved mock. `mock.png` SHA-256 is `b28cfa45c98734978543913be23c913467c8bf01cfa2aed092429ab7be8e5555`.
-- Worktree state: merge resolution and approved documentation amendments are in progress under `R-0092`; no PR is open.
-- Remaining work: add focused RED tests without weakening prior assertions, implement the eleven approved corrections, create browser previews, compare the wide preview to the mock, and run the full verification matrix.
-- VSIX: rebuilt `extensions/agent-monitor/tallyhold-agent-monitor-0.1.0.vsix`, SHA-256 `aa3c6d9b8a777b41f9b05353f415015e2c2aa34b7cd98af7ca144d6b7b00f032`; packaged CSS and JS again match the final build byte for byte. Packaging still warns that no extension LICENSE file is present.
+- Last completed action: committed the verified correction at `2263076` and pushed `feature/008-agent-monitor-ui` through that revision.
+- Evidence: 125/125 tests pass with 97.15% statements, 97.44% functions and 98.36% lines. Playwright captured `preview-wide.png` at 1440x900 and `preview-narrow.png` at 800x900 from synthetic three-lane data.
+- Worktree state: implementation is pushed through `2263076`; no PR is open.
+- Remaining work: Zack's visual comparison and editor smoke.
+- VSIX: rebuilt `extensions/agent-monitor/tallyhold-agent-monitor-0.1.0.vsix`, SHA-256 `73a456714d02b7534a64f10608354dddb395c57b542618c87f05e7b0d22b3728`; the package contains the expected eight files. Packaging still warns that no extension LICENSE file is present.
 - Audit: `npm audit` reports 17 high dev-only findings. `npm audit fix --dry-run` offered zero compatible package changes; its direct dependency remedies require out-of-range versions (`vitest`/coverage 4 to 3, `typescript-eslint` 8.73 to 8.47.0, `vsce` 3 to 4). Registry latest `picomatch` is vulnerable 4.0.7. No force or incompatible change applied. Packaging warns that this extension has no LICENSE file.
 - Blocker / unblock action: none.
-- Next action: record the mock-versus-current gap list in `R-0092`, then add the first failing behavior test.
+- Next action: stop without opening a PR; Zack compares the approved mock and previews, then installs the rebuilt VSIX.
 - Handoff recipient: Zack after corrected preview images, full verification, push, and rebuilt VSIX.
 
 ## History
@@ -63,3 +63,6 @@ fixes, package a VSIX and stop for Zack's theme/width/keyboard smoke.
 | 2026-11-18T06:51:50Z | R-0091/coordinator | Final rerun after the host fix: `npm ci`, lint, format, typecheck, 120 tests/coverage (96.60% statements, 97.20% functions, 98.04% lines), build, package, six adapter tests and representative/maximum/25-agent three-lane benchmark pass. Rebuilt VSIX SHA-256 `aa3c6d9b8a777b41f9b05353f415015e2c2aa34b7cd98af7ca144d6b7b00f032`; packaged CSS/JS hashes match source build                                                                         | Commit/push results, then stop again for Zack's repeat smoke; no PR                                                              |
 | 2026-11-18T06:52:54Z | R-0091/coordinator | Final branch pushed through `49b08c1`; worktree clean. Zack's next step is to retry opening the rebuilt VSIX and rerun the same smoke checklist                                                                                                                                                                                                                                                                                                        | Stop and await Zack's smoke result; still no PR                                                                                  |
 | 2026-11-18T07:10:15Z | R-0092/coordinator | Smoke #3 opened and styled but failed the approved visual target. Merged `origin/main`, preserved Track C's records, renumbered Track B, copied approved `mock.png`, and recorded the AC8 amendment                                                                                                                                                                                                                                                    | Record the mock/current gap list in R-0092, then begin focused RED tests; no PR                                                  |
+| 2026-11-18T07:17:57Z | R-0092/coordinator | Five focused visual-contract tests committed at `af3a6c8`; all five failed while all 43 pre-existing webview cases passed                                                                                                                                                                                                                                                                                                                              | Implement the approved correction without weakening prior assertions                                                            |
+| 2026-11-18T07:38:49Z | R-0092/coordinator | All eleven correction areas pass 125 tests and the final preview/package gate. Maximum-envelope selection is 99.14ms, Fit all 0.31ms; 30 adapter tests pass. Final VSIX hash `73a456714d02b7534a64f10608354dddb395c57b542618c87f05e7b0d22b3728`                                                                                                                                                | Commit, push, and stop for Zack's mock comparison and hands-on smoke; no PR                                                      |
+| 2026-11-18T07:41:45Z | R-0092/coordinator | Verified correction committed at `2263076` and pushed to `origin/feature/008-agent-monitor-ui`                                                                                                                                                                                                                                                                                                                                                        | Stop for Zack's mock comparison and hands-on editor smoke; no PR                                                                |
