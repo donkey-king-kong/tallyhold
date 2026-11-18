@@ -2,16 +2,16 @@
 
 ## Assignment
 
-- Status: blocked
-- Owner actor: R-0057/coordinator
+- Status: in_review
+- Owner actor: R-0059/coordinator
 - Role: Test writer / coordinator
-- Run: [R-0057](../runs/R-0057.md), after [R-0056](../runs/R-0056.md)
+- Run: [R-0059](../runs/R-0059.md), after [R-0057](../runs/R-0057.md)
 - Feature: [approved spec](../../specs/008-agent-monitor-ui/spec.md), [approved plan](../../specs/008-agent-monitor-ui/plan.md), [tasks](../../specs/008-agent-monitor-ui/tasks.md)
 - Authorization: Zack approved architecture plan on 2026-11-18 at `f90265e`; RED tests/evidence authorized, GREEN only after independent review.
 - Dependencies: [T-0056](T-0056-plan-agent-monitor-ui.md)
 - Branch / worktree: `feature/008-agent-monitor-ui` / `../tallyhold-feature-008-agent-monitor-ui`
 - Issue / PR: related #44; no PR requested.
-- Updated: 2026-11-18T05:45:28Z
+- Updated: 2026-11-18T05:54:35Z
 
 ## Scope
 
@@ -28,12 +28,12 @@ real logs, publisher changes, PR or GREEN.
 
 ## Checkpoint
 
-- Last completed action: final allowed fresh RED review round 2 requested changes to one page-size-dependent test; escalation required.
-- Evidence: [revised RED evidence](../../specs/008-agent-monitor-ui/red-test-run.md): 34 expected failures/77 skipped; 77 existing passed/34 skipped; adapter 6 passed; lint/typecheck/format/whitespace passed.
-- Worktree state: corrected tests/evidence pushed at `2e6938a`; round-2 report and tracking pending commit; no production source edited.
-- Remaining work: await Zack's RED escalation decision; only then correct the pagination assertion and determine an explicitly authorized review path.
-- Blocker / unblock action: round-2 `CHANGES_REQUESTED` on `Report 104` after one Next action despite unspecified page size; Zack resolves escalation. GREEN is prohibited.
-- Next action: commit/push round-2 verdict, then ask Zack to authorize a focused test correction and additional review if desired.
+- Last completed action: pushed the one-test correction `e734489` and pinned evidence `acef72d`; 34 expected RED, 77 existing and 6 adapter passing, lint/typecheck/test format passing.
+- Evidence: [revised RED evidence](../../specs/008-agent-monitor-ui/red-test-run.md) pins `e734489`, commands, counts and reason; diff changes only the AC11/14 paging test.
+- Worktree state: test and evidence pushed at `acef72d`; only tracking checkpoint pending commit/push, no production source edited.
+- Remaining work: Zack checks the focused diff and confirms before GREEN.
+- Blocker / unblock action: GREEN remains blocked until Zack confirms after reviewing the focused diff. No further reviewer round.
+- Next action: commit/push this tracking handoff, verify remote head, report test commit hash to Zack and stop.
 - Handoff recipient: Zack.
 
 ## History
@@ -48,3 +48,6 @@ real logs, publisher changes, PR or GREEN.
 | 2026-11-18T05:39:13Z | R-0057/coordinator | Strengthened RED-only tests for all five findings; local checks show 34 expected RED, 77 unchanged and 6 adapter passing, lint/typecheck/format clean | Commit test revision, rerun at SHA, publish revised evidence and hand to fresh round 2 |
 | 2026-11-18T05:39:52Z | R-0057/coordinator | Committed `885fbe4`; pinned checks confirm 34 missing-behavior RED, 77 unchanged and 6 adapter passed, quality checks clean | Commit/push revised evidence and arrange different fresh RED reviewer |
 | 2026-11-18T05:45:28Z | R-0057/coordinator | Pushed RED head `2e6938a`; final fresh Trae review returned CHANGES_REQUESTED for page-size-dependent activity assertion | Stop GREEN and request Zack's RED escalation decision; no test fix without authorization |
+| 2026-11-18T05:50:47Z | R-0059/coordinator | Zack resolved the final finding as a test-specification defect; spec/plan unchanged, no further reviewer or cost approval | Reopened Test writer for one page-size-independent test correction, RED evidence, checks and push; stop before GREEN |
+| 2026-11-18T05:53:12Z | R-0059/coordinator | Test commit `e734489` changes Next to Last activity page and checks selected page persists; pinned suite: 34 expected RED, 77 unchanged and 6 adapter passed, lint/typecheck/test formatting passed | Commit/push evidence and tracking; report hash and stop for Zack |
+| 2026-11-18T05:54:35Z | R-0059/coordinator | Pushed test `e734489` and evidence `acef72d` | Final tracking checkpoint, then stop for Zack; no reviewer or GREEN |
