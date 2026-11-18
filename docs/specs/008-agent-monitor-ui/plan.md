@@ -15,6 +15,12 @@
   is the target for layout, density, spacing, controls, and copy style. The
   "No report <age>" tag appears only for nonterminal Working, Waiting, or
   Blocked agents, never Completed or Failed agents.
+- **Approved preview-round-2 amendment — 2026-11-18 (Zack).** Every agent card
+  in a worktree lane is exactly the fixed lane width. Long visible card copy
+  uses a single-line ellipsis while the complete name remains available to
+  assistive technology and in the navigator/inspector. At widths below 960px,
+  the panes use normal document flow in header, toolbar, navigator, graph,
+  inspector, footer order; only the fixed-height graph pans internally.
 - This is a local, read-only extension presentation change. No portfolio
   application, publisher/adapter, source reader, database, Alembic migration,
   CI workflow, or multi-session aggregation change. The 004 limits and privacy
@@ -119,17 +125,19 @@ inspector says role unavailable when it is absent.
 Render one graph SVG with explicit edge layer, lane/header layer and node
 layer. For every resolved pair with both rendered endpoints, draw exactly
 one `data-parent-id`/`data-child-id` connector from parent bottom port to
-child top port. Route lane descendants from one vertical spine with distinct
-ticks, and offset parallel/cross-lane segments so edges never stack into a
-solid bar. No
+child top port. Draw one vertical line from the orchestrator to one horizontal
+bus, one drop from that bus to each lane header, one vertical rail on the left
+of each lane from its header to its last card, and one short horizontal tick
+from that rail into each card. The tick is the attributed connector for a
+normal lane-parent link; do not add a second bracket path or stray stub for the
+same link. Offset only exceptional cross-lane segments where needed. No
 connector for orphan/self/cycle links or a filtered-out endpoint. Keep
 connectors behind boxes; node text/tspans are in a foreground group **after**
-box shapes, **inside** each box with padding. Measure and wrap the displayed
-label; size the box's width and height to contain every line and reserve
-enough row/column space for the resulting box bounds. Include those bounds
-in Fit all; never paint text underneath its box, overlap another node or
-ellipsize it. At tight zoom, pan/zoom and accessible full names in
-navigator/inspector reach any text outside the viewport.
+box shapes, **inside** each box with padding. Lane cards use the fixed lane
+width; truncate long visible card copy to one line with an ellipsis and retain
+the full ID in the card's accessible name and inspector. Reserve enough
+row/column space for every fixed box, include those bounds in Fit all, and
+never let a card exceed its lane or paint text underneath another box.
 
 Reuse 004 camera preservation across append, range and status filters; initial
 open and Fit all bound every accepted identity (including terminal, unknown
@@ -253,7 +261,7 @@ original ID and an absent reported role stays unavailable.
 | 2   | Local toolbar and intersected active/range filters, honest note                                                                        | `webview.test.ts: toolbar toggles range and last reported active without liveness claim`                                                                                                                                                                                             |
 | 3   | CSS grid with 960px breakpoint, bounded panes and graph                                                                                | `webview.test.ts: wide view places three panes beside visible graph and narrow view stacks in order`                                                                                                                                                                                 |
 | 4   | Source-order stable worktree slots, reported task/slug and ungrouped late parent; shorten only an assigned lane's exact root-ID prefix | `presentation.test.ts: lane assignment preserves slots across late root and append`; `presentation.test.ts: display name strips only assigned lane prefix and preserves unmatched and ungrouped ids`; `webview.test.ts: root task titles slug subtitles and agent counts span lanes` |
-| 5   | Foreground text inside padded, wrap-fitted node boxes and box-inclusive Fit all                                                        | `webview.test.ts: foreground labels fit inside boxes without overlap at fit and zoom`                                                                                                                                                                                                |
+| 5   | Fixed-lane-width cards with single-line visible ellipsis, complete accessible names, and box-inclusive Fit all                          | `webview.test.ts: foreground labels fit inside boxes without overlap at fit and zoom`; `webview.test.ts: assigns root-prefixed orphans to their lane and keeps card copy inside fixed boxes`                                                                                         |
 | 6   | One keyed connector per resolved pair with both endpoints, edge layer below nodes                                                      | `webview.test.ts: all resolved links draw one connector including cross lane and late parent`                                                                                                                                                                                        |
 | 7   | Distinct icon+word states and dashed unknown-parent annotation; tool result isolated                                                   | `webview.test.ts: statuses and unknown parent show distinct symbols without fading completed`; `webview.test.ts: failed tool never changes completed agent status`                                                                                                                   |
 | 8   | Age clock and >1h tag without inference                                                                                                | `presentation.test.ts: no report threshold requires verified age`; `webview.test.ts: quiet report tag advances without dimming`                                                                                                                                                      |

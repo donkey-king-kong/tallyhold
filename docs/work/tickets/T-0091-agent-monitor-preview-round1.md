@@ -1,18 +1,18 @@
-# T-0091: Correct Agent Monitor preview round 1
+# T-0091: Correct Agent Monitor previews
 
 ## Assignment
 
-- Status: in_review
-- Owner actor: R-0093/coordinator
+- Status: in_progress
+- Owner actor: R-0094/coordinator
 - Role: Test writer, then Implementer after RED approval
-- Run: [R-0093](../runs/R-0093.md), after [R-0092](../runs/R-0092.md)
-- Feature / task: [Feature 008 spec](../../specs/008-agent-monitor-ui/spec.md), [approved plan](../../specs/008-agent-monitor-ui/plan.md), preview round 1 correction
-- Authorization: Zack rejected preview round 1 and explicitly requested RED-first correction on 2026-11-18
+- Run: [R-0094](../runs/R-0094.md), after [R-0093](../runs/R-0093.md)
+- Feature / task: [Feature 008 spec](../../specs/008-agent-monitor-ui/spec.md), [approved plan](../../specs/008-agent-monitor-ui/plan.md), preview corrections
+- Authorization: Zack reviewed preview round 2 and explicitly requested the five listed corrections on 2026-11-18
 - Dependencies: [T-0090](T-0090-agent-monitor-ui-green.md)
 - Branch / worktree: `feature/008-agent-monitor-ui` / `../tallyhold-feature-008-agent-monitor-ui`
 - Worktree path: `../tallyhold-feature-008-agent-monitor-ui`
 - Issue / PR: related #44; no PR requested
-- Updated: 2026-11-18T09:19:44Z
+- Updated: 2026-11-18T10:52:24Z
 
 ## Scope
 
@@ -23,21 +23,29 @@ graph, navigator, inspector, controls, footer, and narrow layout. Preserve the
 approved data-honesty, AC8, timeline, and display-name rules. Do not reinstall
 the VSIX or open a PR.
 
+For preview round 2, remove duplicate connector geometry, constrain every card
+to its lane, use adapter-accurate hashed worktree IDs, restore normal narrow
+page flow, and apply the requested timeline/status/older-run polish.
+
 ## Acceptance
 
 - [x] New Playwright guards fail over production head `c9714a5` for missing agent-card state/containment while all 125 existing Vitest cases pass.
 - [x] Wide and narrow production-bundle previews visibly satisfy Zack's nine numbered correction areas with no invented branch/track data.
 - [x] Existing lint, format, typecheck, build, package, tests, coverage, adapter tests, and benchmarks pass with the new layout checks.
 - [x] Corrected previews and implementation are committed and pushed; handoff lists each fix as done or explains a deviation.
+- [ ] Each lane has exactly one rail and one tick per rendered agent card; every card stays within its lane header width.
+- [ ] Preview IDs follow the adapter's normalized-prefix plus eight-hex-hash contract, with the hash shown muted and no invented branch name.
+- [ ] The 800px preview uses normal document flow through the complete inspector and footer without clipped content or empty trailing space.
+- [ ] Round-2 previews and all required checks are committed and pushed for Zack.
 
 ## Checkpoint
 
-- Last completed action: committed and pushed the verified implementation and corrected previews at `b067995`.
-- Evidence: 125/125 extension tests; 97.22% statements, 96.78% functions, and 98.49% lines; both Playwright captures; lint, format, typecheck, build, eight-file VSIX package, 30 adapter tests, benchmarks, and Impeccable detector pass.
-- Worktree state: remote branch contains graph commit `5358538` and final workspace/previews commit `b067995`; final VSIX SHA-256 is `c6c38715e07f5348cc194af6f5e04c891dcc48d514346b2c991a4a1fc3df38de`.
-- Remaining work: Zack compares the corrected previews before authorizing any reinstall or smoke.
+- Last completed action: reconciled fresh round-1 RED review findings in the approved AC5/plan text and strengthened the narrow-flow, exact-slug, and visible-status guards.
+- Evidence: reviewer comment `210627545` returned `CHANGES_REQUESTED`; corrected unit slice remains RED with the same five missing behaviors while format and typecheck pass.
+- Worktree state: remote RED head `96b4b14`; corrected RED, review report, tracking, and backlog records are local and uncommitted.
+- Remaining work: commit and rerun corrected RED at the pinned revision, push evidence, then obtain approval from a different fresh round-2 Reviewer before GREEN.
 - Blocker / unblock action: none.
-- Next action: stop for Zack's preview comparison; do not reinstall, smoke, or open a PR.
+- Next action: commit the corrected RED, record exact-revision evidence, push it, and dispatch a different fresh restricted RED Reviewer.
 - Handoff recipient: Zack after pushed corrected previews; no reinstall and no PR.
 
 ## History
@@ -58,3 +66,7 @@ the VSIX or open a PR.
 | 2026-11-18T08:54:48Z | R-0093/coordinator | Graph/card GREEN slice passes 60/60 focused tests, typecheck, and format check                                                                        | Commit slice, then implement shell/navigation/inspection structure             |
 | 2026-11-18T09:18:35Z | R-0093/coordinator | Completed the mock-aligned shell and final automated gate; 125 tests, coverage, layout guards, package audit, adapter tests, benchmarks, and detector pass | Commit and push implementation and corrected previews; do not reinstall or smoke |
 | 2026-11-18T09:19:44Z | R-0093/coordinator | Pushed graph `5358538` and final workspace/previews `b067995` to the feature branch | Stop for Zack's preview comparison; no reinstall, smoke, or PR |
+| 2026-11-18T10:40:06Z | R-0094/coordinator | Reopened after Zack's round-2 review at clean synchronized `881d320` | Write new connector and card-containment guards before production changes |
+| 2026-11-18T10:45:07Z | R-0094/coordinator | Pushed RED test `8053e11` and evidence head `96b4b14`; production remains unchanged | Dispatch fresh RED Reviewer round 1 for base `881d320` and head `96b4b14` |
+| 2026-11-18T10:46:53Z | R-0094/reviewer-01 | Round 1 `CHANGES_REQUESTED`: reconcile fixed-width ellipsis with AC5/plan, permit below-fold narrow flow, and require exact visible slug/status copy | Correct RED only, rerun evidence, and use a different fresh Reviewer for round 2 |
+| 2026-11-18T10:52:24Z | R-0094/coordinator | Recorded review comment `210627545`, amended the approved contract per Zack's newer decision, and strengthened all three guards; production remains frozen | Commit corrected RED, rerun at the pinned SHA, and prepare round-2 handoff |

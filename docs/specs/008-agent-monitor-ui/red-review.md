@@ -73,6 +73,80 @@ area, lane/card density, spacing, or visible lane/card population.
 
 VERDICT: CHANGES_REQUESTED
 
+## Preview round 2 correction review
+
+- Round: 1
+- Base: `881d320`
+- Pushed RED head: `96b4b14`
+- Recorded executable test revision: `8053e11`
+- Commit comment:
+  <https://github.com/donkey-king-kong/tallyhold/commit/96b4b14a550a52beffa36b1a83dab406431156e7#commitcomment-210627545>
+
+### Coverage mapping
+
+The cumulative Feature 008 suite maps the acceptance criteria and numbered
+plan verification items as follows:
+
+| AC / plan item | Tests and evidence |
+| --- | --- |
+| 1 | `core.test.ts: last event absolute time uses last accepted record`; `webview.test.ts: header shows source session following age and stale recovery` |
+| 2 | `webview.test.ts: toolbar toggles range and last reported active without liveness claim` |
+| 3 | `webview.test.ts: wide view places three panes beside visible graph and narrow view stacks in order`; `capture-preview.ts` wide/narrow pane checks |
+| 4 | Lane assignment, exact display-name, root-title, hashed-slug, and preview guards |
+| 5 | Foreground label geometry plus fixed-card and preview containment guards |
+| 6 | Resolved-link coverage plus recent-graph rail/tick and preview topology guards |
+| 7 | Status/unknown-parent and failed-tool isolation plus status-copy guards |
+| 8 | Verified quiet-report threshold and advancing quiet-report cases |
+| 9 | Local time, verified bounds, and dated-activity assertions |
+| 10 | Plain labels, tool duration, counterpart, and dated-activity assertions |
+| 11 | Inspector, dated activity, hashed slug, and copy-button preview guards |
+| 12 | Older/unknown range cases and older-runs preview copy guard |
+| 13 | Compact footer and narrow document-flow preview guard |
+| 14 | Theme, keyboard, reduced-motion, visibility, and overflow guards |
+| 15 | Historical/incremental safety and existing suite evidence |
+
+Uncovered or incorrectly specified items:
+
+1. AC5 and the approved plan's no-ellipsis behavior are contradicted by the
+   revised root-prefixed card test and preview overflow guard.
+2. The narrow preview guard does not permit every valid normal-document-flow
+   stack approved by AC3 and the plan.
+3. The hashed-slug preview guard does not generically reject invented branch
+   text, and the preview status check does not establish that status words are
+   visible and nonempty.
+
+### Checklist
+
+1. **Acceptance criteria and plan verification mapping: finding.** The
+   cumulative tests name coverage for AC1-AC15 and all 15 numbered verification
+   rows. The three incorrectly specified or insufficiently guarded behaviors
+   are findings below.
+2. **Observable plan decisions: finding.** The fixed-width ellipsis assertion
+   conflicts with the prior AC5/plan requirement for complete visible text and
+   weakens the existing long-label assertion. The narrow guard requires every
+   pane inside the initial viewport, rejecting compliant below-fold document
+   flow. The branch guard excludes only two literals, while status checks
+   accept hidden or empty elements.
+3. **RED failure quality: finding.** The recorded five unit failures and
+   production-preview failure are missing behavior rather than setup,
+   collection, dependency, navigation, fixture, or network failures. The label
+   failure is not trustworthy until the approved contract conflict is
+   reconciled.
+4. **Assertions and adversarial value: finding.** Connector topology, fixed
+   geometry, dated activity, and navigator status use public DOM/browser
+   interfaces. The ellipsis assertion conflicts with the prior contract, while
+   branch and browser status assertions permit plausible wrong implementations.
+5. **Allowed infrastructure: none.** The evidence uses synthetic fixtures,
+   local Vitest/JSDOM, the local production preview bundle, and headless
+   Playwright without real secrets, private runtime streams, external services,
+   or external network.
+6. **Existing-suite regression protection: finding.** No production file or
+   existing test file was deleted, and 121 unaffected tests pass with the five
+   changed cases skipped. The root-prefixed long-label assertion was weakened
+   contrary to the prior AC5/plan.
+
+VERDICT: CHANGES_REQUESTED
+
 ## Round 2
 
 - Round: 2

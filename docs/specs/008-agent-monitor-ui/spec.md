@@ -63,11 +63,14 @@ shared-stream worktree roots (`wt-<slug>`) provide grouping when present.
    Missing worktree roots stay reachable in an explicitly ungrouped area
    without an invented worktree or parent.
 5. **Legible graph labels.** Given long and short names at normal zoom and
-   after Fit all, when nodes render, then their labels are fully visible above
-   their own boxes, never painted underneath a box or clipped by an adjacent
-   node. A DOM geometry/paint-order test covers overlapping SVG/HTML bounds,
-   long labels, and multiple lanes; accessible full names remain available
-   when the viewport is too narrow to show them at the current zoom.
+   after Fit all, when nodes render, then every agent card in a worktree lane
+   is exactly the lane width and never exceeds its lane bounds. Visible card
+   copy that does not fit that fixed width uses a single-line ellipsis rather
+   than expanding, wrapping mid-word, painting underneath another box, or
+   clipping into an adjacent lane. The complete name remains available as the
+   card's accessible name and in navigator/inspector surfaces. A DOM
+   geometry/paint-order test covers fixed card bounds, long labels, and
+   multiple lanes.
 6. **Visible relationships.** Given every resolved acyclic parent link in the
    displayed graph, when it renders or updates, then a visible connector joins
    the correct parent and child, including across the anchor/lane boundary.
