@@ -86,9 +86,13 @@ describe("independent extension contract (AC1, AC15-16)", () => {
       "https://*.vscode-cdn.net; script-src *",
       "",
     ]) {
-      expect(() => renderPanelHtml({ ...valid, cspSource })).toThrow(
-        new RegExp(`Unsafe webview resource: cspSource .*${cspSource.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}`),
-      );
+      try {
+        renderPanelHtml({ ...valid, cspSource });
+        throw new Error(`expected ${cspSource} to be rejected`);
+      } catch (error) {
+        expect(String(error)).toContain("Unsafe webview resource: cspSource");
+        expect(String(error)).toContain(JSON.stringify(cspSource));
+      }
     }
   });
 
