@@ -11,7 +11,7 @@
 - Dependencies: merged Feature 004; shared-stream roots used only when reported.
 - Branch / worktree: `feature/008-agent-monitor-ui` / `../tallyhold-feature-008-agent-monitor-ui`
 - Issue / PR: related [#44](https://github.com/donkey-king-kong/tallyhold/issues/44), original [#20](https://github.com/donkey-king-kong/tallyhold/issues/20); no PR requested.
-- Updated: 2026-11-18T03:59:54Z
+- Updated: 2026-11-18T04:00:57Z
 
 ## Scope
 
@@ -23,16 +23,16 @@ are not. Preserve all approved Feature 004 behavior.
 
 - [x] Draft describes the mock, prior behavior, testable DOM outcomes, and exclusions.
 - [x] Documentation links and whitespace validate.
-- [ ] Corrected spec is committed and pushed on the new branch; Gate 1 remains pending.
+- [x] Corrected spec is committed and pushed on the new branch; Gate 1 remains pending.
 
 ## Checkpoint
 
-- Last completed action: corrected Feature 008 spec and tracking; verified references, local links, and whitespace.
-- Evidence: original remote branch at `018b42a`; no PR; 128 local links resolve; `git diff --check` passed; only deliberate "No Track X" copy matches the stale-phrase scan.
-- Worktree state: renamed spec and tracking edits uncommitted.
-- Remaining work: commit, push new branch, delete old remote branch, and request Zack's Gate 1 review.
+- Last completed action: pushed corrected Draft as `0a71c3e`, verified the new remote SHA, and deleted the old remote branch.
+- Evidence: `origin/feature/008-agent-monitor-ui` at `0a71c3e`; old remote absent; 128 local links resolve and whitespace passed.
+- Worktree state: this final handoff checkpoint awaits commit; spec branch is pushed.
+- Remaining work: publish this checkpoint, then Zack's Gate 1 decision.
 - Blocker / unblock action: none for drafting; Gate 1 approval blocks planning/code.
-- Next action: commit the documentation changes; push the new branch and verify its remote head before deleting the old remote.
+- Next action: commit and push this checkpoint; request Zack's explicit Gate 1 review without planning or code.
 - Handoff recipient: Zack for Gate 1.
 
 ## History
@@ -43,3 +43,4 @@ are not. Preserve all approved Feature 004 behavior.
 | 2026-11-18T03:56:08Z | R-0052/coordinator | Drafted 15 testable criteria and validated Markdown links and whitespace | 121 local links resolve; commit and push the draft |
 | 2026-11-18T03:58:58Z | R-0053/coordinator | Recovered pushed `018b42a`; took over correction with Zack's explicit request; renamed local branch/worktree and moved spec directory | Update references and lane contract; validate, commit, push new branch before deleting old remote |
 | 2026-11-18T03:59:54Z | R-0053/coordinator | Corrected feature number and lane source-of-truth; validated 128 local links and whitespace | Commit correction; push and verify new remote before retiring old remote |
+| 2026-11-18T04:00:57Z | R-0053/coordinator | Pushed `0a71c3e` to new remote, verified SHA, and deleted old remote branch | Commit/push handoff checkpoint; await Zack's Gate 1 decision |
