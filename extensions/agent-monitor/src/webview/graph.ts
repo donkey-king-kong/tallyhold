@@ -94,6 +94,7 @@ export class GraphLayout {
     for (const node of nodes) this.nodesById.set(node.id, node);
     for (const node of nodes) {
       if (!/^wt-[a-zA-Z0-9_-]+$/.test(node.id)) continue;
+      if (node.parentId && node.parentId !== "orchestrator") continue;
       const ownsPrefixedIdentity = nodes.some(
         (candidate) =>
           candidate.id !== node.id && candidate.id.startsWith(`${node.id}-`),
@@ -209,7 +210,12 @@ export class GraphLayout {
 
   extent(nodes: ProjectedNode[]): string {
     if (!nodes.length) return "0 0 800 600";
-    const places = [...this.places.values()];
+    const places = nodes.flatMap((node) =>
+      Array.from(
+        { length: Math.max(1, node.intervals?.length ?? 0) },
+        (_, index) => this.place(node.id, index),
+      ).filter((place): place is Place => Boolean(place)),
+    );
     const minX = Math.min(0, ...places.map((place) => place.x));
     const minY = Math.min(0, ...places.map((place) => place.y));
     const maxX = Math.max(0, ...places.map((place) => place.x + place.width));
@@ -440,6 +446,17 @@ export function drawGraph(
       "aria-label",
       `${node.task ?? "Worktree"} ${rootId} ${laneStatus}`,
     );
+    const clipId = `lane-${rootId.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
+    const clip = svg("clipPath");
+    clip.setAttribute("id", clipId);
+    const clipBox = svg("rect");
+    clipBox.setAttribute("x", String(place.x));
+    clipBox.setAttribute("y", "140");
+    clipBox.setAttribute("width", "220");
+    clipBox.setAttribute("height", "104");
+    clip.append(clipBox);
+    header.append(clip);
+    header.setAttribute("clip-path", `url(#${clipId})`);
     const headerBox = svg("rect");
     headerBox.setAttribute("x", String(place.x));
     headerBox.setAttribute("y", "140");
@@ -457,8 +474,13 @@ export function drawGraph(
     label.setAttribute("x", String(place.x + 12));
     label.setAttribute("y", "164");
     label.setAttribute("class", "lane-label");
-    label.textContent = node.task ?? "Worktree";
+    const laneLabel = node.task ?? "Worktree";
+    label.textContent =
+      laneLabel.length > 20 ? `${laneLabel.slice(0, 17)}...` : laneLabel;
     header.append(label);
+    const fullLabel = svg("title");
+    fullLabel.textContent = laneLabel;
+    header.append(fullLabel);
     const pill = svg("text");
     pill.setAttribute("x", String(place.x + 208));
     pill.setAttribute("y", "164");

@@ -57,6 +57,14 @@ function button(label: string, action: () => void): HTMLButtonElement {
   return item;
 }
 
+function statusMark(status: string): HTMLSpanElement {
+  return element("span", undefined, {
+    class: "navigator-status-icon status-mark",
+    "data-status-icon": status,
+    "aria-hidden": "true",
+  });
+}
+
 export function mountMonitor(
   root: HTMLElement,
   initialState: MonitorState,
@@ -122,6 +130,9 @@ export function mountMonitor(
   const footerBody = element("div", undefined, {
     class: "monitor-footer-body",
   });
+  const footerRight = element("span", "Read-only · no network", {
+    class: "footer-readonly",
+  });
   footerBody.hidden = true;
   const setFooterOpen = (open: boolean) => {
     footerDisclosure.open = open;
@@ -141,7 +152,7 @@ export function mountMonitor(
     }
   });
   footerDisclosure.append(footerToggle, footerBody);
-  footer.append(footerCount, footerDisclosure);
+  footer.append(footerCount, footerDisclosure, footerRight);
   const legacyDiagnostics = element("section", undefined, {
     class: "monitor-accessible-summary",
     role: "region",
@@ -169,7 +180,9 @@ export function mountMonitor(
     const recent = filtered.filter((node) =>
       runsFor(node, Date.now()).some((run) => run.chronology === "current"),
     );
-    return recent.length ? recent : filtered;
+    if (!recent.length) return filtered;
+    const anchor = filtered.find((node) => node.id === "orchestrator");
+    return anchor && !recent.includes(anchor) ? [anchor, ...recent] : recent;
   };
   camera = layout.extent(currentNodes());
   const selectedNode = () =>
@@ -246,19 +259,30 @@ export function mountMonitor(
     "p",
     "Statuses are what agents last reported, not proof of liveness or that they are running.",
   );
+  const rangeControl = element("div", undefined, {
+    class: "range-control",
+    role: "group",
+    "aria-label": "Time range",
+  });
+  rangeControl.append(recentButton, allButton);
+  filterLabel.className = "active-filter";
+  const zoomControl = element("div", undefined, {
+    class: "zoom-control",
+    role: "group",
+    "aria-label": "Zoom",
+  });
+  zoomControl.append(zoomOut, zoomPercent, zoomIn);
+  const fitButton = button("Fit all", () => {
+    zoom = 100;
+    zoomPercent.textContent = "100%";
+    fitAll();
+  });
   toolbarControls.append(
-    recentButton,
-    allButton,
+    rangeControl,
     filterLabel,
     caveat,
-    zoomOut,
-    zoomPercent,
-    zoomIn,
-    button("Fit all", () => {
-      zoom = 100;
-      zoomPercent.textContent = "100%";
-      fitAll();
-    }),
+    zoomControl,
+    fitButton,
   );
   toolbar.append(toolbarControls);
   const accessiblePan = element("div", undefined, {
@@ -304,6 +328,12 @@ export function mountMonitor(
       );
     } else readerLine.textContent = reader;
     readerLine.className = "reader-pill";
+    readerLine.prepend(
+      element("span", undefined, {
+        class: "reader-status-dot",
+        "aria-hidden": "true",
+      }),
+    );
     header.replaceChildren(
       element("strong", "Agent Monitor"),
       element("span", "Tallyhold", { class: "product-name" }),
@@ -348,7 +378,13 @@ export function mountMonitor(
       ? (document.activeElement as HTMLElement).getAttribute("aria-label")
       : null;
     const groups = state.projection.nodes
-      .filter((node) => !activeOnly || !node.terminal)
+      .filter(
+        (node) =>
+          (node.id !== "orchestrator" ||
+            runsFor(node, Date.now()).length > 1) &&
+          (!layout.laneRoots().includes(node.id) || Boolean(node.status)) &&
+          (!activeOnly || !node.terminal),
+      )
       .map((node) => ({
         node,
         runs: runsFor(node, Date.now()),
@@ -422,26 +458,36 @@ export function mountMonitor(
           "aria-label",
           `${node.id}${suffix} ${status} · Full ID ${node.id}`,
         );
-      const mark = element("span", undefined, {
-        class: "navigator-status-icon",
-        "data-status-icon": status,
-        "aria-hidden": "true",
-      });
+      const mark = statusMark(status);
+      const duration =
+        node.lastUpdateAge != null && node.lastUpdateAge >= 0
+          ? age(node.lastUpdateAge + elapsed)
+          : "—";
       item.replaceChildren(
-        element("span", `${label}${suffix}`),
-        document.createTextNode(" "),
         mark,
-        element("span", status),
+        element("span", `${label}${suffix}`, {
+          class: "navigator-agent-name",
+        }),
+        element("span", ` ${status} `, {
+          class: "monitor-accessible-summary",
+        }),
+        element("span", duration, {
+          class: "navigator-agent-duration",
+          "data-age-base": String(node.lastUpdateAge ?? -1),
+          "data-age-kind": "short",
+        }),
       );
       item.dataset.nodeId = node.id;
       item.className = selectedId === node.id ? "is-selected" : "";
-      if (node.lastUpdateAge != null && node.lastUpdateAge >= 0) {
-        const tag = element("span", ` ${age(node.lastUpdateAge + elapsed)}`);
-        tag.dataset.ageBase = String(node.lastUpdateAge);
-        tag.dataset.ageKind = "short";
-        item.append(tag);
-      } else if (state.projection.lastEventAbsoluteTime)
-        item.append(element("span", " · Age unavailable"));
+      if (
+        (node.lastUpdateAge == null || node.lastUpdateAge < 0) &&
+        state.projection.lastEventAbsoluteTime
+      )
+        item.append(
+          element("span", "Age unavailable", {
+            class: "monitor-accessible-summary",
+          }),
+        );
       row.append(item);
       if (runs.length > 1) row.append(element("span", `${runs.length} runs`));
       if (olderExpanded && range === "recent" && section !== "older")
@@ -485,9 +531,12 @@ export function mountMonitor(
       list.querySelectorAll<HTMLElement>(".navigator-identity-row"),
     )) {
       const node = nodeById.get(row.dataset.identityId ?? "");
-      const slug = node
-        ? (layout.association(node) ?? "ungrouped")
-        : "ungrouped";
+      const slug =
+        node?.id === "orchestrator"
+          ? "session"
+          : node
+            ? (layout.association(node) ?? "ungrouped")
+            : "ungrouped";
       let group = worktreeGroups.get(slug);
       if (!group) {
         group = element("section", undefined, {
@@ -495,7 +544,6 @@ export function mountMonitor(
           "data-worktree": slug,
           "aria-label": `Worktree ${slug}`,
         });
-        group.append(element("h3", slug));
         worktreeGroups.set(slug, group);
       }
       if (
@@ -516,8 +564,29 @@ export function mountMonitor(
         }),
       );
     }
+    for (const [slug, group] of worktreeGroups) {
+      const heading = element("h3");
+      heading.append(
+        element("span", slug, { class: "navigator-branch" }),
+        element(
+          "span",
+          String(group.querySelectorAll(".navigator-identity-row").length),
+          { class: "navigator-count" },
+        ),
+      );
+      group.prepend(heading);
+    }
     list.prepend(...worktreeGroups.values());
-    navigator.replaceChildren(searchInput, list);
+    const searchLabel = element("label", "Find agent", {
+      class: "navigator-search-label",
+    });
+    searchLabel.append(searchInput);
+    const olderButton = Array.from(list.children).find(
+      (item) =>
+        item.tagName === "BUTTON" && item.textContent?.startsWith("Older runs"),
+    );
+    olderButton?.classList.add("older-runs-row");
+    navigator.replaceChildren(searchLabel, list);
     if (selectedNode() && activeOnly && selectedNode()?.terminal) {
       reveal = button(`Reveal ${selectedId}`, () => {
         activeOnly = false;
@@ -538,6 +607,7 @@ export function mountMonitor(
     const node = selectedNode();
     if (!node) {
       inspector.replaceChildren(
+        element("div", "Selected agent", { class: "section-label" }),
         element("h2", "Select an agent"),
         element("p", "Choose an identity in the navigator to inspect reports."),
       );
@@ -564,8 +634,20 @@ export function mountMonitor(
     const slug = layout.association(node);
     const status = statusWord(node);
     const title = element("h2", displayName(node.id, slug));
-    const task = element("div", "Task ", { class: "inspector-fact" });
-    task.append(element("span", node.task ?? "unavailable"));
+    const fact = (label: string, value: string | Node) => {
+      const row = element("div", undefined, { class: "inspector-fact" });
+      row.append(
+        element("span", `${label} `, { class: "inspector-fact-label" }),
+      );
+      const factValue = element("span", undefined, {
+        class: "inspector-fact-value",
+      });
+      if (typeof value === "string") factValue.textContent = value;
+      else factValue.append(value);
+      row.append(factValue);
+      return row;
+    };
+    const task = fact("Task", node.task ?? "unavailable");
     const onlyLastReportUnavailable =
       slug == null &&
       node.reportedRole == null &&
@@ -573,53 +655,63 @@ export function mountMonitor(
     const role = element(
       "div",
       `Role: ${node.reportedRole ?? (onlyLastReportUnavailable ? "—" : "unavailable")}`,
-      { class: "inspector-role" },
+      { class: "inspector-role monitor-accessible-summary" },
     );
-    const worktree = element("div", `Worktree: ${slug ?? "—"}`, {
+    const worktree = element("div", `in ${slug ?? "—"}`, {
       class: "inspector-worktree",
     });
-    const lastReport = element("div", undefined, {
-      class: "inspector-fact",
-    });
+    worktree.append(
+      element("span", `Worktree: ${slug ?? "—"}`, {
+        class: "monitor-accessible-summary",
+      }),
+    );
+    let lastReportValue: Node;
     if (node.lastUpdateAge == null || node.lastUpdateAge < 0) {
-      lastReport.textContent = "Last report unavailable";
+      lastReportValue = document.createTextNode("unavailable");
     } else {
       const reportAge = element(
         "span",
-        `Last report ${age(node.lastUpdateAge + elapsed)} ago`,
+        `${age(node.lastUpdateAge + elapsed)} ago`,
       );
       reportAge.dataset.ageBase = String(node.lastUpdateAge);
       reportAge.dataset.ageKind = "report";
-      lastReport.append(reportAge);
+      lastReportValue = reportAge;
     }
-    const pill = element("span", `◉ ${status}`, {
+    const lastReport = fact("Last report", lastReportValue);
+    const pill = element("span", undefined, {
       "data-status-pill": status.toLowerCase(),
     });
+    pill.append(statusMark(status), document.createTextNode(status));
     const statusLine = element("div", undefined, {
       class: "inspector-status",
     });
     statusLine.append(pill);
-    const reportsTo = element(
-      "div",
-      node.relationship === "unresolved"
-        ? `Reports to Unknown parent (unresolved: ${node.parentId ?? "unavailable"})`
-        : `Reports to ${node.parentId ?? "Unknown parent"}`,
-      { class: "inspector-fact" },
-    );
-    const started = element(
-      "div",
-      `Started ${
-        interval?.startAbsoluteTime
-          ? localTime(interval.startAbsoluteTime, true)
-          : interval?.start == null
-            ? "unavailable"
-            : `Session-relative +${interval.start}s`
-      }`,
-      { class: "inspector-fact" },
-    );
-    const execution = element("div", intervalText(interval, node.activities), {
-      class: "inspector-fact",
+    const inspectorHeading = element("div", undefined, {
+      class: "inspector-heading",
     });
+    inspectorHeading.append(title, statusLine);
+    const reportsTo = fact(
+      "Reports to",
+      node.relationship === "unresolved"
+        ? `Unknown parent (unresolved: ${node.parentId ?? "unavailable"})`
+        : (node.parentId ?? "Unknown parent"),
+    );
+    const started = fact(
+      "Started",
+      interval?.startAbsoluteTime
+        ? localTime(interval.startAbsoluteTime, true)
+        : interval?.start == null
+          ? "unavailable"
+          : `Session-relative +${interval.start}s`,
+    );
+    const executionCopy = intervalText(interval, node.activities);
+    const executionLabel = executionCopy.startsWith("Ran ")
+      ? "Ran"
+      : "Running for";
+    const execution = fact(
+      executionLabel,
+      executionCopy.replace(/^(?:Ran|Running for)\s+/, ""),
+    );
     const legacyInterval = element("span", undefined, {
       class: "monitor-accessible-summary",
       "aria-hidden": "true",
@@ -665,17 +757,32 @@ export function mountMonitor(
         }
       })();
     });
+    copy.textContent = "";
+    copy.className = "copy-id-button";
+    copy.append(
+      element("span", undefined, {
+        class: "copy-id-icon",
+        "aria-hidden": "true",
+      }),
+    );
+    const idBox = element("div", undefined, { class: "inspector-id-box" });
+    idBox.append(idInput, copy);
     const history = element("section", undefined, {
       class: "monitor-history",
       role: "region",
       "aria-label": "Activity history",
     });
-    history.append(
+    const historyHeader = element("div", undefined, {
+      class: "activity-header",
+    });
+    historyHeader.append(
       element(
         "h3",
         `Activity · Run ${Math.min(selectedInterval + 1, runs.length)} of ${runs.length}`,
       ),
+      element("span", "SGT · newest last", { class: "activity-timezone" }),
     );
+    history.append(historyHeader);
     const intervalStart = validInstant(interval?.startAbsoluteTime);
     const intervalEnd = validInstant(interval?.endAbsoluteTime);
     const activities = (node.activities ?? []).filter((activity) => {
@@ -723,6 +830,7 @@ export function mountMonitor(
           ? `Session-relative +${activity.time}s`
           : "Time unavailable";
       if (activity.type === "tool_call_end" && activity.summary) {
+        if (activity.outcome === "failed") row.classList.add("is-failed");
         row.append(
           element(
             "span",
@@ -734,7 +842,26 @@ export function mountMonitor(
           ),
         );
       }
-      row.append(element("span", `${time} · ${description}`));
+      const descriptionParts = description.split(" · ");
+      const activityLabel = descriptionParts.shift() ?? description;
+      const activityOutcome = descriptionParts.join(" · ");
+      const activityBody = element("div", undefined, {
+        class: "activity-content",
+      });
+      activityBody.append(
+        element("span", `${activityLabel} · `, {
+          class: "activity-label",
+        }),
+        element("span", activityOutcome, { class: "activity-outcome" }),
+      );
+      row.append(
+        element("time", `${time} · `, { class: "activity-time" }),
+        element("span", undefined, {
+          class: "activity-dot",
+          "aria-hidden": "true",
+        }),
+        activityBody,
+      );
       if (!interval?.startAbsoluteTime) {
         const compatibility = element(
           "span",
@@ -750,16 +877,22 @@ export function mountMonitor(
         row.append(element("span", ` · ${activity.pairing}`));
       history.append(row);
     }
+    history.append(
+      element(
+        "p",
+        "A failed tool step is shown here only; agent status changes only when the agent reports it.",
+        { class: "activity-footnote" },
+      ),
+    );
+    const facts = element("div", undefined, { class: "inspector-facts" });
+    facts.append(task, started, execution, lastReport, reportsTo);
     inspector.replaceChildren(
-      title,
-      statusLine,
+      element("div", "Selected agent", { class: "section-label" }),
+      inspectorHeading,
       worktree,
       role,
       ...(legacyIdentityKind ? [legacyIdentityKind] : []),
-      task,
       ...(runs.length > 1 ? [runSelector] : []),
-      started,
-      execution,
       legacyInterval,
       ...(node.observedLocalAge !== undefined
         ? [
@@ -773,10 +906,8 @@ export function mountMonitor(
             ),
           ]
         : []),
-      lastReport,
-      reportsTo,
-      idInput,
-      copy,
+      facts,
+      idBox,
       copyResult,
       history,
     );
@@ -785,7 +916,35 @@ export function mountMonitor(
   function renderFooter(): void {
     const diagnostics = state.diagnostics ?? state.projection.diagnostics ?? [];
     const companions = state.companions ?? [];
-    footerCount.textContent = `Heartbeat snapshots provisional: ${companions.length} · Diagnostics: ${diagnostics.length}`;
+    const olderCount = state.projection.nodes.reduce((sum, node) => {
+      if (node.id === "orchestrator") return sum;
+      return (
+        sum +
+        runsFor(node, Date.now()).filter((run) => run.chronology === "older")
+          .length
+      );
+    }, 0);
+    const todayCount = state.projection.nodes.filter(
+      (node) =>
+        node.id !== "orchestrator" &&
+        !layout.laneRoots().includes(node.id) &&
+        runsFor(node, Date.now()).some((run) => run.chronology === "current"),
+    ).length;
+    footerCount.replaceChildren(
+      element(
+        "span",
+        `Heartbeat snapshots · ${companions.length} · provisional`,
+        { class: "footer-chip" },
+      ),
+      element("span", `${diagnostics.length} diagnostics`, {
+        class: "footer-stat",
+      }),
+      element(
+        "span",
+        `${todayCount} agents today · ${olderCount} older hidden`,
+        { class: "footer-stat" },
+      ),
+    );
     footerBody.replaceChildren();
     legacyDiagnostics.replaceChildren();
     legacyCompanions.replaceChildren();
@@ -836,7 +995,7 @@ export function mountMonitor(
       const base = Number(tag.dataset.ageBase);
       tag.textContent =
         tag.dataset.ageKind === "report"
-          ? `Last report ${age(base + elapsed)} ago`
+          ? `${age(base + elapsed)} ago`
           : tag.dataset.ageKind === "observed"
             ? `Observed locally ${age(base + elapsed)} ago`
             : ` ${age(base + elapsed)}`;
