@@ -14,11 +14,121 @@ body {
   padding: 16px;
 }
 
+.monitor-workspace {
+  display: grid;
+  grid-template-columns: minmax(190px, 240px) minmax(0, 1fr) minmax(250px, 320px);
+  gap: 12px;
+  min-height: 0;
+}
+
+.monitor-header,
+.monitor-toolbar,
+.monitor-footer,
+.monitor-navigator,
+.monitor-inspector {
+  color: var(--vscode-foreground);
+  background-color: var(--vscode-editor-background);
+}
+
+.monitor-navigator,
+.monitor-inspector {
+  min-width: 0;
+  max-height: min(70vh, 760px);
+  overflow: auto;
+}
+
+.monitor-navigator {
+  align-content: start;
+}
+
+.navigator-list {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+}
+
+.navigator-list button {
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.monitor-graph {
+  height: min(70vh, 760px);
+  min-width: 0;
+  overflow: auto;
+}
+
+.monitor-graph svg {
+  color: var(--vscode-foreground);
+  background-color: var(--vscode-editor-background);
+}
+
+.graph-nodes rect {
+  fill: var(--vscode-editorWidget-background);
+  stroke: var(--vscode-foreground);
+}
+
+.graph-edges line,
+.graph-nodes path {
+  stroke: var(--vscode-foreground);
+  stroke-width: 2;
+}
+
+.graph-nodes text,
+.graph-lanes text {
+  fill: var(--vscode-foreground);
+}
+
+[data-status-pill] {
+  color: var(--vscode-foreground);
+  background-color: var(--vscode-editorWidget-background);
+  border: 1px solid var(--vscode-foreground);
+  padding: 2px 6px;
+}
+
+.monitor-history {
+  overflow-wrap: anywhere;
+}
+
+.activity-row {
+  padding: 5px 0;
+  border-block-end: 1px solid var(--vscode-panel-border);
+}
+
+.monitor-footer {
+  border-block-start: 1px solid var(--vscode-panel-border);
+  padding-block-start: 8px;
+}
+
+.monitor-accessible-summary {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+@media (max-width: 959px) {
+  .monitor-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .monitor-navigator,
+  .monitor-inspector {
+    max-height: 280px;
+  }
+
+  .monitor-graph {
+    height: min(55vh, 480px);
+  }
+}
+
+* {
 button,
 input {
   color: var(--vscode-input-foreground);
   background: var(--vscode-input-background);
-  border: 1px solid var(--vscode-input-border, var(--vscode-contrastBorder));
+  border: 1px solid var(--vscode-contrastBorder);
 }
 
 button {

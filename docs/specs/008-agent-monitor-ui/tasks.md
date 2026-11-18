@@ -3,8 +3,8 @@
 ## Approval gate
 
 The [spec](spec.md) is Gate 1 approved. Zack separately approved the
-[architecture plan](plan.md) on 2026-11-18 at `f90265e`. RED is authorized;
-GREEN still requires independent RED `APPROVE`.
+[architecture plan](plan.md) on 2026-11-18 at `f90265e`. Zack resolved the
+final RED review escalation and confirmed GREEN at `e734489`.
 Track B owns T-0050..T-0059 and R-0050..R-0059. The coordinator allocates
 unused IDs and creates tickets only when assigning a role; no future ticket
 is pre-claimed here. Each RED/GREEN slice should be a small logical commit.
@@ -60,17 +60,17 @@ approved RED cases. Do not weaken tests to force a pass.
 - [x] **Projection facts, AC1, AC9-AC11, AC15:** Add the optional explicit
   or verified fields in `src/core/reconcile.ts` and their validation in
   `src/shared/protocol.ts`. Preserve 004 reader/reducer behavior.
-- [ ] **Pure presentation model, AC2, AC4, AC7-AC12:** Implement
+- [x] **Pure presentation model, AC2, AC4, AC7-AC12:** Implement
   `src/webview/presentation.ts` for lane/run selection, exact assigned-lane
   display-name shortening, age/duration/local time, state icons and event
   copy with uncertainty fallbacks.
-- [ ] **Lane graph, AC4-AC6, AC14-AC15:** Implement
+- [x] **Lane graph, AC4-AC6, AC14-AC15:** Implement
   `src/webview/graph.ts` with stable slots, wrapped foreground text inside
   fitted boxes, one edge per resolved pair, culling and box-inclusive Fit all.
-- [ ] **Workspace shell, AC1-AC3, AC8, AC13-AC14:** Refactor
+- [x] **Workspace shell, AC1-AC3, AC8, AC13-AC14:** Refactor
   `src/webview/main.ts` and `media/styles.css` for header/toolbar,
   three panes at >=960px, narrow stack, clock and collapsed footer.
-- [ ] **Navigation and inspection, AC2, AC7, AC9-AC12, AC14-AC15:**
+- [x] **Navigation and inspection, AC2, AC7, AC9-AC12, AC14-AC15:**
   Complete range/older-run navigation, inspector/copy, activity paging,
   focus persistence and keyboard/reduced-motion behavior.
 - [ ] **Full verification, AC1-AC15:** Run extension lint, format check,
