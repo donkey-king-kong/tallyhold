@@ -58,6 +58,7 @@ Fresh Reviewers are exempt: their coordinator maintains their records externally
 | [T-0064](tickets/T-0064-cost-safeguard.md) | Require staged approvals for cost-bearing actions | [R-0063](runs/R-0063.md) |
 | [T-0065](tickets/T-0065-review-cost-safeguard.md) | Independently review constitution safeguard PR | [R-0063](runs/R-0063.md) |
 | [T-0066](tickets/T-0066-shared-agent-flow-stream-spec.md) | Draft shared Agent Flow stream contract for Gate 1 | [R-0065](runs/R-0065.md), after [R-0064](runs/R-0064.md) |
+| [T-0067](tickets/T-0067-shared-agent-flow-stream-plan.md) | Plan approved shared Agent Flow stream contract | [R-0066](runs/R-0066.md) |
 
 Historical PR #6 post-dispatch records remain in T-0002's checkpoint
 branch/worktree. Future ship runs use PR comments instead.
