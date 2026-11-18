@@ -149,3 +149,30 @@ and the first unaffected-suite command retained the repository root as the
 process working directory, causing path-relative test setup failures. The
 formatter and exact Vitest command were rerun from their required directories
 and passed.
+
+### Round 1 corrections
+
+Corrected RED test commit `2d98f54` addresses every round-1 finding:
+
+- Wide geometry requires navigator/canvas/inspector column order, a 240-300px
+  navigator, a 330-390px inspector, and at least 700px of usable canvas width
+  and height.
+- Narrow geometry requires navigator/canvas/inspector vertical order, near
+  full-width sections, usable navigator/canvas heights, and full viewport
+  containment.
+- The rendered fixture must expose exactly three aligned fixed-width lane
+  headers, eight visible graph cards, three navigator groups, seven current
+  navigator agents, one shared connector bus, and three lane rails.
+- The orchestrator must be centered over the canvas; structural worktree roots
+  must not render as cards; segmented range and grouped zoom controls must be
+  present.
+- Any overflowing tested element itself must declare `text-overflow:
+ellipsis`, clipped horizontal overflow, and `white-space: nowrap`; an
+  unrelated descendant can no longer excuse overflow.
+
+At exact executable revision `2d98f54`, `npm run test:preview-layout` fails for
+missing approved behavior with `preview-wide.png: inspector width is outside
+the target band`. `npx vitest run` passes all 125 existing tests in five files
+at the same revision. The following evidence/tracking commit changes no
+executable, fixture, package, or test file; reviewers can verify that relation
+directly in the cumulative diff.
