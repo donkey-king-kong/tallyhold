@@ -1818,15 +1818,18 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
     const card = graphNode(root, prefixed);
     const labelLines = card.querySelectorAll("text > tspan[data-name-line]");
     expect(labelLines).toHaveLength(1);
-    expect(labelLines[0].textContent).toBe(longName);
-    expect(
-      Number(card.querySelector("rect")!.getAttribute("width")),
-    ).toBeGreaterThanOrEqual(longName.length * 12 + 32);
+    expect(labelLines[0].textContent).toMatch(/\.\.\.$/);
+    const laneWidth = Number(
+      root.querySelector("[data-lane-header] rect")!.getAttribute("width"),
+    );
+    expect(Number(card.querySelector("rect")!.getAttribute("width"))).toBe(
+      laneWidth,
+    );
     expect(card.textContent).toMatch(/Working.*0s|0s.*Working/i);
     expect(graphNode(root, completed.id).textContent).not.toMatch(/No report/i);
   });
 
-  it("defaults to the recent graph and routes distinct child ticks from each lane spine", () => {
+  it("defaults to the recent graph with one lane rail and one attributed tick per card", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2023-11-20T12:00:00.000Z"));
     const rootId = "wt-alpha";
@@ -1876,15 +1879,21 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
     const graph = getByRole(root, "img", { name: /agent graph/i });
     expect(graph.querySelector('[data-node-id="old-agent"]')).toBeNull();
     expect(getByRole(root, "button", { name: /older runs/i })).toBeTruthy();
+    const rails = Array.from(
+      graph.querySelectorAll(`[data-lane-rail="${rootId}"]`),
+    );
+    expect(rails).toHaveLength(1);
+    expect(rails[0].tagName.toLowerCase()).toBe("path");
+    const ticks = Array.from(
+      graph.querySelectorAll(`[data-lane-tick="${rootId}"]`),
+    );
+    expect(ticks).toHaveLength(children.length);
+    expect(ticks.every((tick) => tick.tagName.toLowerCase() === "line")).toBe(
+      true,
+    );
     const routes = Array.from(graph.querySelectorAll("[data-edge]"));
     expect(routes).toHaveLength(3);
-    expect(
-      routes.every((route) => route.tagName.toLowerCase() === "path"),
-    ).toBe(true);
-    expect(new Set(routes.map((route) => route.getAttribute("d"))).size).toBe(
-      3,
-    );
-    expect(routes.every((route) => route.hasAttribute("data-spine-x"))).toBe(
+    expect(routes.every((route) => route.hasAttribute("data-lane-tick"))).toBe(
       true,
     );
   });
@@ -1947,8 +1956,14 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
     expect(details.textContent).not.toMatch(/unspecified|Identity kind/i);
     expect(details.textContent).toMatch(/Activity.*Run 2 of 2/is);
     const history = getByRole(root, "region", { name: /activity history/i });
-    expect(history.textContent).toContain(
-      "16:33:36 SGT · Started · Write failing health contract",
+    expect(history.querySelector(".activity-time")?.textContent).toBe(
+      "16:33:36 SGT",
+    );
+    expect(history.querySelector(".activity-label")?.textContent).toBe(
+      "Started",
+    );
+    expect(history.querySelector(".activity-outcome")?.textContent).toBe(
+      "Write failing health contract",
     );
     expect(history.textContent).not.toMatch(
       /Old run|Reported|Verified absolute|\(agent_spawn\)|\+\d+s/,
@@ -1979,6 +1994,40 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
     expect(group?.textContent).toMatch(/alpha.*reviewer.*2 runs/is);
     const row = group?.querySelector(`[data-identity-id="${agent.id}"]`);
     expect(row?.textContent).toMatch(/reviewer.*2 runs/is);
+    expect(row?.querySelector(".navigator-agent-status")?.textContent).toBe(
+      "Working",
+    );
     expect(row?.nextElementSibling?.textContent).not.toMatch(/^2 runs$/i);
+  });
+
+  it("renders the reported hashed worktree slug without inventing a branch name", () => {
+    const slug = "chore-shared-ag-0736a7b0";
+    const rootId = `wt-${slug}`;
+    const agent = syntheticNode(`${rootId}-reviewer`, {
+      parentId: rootId,
+      relationship: "resolved",
+    });
+    const { root } = mount008(
+      [syntheticNode(rootId), agent],
+      [{ parentId: rootId, childId: agent.id }],
+    );
+    const lane = root.querySelector(`[data-lane-header="${rootId}"]`)!;
+    expect(lane.querySelector("[data-slug-hash]")?.textContent).toBe(
+      "0736a7b0",
+    );
+    const navigator = getByRole(root, "navigation", {
+      name: /agent navigator/i,
+    });
+    expect(navigator.querySelector("[data-slug-hash]")?.textContent).toBe(
+      "0736a7b0",
+    );
+    fireEvent.click(
+      within(navigator).getByRole("button", { name: /reviewer/i }),
+    );
+    const details = getByRole(root, "region", { name: /agent details/i });
+    expect(details.querySelector("[data-slug-hash]")?.textContent).toBe(
+      "0736a7b0",
+    );
+    expect(root.textContent).not.toContain("chore/shared-agent-flow-stream");
   });
 });

@@ -42,7 +42,7 @@ try {
     });
     await page.goto(previewUrl);
     const selectedAgent = page.locator(
-      'button[data-node-id="wt-chore-shared-agent-flow-stream-test-writer-r2"]',
+      'button[data-node-id$="-test-writer-r2"]',
     );
     await selectedAgent.waitFor();
     await selectedAgent.click();
@@ -105,6 +105,51 @@ try {
       requireLayout(
         navigatorBox.height >= 120 && canvasBox.height >= 240,
         `${name}: narrow navigator or canvas is unusably small`,
+      );
+      const narrowFlow = await page.evaluate(() => {
+        const toolbarNote = document.querySelector<HTMLElement>(
+          ".monitor-controls p",
+        );
+        const workspace =
+          document.querySelector<HTMLElement>(".monitor-workspace");
+        const inspector =
+          document.querySelector<HTMLElement>(".monitor-inspector");
+        const activity =
+          document.querySelector<HTMLElement>(".monitor-history");
+        const footer = document.querySelector<HTMLElement>(".monitor-footer");
+        return {
+          canvasHeight:
+            document.querySelector(".monitor-graph")?.getBoundingClientRect()
+              .height ?? 0,
+          documentHeight: document.documentElement.scrollHeight,
+          footerBottom: footer?.getBoundingClientRect().bottom ?? 0,
+          inspectorClips:
+            Boolean(inspector) &&
+            inspector!.scrollHeight > inspector!.clientHeight + 1,
+          activityInsideInspector:
+            Boolean(activity && inspector) &&
+            activity!.getBoundingClientRect().bottom <=
+              inspector!.getBoundingClientRect().bottom + 1,
+          toolbarNoteVisible:
+            Boolean(toolbarNote) &&
+            getComputedStyle(toolbarNote!).display !== "none",
+          workspaceClips:
+            Boolean(workspace) &&
+            ["hidden", "clip"].includes(getComputedStyle(workspace!).overflowY),
+        };
+      });
+      requireLayout(
+        narrowFlow.canvasHeight >= 480 && narrowFlow.canvasHeight <= 560,
+        `${name}: narrow canvas is not a fixed readable block`,
+      );
+      requireLayout(
+        narrowFlow.documentHeight > height &&
+          narrowFlow.footerBottom <= narrowFlow.documentHeight + 1 &&
+          !narrowFlow.inspectorClips &&
+          narrowFlow.activityInsideInspector &&
+          narrowFlow.toolbarNoteVisible &&
+          !narrowFlow.workspaceClips,
+        `${name}: narrow content is clipped instead of using normal page flow`,
       );
     }
 
@@ -172,6 +217,57 @@ try {
       visiblePopulation.rootCards === 0,
       `${name}: structural worktree roots render as agent cards`,
     );
+    const displayContract = await page.evaluate(() => {
+      const rootIds = Array.from(
+        document.querySelectorAll<SVGGElement>("[data-lane-header]"),
+      ).map((header) => header.dataset.laneHeader ?? "");
+      const visibleText = document.body.textContent ?? "";
+      return {
+        rootIds,
+        slugHashes: document.querySelectorAll("[data-slug-hash]").length,
+        cardStatuses: document.querySelectorAll(".agent-status-word").length,
+        navigatorStatuses: document.querySelectorAll(".navigator-agent-status")
+          .length,
+        olderLabel:
+          document.querySelector(".older-runs-label")?.textContent ?? "",
+        olderContext:
+          document.querySelector(".older-runs-context")?.textContent ?? "",
+        activityTimes: Array.from(
+          document.querySelectorAll(".activity-time"),
+        ).map((item) => item.textContent ?? ""),
+        activityLabels: Array.from(
+          document.querySelectorAll(".activity-label"),
+        ).map((item) => item.textContent ?? ""),
+        inventsBranch:
+          visibleText.includes("chore/shared-agent-flow-stream") ||
+          visibleText.includes("feature/007-transactions"),
+      };
+    });
+    requireLayout(
+      displayContract.rootIds.every((id) =>
+        /^wt-(?:main|[a-z0-9_-]{1,15}-[0-9a-f]{8})$/.test(id),
+      ) &&
+        displayContract.slugHashes >= 5 &&
+        !displayContract.inventsBranch,
+      `${name}: preview does not use and render adapter-accurate hashed worktree slugs`,
+    );
+    requireLayout(
+      displayContract.cardStatuses === 8 &&
+        displayContract.navigatorStatuses === 7,
+      `${name}: card or navigator status words are missing`,
+    );
+    requireLayout(
+      /^Older runs · 18 agents$/.test(displayContract.olderLabel) &&
+        displayContract.olderContext === "before today",
+      `${name}: older-runs row copy or alignment hooks are missing`,
+    );
+    requireLayout(
+      displayContract.activityTimes.every((value) => !value.endsWith(" · ")) &&
+        displayContract.activityLabels.every(
+          (value) => !/[·.]\s*$/.test(value),
+        ),
+      `${name}: activity rows retain trailing separators`,
+    );
 
     const requireVisiblePopulation = async (
       selector: string,
@@ -229,6 +325,60 @@ try {
       `${name}: lane headers do not share a fixed aligned width`,
     );
 
+    const laneGeometry = await page.evaluate(() =>
+      Array.from(
+        document.querySelectorAll<SVGGElement>("[data-lane-header]"),
+      ).map((header) => {
+        const rootId = header.dataset.laneHeader!;
+        const headerRect = header
+          .querySelector("rect")!
+          .getBoundingClientRect();
+        const cards = Array.from(
+          document.querySelectorAll<SVGGElement>(
+            '[data-node-card]:not([data-node-card="orchestrator"])',
+          ),
+        ).filter((card) => {
+          const rect = card.querySelector("rect")!.getBoundingClientRect();
+          return Math.abs(rect.x - headerRect.x) <= 1;
+        });
+        const contained = cards.every((card) => {
+          const rect = card.querySelector("rect")!.getBoundingClientRect();
+          return (
+            Math.abs(rect.width - headerRect.width) <= 1 &&
+            rect.x >= headerRect.x - 1 &&
+            rect.right <= headerRect.right + 1
+          );
+        });
+        return {
+          cards: cards.length,
+          contained,
+          rails: document.querySelectorAll(`[data-lane-rail="${rootId}"]`)
+            .length,
+          railTags: Array.from(
+            document.querySelectorAll(`[data-lane-rail="${rootId}"]`),
+          ).map((rail) => rail.tagName.toLowerCase()),
+          ticks: document.querySelectorAll(`[data-lane-tick="${rootId}"]`)
+            .length,
+        };
+      }),
+    );
+    requireLayout(
+      laneGeometry.every(
+        (lane) =>
+          lane.cards > 0 &&
+          lane.contained &&
+          lane.rails === 1 &&
+          lane.railTags[0] === "path" &&
+          lane.ticks === lane.cards,
+      ),
+      `${name}: each lane must have one rail, one tick per card, and fixed-width contained cards`,
+    );
+    requireLayout(
+      (await page.locator("[data-orchestrator-drop]").count()) === 1 &&
+        (await page.locator("[data-lane-drop]").count()) === 3,
+      `${name}: orchestrator bus has duplicate or missing drops`,
+    );
+
     const orchestratorBox = await page
       .locator('[data-node-card="orchestrator"]')
       .boundingBox();
@@ -249,16 +399,16 @@ try {
     );
 
     const selectedCard = page.locator(
-      '[data-node-card="wt-chore-shared-agent-flow-stream-test-writer-r2"].is-selected',
+      '[data-node-card$="-test-writer-r2"].is-selected',
     );
     requireLayout(
       await selectedCard.isVisible(),
       `${name}: selected agent card is not visible`,
     );
 
-    const copy = await page
-      .getByRole("button", { name: "Copy full ID" })
-      .boundingBox();
+    const copyButton = page.getByRole("button", { name: "Copy full ID" });
+    if (width < 960) await copyButton.scrollIntoViewIfNeeded();
+    const copy = await copyButton.boundingBox();
     if (
       !copy ||
       copy.x < 0 ||
