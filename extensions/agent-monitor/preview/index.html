@@ -11,7 +11,8 @@
         --vscode-font-family:
           -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         --vscode-editor-font-family:
-          "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+          "SF Mono", Menlo, Monaco, "SFMono-Regular", Consolas,
+          "Liberation Mono", monospace;
         --vscode-font-size: 13px;
         --vscode-foreground: #d4d4d4;
         --vscode-descriptionForeground: #a7a7a7;
@@ -44,109 +45,205 @@
         startAbsoluteTime: instant(startedAgo),
         endAbsoluteTime: endedAgo == null ? null : instant(endedAgo),
       });
-      const activity = (type, secondsAgo, summary) => ({
+      const activity = (type, secondsAgo, summary, details = {}) => ({
         type,
         time: 0,
         absoluteTime: instant(secondsAgo),
         summary,
+        ...details,
       });
-      const nodes = [
+      const day = 24 * 60 * 60;
+      const roots = [
+        {
+          id: "wt-chore-shared-agent-flow-stream",
+          parentId: "orchestrator",
+          task: "Shared Agent Flow stream",
+          relationship: "resolved",
+          terminal: false,
+          intervals: [interval(6800)],
+          activities: [],
+          lastUpdateAge: 12,
+        },
+        {
+          id: "wt-feature-007-transactions",
+          parentId: "orchestrator",
+          task: "Feature 007 transactions",
+          relationship: "resolved",
+          terminal: false,
+          intervals: [interval(5200)],
+          activities: [],
+          lastUpdateAge: 22 * 60,
+        },
+        {
+          id: "wt-main",
+          parentId: "orchestrator",
+          task: "Main checkout",
+          relationship: "resolved",
+          terminal: true,
+          intervals: [interval(7600, 4200)],
+          activities: [],
+          lastUpdateAge: 4200,
+        },
+      ];
+      const activeNodes = [
         {
           id: "orchestrator",
-          task: "Coordinate Feature 008 correction",
-          status: "working",
+          task: "Session anchor",
+          status: "completed",
           relationship: "root",
-          terminal: false,
-          intervals: [interval(6400)],
-          activities: [activity("agent_spawn", 6400, "Coordinate correction")],
-          lastUpdateAge: 7,
+          terminal: true,
+          intervals: [interval(7 * day, 6 * day)],
+          activities: [
+            activity("agent_spawn", 7 * day, "Coordinate shared stream"),
+            activity("agent_complete", 6 * day, "Session complete"),
+          ],
+          lastUpdateAge: 6 * day,
           reportedRole: "coordinator",
         },
         {
-          id: "wt-feature-008",
-          parentId: "orchestrator",
-          task: "Agent Monitor visual correction",
-          status: "working",
-          relationship: "resolved",
-          terminal: false,
-          intervals: [interval(5900)],
-          activities: [activity("agent_spawn", 5900, "Implement approved UI")],
-          lastUpdateAge: 18,
-          reportedRole: "implementer",
-        },
-        {
-          id: "wt-feature-008-reviewer",
-          parentId: "wt-feature-008",
-          task: "Compare preview with approved mock",
-          status: "waiting",
-          relationship: "resolved",
-          terminal: false,
-          intervals: [interval(4200)],
-          activities: [
-            activity("agent_spawn", 4200, "Review approved visual target"),
-            activity("message", 90, "Waiting for refreshed screenshots"),
-          ],
-          lastUpdateAge: 90,
-          reportedRole: "reviewer",
-        },
-        {
-          id: "wt-market-data",
-          parentId: "orchestrator",
-          task: "Verify market data adapter",
-          status: "failed",
+          id: "wt-chore-shared-agent-flow-stream-planner",
+          parentId: "wt-chore-shared-agent-flow-stream",
+          task: "Plan shared stream",
+          status: "completed",
           relationship: "resolved",
           terminal: true,
-          intervals: [interval(3600, 2100)],
+          intervals: [interval(6400, 3840)],
           activities: [
-            activity("agent_spawn", 3600, "Run adapter checks"),
-            activity("error", 2100, "Fixture checksum mismatch"),
+            activity("agent_spawn", 6400, "Plan shared stream"),
+            activity("agent_complete", 3840, "Plan approved"),
           ],
-          lastUpdateAge: 2100,
+          lastUpdateAge: 3840,
+          reportedRole: "planner",
+        },
+        {
+          id: "wt-chore-shared-agent-flow-stream-test-writer",
+          parentId: "wt-chore-shared-agent-flow-stream",
+          task: "Write shared stream RED",
+          status: "completed",
+          relationship: "resolved",
+          terminal: true,
+          intervals: [interval(3300, 2280)],
+          activities: [
+            activity("agent_spawn", 3300, "Write shared stream RED"),
+            activity("agent_complete", 2280, "RED handed off"),
+          ],
+          lastUpdateAge: 2280,
           reportedRole: "test-writer",
         },
         {
-          id: "wt-market-data-adapter",
-          parentId: "wt-market-data",
-          task: "Repair deterministic fixture",
+          id: "wt-chore-shared-agent-flow-stream-red-reviewer-r1",
+          parentId: "wt-chore-shared-agent-flow-stream",
+          task: "Review RED round 1",
+          status: "failed",
+          relationship: "resolved",
+          terminal: true,
+          intervals: [interval(1900, 1320)],
+          activities: [
+            activity("agent_spawn", 1900, "Review RED round 1"),
+            activity("error", 1320, "Launch refused connection"),
+          ],
+          lastUpdateAge: 1320,
+          reportedRole: "red-reviewer",
+        },
+        {
+          id: "wt-chore-shared-agent-flow-stream-red-reviewer-r1b",
+          parentId: "wt-chore-shared-agent-flow-stream",
+          task: "Review corrected RED",
+          status: "completed",
+          relationship: "resolved",
+          terminal: true,
+          intervals: [interval(950, 540)],
+          activities: [
+            activity("agent_spawn", 950, "Review corrected RED"),
+            activity("agent_complete", 540, "Changes requested"),
+          ],
+          lastUpdateAge: 540,
+          reportedRole: "red-reviewer",
+        },
+        {
+          id: "wt-chore-shared-agent-flow-stream-test-writer-r2",
+          parentId: "wt-chore-shared-agent-flow-stream",
+          task: "Address RED review round 1",
           status: "working",
           relationship: "resolved",
           terminal: false,
-          intervals: [interval(1800)],
-          activities: [activity("agent_spawn", 1800, "Repair fixture")],
-          lastUpdateAge: 42,
-          reportedRole: "implementer",
+          intervals: [interval(374)],
+          activities: [
+            activity("agent_spawn", 374, "Address RED review round 1"),
+            activity("tool_call_end", 366, "Read", {
+              outcome: "succeeded",
+              toolCategory: "Read",
+              toolDurationSeconds: 41,
+            }),
+            activity("tool_call_end", 237, "Edit", {
+              outcome: "succeeded",
+              toolCategory: "Edit",
+              toolDurationSeconds: 192,
+            }),
+            activity("tool_call_end", 92, "Test", {
+              outcome: "failed",
+              toolCategory: "Test",
+              toolDurationSeconds: 18,
+            }),
+            activity("message", 12, "Running tests"),
+          ],
+          lastUpdateAge: 12,
+          reportedRole: "test-writer",
         },
         {
-          id: "wt-docs",
-          parentId: "orchestrator",
-          task: "Update delivery records",
+          id: "wt-feature-007-transactions-spec-writer",
+          parentId: "wt-feature-007-transactions",
+          task: "Draft transactions spec",
+          status: "waiting",
+          relationship: "resolved",
+          terminal: false,
+          intervals: [interval(1320)],
+          activities: [
+            activity("agent_spawn", 1320, "Draft transactions spec"),
+            activity("permission_requested", 1320, "Awaiting Gate 1"),
+          ],
+          lastUpdateAge: 1320,
+          reportedRole: "spec-writer",
+        },
+        {
+          id: "wt-main-setup",
+          parentId: "wt-main",
+          task: "Update issue",
           status: "completed",
           relationship: "resolved",
           terminal: true,
-          intervals: [interval(5200, 700)],
+          intervals: [interval(5200, 4200)],
           activities: [
-            activity("agent_spawn", 5200, "Update records"),
-            activity("agent_complete", 700, "Tracking updated"),
+            activity("agent_spawn", 5200, "Update issue"),
+            activity("agent_complete", 4200, "Issue #44 updated"),
           ],
-          lastUpdateAge: 700,
-          reportedRole: "documenter",
-        },
-        {
-          id: "wt-docs-run-recorder",
-          parentId: "wt-docs",
-          task: "Record smoke and verification evidence",
-          status: "completed",
-          relationship: "resolved",
-          terminal: true,
-          intervals: [interval(4100, 850)],
-          activities: [
-            activity("agent_spawn", 4100, "Record smoke evidence"),
-            activity("agent_complete", 850, "Evidence recorded"),
-          ],
-          lastUpdateAge: 850,
-          reportedRole: "recorder",
+          lastUpdateAge: 4200,
+          reportedRole: "setup",
         },
       ];
+      const olderNodes = Array.from({ length: 18 }, (_, index) => {
+        const startedAgo = (index + 2) * day;
+        return {
+          id: `wt-chore-shared-agent-flow-stream-older-${String(index + 1).padStart(2, "0")}`,
+          parentId: "wt-chore-shared-agent-flow-stream",
+          task: `Older completed agent ${index + 1}`,
+          status: "completed",
+          relationship: "resolved",
+          terminal: true,
+          intervals: [interval(startedAgo, startedAgo - 900)],
+          activities: [
+            activity("agent_spawn", startedAgo, `Older agent ${index + 1}`),
+            activity(
+              "agent_complete",
+              startedAgo - 900,
+              `Older agent ${index + 1} complete`,
+            ),
+          ],
+          lastUpdateAge: startedAgo - 900,
+          reportedRole: "worker",
+        };
+      });
+      const nodes = [...roots, ...activeNodes, ...olderNodes];
       const edges = nodes
         .filter((node) => node.parentId)
         .map((node) => ({ parentId: node.parentId, childId: node.id }));
@@ -154,11 +251,18 @@
         type: "state",
         generation: 1,
         path: "/tallyhold/.agent-flow/agent-flow-events.jsonl",
-        sessionId: "feature-008-smoke-3",
+        sessionId: "tallyhold-shared",
         sourceGeneration: 1,
         reader: "following",
         diagnostics: [],
-        companions: [],
+        companions: Array.from({ length: 21 }, (_, index) => ({
+          agentId: `heartbeat-${index + 1}`,
+          status: "completed",
+          activity: "snapshot",
+          updatedAt: instant(index + 1),
+          certainty: "provisional",
+          source: "heartbeat",
+        })),
         projection: {
           nodes,
           edges,
@@ -168,7 +272,7 @@
       });
       const selectPreviewAgent = () => {
         const agent = document.querySelector(
-          'button[data-node-id="wt-feature-008-reviewer"]',
+          'button[data-node-id="wt-chore-shared-agent-flow-stream-test-writer-r2"]',
         );
         if (agent) agent.click();
         else setTimeout(selectPreviewAgent, 20);
