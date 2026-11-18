@@ -176,3 +176,23 @@ the target band`. `npx vitest run` passes all 125 existing tests in five files
 at the same revision. The following evidence/tracking commit changes no
 executable, fixture, package, or test file; reviewers can verify that relation
 directly in the cumulative diff.
+
+### Zack-authorized escalation correction
+
+After round 2 identified one remaining assertion defect, Zack explicitly
+authorized one targeted correction. Test commit `f4d7519` requires every
+counted lane header, agent card, navigator row/group, connector bus, and lane
+rail to be browser-visible with both positive rendered width and height.
+Hidden placeholders and zero-area SVG groups can no longer satisfy visible
+population counts.
+
+At exact executable revision `f4d7519`:
+
+- `npm run test:preview-layout` remains RED for missing production behavior:
+  `preview-wide.png: inspector width is outside the target band`.
+- `npx vitest run` passes all 125 existing tests across five files.
+- `npm run typecheck` passes, including the Playwright guard.
+
+No production source, style, generated preview, approved mock, or package
+dependency changed in this exception. GREEN remains pending Zack's explicit
+confirmation of this corrected RED evidence.
