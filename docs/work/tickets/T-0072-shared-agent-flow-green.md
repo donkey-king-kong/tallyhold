@@ -1,6 +1,6 @@
 # T-0072: Implement shared Agent Flow stream
 
-- Status: in_progress
+- Status: done
 - Owner: R-0073/coordinator acting as Implementer
 - Run: [R-0073](../runs/R-0073.md)
 - Scope: approved [spec](../../specs/chore-shared-agent-flow-stream/spec.md), [plan](../../specs/chore-shared-agent-flow-stream/plan.md); adapter and planned documentation only.
@@ -10,10 +10,10 @@
 
 ## Checkpoint
 
-- Last completed: committed GREEN adapter `5652da3`; plan docs ready. Full 29/29 PASS, six legacy PASS; `git diff --check`, Python compilation and personal-path scan pass.
+- Last completed: GREEN adapter `5652da3` and planned docs `17438a4` pushed; full 29/29 PASS, six legacy PASS; `git diff --check`, Python compilation and personal-path scan pass.
 - Evidence: [RED clarification](../../specs/chore-shared-agent-flow-stream/red-test-run.md); full and legacy suite on `5539ada` plus uncommitted GREEN adapter/docs.
-- Outstanding: commit documentation and tracking, push; ship ticket then owns PR/CI/review.
-- Next action: commit/push docs and checkpoint, verify clean remote.
+- Outstanding: PR/CI/review under T-0073; Zack merges.
+- Next action: ship ticket verifies CI and opens PR after scoped cost approval.
 
 ## History
 
@@ -23,3 +23,4 @@
 | 2026-11-18T05:30:00Z | R-0073/coordinator | Adapter passes 28/29 and six legacy tests; impossible constant length assertion fails on its own 20-char expected slug; paused before RED edit and ship | Ask Zack for narrow test correction |
 | 2026-11-18T05:35:12Z | R-0073/coordinator | Zack approved narrow Test writer correction `5539ada` preserving exact slug/hash checks; full 29 PASS and six legacy PASS, whitespace/compile/path scans pass | Commit GREEN adapter and documentation in separate commits; push |
 | 2026-11-18T05:38:00Z | R-0073/coordinator | GREEN adapter `5652da3` committed; plan-listed documentation and RED clarification ready | Commit/push documentation and tracking; verify branch clean |
+| 2026-11-18T05:40:00Z | R-0073/coordinator | GREEN adapter `5652da3` and docs `17438a4` pushed; clean remote head | Transfer to T-0073 for PR/CI/fresh review |
