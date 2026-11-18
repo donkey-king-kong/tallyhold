@@ -15,35 +15,39 @@ remain coordinator-owned in both systems.
 
 ## Connect
 
-From the Tallyhold root, initialize a session once:
+From any Tallyhold worktree, initialize or join the shared session:
 
 ```bash
 python3 .trae/agent-flow/adapter.py init --session-id tallyhold-run1 --task "Tallyhold work"
 ```
 
-If `.agent-flow/session.json` already exists, skip `init` and publish to the
-existing stream. The coordinator checks this before each ship run.
+`init` is safe to repeat: the first caller creates the session; later
+worktrees reuse its ID and preserve the earlier session and log bytes. A
+missing worktree root may be registered on reuse. Every Git worktree defaults
+to the main checkout's git-ignored `.agent-flow/` directory. Concurrent
+initializers and publishers use a shared lock, preserving complete JSONL
+records and one session.
 
-Each worktree initializes its own session from the worktree root:
+The adapter derives a slug from the branch (or directory name on detached
+HEAD). Bare `orchestrator` maps to that worktree's `wt-<slug>` node beneath
+the real shared `orchestrator`; other bare agent and parent IDs are
+namespaced below it. Event payloads include `sourceWorktree`. Main checkout
+activity uses `wt-main`. Existing role commands need no ID changes.
 
-```bash
-python3 .trae/agent-flow/adapter.py init --session-id "feature-NNN-name" --task "..."
-```
-
-The `.agent-flow/` directory is worktree-local and git-ignored, so JSONL files
-are isolated per feature. Point Agent Flow's JSONL watch to the active
-worktree's `.agent-flow/agent-flow-events.jsonl`.
+Use `--root` before the command for a separate stream; inside Git it retains
+worktree attribution. Outside Git, the script-relative default and bare IDs
+remain in effect. An unusual Git common-directory layout requires `--root`.
 
 In Trae's Command Palette, run **Agent Flow: Open Agent Flow**, then select
-**Connect to Running Agent** and **Watch JSONL File**. In this repository,
-choose:
+**Connect to Running Agent** and **Watch JSONL File**. Open the main
+checkout and choose:
 
 ```text
 .agent-flow/agent-flow-events.jsonl
 ```
 
 On macOS, press Cmd+Shift+. in the file picker to show hidden folders.
-Alternatively navigate to the repository root, then open `.agent-flow/`.
+Alternatively navigate to the main checkout, then open `.agent-flow/`.
 The installed Agent Flow 0.9.4 supports this JSONL connection. The
 `agentVisualizer.eventLogPath` setting does not activate the watcher; select
 the file in the panel. Keep the panel connected while publishing events.
@@ -52,12 +56,13 @@ the panel, or double-click the canvas, to fit all nodes. The review-mode reset
 button restarts playback, not the camera. The extension exposes no layout or
 node-style setting.
 For another independent session, choose a different local `--root` directory
-and watch its `agent-flow-events.jsonl`; `init` refuses to overwrite a previous
-session. Do not delete or prune logs to start another session.
+and watch its `agent-flow-events.jsonl`. Existing sessions are reused; use a
+new root for a separate session. Do not delete or prune logs.
 
 ## Report work
 
-The parent agent initializes the session and reports its own milestones.
+The parent agent initializes or joins the session and reports its milestones
+using the unchanged bare IDs.
 `status` reactivates an agent that completed an earlier run in the same stream.
 Register a child **when it actually starts**, publish transitions, and put
 `tool-start` **before real work** and `tool-end` **after it finishes** (use
@@ -102,9 +107,10 @@ Tokens stay `0k` because the adapter has no authoritative token usage and
 reports no invented token cost. These display values are not a measure of
 actual work done by Trae.
 
-The JSONL contains timestamps, agent IDs, parent relationships, short
-activities, broad tool categories, and outcomes. Heartbeat snapshots are in
-`.agent-flow/heartbeats/`. Both paths are local and ignored by Git. Only use
+The shared JSONL contains timestamps, namespaced agent IDs, source slugs,
+parent relationships, short activities, broad tool categories, and outcomes.
+Heartbeat snapshots are in the main checkout's `.agent-flow/heartbeats/`.
+Both paths are local and ignored by Git. Only use
 generic labels: **never** pass prompts, responses, filenames containing
 private data, tool arguments, file contents, environment variables, credentials,
 or personal information. Redaction is a fallback, not a security guarantee.

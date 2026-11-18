@@ -179,3 +179,16 @@ validation/write ordering in plan Approaches 3 and 5. The cumulative
 criterion mappings and the downstream concurrency assertions remain as
 recorded above. Stop after pushing this RED evidence; Zack will check the
 diff and must separately confirm before GREEN starts.
+
+## GREEN handoff clarification (2026-11-18)
+
+Zack confirmed RED complete at `a874bb9` after Claude checked the diff.
+During GREEN, the four-branch fixture's expected slug for short branches
+`feature/a.b` and `feature/a-b` was correctly computed as 20 characters,
+but a later test-only assertion demanded 24 characters for all four
+branches. Zack explicitly authorized a narrow Test writer correction:
+`5539ada` asserts exact lengths `(20, 20, 24, 24)` while retaining the
+existing exact slug and raw-branch SHA-256 comparisons. No adapter edit was
+included in that test commit. The unchanged slug algorithm remains the
+approved plan contract; this removes only an impossible fixture expectation.
+No further RED review round was requested.

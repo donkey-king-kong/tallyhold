@@ -2,7 +2,7 @@
 
 ## Assignment
 
-- Status: in_review
+- Status: done (Zack resolved RED gate)
 - Owner actor: R-0072/coordinator (reopened after Zack's escalation resolution)
 - Role: coordinator / Test writer (RED only)
 - Run: [R-0072](../runs/R-0072.md), after [R-0071](../runs/R-0071.md)
@@ -48,3 +48,4 @@ the review and subsequent GREEN/ship handoffs if approved.
 | 2026-11-18T04:23:59Z | R-0071/coordinator | Fresh Trae reviewer `f46426a9-d808-483e-985e-d47909aa82eb` returned `CHANGES_REQUESTED`; verified identical report/comment `210586983` | Namespaced heartbeat side effect untested; stop GREEN/PR and escalate to Zack |
 | 2026-11-18T05:21:31Z | R-0072/coordinator | Zack resolved round-3 escalation as a missing test assertion; no further RED review; spec and plan unchanged | Reopened under [R-0072](../runs/R-0072.md); snapshot heartbeat directory and session/log for both rejected commands, push and stop |
 | 2026-11-18T05:23:44Z | R-0072/coordinator | Test `a874bb9` snapshots heartbeat listing/bytes and session/log before each rejected command; targeted FAIL is partial heartbeat write; full 22 FAIL/7 PASS/0 ERROR; six legacy PASS | [RED evidence](../../specs/chore-shared-agent-flow-stream/red-test-run.md); push and await Zack's GREEN confirmation |
+| 2026-11-18T05:26:44Z | R-0073/coordinator | Zack confirmed RED complete at `a874bb9` after Claude checked diff; no further RED review, spec/plan unchanged | GREEN now authorized under [T-0072](T-0072-shared-agent-flow-green.md) |
