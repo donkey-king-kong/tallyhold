@@ -261,3 +261,29 @@ At exact corrected test revision `b826fac`:
 
 No production source, stylesheet, preview fixture, generated preview,
 dependency, adapter, or publisher file changed in the corrected RED commit.
+
+### Zack-authorized AC5 correction
+
+After fresh round 2 found that the earlier AC5 geometry test still required
+wrapped visible text and rejected ellipsis, Zack authorized one targeted RED
+correction. Plan commit `1c79e2d` replaces the residual wrapped-text sentence;
+test commit `6a41ed1` makes the older geometry case require the same fixed
+lane width, single visible ellipsized line, and complete accessible name as the
+new card guard.
+
+At exact executable revision `6a41ed1`:
+
+- `npx vitest run test/webview.test.ts --reporter=dot` exits 1 with six
+  expected missing-behavior failures and 43 passes. The aligned legacy geometry
+  case now fails because production renders four wrapped lines rather than one
+  ellipsized line; the other five failures are unchanged.
+- `npx vitest run -t '^(?!.*(?:foreground labels fit inside fixed boxes|assigns root-prefixed orphans|defaults to the recent graph|renders dated plain activity|groups navigator identities|renders the reported hashed worktree slug)).*$' --reporter=dot`
+  exits 0 with 120 passing tests and six skipped.
+- `npm run test:preview-layout` reaches the local production bundle and exits 1
+  with `preview-wide.png: preview does not use and render adapter-accurate
+  hashed worktree slugs`.
+- `npm run lint`, `npm run format:check`, and `npm run typecheck` exit 0.
+
+No production source, stylesheet, preview fixture, generated preview,
+dependency, adapter, or publisher file changed. GREEN remains frozen pending
+Zack's explicit confirmation of this corrected RED.
