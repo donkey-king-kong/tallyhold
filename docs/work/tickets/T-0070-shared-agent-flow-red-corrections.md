@@ -42,3 +42,4 @@ fresh round-2 reviewer before GREEN.
 | 2026-11-18T03:54:28Z | R-0070/coordinator | Claimed Test writer correction; clean branch matches remote `33bcd06` | Add focused RED assertions; no adapter edit |
 | 2026-11-18T03:55:13Z | R-0070/coordinator | Corrected tests committed as `3c1dd81`; full suite 28 tests, 21 expected failures, seven passes, no errors; six legacy pass | Evidence updated; commit/push before review |
 | 2026-11-18T03:58:00Z | R-0070/coordinator | RED evidence `91bcc4b` pushed; Zack granted separate COST APPROVAL 1/2 then 2/2 for round-2 Claude Opus, contingent Trae fallback | Check Claude and dispatch fresh role-only reviewer against `c12b954` / `91bcc4b` |
+| 2026-11-18T04:00:00Z | R-0070/coordinator | Claude Opus exited 1 before verdict with `ECONNREFUSED`; no review round consumed | Commit failure; dispatch a different fresh Trae fallback for the same RED head |
