@@ -2,7 +2,7 @@
 
 ## Status
 
-Draft. Zack's Gate 1 approval is required before a plan, tests, or code.
+Approved — Gate 1, 2026-11-18 (Zack).
 
 ## Problem
 
