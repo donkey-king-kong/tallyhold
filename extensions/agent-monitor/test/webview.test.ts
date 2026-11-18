@@ -1529,10 +1529,13 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
     ).toContain("old-run");
     press(getByRole(root, "button", { name: /old-run/i }));
     const history = getByRole(root, "region", { name: /activity history/i });
-    press(within(history).getByRole("button", { name: /next activity page/i }));
-    expect(
-      getByRole(root, "region", { name: /activity history/i }).textContent,
-    ).toContain("Report 104");
+    press(within(history).getByRole("button", { name: /last activity page/i }));
+    const lastPage = getByRole(root, "region", {
+      name: /activity history/i,
+    }).textContent!;
+    expect(lastPage).toContain("Report 104");
+    const pageLabel = lastPage.match(/Activity page \d+ of \d+/)?.[0];
+    expect(pageLabel).toBeTruthy();
     const footer = getByRole(root, "region", { name: /monitor footer/i });
     press(within(footer).getByRole("button", { name: /show.*details/i }));
     expect(footer.querySelector("details")?.open).toBe(true);
@@ -1544,6 +1547,9 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
     expect(
       getByRole(root, "region", { name: /activity history/i }).textContent,
     ).toContain("Report 104");
+    expect(
+      getByRole(root, "region", { name: /activity history/i }).textContent,
+    ).toContain(pageLabel);
     expect(
       getByRole(root, "region", { name: /monitor footer/i }).querySelector(
         "details",
