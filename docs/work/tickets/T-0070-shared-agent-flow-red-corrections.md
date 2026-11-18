@@ -11,7 +11,7 @@
 - Dependencies: [round-1 report](../../specs/chore-shared-agent-flow-stream/red-review.md) at `33bcd06`
 - Branch / worktree: `chore/shared-agent-flow-stream`, `../tallyhold-chore-shared-agent-flow-stream`
 - Issue / PR: related #38; PR not created
-- Updated: 2026-11-18T03:55:13Z
+- Updated: 2026-11-18T03:58:00Z
 
 ## Scope
 
@@ -27,12 +27,12 @@ fresh round-2 reviewer before GREEN.
 
 ## Checkpoint
 
-- Last completed action: committed corrected tests at `3c1dd8106abd754c983faf365c1c7d0a994f58e8`; full suite 21 FAIL/7 PASS, no errors; six legacy PASS.
+- Last completed action: pushed corrected RED head `91bcc4b1fe051abe6a80925b0ab55ba3ce668ec2`; Zack separately approved cost stages 1/2 and 2/2 for fresh Claude Opus round 2, conditional Trae fallback.
 - Evidence: [RED evidence](../../specs/chore-shared-agent-flow-stream/red-test-run.md), full suite and legacy subset at pinned test revision.
-- Worktree state: evidence and tracking edits pending commit.
-- Remaining work: evidence commit/push and fresh round-2 review.
+- Worktree state: tracking dispatch checkpoint pending commit; RED head pushed.
+- Remaining work: fresh round-2 review; GREEN only after APPROVE.
 - Blocker / unblock action: GREEN waits for round-2 APPROVE; provider cost gate before reviewer dispatch.
-- Next action: commit/push evidence and tracking; obtain scoped cost approval before fresh review.
+- Next action: commit/push dispatch checkpoint, then launch fresh round-2 reviewer for base `c12b954`, RED `91bcc4b`.
 - Handoff recipient: fresh RED Reviewer round 2.
 
 ## History
@@ -41,3 +41,4 @@ fresh round-2 reviewer before GREEN.
 | --- | --- | --- | --- |
 | 2026-11-18T03:54:28Z | R-0070/coordinator | Claimed Test writer correction; clean branch matches remote `33bcd06` | Add focused RED assertions; no adapter edit |
 | 2026-11-18T03:55:13Z | R-0070/coordinator | Corrected tests committed as `3c1dd81`; full suite 28 tests, 21 expected failures, seven passes, no errors; six legacy pass | Evidence updated; commit/push before review |
+| 2026-11-18T03:58:00Z | R-0070/coordinator | RED evidence `91bcc4b` pushed; Zack granted separate COST APPROVAL 1/2 then 2/2 for round-2 Claude Opus, contingent Trae fallback | Check Claude and dispatch fresh role-only reviewer against `c12b954` / `91bcc4b` |
