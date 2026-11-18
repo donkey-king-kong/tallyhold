@@ -12,7 +12,7 @@
 - Branch / worktree: `feature/008-agent-monitor-ui` / `../tallyhold-feature-008-agent-monitor-ui`
 - Worktree path: `../tallyhold-feature-008-agent-monitor-ui`
 - Issue / PR: related #44; no PR requested
-- Updated: 2026-11-18T08:13:24Z
+- Updated: 2026-11-18T08:15:38Z
 
 ## Scope
 
@@ -32,12 +32,12 @@ the VSIX or open a PR.
 
 ## Checkpoint
 
-- Last completed action: committed RED at `ba58a24`, observed the intended production-bundle failure, and confirmed all 125 existing Vitest cases pass.
-- Evidence: `npm run test:preview-layout` fails with `expected lane headers and agent cards`; `npx vitest run` passes 125/125 from the extension directory.
-- Worktree state: RED evidence is uncommitted; branch is one commit ahead of origin.
-- Remaining work: commit/push evidence, obtain fresh RED review, implement corrections, regenerate previews, and verify.
+- Last completed action: pushed RED through `c62a51d` and prepared fresh Trae RED review round 1 against base `c9714a5`.
+- Evidence: `npm run test:preview-layout` fails with `expected lane headers and agent cards`; `npx vitest run` passes 125/125 from the extension directory; `red-test-run.md` is pushed.
+- Worktree state: pre-dispatch tracking checkpoint is uncommitted over clean pushed RED head `c62a51d`.
+- Remaining work: obtain fresh RED review, implement corrections, regenerate previews, and verify.
 - Blocker / unblock action: none.
-- Next action: commit and push RED evidence, then dispatch a fresh independent RED Reviewer.
+- Next action: commit/push this checkpoint, then dispatch a fresh independent Trae RED Reviewer with restricted inputs.
 - Handoff recipient: Zack after pushed corrected previews; no reinstall and no PR.
 
 ## History
@@ -47,3 +47,4 @@ the VSIX or open a PR.
 | 2026-11-18T08:09:13Z | R-0093/coordinator | Created after Zack rejected preview round 1; claimed RED-first correction                                                                           | Inspect visual evidence, then write Playwright guards before production changes |
 | 2026-11-18T08:11:59Z | R-0093/coordinator | Added target-size/density fixture and production-bundle guards for pane separation, overflow, selected-card visibility, and copy-button containment | Commit RED slice, prove intended failure, and preserve existing suite           |
 | 2026-11-18T08:13:24Z | R-0093/coordinator | RED `ba58a24` fails for absent agent-card state/containment; all 125 prior Vitest cases pass                                                        | Commit/push evidence and obtain fresh RED approval before GREEN                 |
+| 2026-11-18T08:15:38Z | R-0093/coordinator | Pushed RED through `c62a51d`; fixed review range is `c9714a5..c62a51d`                                                                               | Dispatch fresh Trae RED Reviewer round 1; no production edit before verdict    |
