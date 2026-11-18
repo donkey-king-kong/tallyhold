@@ -1314,6 +1314,40 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
     ).toBe("12");
   });
 
+  it("navigator and graph use plain status copy while retaining accessible full IDs", () => {
+    const rootId = "wt-chore-shared-ag-0736a7b0";
+    const fullId = `${rootId}-test-writer`;
+    const { root } = mount008(
+      [
+        syntheticNode(rootId),
+        syntheticNode(fullId, {
+          parentId: rootId,
+          relationship: "resolved",
+          lastUpdateAge: 3_840,
+        }),
+      ],
+      [{ parentId: rootId, childId: fullId }],
+    );
+    const nav = getByRole(root, "navigation", { name: /agent navigator/i });
+    const row = within(nav).getByRole("button", { name: /^test-writer\b/i });
+    expect(row.textContent).toMatch(/^test-writer.*Working.*1h 4m/i);
+    expect(row.querySelector("svg path")).not.toBeNull();
+    expect(row.textContent).not.toMatch(/resolved|\(wt-|test-writer.*test-writer/i);
+    expect(row.getAttribute("aria-label")).toContain(fullId);
+    const rootRow = within(nav).getByRole("button", {
+      name: new RegExp(`^${rootId}\\b`, "i"),
+    });
+    expect(rootRow.textContent).not.toMatch(/\sroot\b/i);
+    const graph = graphNode(root, fullId);
+    expect(graph.textContent).toMatch(/test-writer.*Working/i);
+    expect(graph.textContent).not.toMatch(/resolved/i);
+    expect(graph.getAttribute("aria-label")).toContain(fullId);
+    fireEvent.click(row);
+    expect(
+      getByRole(root, "textbox", { name: /full agent id/i }),
+    ).toHaveProperty("value", fullId);
+  });
+
   it("footer keeps graph visible and expands provisional snapshots and diagnostics", () => {
     const reported = syntheticNode("agent-x", {
       status: "completed",
