@@ -872,7 +872,7 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
     );
   });
 
-  it("foreground labels fit inside boxes without overlap at fit and zoom", () => {
+  it("foreground labels fit inside fixed boxes without overlap at fit and zoom", () => {
     const prior = Object.getOwnPropertyDescriptor(
       SVGElement.prototype,
       "getBBox",
@@ -892,7 +892,7 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
       else Reflect.deleteProperty(SVGElement.prototype, "getBBox");
     };
     const long =
-      "a1-a-very-long-reviewer-name-that-must-wrap-without-ellipsis-or-overlap";
+      "a1-a-very-long-reviewer-name-that-must-ellipsize-without-overlap";
     const { nodes, edges } = twoLanes();
     nodes.push(
       syntheticNode(long, {
@@ -933,9 +933,21 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
         }
         rects.push({ id: group.dataset.nodeId!, x, y, w, h });
       }
-      expect(graphNode(root, long).textContent).toContain(long.slice(3));
-      expect(graphNode(root, long).getAttribute("aria-label")).toContain(long);
-      expect(graphNode(root, long).textContent).not.toContain("…");
+      const longCard = graphNode(root, long);
+      const visibleName = longCard.querySelectorAll(
+        "text > tspan[data-name-line]",
+      );
+      expect(visibleName).toHaveLength(1);
+      expect(visibleName[0].textContent).toMatch(/\.\.\.$/);
+      expect(longCard.getAttribute("aria-label")).toContain(long);
+      const laneWidth = Number(
+        root.querySelector('[data-lane-header="wt-a1"] rect')!.getAttribute(
+          "width",
+        ),
+      );
+      expect(Number(longCard.querySelector("rect")!.getAttribute("width"))).toBe(
+        laneWidth,
+      );
       for (let i = 0; i < rects.length; i++)
         for (let j = i + 1; j < rects.length; j++) {
           const a = rects[i],
