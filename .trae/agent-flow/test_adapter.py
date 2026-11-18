@@ -517,6 +517,29 @@ class SharedStreamContractTests(unittest.TestCase):
                              for e in self.records()), 1)
         self.assertEqual(self.records()[-1]["payload"]["agent"], root_id)
 
+    def test_registered_worktree_appends_to_large_log_without_rereading(self) -> None:
+        self.init(self.alpha)
+        log = self.root / "agent-flow-events.jsonl"
+        seed = json.dumps({
+            "time": 0, "type": "message", "sessionId": "shared-run",
+            "payload": {"agent": "fixture", "content": "Fixture historical"},
+        }).encode() + b"\n"
+        with log.open("ab") as stream:
+            stream.write(seed * 10_000)
+        log.chmod(0o200)
+        try:
+            for number in range(12):
+                self.cli(self.alpha, "status", "--agent", "checker", "--state",
+                         "working", "--activity", f"Fixture append-{number:02d}")
+        finally:
+            log.chmod(0o600)
+        messages = [event["payload"].get("content") for event in self.records()
+                    if event["type"] == "message"]
+        self.assertCountEqual(
+            [message for message in messages if message and message.startswith("Fixture append-")],
+            [f"Fixture append-{number:02d}" for number in range(12)],
+        )
+
     def test_concurrent_process_appends_are_complete_and_unique(self) -> None:
         self.init()
         self.init(self.alpha, session="ignored-run")
