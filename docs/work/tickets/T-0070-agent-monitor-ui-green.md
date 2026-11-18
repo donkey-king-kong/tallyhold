@@ -11,7 +11,7 @@
 - Dependencies: [T-0057](T-0057-agent-monitor-ui-red.md), [T-0058](T-0058-review-agent-monitor-ui-red.md)
 - Branch / worktree: `feature/008-agent-monitor-ui` / `../tallyhold-feature-008-agent-monitor-ui`
 - Issue / PR: related #44; no PR requested.
-- Updated: 2026-11-18T06:35:56Z
+- Updated: 2026-11-18T06:38:06Z
 
 ## Scope
 
@@ -25,18 +25,19 @@ fixes, package a VSIX and stop for Zack's theme/width/keyboard smoke.
 - [x] All 34 new RED cases and 77 existing extension tests pass with >=80% coverage.
 - [x] Lint, format, typecheck, build, package, six adapter tests and representative plus 25-agent multi-lane benchmark pass.
 - [x] Compatible npm audit fixes assessed; no non-breaking fix available and remainder recorded.
-- [ ] GREEN smoke corrections pushed; rebuilt VSIX path and checklist prepared for Zack. No PR before Zack reports a new smoke.
+- [x] GREEN smoke corrections ready to push; rebuilt VSIX path and checklist prepared for Zack. No PR before Zack reports a new smoke.
 - [x] Regressions cover host CSP and applied stylesheet, root-ID name, one identity row/run selector, footer disclosure/local times, and plain navigator/node copy.
 
 ## Checkpoint
 
-- Last completed action: footer fix `55dac64`; item-5 RED `ed3bafa` and corrected non-SVG mark regression `e451837`/`c38b1e1`. Navigator status icon, plain name/status/age and full-ID accessibility pass 55 UI tests; all frozen graph-order/camera assertions pass.
+- Last completed action: item-5 GREEN `594917f`; locked install, 117 extension tests with 96.81% statements, 97.17% functions and 98.02% lines, lint, format, typecheck, build, package and six adapter tests pass. Representative cold 100.06 ms; maximum cold 944.03 ms; synthetic 25-agent/three-lane fixture 29 identities, 28 connectors, 6.96 ms.
 - Evidence: GREEN projection `57757f8`, webview `c148fc9`, benchmark `30b6ec6`; packaged `extensions/agent-monitor/tallyhold-agent-monitor-0.1.0.vsix`. Synthetic 25-agent/three-lane fixture rendered 29 identities, 3 lanes and 28 connectors in 6.37 ms; representative cold reducer 109.84 ms, maximum 985.21 ms, 2,000-identity webview 131.43 ms.
-- Worktree state: local test head `c38b1e1`; item-5 CSS/DOM and tracking uncommitted; prior RED assertions preserved except the explicitly superseded display-name fixture, retaining its match/unmatch/ungrouped checks.
-- Remaining work: full check matrix on final source, rebuilt VSIX, commit/push and Zack's repeat smoke.
+- Worktree state: local GREEN head `594917f` ahead of origin; only this final tracking checkpoint uncommitted. Prior RED assertions preserved except the explicitly superseded display-name fixture, retaining its match/unmatch/ungrouped checks.
+- Remaining work: commit/push the final verification checkpoint and await Zack's repeat editor smoke.
+- VSIX: `extensions/agent-monitor/tallyhold-agent-monitor-0.1.0.vsix`, SHA-256 `a731c87a3a6ca6295d6636335f3caac2276023726df489dd092a28d6550829de`; packaged CSS and JS match the final build byte for byte. Packaging warns that no extension LICENSE file is present.
 - Audit: `npm audit` reports 17 high dev-only findings. `npm audit fix --dry-run` offered zero compatible package changes; its direct dependency remedies require out-of-range versions (`vitest`/coverage 4 to 3, `typescript-eslint` 8.73 to 8.47.0, `vsce` 3 to 4). Registry latest `picomatch` is vulnerable 4.0.7. No force or incompatible change applied. Packaging warns that this extension has no LICENSE file.
 - Blocker / unblock action: none for authorized GREEN correction; hands-on smoke remains a required stop.
-- Next action: commit tested item-5 fix, run locked install and full verification matrix, package final VSIX and push smoke handoff.
+- Next action: commit/push this checkpoint, then Zack installs the rebuilt VSIX and repeats light/dark/high-contrast, wide/narrow, labels and short names, connectors, lane titles/slugs, SGT times and human ages, Older runs, collapsed footer and keyboard smoke. No PR until Zack reports passing smoke.
 - Handoff recipient: Zack after rebuilt packaged VSIX.
 
 ## History
@@ -55,3 +56,4 @@ fixes, package a VSIX and stop for Zack's theme/width/keyboard smoke.
 | 2026-11-18T06:27:35Z | R-0071/coordinator | Root-ID fix `28b2e9c`; navigator RED `85cccbd` showed 13 buttons for one orchestrator. Grouped identities and inspector run selector now pass 53 UI tests, lint/types/format | Commit item 3; reproduce footer smoke |
 | 2026-11-18T06:30:19Z | R-0071/coordinator | Navigator fix `a437778`; footer RED `79b153e` proved duplicate disclosure and raw ISO. Single summary/hidden body and SGT visible time now pass 54 UI tests, lint/types/format; legacy 004 timestamp remains in compatibility region | Commit item 4, then plain navigator/node copy regression |
 | 2026-11-18T06:35:56Z | R-0071/coordinator | Footer fix `55dac64`; item-5 RED `ed3bafa` exposed missing icon, jargon and repeated ID. Initial navigator SVG broke six frozen graph-selector tests; corrected new test `e451837`/`c38b1e1` requires a CSS-rendered status mark. All 55 presentation/webview tests, lint, format, typecheck pass; UI detector returns `[]` | Commit item-5 CSS/DOM and run final full checks before packaging |
+| 2026-11-18T06:38:06Z | R-0071/coordinator | Item-5 GREEN `594917f`; final `npm ci`, lint, format, typecheck, 117 tests/coverage (96.81% statements, 97.17% functions, 98.02% lines), build, package, six adapter tests and representative/maximum/25-agent three-lane benchmark pass. VSIX CSS/JS hashes match final source build | Commit/push results, then stop for Zack's repeat VSIX smoke; no PR |
