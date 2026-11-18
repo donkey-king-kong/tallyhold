@@ -274,8 +274,8 @@ original ID and an absent reported role stays unavailable.
 | 15  | Existing source isolation, stable camera, privacy/limits and regression                                                                | `webview.test.ts: historical and incremental fixtures preserve camera and no executable telemetry`; existing `core.test.ts`, `host.test.ts`, `packaging.test.ts` and adapter tests remain green                                                                                      |
 
 JSDOM uses stubbed SVG text metrics/client rectangles to assert box shape
-precedes foreground text, wrapped text bounds fit within padded box bounds,
-boxes do not overlap, and Fit all includes each full box; complement that
+precedes foreground text, single-line ellipsized text fits within fixed padded
+box bounds, boxes do not overlap, and Fit all includes each full box; complement that
 deterministic DOM check with actual
 VSIX smoke in recorded light/dark/high-contrast themes and wide/narrow editor
 panels before release. Retain extension limits (64 MiB, 100,000 complete

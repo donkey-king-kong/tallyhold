@@ -2,7 +2,7 @@
 
 ## Assignment
 
-- Status: blocked
+- Status: in_progress
 - Owner actor: R-0094/coordinator
 - Role: Test writer, then Implementer after RED approval
 - Run: [R-0094](../runs/R-0094.md), after [R-0093](../runs/R-0093.md)
@@ -12,7 +12,7 @@
 - Branch / worktree: `feature/008-agent-monitor-ui` / `../tallyhold-feature-008-agent-monitor-ui`
 - Worktree path: `../tallyhold-feature-008-agent-monitor-ui`
 - Issue / PR: related #44; no PR requested
-- Updated: 2026-11-18T10:58:55Z
+- Updated: 2026-11-18T11:06:20Z
 
 ## Scope
 
@@ -40,12 +40,12 @@ page flow, and apply the requested timeline/status/older-run polish.
 
 ## Checkpoint
 
-- Last completed action: fresh reviewer-02 checked pushed cumulative RED head `c8f6536` and returned `CHANGES_REQUESTED`.
-- Evidence: commit comment `210630205`; narrow, slug, and status findings are resolved, but the unchanged AC5 geometry test and residual plan prose still require wrapped visible text without ellipsis.
-- Worktree state: remote head `c8f6536`; review report and escalation checkpoint are local and uncommitted; production remains unchanged.
-- Remaining work: Zack must resolve the final-round RED escalation before any GREEN implementation.
-- Blocker / unblock action: the two-round limit is exhausted. Zack may authorize a targeted RED correction to replace the superseded wrap/no-ellipsis assertions and residual plan prose, or direct another resolution.
-- Next action: commit and push the review report/checkpoint, then stop for Zack's decision.
+- Last completed action: Zack authorized one targeted RED correction for the superseded AC5 wrap/no-ellipsis assertion and residual plan prose.
+- Evidence: explicit selection of "Authorize targeted fix" after the round-2 escalation; production remains unchanged.
+- Worktree state: remote head `4cd1f9f`; targeted test/plan correction and this checkpoint are local and uncommitted.
+- Remaining work: commit the targeted RED correction, rerun exact-revision evidence, push, and stop for Zack's GREEN confirmation.
+- Blocker / unblock action: none for the targeted RED correction; GREEN remains frozen pending explicit confirmation.
+- Next action: commit the corrected AC5 guard, rerun RED and unaffected checks, record evidence, and push.
 - Handoff recipient: Zack after pushed corrected previews; no reinstall and no PR.
 
 ## History
@@ -74,3 +74,4 @@ page flow, and apply the requested timeline/status/older-run polish.
 | 2026-11-18T10:55:54Z | R-0094/coordinator | Committed corrected evidence `2534e51` and prepared the frozen round-2 handoff | Commit/push this checkpoint, then dispatch reviewer-02 with restricted inputs |
 | 2026-11-18T10:58:35Z | R-0094/reviewer-02 | Round 2 `CHANGES_REQUESTED`: prior narrow, slug, and status findings resolved; unchanged AC5 test still rejects the approved ellipsis behavior | Stop GREEN and escalate under the two-round limit |
 | 2026-11-18T10:58:55Z | R-0094/coordinator | Verified comment `210630205` against the source lines and recorded the final-round escalation | Commit/push the report and stop for Zack's decision |
+| 2026-11-18T11:06:20Z | R-0094/coordinator | Zack authorized one targeted RED exception for the superseded AC5 assertion and residual plan prose | Correct only those lines, rerun evidence, push, and stop before GREEN |
