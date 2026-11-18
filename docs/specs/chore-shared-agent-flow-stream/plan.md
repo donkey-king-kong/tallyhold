@@ -3,9 +3,7 @@
 ## Status and approvals
 
 [Spec](spec.md) approved at Gate 1 by Zack on 2026-11-18 (`96aa563`).
-This plan is **awaiting Zack's approval before RED**. No tests, adapter code,
-or workflow changes are authorized by this plan alone. No paid provider action
-is planned.
+Approved by Zack, 2026-11-18 (`c12b954`). No paid provider action is planned.
 
 ## Approach
 
