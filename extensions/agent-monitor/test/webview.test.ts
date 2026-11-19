@@ -245,7 +245,9 @@ describe("editor webview controls (AC3-5, AC7-8, AC12, AC14-15)", () => {
     fireEvent.click(
       getByRole(root, "checkbox", { name: /last reported nonterminal/i }),
     );
-    expect(camera()).toBe(moved);
+    expect(camera()).not.toBe(moved);
+    const filteredFit = camera()!.split(/[ ,]+/).map(Number);
+    expect(filteredFit[0] + filteredFit[2]).toBeGreaterThanOrEqual(8_000);
     fireEvent.click(getByRole(root, "button", { name: /fit all/i }));
     const fitted = camera()!.split(/[ ,]+/).map(Number);
     expect(fitted[0] + fitted[2]).toBeGreaterThanOrEqual(8_000);
@@ -2259,7 +2261,7 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
     expect(
       graph.querySelector(`[data-node-card="${repeated.id}"] .agent-run-badge`)
         ?.textContent,
-    ).toBe("×5 runs");
+    ).toBe("×5");
     const card = graph.querySelector(`[data-node-card="${repeated.id}"]`)!;
     expect(card.querySelector(".agent-status-word")?.textContent).toBe(
       "Waiting",
@@ -2267,7 +2269,7 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
     expect(card.querySelector(".agent-summary-text")?.textContent).toContain(
       "Run 5 summary",
     );
-    expect(card.querySelector(".agent-duration")?.textContent).toBe("30m");
+    expect(card.querySelector(".agent-duration")?.textContent).toBe("1h 0m");
     const navigator = getByRole(root, "navigation", {
       name: /agent navigator/i,
     });
@@ -2713,35 +2715,65 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
   });
 
   it("draws no overlapping near-duplicate horizontal bus segments", () => {
-    const rootId = "wt-alpha";
-    const child = syntheticNode(`${rootId}-worker`, {
-      parentId: rootId,
-      relationship: "resolved",
-    });
+    const humanTaskRoot = "wt-alpha";
+    const metadataTaskRoot = "wt-beta";
+    const children = [
+      syntheticNode(`${humanTaskRoot}-worker`, {
+        parentId: humanTaskRoot,
+        relationship: "resolved",
+      }),
+      syntheticNode(`${metadataTaskRoot}-reviewer`, {
+        parentId: metadataTaskRoot,
+        relationship: "resolved",
+      }),
+    ];
     const { root } = mount008(
       [
         syntheticNode("orchestrator"),
-        syntheticNode(rootId, {
+        syntheticNode(humanTaskRoot, {
+          task: "Coordinate alpha",
+          parentId: "orchestrator",
+          relationship: "resolved",
+        }),
+        syntheticNode(metadataTaskRoot, {
           task: "Worktree activity",
           parentId: "orchestrator",
           relationship: "resolved",
         }),
-        child,
+        ...children,
       ],
       [
-        { parentId: "orchestrator", childId: rootId },
-        { parentId: rootId, childId: child.id },
+        { parentId: "orchestrator", childId: humanTaskRoot },
+        { parentId: "orchestrator", childId: metadataTaskRoot },
+        { parentId: humanTaskRoot, childId: children[0].id },
+        { parentId: metadataTaskRoot, childId: children[1].id },
       ],
     );
     const graph = getByRole(root, "img", { name: /agent graph/i });
-    const firstLaneY = Math.min(
-      ...Array.from(
-        graph.querySelectorAll<SVGGElement>("[data-lane-header]"),
-      ).map((lane) =>
-        Number(lane.querySelector("rect")?.getAttribute("y") ?? Infinity),
+    for (const registrationId of [humanTaskRoot, metadataTaskRoot]) {
+      expect(
+        graph.querySelector(`[data-edge][data-child-id="${registrationId}"]`),
+      ).toBeNull();
+    }
+    expect(
+      graph.querySelectorAll(
+        "[data-connector-bus] line:not([data-orchestrator-drop]):not([data-lane-drop])",
       ),
-    );
+    ).toHaveLength(1);
     const horizontal: Array<{ y: number; left: number; right: number }> = [];
+    const addSegment = (
+      startX: number,
+      startY: number,
+      endX: number,
+      endY: number,
+    ) => {
+      if (startY === endY && startX !== endX)
+        horizontal.push({
+          y: startY,
+          left: Math.min(startX, endX),
+          right: Math.max(startX, endX),
+        });
+    };
     for (const line of graph.querySelectorAll<SVGLineElement>(
       ".graph-edges line",
     )) {
@@ -2749,28 +2781,41 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
       const x2 = Number(line.getAttribute("x2"));
       const y1 = Number(line.getAttribute("y1"));
       const y2 = Number(line.getAttribute("y2"));
-      if (y1 === y2 && y1 < firstLaneY)
-        horizontal.push({
-          y: y1,
-          left: Math.min(x1, x2),
-          right: Math.max(x1, x2),
-        });
+      addSegment(x1, y1, x2, y2);
     }
     for (const path of graph.querySelectorAll<SVGPathElement>(
-      ".graph-edges path[data-edge]",
+      ".graph-edges path",
     )) {
-      const values = path
-        .getAttribute("d")!
-        .match(/-?(?:\d+\.?\d*|\.\d+)/g)!
-        .map(Number);
-      const [startX, startY, middleY, endX] = values;
-      if (middleY < firstLaneY)
-        horizontal.push({
-          y: middleY,
-          left: Math.min(startX, endX),
-          right: Math.max(startX, endX),
-        });
-      expect(startY).not.toBeNaN();
+      const tokens =
+        path.getAttribute("d")?.match(/[MLHVZ]|-?(?:\d+\.?\d*|\.\d+)/g) ?? [];
+      let x = 0;
+      let y = 0;
+      let startX = 0;
+      let startY = 0;
+      for (let index = 0; index < tokens.length;) {
+        const command = tokens[index++];
+        if (command === "M" || command === "L") {
+          const nextX = Number(tokens[index++]);
+          const nextY = Number(tokens[index++]);
+          if (command === "L") addSegment(x, y, nextX, nextY);
+          x = nextX;
+          y = nextY;
+          if (command === "M") {
+            startX = x;
+            startY = y;
+          }
+        } else if (command === "H") {
+          const nextX = Number(tokens[index++]);
+          addSegment(x, y, nextX, y);
+          x = nextX;
+        } else if (command === "V") {
+          y = Number(tokens[index++]);
+        } else if (command === "Z") {
+          addSegment(x, y, startX, startY);
+          x = startX;
+          y = startY;
+        }
+      }
     }
     const duplicates = horizontal.filter((segment, index) =>
       horizontal
@@ -2783,7 +2828,6 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
               4,
         ),
     );
-    expect(horizontal).toHaveLength(1);
     expect(duplicates).toEqual([]);
   });
 
