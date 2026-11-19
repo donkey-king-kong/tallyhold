@@ -67,7 +67,9 @@ describe("independent extension contract (AC1, AC15-16)", () => {
       });
       expect(html).toContain(`style-src ${cspSource};`);
       expect(html).toContain(`<link rel="stylesheet" href="${styleUri}">`);
-      expect(html).toContain(`<script nonce="synthetic-nonce" src="${scriptUri}"></script>`);
+      expect(html).toContain(
+        `<script nonce="synthetic-nonce" src="${scriptUri}"></script>`,
+      );
     }
   });
 
@@ -211,6 +213,27 @@ describe("independent extension contract (AC1, AC15-16)", () => {
     ]) {
       expect(ignore).toContain(forbidden);
     }
+  });
+
+  it("provides an ignored real-log preview command through the parser pipeline", async () => {
+    const manifest = JSON.parse(
+      await readFile(resolve("package.json"), "utf8"),
+    );
+    const repositoryIgnore = await readFile(resolve(".gitignore"), "utf8");
+    const script = await readFile(
+      resolve("scripts/capture-real-preview.ts"),
+      "utf8",
+    ).catch(() => "");
+    expect(manifest.scripts?.["preview:real"]).toMatch(
+      /capture-real-preview.*--/,
+    );
+    expect(repositoryIgnore).toContain(".preview-real/");
+    expect(script).toContain("createSourceController");
+    expect(script).toContain("real-wide-last24h.png");
+    expect(script).toContain("real-wide-all-runs.png");
+    expect(script).toContain("real-narrow-last24h.png");
+    expect(script).toContain("real-narrow-all-runs.png");
+    expect(script).not.toMatch(/agent-flow-events\.jsonl["']/);
   });
 
   it("wires trusted discovery and persisted source restoration into activation", async () => {

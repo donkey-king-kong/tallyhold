@@ -72,7 +72,7 @@ try {
         `${name}: panes are not navigator, canvas, inspector columns`,
       );
       requireLayout(
-        navigatorBox.width >= 240 && navigatorBox.width <= 300,
+        navigatorBox.width >= 290 && navigatorBox.width <= 310,
         `${name}: navigator width is outside the target band`,
       );
       requireLayout(
@@ -83,6 +83,27 @@ try {
         canvasBox.width >= 700 && canvasBox.height >= 700,
         `${name}: canvas does not retain the primary workspace area`,
       );
+      const resizer = page.locator(
+        '[role="separator"][aria-label="Resize agent navigator"]',
+      );
+      requireLayout(
+        (await resizer.count()) === 1 &&
+          (await resizer.getAttribute("aria-valuemin")) === "240" &&
+          (await resizer.getAttribute("aria-valuemax")) === "480" &&
+          (await resizer.getAttribute("aria-valuenow")) === "300",
+        `${name}: navigator lacks its bounded resize handle`,
+      );
+      await resizer.press("ArrowRight");
+      const resizedNavigator = await page
+        .locator(".monitor-navigator")
+        .boundingBox();
+      requireLayout(
+        Boolean(resizedNavigator) &&
+          resizedNavigator!.width > navigatorBox.width &&
+          resizedNavigator!.width <= 480,
+        `${name}: navigator does not resize from the keyboard`,
+      );
+      await resizer.press("ArrowLeft");
     } else {
       requireLayout(
         navigatorBox.y < canvasBox.y && canvasBox.y < inspectorBox.y,
@@ -185,12 +206,12 @@ try {
         return { laneCount, cardCount, invalid: invalid.length };
       });
     requireLayout(
-      overflow.laneCount === 3,
-      `${name}: expected three visible lane headers`,
+      overflow.laneCount === 4,
+      `${name}: expected four visible lane headers`,
     );
     requireLayout(
-      overflow.cardCount === 8,
-      `${name}: expected orchestrator and seven visible agent cards`,
+      overflow.cardCount === 10,
+      `${name}: expected orchestrator and nine visible agent cards`,
     );
     requireLayout(
       overflow.invalid === 0,
@@ -201,7 +222,7 @@ try {
       navigatorRows: document.querySelectorAll(".navigator-identity-row")
         .length,
       navigatorGroups: document.querySelectorAll(".navigator-worktree").length,
-      ungrouped: document.querySelectorAll('[data-worktree="ungrouped"]')
+      unassigned: document.querySelectorAll('[data-worktree="unassigned"]')
         .length,
       bus: document.querySelectorAll("[data-connector-bus]").length,
       rails: document.querySelectorAll("[data-lane-rail]").length,
@@ -214,14 +235,14 @@ try {
       ).length,
     }));
     requireLayout(
-      visiblePopulation.navigatorRows === 7 &&
-        visiblePopulation.navigatorGroups === 3 &&
-        visiblePopulation.ungrouped === 0,
-      `${name}: navigator does not show three worktrees and seven current agents`,
+      visiblePopulation.navigatorRows === 9 &&
+        visiblePopulation.navigatorGroups === 4 &&
+        visiblePopulation.unassigned === 1,
+      `${name}: navigator does not show the unassigned lane and nine current agents`,
     );
     requireLayout(
-      visiblePopulation.bus === 1 && visiblePopulation.rails === 3,
-      `${name}: graph lacks one connector bus and three lane rails`,
+      visiblePopulation.bus === 1 && visiblePopulation.rails === 4,
+      `${name}: graph lacks one connector bus and four lane rails`,
     );
     requireLayout(
       visiblePopulation.rootCards === 0,
@@ -290,7 +311,10 @@ try {
     ];
     requireLayout(
       JSON.stringify(displayContract.rootIds) ===
-        JSON.stringify(expectedSlugs.map((slug) => `wt-${slug}`)) &&
+        JSON.stringify([
+          "unassigned",
+          ...expectedSlugs.map((slug) => `wt-${slug}`),
+        ]) &&
         JSON.stringify(displayContract.laneSlugs) ===
           JSON.stringify(expectedSlugs) &&
         JSON.stringify(displayContract.navigatorSlugs) ===
@@ -298,7 +322,12 @@ try {
         JSON.stringify(displayContract.inspectorSlugs) ===
           JSON.stringify([expectedSlugs[0]]) &&
         JSON.stringify(displayContract.laneLabels) ===
-          JSON.stringify(["chore-shared-ag", "feature-007-tra", "main"]) &&
+          JSON.stringify([
+            "unassigned",
+            "chore-shared-ag",
+            "feature-007-tra",
+            "main",
+          ]) &&
         displayContract.slugHashes >= 5 &&
         [
           ...displayContract.laneSlugs,
@@ -316,8 +345,8 @@ try {
       "Unknown status",
     ]);
     requireLayout(
-      displayContract.cardStatuses.length === 8 &&
-        displayContract.navigatorStatuses.length === 7 &&
+      displayContract.cardStatuses.length === 10 &&
+        displayContract.navigatorStatuses.length === 9 &&
         [
           ...displayContract.cardStatuses,
           ...displayContract.navigatorStatuses,
@@ -330,7 +359,7 @@ try {
       `${name}: card or navigator status words are missing`,
     );
     requireLayout(
-      /^Older runs · 18 agents$/.test(displayContract.olderLabel) &&
+      /^Older runs · 19 agents$/.test(displayContract.olderLabel) &&
         displayContract.olderContext === "before today",
       `${name}: older-runs row copy or alignment hooks are missing`,
     );
@@ -364,20 +393,20 @@ try {
         );
       }
     };
-    await requireVisiblePopulation("[data-lane-header]", 3, "lane headers");
-    await requireVisiblePopulation("[data-node-card]", 8, "agent cards");
+    await requireVisiblePopulation("[data-lane-header]", 4, "lane headers");
+    await requireVisiblePopulation("[data-node-card]", 10, "agent cards");
     await requireVisiblePopulation(
       ".navigator-identity-row",
-      7,
+      9,
       "navigator rows",
     );
     await requireVisiblePopulation(
       ".navigator-worktree",
-      3,
+      4,
       "navigator groups",
     );
     await requireVisiblePopulation("[data-connector-bus]", 1, "connector bus");
-    await requireVisiblePopulation("[data-lane-rail]", 3, "lane rails");
+    await requireVisiblePopulation("[data-lane-rail]", 4, "lane rails");
 
     const laneBoxes = await page
       .locator("[data-lane-header]")
@@ -448,8 +477,117 @@ try {
     );
     requireLayout(
       (await page.locator("[data-orchestrator-drop]").count()) === 1 &&
-        (await page.locator("[data-lane-drop]").count()) === 3,
+        (await page.locator("[data-lane-drop]").count()) === 4,
       `${name}: orchestrator bus has duplicate or missing drops`,
+    );
+
+    const realDataGeometry = await page.evaluate(() => {
+      const intersects = (left: DOMRect, right: DOMRect) =>
+        Math.max(left.left, right.left) <
+          Math.min(left.right, right.right) - 0.5 &&
+        Math.max(left.top, right.top) <
+          Math.min(left.bottom, right.bottom) - 0.5;
+      const cards = Array.from(
+        document.querySelectorAll<SVGGElement>("[data-node-card]"),
+      );
+      const cardRects = cards.map((card) =>
+        card.querySelector("rect")!.getBoundingClientRect(),
+      );
+      const duplicateIdentities = Object.values(
+        cards.reduce<Record<string, number>>((counts, card) => {
+          const id = card.dataset.nodeCard ?? "";
+          counts[id] = (counts[id] ?? 0) + 1;
+          return counts;
+        }, {}),
+      ).some((count) => count !== 1);
+      const textCollision = cards.some((card) => {
+        const spans = Array.from(card.querySelectorAll("tspan")).filter(
+          (span) => {
+            const box = span.getBoundingClientRect();
+            return box.width > 0 && box.height > 0;
+          },
+        );
+        return spans.some((left, leftIndex) =>
+          spans
+            .slice(leftIndex + 1)
+            .some((right) =>
+              intersects(
+                left.getBoundingClientRect(),
+                right.getBoundingClientRect(),
+              ),
+            ),
+        );
+      });
+      const cardCollision = cardRects.some((left, leftIndex) =>
+        cardRects.slice(leftIndex + 1).some((right) => intersects(left, right)),
+      );
+      const diagonalConnector = Array.from(
+        document.querySelectorAll<SVGGraphicsElement>(
+          ".graph-edges line, .graph-edges path",
+        ),
+      ).some((segment) => {
+        const box = segment.getBoundingClientRect();
+        return box.width > 1 && box.height > 1;
+      });
+      const laneHasHole = Array.from(
+        document.querySelectorAll<SVGGElement>("[data-lane-header]"),
+      ).some((header) => {
+        const headerRect = header
+          .querySelector("rect")!
+          .getBoundingClientRect();
+        const laneCards = cardRects
+          .filter((card) => Math.abs(card.left - headerRect.left) <= 1)
+          .sort((left, right) => left.top - right.top);
+        if (!laneCards.length) return false;
+        if (laneCards[0].top - headerRect.bottom > laneCards[0].height * 0.75)
+          return true;
+        return laneCards
+          .slice(1)
+          .some(
+            (card, index) =>
+              card.top - laneCards[index].bottom > card.height * 0.5,
+          );
+      });
+      const navigator =
+        document.querySelector<HTMLElement>(".monitor-navigator")!;
+      return {
+        duplicateIdentities,
+        textCollision,
+        cardCollision,
+        diagonalConnector,
+        laneHasHole,
+        navigatorOverflows: navigator.scrollWidth > navigator.clientWidth + 1,
+      };
+    });
+    requireLayout(
+      Object.values(realDataGeometry).every((value) => value === false),
+      `${name}: real-data geometry has duplicate cards, collisions, diagonal connectors, empty slots, or navigator overflow`,
+    );
+    const registrationIds = expectedSlugs.map((slug) => `wt-${slug}`);
+    for (const rootId of registrationIds) {
+      requireLayout(
+        (await page.locator(`[data-node-card="${rootId}"]`).count()) === 0 &&
+          (await page.locator(`[data-identity-id="${rootId}"]`).count()) === 0,
+        `${name}: registration identity ${rootId} renders as an agent`,
+      );
+    }
+    const repeatedRunDisplay = await page.evaluate(() => ({
+      cards: document.querySelectorAll('[data-node-card$="-test-writer-r2"]')
+        .length,
+      cardBadge:
+        document.querySelector(
+          '[data-node-card$="-test-writer-r2"] .agent-run-badge',
+        )?.textContent ?? "",
+      navigatorBadge:
+        document.querySelector(
+          '[data-identity-id$="-test-writer-r2"] .navigator-run-badge',
+        )?.textContent ?? "",
+    }));
+    requireLayout(
+      repeatedRunDisplay.cards === 1 &&
+        repeatedRunDisplay.cardBadge === "×5 runs" &&
+        repeatedRunDisplay.navigatorBadge === "×5",
+      `${name}: repeated identity does not collapse to one badged card and row`,
     );
 
     const orchestratorBox = await page

@@ -941,13 +941,13 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
       expect(visibleName[0].textContent).toMatch(/\.\.\.$/);
       expect(longCard.getAttribute("aria-label")).toContain(long);
       const laneWidth = Number(
-        root.querySelector('[data-lane-header="wt-a1"] rect')!.getAttribute(
-          "width",
-        ),
+        root
+          .querySelector('[data-lane-header="wt-a1"] rect')!
+          .getAttribute("width"),
       );
-      expect(Number(longCard.querySelector("rect")!.getAttribute("width"))).toBe(
-        laneWidth,
-      );
+      expect(
+        Number(longCard.querySelector("rect")!.getAttribute("width")),
+      ).toBe(laneWidth);
       for (let i = 0; i < rects.length; i++)
         for (let j = i + 1; j < rects.length; j++) {
           const a = rects[i],
@@ -1022,28 +1022,16 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
         getComputedStyle(matches[0]).stroke;
       expect(stroke).toBeTruthy();
       expect(stroke).not.toMatch(/^(?:none|transparent)$/i);
-      const endpoints =
-        matches[0].tagName.toLowerCase() === "line"
-          ? ["x1", "y1", "x2", "y2"].map((key) =>
-              Number(matches[0].getAttribute(key)),
-            )
-          : (matches[0].getAttribute("d")?.match(/-?\d+(?:\.\d+)?/g) ?? []).map(
-              Number,
-            );
-      expect(endpoints.length).toBeGreaterThanOrEqual(4);
-      const parent = graphNode(root, edge.parentId).querySelector("rect")!;
-      const child = graphNode(root, edge.childId).querySelector("rect")!;
-      expect(endpoints.slice(0, 2)).toEqual([
-        Number(parent.getAttribute("x")) +
-          Number(parent.getAttribute("width")) / 2,
-        Number(parent.getAttribute("y")) +
-          Number(parent.getAttribute("height")),
-      ]);
-      expect(endpoints.slice(-2)).toEqual([
-        Number(child.getAttribute("x")) +
-          Number(child.getAttribute("width")) / 2,
-        Number(child.getAttribute("y")),
-      ]);
+      if (matches[0].tagName.toLowerCase() === "line") {
+        const [x1, y1, x2, y2] = ["x1", "y1", "x2", "y2"].map((key) =>
+          Number(matches[0].getAttribute(key)),
+        );
+        expect(x1 === x2 || y1 === y2).toBe(true);
+        expect(matches[0].hasAttribute("transform")).toBe(false);
+      } else {
+        expect(matches[0].getAttribute("d")).toMatch(/^M /);
+        expect(matches[0].getAttribute("d")).not.toMatch(/[CLQAST]/i);
+      }
     }
     const children = Array.from(
       graph.querySelector("svg")?.children ?? graph.children,
@@ -2032,9 +2020,9 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
     const navigator = getByRole(root, "navigation", {
       name: /agent navigator/i,
     });
-    expect(
-      navigator.querySelector("[data-worktree-slug]")?.textContent,
-    ).toBe(slug);
+    expect(navigator.querySelector("[data-worktree-slug]")?.textContent).toBe(
+      slug,
+    );
     expect(navigator.querySelector("[data-slug-hash]")?.textContent).toBe(
       "0736a7b0",
     );
@@ -2052,5 +2040,268 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
       expect(surface.querySelectorAll("[data-worktree-slug]")).toHaveLength(1);
       expect(surface.textContent).not.toContain("/");
     }
+  });
+
+  it("renders legacy identities in an orthogonal unassigned lane and hides registration roots", () => {
+    const rootId = "wt-alpha";
+    const registration = syntheticNode(rootId, {
+      task: "Worktree activity",
+      parentId: "orchestrator",
+      relationship: "resolved",
+    });
+    const child = syntheticNode(`${rootId}-implementer`, {
+      parentId: rootId,
+      relationship: "resolved",
+    });
+    const legacy = syntheticNode("legacy-test-writer", {
+      parentId: "orchestrator",
+      relationship: "resolved",
+    });
+    const { root } = mount008(
+      [syntheticNode("orchestrator"), registration, child, legacy],
+      [
+        { parentId: "orchestrator", childId: rootId },
+        { parentId: rootId, childId: child.id },
+        { parentId: "orchestrator", childId: legacy.id },
+      ],
+    );
+    const graph = getByRole(root, "img", { name: /agent graph/i });
+    const unassigned = graph.querySelector<SVGGElement>(
+      '[data-lane-header="unassigned"]',
+    );
+    const worktree = graph.querySelector<SVGGElement>(
+      `[data-lane-header="${rootId}"]`,
+    );
+    expect(unassigned?.textContent).toContain(
+      "Unassigned (before shared stream)",
+    );
+    expect(
+      Number(unassigned?.querySelector("rect")?.getAttribute("x")),
+    ).toBeLessThan(Number(worktree?.querySelector("rect")?.getAttribute("x")));
+    expect(graph.querySelector(`[data-node-card="${rootId}"]`)).toBeNull();
+    expect(
+      graph.querySelector(`[data-node-card="${legacy.id}"]`),
+    ).not.toBeNull();
+    const navigator = getByRole(root, "navigation", {
+      name: /agent navigator/i,
+    });
+    expect(
+      navigator.querySelector(`[data-identity-id="${rootId}"]`),
+    ).toBeNull();
+    expect(
+      navigator.querySelector('[data-worktree="unassigned"]')?.textContent,
+    ).toContain("Unassigned (before shared stream)");
+    for (const segment of graph.querySelectorAll<SVGLineElement>(
+      ".graph-edges line",
+    )) {
+      const x1 = Number(segment.getAttribute("x1"));
+      const x2 = Number(segment.getAttribute("x2"));
+      const y1 = Number(segment.getAttribute("y1"));
+      const y2 = Number(segment.getAttribute("y2"));
+      expect(x1 === x2 || y1 === y2).toBe(true);
+      expect(segment.hasAttribute("transform")).toBe(false);
+    }
+    for (const path of graph.querySelectorAll<SVGPathElement>(
+      ".graph-edges path",
+    ))
+      expect(path.getAttribute("d")).not.toMatch(/[CLQAST]/i);
+  });
+
+  it("collapses five runs to one card and row with latest run selected", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2023-11-20T12:00:00.000Z"));
+    const rootId = "wt-alpha";
+    const intervals = Array.from({ length: 5 }, (_, index) => ({
+      start: index * 100,
+      end: index === 4 ? null : index * 100 + 50,
+      startAbsoluteTime: `2023-11-20T0${7 + index}:00:00.000Z`,
+      endAbsoluteTime:
+        index === 4 ? null : `2023-11-20T0${7 + index}:00:50.000Z`,
+    }));
+    const activities = intervals.map((interval, index) => ({
+      type: "message",
+      time: interval.start,
+      absoluteTime: interval.startAbsoluteTime,
+      summary: `Run ${index + 1} summary`,
+    }));
+    const repeated = syntheticNode(`${rootId}-test-writer`, {
+      parentId: rootId,
+      relationship: "resolved",
+      intervals,
+      activities,
+    });
+    const unknown = syntheticNode(`${rootId}-time-unknown`, {
+      parentId: rootId,
+      relationship: "resolved",
+      intervals: [{ start: null, end: null }],
+      lastUpdateAge: null,
+    });
+    const { root } = mount008(
+      [
+        syntheticNode(rootId, {
+          task: "Worktree activity",
+          status: undefined,
+        }),
+        repeated,
+        unknown,
+      ],
+      [
+        { parentId: rootId, childId: repeated.id },
+        { parentId: rootId, childId: unknown.id },
+      ],
+    );
+    const graph = getByRole(root, "img", { name: /agent graph/i });
+    expect(
+      graph.querySelectorAll(`[data-node-card="${repeated.id}"]`),
+    ).toHaveLength(1);
+    expect(
+      graph.querySelector(`[data-node-card="${repeated.id}"] .agent-run-badge`)
+        ?.textContent,
+    ).toBe("×5 runs");
+    const navigator = getByRole(root, "navigation", {
+      name: /agent navigator/i,
+    });
+    const row = navigator.querySelector(`[data-identity-id="${repeated.id}"]`)!;
+    expect(
+      navigator.querySelectorAll(`[data-identity-id="${repeated.id}"]`),
+    ).toHaveLength(1);
+    expect(row.querySelector(".navigator-run-badge")?.textContent).toBe("×5");
+    expect(row.children).toHaveLength(1);
+    expect(navigator.querySelector(".navigator-time-unavailable")).toBeNull();
+    expect(
+      navigator.querySelector(
+        `[data-identity-id="${unknown.id}"] .navigator-agent-duration`,
+      )?.textContent,
+    ).toBe("Time unavailable");
+    fireEvent.click(within(row).getByRole("button"));
+    const inspector = getByRole(root, "region", { name: /agent details/i });
+    expect(
+      (
+        within(inspector).getByRole("combobox", {
+          name: /select run/i,
+        }) as HTMLSelectElement
+      ).value,
+    ).toBe("4");
+    expect(
+      getByRole(root, "region", { name: /activity history/i }).textContent,
+    ).toContain("Run 5 summary");
+    expect(
+      getByRole(root, "region", { name: /activity history/i }).textContent,
+    ).not.toContain("Run 1 summary");
+  });
+
+  it("reserves separate card grid cells for long copy duration and quiet age", () => {
+    const rootId = "wt-alpha";
+    const agent = syntheticNode(
+      `${rootId}-an-extremely-long-agent-name-with-many-parts`,
+      {
+        parentId: rootId,
+        relationship: "resolved",
+        status: "waiting",
+        lastUpdateAge: 84_120,
+        activities: [
+          {
+            type: "permission_requested",
+            time: 1,
+            summary:
+              "A very long waiting summary that must yield to the quiet report",
+          },
+        ],
+      },
+    );
+    const { root } = mount008(
+      [
+        syntheticNode(rootId, {
+          task: "Worktree activity",
+          status: undefined,
+        }),
+        agent,
+      ],
+      [{ parentId: rootId, childId: agent.id }],
+    );
+    const card = graphNode(root, agent.id);
+    expect(card.querySelector(".quiet-report")?.textContent).toMatch(
+      /^No report /,
+    );
+    for (const row of [25, 52]) {
+      const boxes = Array.from(card.querySelectorAll<SVGTSpanElement>("tspan"))
+        .filter((span) => Number(span.getAttribute("y")) === row + 260)
+        .map((span) => ({
+          left: Number(span.getAttribute("x")),
+          right:
+            Number(span.getAttribute("x")) +
+            (span.textContent?.length ?? 0) * 7,
+        }))
+        .sort((left, right) => left.left - right.left);
+      for (let index = 1; index < boxes.length; index++)
+        expect(boxes[index - 1].right).toBeLessThanOrEqual(boxes[index].left);
+    }
+    const styles = readFileSync("media/styles.css", "utf8");
+    expect(styles).toMatch(
+      /\.graph-nodes \.agent-name\s*\{[^}]*font-size:\s*13px/s,
+    );
+    expect(styles).toMatch(/\.agent-status-word[^}]*font-size:\s*12px/s);
+  });
+
+  it("compacts recent lane slots exposes a bounded resizer and labels footer range", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2023-11-20T12:00:00.000Z"));
+    const rootId = "wt-alpha";
+    const old = syntheticNode(`${rootId}-old`, {
+      parentId: rootId,
+      relationship: "resolved",
+      status: "completed",
+      terminal: true,
+      intervals: [
+        {
+          start: 0,
+          end: 1,
+          startAbsoluteTime: "2023-11-13T12:00:00.000Z",
+          endAbsoluteTime: "2023-11-13T12:00:01.000Z",
+        },
+      ],
+    });
+    const current = ["one", "two"].map((name, index) =>
+      syntheticNode(`${rootId}-${name}`, {
+        parentId: rootId,
+        relationship: "resolved",
+        intervals: [
+          {
+            start: index,
+            end: null,
+            startAbsoluteTime: `2023-11-20T1${index}:00:00.000Z`,
+            endAbsoluteTime: null,
+          },
+        ],
+      }),
+    );
+    const { root } = mount008(
+      [
+        syntheticNode(rootId, {
+          task: "Worktree activity",
+          status: undefined,
+        }),
+        old,
+        ...current,
+      ],
+      [old, ...current].map((node) => ({
+        parentId: rootId,
+        childId: node.id,
+      })),
+    );
+    const ys = current.map((node) =>
+      Number(graphNode(root, node.id).querySelector("rect")?.getAttribute("y")),
+    );
+    expect(ys).toEqual([260, 346]);
+    const resizer = getByRole(root, "separator", {
+      name: /resize agent navigator/i,
+    });
+    expect(resizer.getAttribute("aria-valuemin")).toBe("240");
+    expect(resizer.getAttribute("aria-valuemax")).toBe("480");
+    expect(resizer.getAttribute("aria-valuenow")).toBe("300");
+    const footer = getByRole(root, "region", { name: /monitor footer/i });
+    expect(footer.textContent).toMatch(/2 agents in last 24 hours/i);
+    fireEvent.click(getByRole(root, "button", { name: /all runs/i }));
+    expect(footer.textContent).toMatch(/3 agents · all runs/i);
   });
 });
