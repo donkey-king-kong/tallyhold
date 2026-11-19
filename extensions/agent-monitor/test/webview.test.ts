@@ -2468,4 +2468,320 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
       ),
     ).toEqual([260, 346]);
   });
+
+  it("treats current and legacy lane roots as metadata regardless of task", () => {
+    const hashedRoot = "wt-feature-fitted-1234abcd";
+    const legacyRoot = "wt-chore-monitor-docs";
+    const emptyRoot = "wt-empty-lane";
+    const hashedChild = syntheticNode(`${hashedRoot}-implementer`, {
+      parentId: hashedRoot,
+      relationship: "resolved",
+    });
+    const legacyChild = syntheticNode("chore-monitor-docs-planner", {
+      parentId: legacyRoot,
+      relationship: "resolved",
+    });
+    const unassigned = syntheticNode("legacy-reviewer");
+    const roots = [
+      syntheticNode(hashedRoot, {
+        task: "Coordinate fitted canvas",
+        parentId: "orchestrator",
+        relationship: "resolved",
+      }),
+      syntheticNode(legacyRoot, {
+        task: "Publish monitor documentation",
+        parentId: "orchestrator",
+        relationship: "resolved",
+      }),
+      syntheticNode(emptyRoot, {
+        task: "Register empty worktree",
+        parentId: "orchestrator",
+        relationship: "resolved",
+      }),
+    ];
+    const { root } = mount008(
+      [
+        syntheticNode("orchestrator"),
+        ...roots,
+        hashedChild,
+        legacyChild,
+        unassigned,
+      ],
+      [
+        ...roots.map((node) => ({
+          parentId: "orchestrator",
+          childId: node.id,
+        })),
+        { parentId: hashedRoot, childId: hashedChild.id },
+        { parentId: legacyRoot, childId: legacyChild.id },
+      ],
+    );
+    const graph = getByRole(root, "img", { name: /agent graph/i });
+    const navigator = getByRole(root, "navigation", {
+      name: /agent navigator/i,
+    });
+    for (const laneRoot of [hashedRoot, legacyRoot, emptyRoot]) {
+      expect(graph.querySelector(`[data-node-card="${laneRoot}"]`)).toBeNull();
+      expect(
+        navigator.querySelector(`[data-identity-id="${laneRoot}"]`),
+      ).toBeNull();
+    }
+    expect(graph.querySelector(`[data-lane-header="${emptyRoot}"]`)).toBeNull();
+    expect(
+      graph.querySelector(
+        `[data-node-card="${hashedChild.id}"] [data-name-line]`,
+      )?.textContent,
+    ).toBe("implementer");
+    expect(
+      graph.querySelector(
+        `[data-node-card="${legacyChild.id}"] [data-name-line]`,
+      )?.textContent,
+    ).toBe("planner");
+    expect(
+      Array.from(graph.querySelectorAll("[data-lane-label]")).map(
+        (item) => item.textContent,
+      ),
+    ).toEqual(["UNASSIGNED", "WORKTREE", "WORKTREE"]);
+  });
+
+  it("uses latest-run duration and human-only summary on card and navigator", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2023-11-20T12:00:00.000Z"));
+    const rootId = "wt-feature-fitted-1234abcd";
+    const agent = syntheticNode(
+      `${rootId}-an-extremely-long-reviewer-name-r2`,
+      {
+        parentId: rootId,
+        relationship: "resolved",
+        lastUpdateAge: 30,
+        intervals: [
+          {
+            start: 0,
+            end: 60,
+            startAbsoluteTime: "2023-11-19T10:00:00.000Z",
+            endAbsoluteTime: "2023-11-19T10:01:00.000Z",
+          },
+          {
+            start: 1,
+            end: null,
+            startAbsoluteTime: "2023-11-20T11:00:00.000Z",
+            endAbsoluteTime: null,
+          },
+        ],
+        activities: [
+          {
+            type: "message",
+            time: 1,
+            absoluteTime: "2023-11-20T11:05:00.000Z",
+            summary: "Human progress report",
+          },
+          {
+            type: "tool_call_start",
+            time: 2,
+            absoluteTime: "2023-11-20T11:30:00.000Z",
+            summary: "tool_call_start",
+            pairing: "unmatched",
+          },
+        ],
+      },
+    );
+    const noSummary = syntheticNode(`${rootId}-no-summary`, {
+      parentId: rootId,
+      relationship: "resolved",
+      task: "Task is not a reported summary",
+      activities: [
+        {
+          type: "agent_complete",
+          time: 1,
+          absoluteTime: "2023-11-20T11:45:00.000Z",
+          summary: "agent_complete",
+        },
+      ],
+    });
+    const { root } = mount008(
+      [
+        syntheticNode(rootId, {
+          task: "Coordinate fitted canvas",
+          parentId: "orchestrator",
+        }),
+        agent,
+        noSummary,
+      ],
+      [agent, noSummary].map((node) => ({
+        parentId: rootId,
+        childId: node.id,
+      })),
+    );
+    const card = graphNode(root, agent.id);
+    const row = root.querySelector(`[data-identity-id="${agent.id}"]`)!;
+    expect(card.querySelector(".agent-summary-text")?.textContent).toBe(
+      "Running tool",
+    );
+    expect(card.querySelector(".agent-duration")?.textContent).toBe("1h 0m");
+    expect(row.querySelector(".navigator-agent-duration")?.textContent).toBe(
+      "1h 0m",
+    );
+    expect(card.querySelector(".agent-run-badge")?.textContent).toBe("×2");
+    expect(row.querySelector(".navigator-run-badge")?.textContent).toBe("×2");
+    expect(row.querySelector(".navigator-agent-name")?.textContent).not.toMatch(
+      /current/i,
+    );
+    const visibleName =
+      card.querySelector("[data-name-line]")?.textContent ?? "";
+    expect(visibleName).toMatch(/· r2$/);
+    expect(visibleName).toContain("...");
+    expect(visibleName).not.toMatch(/^wt-/);
+    expect(card.querySelector(".agent-summary-text")?.textContent).not.toMatch(
+      /^(agent|tool|subagent|permission)_[a-z_]+$/,
+    );
+    expect(
+      graphNode(root, noSummary.id).querySelector(".agent-summary-text")
+        ?.textContent,
+    ).toBe("");
+  });
+
+  it("reconciles recent older and all-runs identity counts", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2023-11-20T12:00:00.000Z"));
+    const rootId = "wt-alpha";
+    const current = syntheticNode(`${rootId}-current`, {
+      parentId: rootId,
+      relationship: "resolved",
+      intervals: [
+        {
+          start: 0,
+          end: null,
+          startAbsoluteTime: "2023-11-20T11:00:00.000Z",
+          endAbsoluteTime: null,
+        },
+      ],
+    });
+    const older = syntheticNode(`${rootId}-older`, {
+      parentId: rootId,
+      relationship: "resolved",
+      intervals: [
+        {
+          start: 0,
+          end: 1,
+          startAbsoluteTime: "2023-11-10T10:00:00.000Z",
+          endAbsoluteTime: "2023-11-10T10:01:00.000Z",
+        },
+        {
+          start: 2,
+          end: 3,
+          startAbsoluteTime: "2023-11-11T10:00:00.000Z",
+          endAbsoluteTime: "2023-11-11T10:01:00.000Z",
+        },
+      ],
+    });
+    const unknown = syntheticNode(`${rootId}-unknown`, {
+      parentId: rootId,
+      relationship: "resolved",
+      intervals: [{ start: null, end: null }],
+      activities: [],
+    });
+    const orchestrator = syntheticNode("orchestrator", {
+      intervals: [
+        { start: 0, end: 1 },
+        { start: 2, end: 3 },
+        { start: 4, end: 5 },
+      ],
+    });
+    const { root } = mount008(
+      [
+        orchestrator,
+        syntheticNode(rootId, {
+          task: "Coordinate alpha",
+          parentId: "orchestrator",
+        }),
+        current,
+        older,
+        unknown,
+      ],
+      [current, older, unknown].map((node) => ({
+        parentId: rootId,
+        childId: node.id,
+      })),
+    );
+    const footer = getByRole(root, "region", { name: /monitor footer/i });
+    expect(footer.textContent).toMatch(/2 agents in last 24 hours/i);
+    expect(
+      getByRole(root, "button", { name: /older runs.*1 agent/i }).textContent,
+    ).toMatch(/Older runs · 1 agent/);
+    fireEvent.click(getByRole(root, "button", { name: /all runs/i }));
+    expect(footer.textContent).toMatch(/3 agents · all runs/i);
+  });
+
+  it("draws no overlapping near-duplicate horizontal bus segments", () => {
+    const rootId = "wt-alpha";
+    const child = syntheticNode(`${rootId}-worker`, {
+      parentId: rootId,
+      relationship: "resolved",
+    });
+    const { root } = mount008(
+      [
+        syntheticNode("orchestrator"),
+        syntheticNode(rootId, {
+          task: "Coordinate alpha",
+          parentId: "orchestrator",
+          relationship: "resolved",
+        }),
+        child,
+      ],
+      [
+        { parentId: "orchestrator", childId: rootId },
+        { parentId: rootId, childId: child.id },
+      ],
+    );
+    const graph = getByRole(root, "img", { name: /agent graph/i });
+    const horizontal: Array<{ y: number; left: number; right: number }> = [];
+    for (const line of graph.querySelectorAll<SVGLineElement>(
+      ".graph-edges line",
+    )) {
+      const x1 = Number(line.getAttribute("x1"));
+      const x2 = Number(line.getAttribute("x2"));
+      const y1 = Number(line.getAttribute("y1"));
+      const y2 = Number(line.getAttribute("y2"));
+      if (y1 === y2)
+        horizontal.push({
+          y: y1,
+          left: Math.min(x1, x2),
+          right: Math.max(x1, x2),
+        });
+    }
+    for (const path of graph.querySelectorAll<SVGPathElement>(
+      ".graph-edges path[data-edge]",
+    )) {
+      const values = path
+        .getAttribute("d")!
+        .match(/-?(?:\d+\.?\d*|\.\d+)/g)!
+        .map(Number);
+      const [startX, startY, middleY, endX] = values;
+      horizontal.push({
+        y: middleY,
+        left: Math.min(startX, endX),
+        right: Math.max(startX, endX),
+      });
+      expect(startY).not.toBeNaN();
+    }
+    const duplicates = horizontal.filter((segment, index) =>
+      horizontal
+        .slice(index + 1)
+        .some(
+          (other) =>
+            Math.abs(segment.y - other.y) <= 4 &&
+            Math.min(segment.right, other.right) -
+              Math.max(segment.left, other.left) >
+              4,
+        ),
+    );
+    expect(duplicates).toEqual([]);
+  });
+
+  it("caps the narrow navigator at two-fifths of the viewport", () => {
+    const styles = readFileSync("media/styles.css", "utf8");
+    expect(styles).toMatch(
+      /@media\s*\(max-width:\s*959px\)[\s\S]*?\.monitor-navigator\s*\{[^}]*max-height:\s*40vh[^}]*overflow-y:\s*auto/,
+    );
+  });
 });

@@ -41,6 +41,47 @@ try {
       deviceScaleFactor: 2,
     });
     await page.goto(previewUrl);
+    const requireFittedGraph = async (stage: string) => {
+      const fit = await page.evaluate(() => {
+        const pane = document
+          .querySelector<HTMLElement>(".monitor-graph")!
+          .getBoundingClientRect();
+        const items = Array.from(
+          document.querySelectorAll<SVGGraphicsElement>(
+            "[data-lane-header], [data-node-card]",
+          ),
+        )
+          .map((item) => item.getBoundingClientRect())
+          .filter((box) => box.width > 0 && box.height > 0);
+        const content = {
+          left: Math.min(...items.map((box) => box.left)),
+          top: Math.min(...items.map((box) => box.top)),
+          right: Math.max(...items.map((box) => box.right)),
+          bottom: Math.max(...items.map((box) => box.bottom)),
+        };
+        return {
+          inside:
+            content.left >= pane.left - 1 &&
+            content.top >= pane.top - 1 &&
+            content.right <= pane.right + 1 &&
+            content.bottom <= pane.bottom + 1,
+          topAnchored: content.top - pane.top <= 32,
+          horizontallyCentered:
+            Math.abs(
+              (content.left + content.right) / 2 - (pane.left + pane.right) / 2,
+            ) <= 16,
+        };
+      });
+      requireLayout(
+        fit.inside && fit.topAnchored && fit.horizontallyCentered,
+        `${name}: graph is not fitted, top-anchored, and centered after ${stage}`,
+      );
+    };
+    await requireFittedGraph("initial load");
+    await page.getByRole("button", { name: "All runs" }).click();
+    await requireFittedGraph("All runs");
+    await page.getByRole("button", { name: "Last 24 hours" }).click();
+    await requireFittedGraph("Last 24 hours");
     const selectedAgent = page.locator(
       'button[data-node-id$="-test-writer-r2"]',
     );
@@ -380,9 +421,9 @@ try {
         JSON.stringify(displayContract.laneLabels) ===
           JSON.stringify([
             "unassigned",
-            "chore-shared-ag",
-            "feature-007-tra",
-            "main",
+            "worktree",
+            "worktree",
+            "main checkout",
           ]) &&
         displayContract.slugHashes >= 5 &&
         [
@@ -638,6 +679,52 @@ try {
           line.getAttribute("y1") !== line.getAttribute("y2")
         );
       });
+      const busSegments: Array<{
+        y: number;
+        left: number;
+        right: number;
+      }> = [];
+      for (const line of document.querySelectorAll<SVGLineElement>(
+        ".graph-edges line",
+      )) {
+        const x1 = Number(line.getAttribute("x1"));
+        const x2 = Number(line.getAttribute("x2"));
+        const y1 = Number(line.getAttribute("y1"));
+        const y2 = Number(line.getAttribute("y2"));
+        if (y1 === y2 && y1 < 150)
+          busSegments.push({
+            y: y1,
+            left: Math.min(x1, x2),
+            right: Math.max(x1, x2),
+          });
+      }
+      for (const path of document.querySelectorAll<SVGPathElement>(
+        ".graph-edges path[data-edge]",
+      )) {
+        const values =
+          path
+            .getAttribute("d")
+            ?.match(/-?(?:\d+\.?\d*|\.\d+)/g)
+            ?.map(Number) ?? [];
+        const [startX, , middleY, endX] = values;
+        if (values.length >= 4 && middleY < 150)
+          busSegments.push({
+            y: middleY,
+            left: Math.min(startX, endX),
+            right: Math.max(startX, endX),
+          });
+      }
+      const duplicateBusSegment = busSegments.some((segment, index) =>
+        busSegments
+          .slice(index + 1)
+          .some(
+            (other) =>
+              Math.abs(segment.y - other.y) <= 4 &&
+              Math.min(segment.right, other.right) -
+                Math.max(segment.left, other.left) >
+                4,
+          ),
+      );
       const laneHasHole = Array.from(
         document.querySelectorAll<SVGGElement>("[data-lane-header]"),
       ).some((header) => {
@@ -664,6 +751,7 @@ try {
         textCollision,
         cardCollision,
         diagonalConnector,
+        duplicateBusSegment,
         laneHasHole,
         navigatorOverflows: navigator.scrollWidth > navigator.clientWidth + 1,
       };
@@ -694,9 +782,71 @@ try {
     }));
     requireLayout(
       repeatedRunDisplay.cards === 1 &&
-        repeatedRunDisplay.cardBadge === "×5 runs" &&
+        repeatedRunDisplay.cardBadge === "×5" &&
         repeatedRunDisplay.navigatorBadge === "×5",
       `${name}: repeated identity does not collapse to one badged card and row`,
+    );
+
+    const semanticContract = await page.evaluate(() => {
+      const roots = new Set(
+        Array.from(
+          document.querySelectorAll<SVGGElement>("[data-lane-header]"),
+        ).map((item) => item.dataset.laneHeader ?? ""),
+      );
+      const cards = Array.from(
+        document.querySelectorAll<SVGGElement>("[data-node-card]"),
+      ).map((card) => ({
+        id: card.dataset.nodeCard ?? "",
+        name: card.querySelector("[data-name-line]")?.textContent?.trim() ?? "",
+        duration:
+          card.querySelector(".agent-duration")?.textContent?.trim() ?? "",
+        summary:
+          card.querySelector(".agent-summary-text")?.textContent?.trim() ?? "",
+      }));
+      const rows = new Map(
+        Array.from(
+          document.querySelectorAll<HTMLElement>(".navigator-identity-row"),
+        ).map((row) => [
+          row.dataset.identityId ?? "",
+          {
+            name:
+              row.querySelector(".navigator-agent-name")?.textContent?.trim() ??
+              "",
+            duration:
+              row
+                .querySelector(".navigator-agent-duration")
+                ?.textContent?.trim() ?? "",
+          },
+        ]),
+      );
+      return {
+        invalidNames: cards
+          .filter((card) => card.id !== "orchestrator")
+          .filter((card) => roots.has(card.name) || /^wt-/.test(card.name))
+          .length,
+        rawSummaries: cards.filter((card) =>
+          /^(?:agent|tool|subagent|permission)_[a-z_]+$/.test(card.summary),
+        ).length,
+        durationMismatches: cards
+          .filter((card) => rows.has(card.id))
+          .filter((card) => card.duration !== rows.get(card.id)!.duration)
+          .length,
+        currentSuffixes: [...rows.values()].filter((row) =>
+          /\bcurrent\b/i.test(row.name),
+        ).length,
+        legacyPlanner: cards.find((card) => card.id.endsWith("-planner"))?.name,
+        runningTool: cards.find((card) => card.id.endsWith("-test-writer-r2"))
+          ?.summary,
+      };
+    });
+    requireLayout(
+      semanticContract.invalidNames === 0 &&
+        semanticContract.rawSummaries === 0 &&
+        semanticContract.durationMismatches === 0 &&
+        semanticContract.currentSuffixes === 0 &&
+        semanticContract.legacyPlanner === "planner" &&
+        semanticContract.runningTool === "Running tool",
+      `${name}: names, summaries, or latest-run durations violate the display contract`,
     );
 
     const orchestratorBox = await page
