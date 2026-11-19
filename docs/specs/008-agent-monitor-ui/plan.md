@@ -29,6 +29,12 @@
   `Worktree activity` as lane metadata only. Compact filtered lanes to visible
   cards, superseding empty stable slots. All visible connector segments are
   orthogonal.
+- **Approved real-data preview round 2 amendment — 2026-11-19 (Zack), at
+  `7ccf2b8`.** Use human-only summaries and latest-run duration consistently;
+  classify lane roots independent of task; shorten current and legacy root
+  prefixes; use lane-kind labels and suffix-preserving middle truncation;
+  reconcile identity counts; auto-fit initial and filtered views; cap narrow
+  navigator height.
 - This is a local, read-only extension presentation change. No portfolio
   application, publisher/adapter, source reader, database, Alembic migration,
   CI workflow, or multi-session aggregation change. The 004 limits and privacy
@@ -82,6 +88,45 @@ gitignored `extensions/agent-monitor/.preview-real/`. It never copies the
 source log or embeds source records in repository artifacts. The committed
 synthetic fixture covers equivalent sanitized cases and remains the normal
 regression input.
+
+### Real-data preview round 2
+
+Centralize registration matching around the assigned lane root ID rather than
+task text. Match the exact current `wt-<15>-<8hex>` root and legacy
+`wt-<slug>` / `<slug>` forms, exclude those identities from every agent
+collection, and remove lanes that have no remaining display identities.
+Display-name shortening receives the assigned root ID and removes only its
+exact current or legacy prefix.
+
+Derive a latest-run presentation record once per identity. Its interval drives
+both card and navigator duration: closed bounds use end minus start; an open
+run uses the later of its last in-run report and the current clock, never zero
+when a verified start predates now. Keep report age separate. Select summaries
+only from nonempty reported payload text that differs from the raw event type;
+an unmatched `tool_call_start` contributes `Running tool`, otherwise missing
+summary stays empty.
+
+Count display identities, not intervals, through one range partition. Exclude
+the orchestrator and registration roots consistently. Recent includes
+identities reachable in the recent navigator, including unknown chronology;
+older contains every remaining display identity exactly once, so recent plus
+older equals all-runs.
+
+Render exactly one bus horizontal and exclude registration-root edges from
+ordinary attributed routes. A geometry guard compares every horizontal
+segment and fails when overlapping or near-duplicate segments are within 4px.
+
+Replace the camera's intrinsic-size-only behavior with a bounded fit transform
+computed from content and viewport dimensions. Initial load and filter changes
+reset to top-anchored, horizontally centered Fit all; direct zoom/pan persists
+otherwise. The production-bundle Playwright seam checks content bounds after
+load and both range changes at 1440×940 and 800×900. Narrow CSS limits the
+navigator to approximately 40vh with independent vertical scrolling.
+
+The lane eyebrow is a kind label only. The name line continues to render the
+reported slug with an eight-character hash in a muted span. Card-name fitting
+middle-ellipsizes only the base name and always preserves a normalized
+` · rN` suffix; both card and row badges use `×N`.
 
 ### Boundaries and data
 
@@ -327,6 +372,7 @@ original ID and an absent reported role stays unavailable.
 | 13  | Collapsed footer, advisory companions and actionable diagnostics                                                                       | `webview.test.ts: footer keeps graph visible and expands provisional snapshots and diagnostics`                                                                                                                                                                                      |
 | 14  | Resolved-token contrast, keyboard/focus and reduced motion in all themes                                                               | `webview.test.ts: light dark high contrast meet text and connector contrast`; `webview.test.ts: keyboard and reduced motion reach controls and inspector`                                                                                                                            |
 | 15  | Existing source isolation, stable camera, privacy/limits and regression                                                                | `webview.test.ts: historical and incremental fixtures preserve camera and no executable telemetry`; existing `core.test.ts`, `host.test.ts`, `packaging.test.ts` and adapter tests remain green                                                                                      |
+| 16  | Root-based registration, human-only summaries, latest-run duration, identity counts, one bus, fitted camera and bounded narrow navigator | `presentation.test.ts: latest run duration and human summaries stay consistent`; `webview.test.ts: legacy and hashed registrations are metadata and empty lanes disappear`; `webview.test.ts: one bus and fitted content survive range changes`; `webview.test.ts: identity range counts reconcile and names preserve suffixes`; `preview.test.ts: production bundle fits content and keeps card and navigator semantics aligned` |
 
 JSDOM uses stubbed SVG text metrics/client rectangles to assert box shape
 precedes foreground text, single-line ellipsized text fits within fixed padded

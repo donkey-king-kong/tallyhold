@@ -27,6 +27,38 @@ against the shared stream:
    slots. This supersedes preservation of empty presentation slots across a
    range/filter change; identity order remains deterministic.
 
+## Approved real-data preview round 2 amendment
+
+Zack approved these corrections on 2026-11-19 after reviewing all four
+parser-backed real-data previews at `7ccf2b8`:
+
+1. Card summary text shows only a human summary the agent actually reported.
+   Raw event types never appear as summaries. With no human summary the slot
+   stays empty, except an unmatched in-progress tool start says
+   `Running tool`.
+2. Card and navigator duration always mean the latest run's duration, or its
+   elapsed-so-far duration while that run remains open. The two surfaces show
+   the same value for an identity in either range. Report age appears only in
+   the inspector and the existing AC8 quiet-report tag.
+3. A lane's small-caps label is its kind: `WORKTREE`, `MAIN CHECKOUT`, or
+   `UNASSIGNED`. The lane name line keeps the slug and visually mutes an
+   eight-character hash when present.
+4. Initial load and every range or active-filter change automatically Fit all,
+   anchored to the canvas top and horizontally centered. Fitted zoom is
+   bounded by 100% and the existing minimum; when minimum zoom cannot contain
+   all content, anchor top-left and preserve panning. Manual camera changes
+   persist until the next filter change.
+5. A registration identity is metadata whenever its ID equals its lane root
+   in current hashed or legacy unhashed form, regardless of task. Registration
+   identities never render as agents, and empty lanes are hidden. Display-name
+   shortening removes the assigned lane root prefix in either format.
+6. Base names truncate from the middle without dropping a `· <suffix>` tail.
+   Cards and navigator use the compact `×N` run badge, and navigator names do
+   not append `current`.
+7. The recent, older, and all-runs counts use identities under one rule and
+   reconcile: recent plus older equals all-runs. At narrow widths the navigator
+   has its own scroll area capped at about 40% of the viewport.
+
 ## Problem
 
 Zack's hands-on inspection of a week of real Feature 004 JSONL on 2026-11-18
