@@ -2734,6 +2734,13 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
       ],
     );
     const graph = getByRole(root, "img", { name: /agent graph/i });
+    const firstLaneY = Math.min(
+      ...Array.from(
+        graph.querySelectorAll<SVGGElement>("[data-lane-header]"),
+      ).map((lane) =>
+        Number(lane.querySelector("rect")?.getAttribute("y") ?? Infinity),
+      ),
+    );
     const horizontal: Array<{ y: number; left: number; right: number }> = [];
     for (const line of graph.querySelectorAll<SVGLineElement>(
       ".graph-edges line",
@@ -2742,7 +2749,7 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
       const x2 = Number(line.getAttribute("x2"));
       const y1 = Number(line.getAttribute("y1"));
       const y2 = Number(line.getAttribute("y2"));
-      if (y1 === y2)
+      if (y1 === y2 && y1 < firstLaneY)
         horizontal.push({
           y: y1,
           left: Math.min(x1, x2),
@@ -2757,11 +2764,12 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
         .match(/-?(?:\d+\.?\d*|\.\d+)/g)!
         .map(Number);
       const [startX, startY, middleY, endX] = values;
-      horizontal.push({
-        y: middleY,
-        left: Math.min(startX, endX),
-        right: Math.max(startX, endX),
-      });
+      if (middleY < firstLaneY)
+        horizontal.push({
+          y: middleY,
+          left: Math.min(startX, endX),
+          right: Math.max(startX, endX),
+        });
       expect(startY).not.toBeNaN();
     }
     const duplicates = horizontal.filter((segment, index) =>
@@ -2775,6 +2783,7 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
               4,
         ),
     );
+    expect(horizontal).toHaveLength(1);
     expect(duplicates).toEqual([]);
   });
 
