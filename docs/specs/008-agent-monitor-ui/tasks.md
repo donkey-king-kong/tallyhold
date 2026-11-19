@@ -105,7 +105,7 @@ Zack approved the real-data smoke amendment on 2026-11-19. Track B uses
   parser/presentation pipeline, run it against the main checkout's shared log,
   and regenerate committed wide/narrow previews from the expanded sanitized
   fixture.
-- [ ] **Verification and handoff:** Run all existing checks, package, adapter
+- [x] **Verification and handoff:** Run all existing checks, package, adapter
   tests, benchmarks, committed preview guards, and the four local real-data
   captures. Push commits and stop for Zack without reinstalling or opening a
   PR.
