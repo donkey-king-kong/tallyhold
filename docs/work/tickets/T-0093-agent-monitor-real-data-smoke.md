@@ -12,7 +12,7 @@
 - Branch / worktree: `feature/008-agent-monitor-ui` / `../tallyhold-feature-008-agent-monitor-ui`
 - Worktree path: `../tallyhold-feature-008-agent-monitor-ui`
 - Issue / PR: related #44; no PR requested
-- Updated: 2026-11-19T02:20:59Z
+- Updated: 2026-11-19T02:22:16Z
 
 ## Scope
 
@@ -37,12 +37,12 @@ reinstall the VSIX or open a PR.
 
 ## Checkpoint
 
-- Last completed action: verified six focused RED failures at `a0d0804`, 125 unaffected tests, 30 adapter tests, and lint/format/typecheck.
+- Last completed action: pushed and remotely verified RED handoff `b728a9325ac98e8afaac5edf763055e9322e0318`.
 - Evidence: [RED run](../../specs/008-agent-monitor-ui/red-test-run.md) records commands, counts, first failures, and AC16/plan mappings; the browser guard reaches the production bundle and rejects the old navigator width.
-- Worktree state: RED tests are committed through `a0d0804`; evidence and this tracking checkpoint are modified.
-- Remaining work: commit/push RED evidence, independent review, GREEN, real preview, verification, and handoff.
+- Worktree state: clean synchronized remote RED handoff; round-1 reviewer dispatch is pending for base `937ac4f` and head `b728a93`.
+- Remaining work: independent review, GREEN, real preview, verification, and handoff.
 - Blocker / unblock action: production changes blocked until fresh RED approval.
-- Next action: commit and push the RED evidence, verify the remote head, then dispatch fresh RED review round 1.
+- Next action: commit/push this pre-dispatch checkpoint, then launch a fresh Trae RED Reviewer with only permitted inputs.
 - Handoff recipient: fresh RED Reviewer after pushed RED evidence.
 
 ## History
@@ -53,3 +53,4 @@ reinstall the VSIX or open a PR.
 | 2026-11-19T02:09:17Z | R-0095/coordinator | Recorded Zack's four decisions as approved spec/plan amendments and added ordered correction tasks | Commit the amendment checkpoint, then write RED guards |
 | 2026-11-19T02:14:09Z | R-0095/coordinator | Added sanitized DOM, Playwright, fixture, and CLI contract guards; production remains unchanged | Commit tests, then prove RED and unaffected checks separately |
 | 2026-11-19T02:20:59Z | R-0095/test-writer | Verified six intended RED failures, 125 unaffected passes, browser RED, static checks, and 30 adapter passes at `a0d0804` | Commit/push evidence and tracking, then dispatch fresh RED review |
+| 2026-11-19T02:22:16Z | R-0095/coordinator | Pushed and remotely verified RED handoff `b728a93` against base `937ac4f`; round-1 reviewer is pending | Freeze the reviewed snapshot and dispatch a fresh Trae RED Reviewer |
