@@ -2,7 +2,7 @@
 
 ## Assignment
 
-- Status: in_progress
+- Status: done
 - Owner actor: R-0096/coordinator
 - Role: coordinator / Implementer
 - Run: [R-0096](../runs/R-0096.md), after [R-0095](../runs/R-0095.md)
@@ -12,7 +12,7 @@
 - Branch / worktree: `feature/008-agent-monitor-ui` / `../tallyhold-feature-008-agent-monitor-ui`
 - Worktree path: `../tallyhold-feature-008-agent-monitor-ui`
 - Issue / PR: related #44; no PR requested
-- Updated: 2026-11-19T07:55:47Z
+- Updated: 2026-11-19T07:57:55Z
 
 ## Scope
 
@@ -29,24 +29,24 @@ paths. Do not reinstall the extension or open a PR.
 - [x] Decisions d-g are recorded as approved Feature 008 amendments.
 - [x] Synthetic guards fail for the missing behavior and receive fresh RED approval.
 - [x] P1-P8 are corrected without deviations.
-- [ ] All checks and new guards pass; fixture previews are committed and pushed.
+- [x] All checks and new guards pass; fixture previews are committed and pushed.
 - [x] Four ignored real-data previews are regenerated and visually checked.
 
 ## Checkpoint
 
-- Last completed action: implemented P1-P8, regenerated fixture and private
-  previews, and visually checked all six images.
+- Last completed action: committed and pushed the verified P1-P8 implementation
+  and regenerated fixture previews at `ad1069a`.
 - Evidence: 138 extension tests pass with 95.33% statement and 96.94% line
   coverage; browser layout checks pass at both widths; lint, formatting,
   typecheck, benchmark, package, and 30 adapter tests pass. The VSIX excludes
   `.preview-real`; packaging retains the pre-existing missing-LICENSE warning.
-- Worktree state: implementation, fixture previews, tasks, and this checkpoint
-  are ready to commit. Four real-data previews and all generated build,
-  benchmark, coverage, and package outputs remain ignored.
-- Remaining work: commit and push implementation and fixture previews, then
-  record the resulting SHA and stop for Zack.
+- Worktree state: implementation and fixture previews are pushed. Four
+  real-data previews and all generated build, benchmark, coverage, and package
+  outputs remain ignored.
+- Remaining work: none in the authorized scope; stop for Zack's review.
 - Blocker / unblock action: none.
-- Next action: commit and push the verified GREEN implementation.
+- Next action: Zack reviews `ad1069a` and the four local real-data previews
+  before deciding whether to authorize reinstall or PR work.
 - Handoff recipient: Zack after completed verification.
 
 ## History
@@ -63,3 +63,4 @@ paths. Do not reinstall the extension or open a PR.
 | 2026-11-19T07:12:31Z | R-0096/test-writer | Proved the shared absolute/relative/implicit SVG parser and cumulative RED | Commit correction, rerun at pinned SHA, enter GREEN |
 | 2026-11-19T07:15:17Z | R-0096/test-writer | Recorded exact-revision evidence for `744771b` and handed GREEN to Implementer | Commit and push evidence, implement P1-P8 |
 | 2026-11-19T07:55:47Z | R-0096/coordinator | Verified P1-P8 and visually checked two fixture plus four ignored real-data previews | Commit and push verified GREEN; record SHA |
+| 2026-11-19T07:57:55Z | R-0096/coordinator | Pushed verified GREEN and fixture previews at `ad1069a` | Stop for Zack; no reinstall or PR |
