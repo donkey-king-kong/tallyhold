@@ -368,3 +368,51 @@ The executable preview test reports the missing npm command through a normal
 status assertion. Its temporary paths and npm diagnostic path are omitted from
 this public evidence. It cleans all synthetic JSONL and output files in a
 `finally` block and does not touch `.preview-real/`.
+
+## Real-data preview round 2 correction
+
+Zack's 2026-11-19 review approved decisions d-g and P1-P8 corrections at
+reviewed base `7ccf2b8`. Amendment commit `3f2c422`; synthetic RED commits
+`b51dc8a`, `018b8fd`, and `440adb1`. No production source, stylesheet, private
+stream, real screenshot, local path, dependency, adapter, or publisher file
+changed in those RED commits.
+
+At exact executable revision `440adb1`:
+
+| Command | Exit | Result |
+| --- | ---: | --- |
+| `npm test -- --run test/webview.test.ts` | 1 (expected) | 137 tests collected: 133 passed and four new DOM cases failed for task-independent registration, human-only summary/latest duration, reconciled identity counts, and narrow navigator height. The connector guard passed on its unit fixture. |
+| `npx vitest run test/webview.test.ts -t 'treats current\|uses latest\|reconciles recent\|draws no overlapping\|caps the narrow'` | 1 (expected) | Four missing-behavior failures, one connector guard pass, and 54 skips. |
+| `npm run test:preview-layout` | 1 (expected) | The production bundle rendered and the first new browser guard failed with `preview-wide.png: graph is not fitted, top-anchored, and centered after All runs`. Later guards cover initial and both range states at both widths, one nonduplicated bus, raw-root/card-name exclusion, human-only summaries, and card/navigator duration equality. |
+| `npx vitest run test/core.test.ts` | 0 | All 23 unaffected parser/reconciler controls passed. |
+| `npm run lint` | 0 | ESLint passed. |
+| `npm run typecheck` | 0 | TypeScript passed. |
+| `npx prettier --check test/webview.test.ts scripts/capture-preview.ts` | 0 | Changed RED TypeScript uses repository formatting. |
+
+The sanitized fixture changes one lane root to a human task, uses one legacy
+unhashed child prefix, and reports one unmatched raw tool-start event. The
+expected renderer must hide root metadata independent of task, shorten both
+prefix formats, show `Running tool`, use compact run badges, and keep card and
+navigator duration strings identical. The fixture contains no private IDs or
+records.
+
+### AC16 round-2 mapping
+
+| Finding | Public RED seam and first missing behavior |
+| --- | --- |
+| P1 fitted viewport | `capture-preview.ts` checks the visible card/header union against the canvas after initial load, All runs, and Last 24 hours at both capture widths. It first fails after All runs. |
+| P2 duplicate bus | `webview.test.ts: draws no overlapping near-duplicate horizontal bus segments` and the browser guard require one above-lane horizontal segment set and reject overlapping segments within 4px. The unit fixture passes; production multi-lane verification remains in the browser guard after P1 is corrected. |
+| P3 registration/prefix leaks | `webview.test.ts: treats current and legacy lane roots as metadata regardless of task` first finds a human-task root card. Later assertions hide an empty lane and shorten current and legacy prefixes. |
+| P4 raw summaries | `webview.test.ts: uses latest-run duration and human-only summary on card and navigator` first receives `tool_call_start` instead of `Running tool`; it also requires an empty slot when only raw event text exists. |
+| P5 truncation/badges | The same DOM case requires middle ellipsis, preserved `· r2`, compact `×2`, and no navigator `current`; the browser fixture requires compact `×5`. |
+| P6 duration/counts | The duration case requires matching latest-run `1h 0m` values. `reconciles recent older and all-runs identity counts` first receives one recent identity instead of two, then requires one older identity and three all-run identities. |
+| P7 lane labels | The registration case requires `UNASSIGNED`, `WORKTREE`, and `WORKTREE` rather than slug eyebrows; the browser guard also requires `MAIN CHECKOUT`. |
+| P8 narrow navigator | `webview.test.ts: caps the narrow navigator at two-fifths of the viewport` finds the existing fixed 320px cap instead of `40vh` with independent scrolling. |
+
+All diagnosis output remained outside the repository. The live-stream
+diagnosis found 34 non-anchor identities: current task-gated registration
+excluded two hashed roots and counted 32 agents, while root-ID registration
+also excludes two legacy roots. The observed `Older runs · 39 agents` was 26
+older execution intervals plus 13 orchestrator intervals, whereas the footer
+counted 32 non-orchestrator identities. RED review must assess the sanitized
+public seams only.

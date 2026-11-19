@@ -117,7 +117,7 @@ previews at `7ccf2b8`. Track B uses
 [T-0094](../../work/tickets/T-0094-agent-monitor-real-data-round2.md) and
 [R-0096](../../work/runs/R-0096.md).
 
-- [ ] **Diagnosis and amendment:** Run the production parser against the shared
+- [x] **Diagnosis and amendment:** Run the production parser against the shared
   stream, explain registration leaks and count disagreement without committing
   private data, and record the approved spec/plan amendments.
 - [ ] **RED:** Add synthetic presentation, DOM, and production-bundle guards

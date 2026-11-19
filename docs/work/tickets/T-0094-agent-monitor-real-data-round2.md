@@ -12,7 +12,7 @@
 - Branch / worktree: `feature/008-agent-monitor-ui` / `../tallyhold-feature-008-agent-monitor-ui`
 - Worktree path: `../tallyhold-feature-008-agent-monitor-ui`
 - Issue / PR: related #44; no PR requested
-- Updated: 2026-11-19T04:08:11Z
+- Updated: 2026-11-19T05:08:30Z
 
 ## Scope
 
@@ -34,18 +34,18 @@ paths. Do not reinstall the extension or open a PR.
 
 ## Checkpoint
 
-- Last completed action: completed the production-parser diagnosis and recorded
-  approved decisions d-g in the spec, plan, and tasks.
-- Evidence: two legacy root identities leak because task-gated registration
-  misses them. The all-runs footer counts 32 non-anchor identities while the
-  older row sums 26 older runs plus 13 orchestrator runs and labels 39 as
-  agents.
-- Worktree state: amendment and tracking files are uncommitted; private
-  diagnosis artifacts remain outside the repository.
-- Remaining work: add RED guards, obtain RED approval, implement, verify,
-  commit, and push.
+- Last completed action: committed focused synthetic RED guards and proved
+  missing behavior plus an unaffected parser control.
+- Evidence: RED revisions `b51dc8a`, `018b8fd`, and `440adb1`; four focused DOM
+  failures, production-preview Fit-all failure, 23 passing parser controls,
+  and passing lint/type/format checks are recorded in `red-test-run.md`.
+- Worktree state: RED evidence and tracking are uncommitted; private diagnosis
+  artifacts remain outside the repository.
+- Remaining work: push RED evidence, obtain fresh RED approval, implement,
+  verify, commit, and push.
 - Blocker / unblock action: none.
-- Next action: add synthetic RED guards for P1-P8 without changing production.
+- Next action: commit and push RED evidence, then dispatch a fresh independent
+  RED Reviewer.
 - Handoff recipient: Zack after completed verification.
 
 ## History
@@ -54,3 +54,4 @@ paths. Do not reinstall the extension or open a PR.
 | -------------------- | ------------------ | ------------------------------------------------------------------------ | --------------------------------------------- |
 | 2026-11-19T04:04:05Z | R-0096/coordinator | Created from clean synchronized `7ccf2b8` after real-preview review round 2 | Diagnose the shared stream before code changes |
 | 2026-11-19T04:08:11Z | R-0096/coordinator | Diagnosed registration and count defects; recorded approved decisions d-g   | Commit amendments, then write synthetic RED guards |
+| 2026-11-19T05:08:30Z | R-0096/test-writer | Committed and proved synthetic RED guards at `440adb1`                      | Push evidence and obtain fresh RED approval         |
