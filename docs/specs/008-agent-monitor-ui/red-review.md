@@ -107,3 +107,117 @@ not complete enough to approve.
 - Cumulative test diff: no deleted test files or removed assertions.
 
 VERDICT: CHANGES_REQUESTED
+
+## Round 2
+
+- Round: 2
+- Base: `7ccf2b8`
+- Pushed RED head: `ff84be6`
+- Executable RED revision: `cf00f04`
+- Head relation: from `cf00f04` to `ff84be6`, only
+  `docs/specs/008-agent-monitor-ui/red-test-run.md` changes within the
+  permitted feature/test evidence.
+
+### Coverage mapping
+
+| AC / plan verification item | Test evidence |
+| --- | --- |
+| 1 | `core.test.ts: last event absolute time uses last accepted record`; `webview.test.ts: header shows source session following age and stale recovery` |
+| 2 | `webview.test.ts: toolbar toggles range and last reported active without liveness claim` |
+| 3 | `webview.test.ts: wide view places three panes beside visible graph and narrow view stacks in order` |
+| 4 | Lane assignment, exact-prefix display names, root titles, lane counts, registration metadata, and registration exclusion cases in `presentation.test.ts` and `webview.test.ts` |
+| 5 | Fixed-width card, ellipsis, accessible-name, foreground, Fit all, and card-grid cases in `webview.test.ts`; production-bundle collision and containment checks |
+| 6 | `webview.test.ts: all resolved links draw one connector including cross lane and late parent`; registration-route and segment checks in `draws no overlapping near-duplicate horizontal bus segments`; production-bundle geometry checks |
+| 7 | Status/unknown-parent and failed-tool isolation cases in `webview.test.ts` |
+| 8 | Verified quiet-report threshold and advancing quiet-report cases in `presentation.test.ts` and `webview.test.ts` |
+| 9 | Verified absolute-bound, local-time, repeated-run, and future/invalid-age cases in `core.test.ts` and `presentation.test.ts` |
+| 10 | Unique tool-duration, counterpart, plain-label, ambiguity, and source-order cases in `core.test.ts` and `presentation.test.ts` |
+| 11 | Inspector/copy, clipboard denial, repeated-run selection, and run-scoped activity cases in `webview.test.ts` |
+| 12 | Older/unknown/cutoff grouping, expansion, search, reveal, and repeated-run cases in `presentation.test.ts` and `webview.test.ts` |
+| 13 | Compact footer, provisional detail, diagnostics, and keyboard/update persistence cases in `webview.test.ts` |
+| 14 | Theme contrast, keyboard, reduced-motion, disclosure/paging, type-size, and resizer cases in `webview.test.ts` and `capture-preview.ts` |
+| 15 | Protocol bounds, historical/incremental safety, camera/culling, source isolation, executable-content rejection, existing-suite evidence, and parser-backed preview privacy checks |
+| 16 / P1 | Corrected camera case requires active-filter refit; `capture-preview.ts` checks initial load, both ranges, manual-camera persistence across selection, and both active-filter transitions at wide and narrow widths. |
+| 16 / P2 | Corrected multi-lane DOM case excludes ordinary registration routes and checks one bus plus overlapping segments; `capture-preview.ts` checks production geometry. The uncovered serialization cases are detailed below. |
+| 16 / P3, P7 | `webview.test.ts: treats current and legacy lane roots as metadata regardless of task`; production fixture checks current/legacy names, empty-lane exclusion, registration routes, and lane-kind labels. |
+| 16 / P4-P6 | Corrected repeated-run expectations plus `uses latest-run duration and human-only summary on card and navigator`, `reconciles recent older and all-runs identity counts`, and production semantic checks. |
+| 16 / P8 | `webview.test.ts: caps the narrow navigator at two-fifths of the viewport` |
+
+No acceptance criterion or numbered plan verification item is wholly
+uncovered. The P2 observable decision is not adequately guarded for every
+valid SVG path serialization.
+
+### Round 1 findings addressed
+
+1. **Stale camera, badge, and duration assertions: addressed.**
+   `webview.test.ts:248-250` now requires the active-filter change to replace
+   the manual camera with a fit containing the visible far node.
+   `webview.test.ts:2260-2278` requires compact `×5` copy and the latest open
+   run's elapsed-so-far `1h 0m` duration.
+2. **Active-filter production coverage: addressed.**
+   `capture-preview.ts:72-113` moves the camera, proves selection preserves
+   it, then requires each active-filter transition to restore fitted,
+   top-anchored, horizontally centered content at both target widths.
+3. **Registration routes and full connector geometry: partially addressed.**
+   `webview.test.ts:2721-2831` uses human-task and metadata-task roots in two
+   lanes, rejects their attributed routes, requires one bus, and compares
+   collected horizontal segments. `capture-preview.ts:714-785` performs the
+   production-bundle comparison. Both segment collectors nevertheless omit
+   valid lowercase and implicit repeated path commands, so the "every
+   horizontal segment" decision remains incompletely enforced.
+
+### Findings
+
+1. **P2's corrected duplicate-segment guard still does not inspect every
+   horizontal SVG path segment.** The tokenizers at
+   `webview.test.ts:2789-2817` and `capture-preview.ts:744-773` recognize only
+   uppercase `M/L/H/V/Z`, and their loops require each coordinate group to
+   carry a new command. Valid relative paths such as
+   `m 0 0 h 100 v 20 h -100` and valid implicit repeated coordinate groups
+   are therefore ignored by the overlap collector. The separate production
+   orthogonality parser accepts lowercase commands, so a plausible renderer
+   can emit two overlapping relative orthogonal routes and pass both the
+   orthogonality and duplicate-segment checks. Use one SVG path parser for the
+   DOM and browser guards that resolves absolute/relative coordinates and
+   implicit command repetition, and add an adversarial relative-path fixture.
+
+### Checklist
+
+1. **Acceptance and plan coverage: finding.** AC1-AC16 and verification items
+   1-16 have named cases, but AC16/P2's every-segment overlap decision is only
+   partially enforced for SVG path syntax.
+2. **Observable plan decisions: finding.** Camera reset, latest-run duration,
+   compact badges, registration rejection, ordering, counts, limits, and
+   narrow sizing are asserted. The P2 four-pixel overlap rule can be bypassed
+   by the valid path serializations in Finding 1. This amendment adds no error
+   code or concurrency behavior.
+3. **Trustworthy RED failures: none.** At exact executable revision
+   `cf00f04`, the independent focused run collected 59 cases: seven failed on
+   retained camera, verbose badge, task-gated registration, raw tool summary,
+   identity undercount, registration-root route, and fixed narrow height; 52
+   were skipped. The production bundle rendered and failed on unfitted wide
+   All-runs content. These are missing behaviors, not collection, dependency,
+   fixture, setup, or network failures.
+4. **Behavioral and adversarial assertions: finding.** Tests use mounted DOM
+   and production-browser interfaces with synthetic data and reject the
+   previously identified wrong implementations. Finding 1 describes a
+   plausible duplicate-route implementation that still passes.
+5. **Infrastructure and privacy: none.** All inputs are synthetic and local.
+   Vitest/JSDOM and Playwright run offline with no real stream, secret,
+   external service, network request, paid resource, or persistent private
+   output.
+6. **Existing suite and weakening: none.** The cumulative extension diff adds
+   602 lines and removes 11, deletes no test file, and the removed assertions
+   are the approved stale expectations. The independent unaffected run passed
+   130 tests across five files with exactly the seven focused cases skipped.
+   `git diff --check 7ccf2b8..ff84be6` passed.
+
+### Required correction
+
+1. Parse and compare every horizontal segment from valid absolute or relative
+   `M/L/H/V/Z` paths, including implicit repeated coordinate groups, in both
+   the DOM and production-bundle guards. Add an adversarial relative-path case
+   that would fail if two segments overlap within the approved four-pixel
+   tolerance.
+
+VERDICT: CHANGES_REQUESTED
