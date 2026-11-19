@@ -12,7 +12,7 @@
 - Branch / worktree: `feature/008-agent-monitor-ui` / `../tallyhold-feature-008-agent-monitor-ui`
 - Worktree path: `../tallyhold-feature-008-agent-monitor-ui`
 - Issue / PR: related #44; no PR requested
-- Updated: 2026-11-19T05:08:30Z
+- Updated: 2026-11-19T05:14:33Z
 
 ## Scope
 
@@ -34,18 +34,18 @@ paths. Do not reinstall the extension or open a PR.
 
 ## Checkpoint
 
-- Last completed action: committed focused synthetic RED guards and proved
-  missing behavior plus an unaffected parser control.
-- Evidence: RED revisions `b51dc8a`, `018b8fd`, and `440adb1`; four focused DOM
-  failures, production-preview Fit-all failure, 23 passing parser controls,
-  and passing lint/type/format checks are recorded in `red-test-run.md`.
-- Worktree state: RED evidence and tracking are uncommitted; private diagnosis
-  artifacts remain outside the repository.
-- Remaining work: push RED evidence, obtain fresh RED approval, implement,
-  verify, commit, and push.
+- Last completed action: fresh RED review round 1 returned
+  `CHANGES_REQUESTED`.
+- Evidence: [round-1 report](../../specs/008-agent-monitor-ui/red-review.md)
+  and [identical commit comment](https://github.com/donkey-king-kong/tallyhold/commit/262969e4d9d3fbfa58a94d2bcaeb90712215228f#commitcomment-210786321)
+  cover pushed RED head `262969e`.
+- Worktree state: reviewer report and tracking are uncommitted; production is
+  unchanged and private diagnosis remains outside the repository.
+- Remaining work: correct the three RED findings, rerun/push evidence, obtain
+  final fresh RED approval, implement, verify, commit, and push.
 - Blocker / unblock action: none.
-- Next action: commit and push RED evidence, then dispatch a fresh independent
-  RED Reviewer.
+- Next action: commit the round-1 report, then correct only its three RED
+  findings.
 - Handoff recipient: Zack after completed verification.
 
 ## History
@@ -55,3 +55,4 @@ paths. Do not reinstall the extension or open a PR.
 | 2026-11-19T04:04:05Z | R-0096/coordinator | Created from clean synchronized `7ccf2b8` after real-preview review round 2 | Diagnose the shared stream before code changes |
 | 2026-11-19T04:08:11Z | R-0096/coordinator | Diagnosed registration and count defects; recorded approved decisions d-g   | Commit amendments, then write synthetic RED guards |
 | 2026-11-19T05:08:30Z | R-0096/test-writer | Committed and proved synthetic RED guards at `440adb1`                      | Push evidence and obtain fresh RED approval         |
+| 2026-11-19T05:14:33Z | R-0096/coordinator | Fresh RED round 1 requested three test corrections for pushed `262969e`    | Record report, correct findings, dispatch round 2   |
