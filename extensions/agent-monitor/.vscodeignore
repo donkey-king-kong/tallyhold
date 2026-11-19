@@ -1,6 +1,7 @@
 .agent-flow/**
 .benchmark/**
 .preview/**
+.preview-real/**
 .env
 .env.*
 .gitignore

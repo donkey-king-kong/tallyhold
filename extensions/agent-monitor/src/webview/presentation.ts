@@ -42,6 +42,14 @@ export type Run = {
   chronology: "current" | "older" | "unknown";
 };
 
+export type LatestRunPresentation = {
+  interval: Interval;
+  index: number;
+  activities: Activity[];
+  duration: string;
+  summary: string;
+};
+
 export function validInstant(value: unknown): Date | null {
   if (typeof value !== "string" || !/^\d{4}-\d\d-\d\dT/.test(value))
     return null;
@@ -203,12 +211,111 @@ export function activityDescription(activity: Activity): string {
   return `${label} · ${summary}`;
 }
 
-export function displayName(id: string, laneSlug: string | null): string {
-  const prefix = `wt-${laneSlug}-`;
-  const shortened =
-    laneSlug && id.startsWith(prefix) && id.length > prefix.length
-      ? id.slice(prefix.length)
-      : id;
+function activitiesForInterval(
+  node: ProjectedNode,
+  interval: Interval,
+): Activity[] {
+  const start = validInstant(interval.startAbsoluteTime);
+  const end = validInstant(interval.endAbsoluteTime);
+  return (node.activities ?? []).filter((activity) => {
+    const instant = validInstant(activity.absoluteTime);
+    if (instant)
+      return (!start || instant >= start) && (!end || instant <= end);
+    return (
+      (interval.start == null ||
+        activity.time == null ||
+        activity.time >= interval.start) &&
+      (interval.end == null ||
+        activity.time == null ||
+        activity.time <= interval.end)
+    );
+  });
+}
+
+function humanSummary(activities: Activity[]): string {
+  const rawEventType = /^(?:agent|tool|subagent|permission)_[a-z_]+$/;
+  for (const activity of [...activities].reverse()) {
+    if (activity.type === "tool_call_start" && activity.pairing !== "paired")
+      return "Running tool";
+    const summary = activity.summary?.trim() ?? "";
+    if (summary && summary !== activity.type && !rawEventType.test(summary))
+      return summary;
+  }
+  return "";
+}
+
+export function latestRunPresentation(
+  node: ProjectedNode,
+  now: number,
+  elapsed = 0,
+): LatestRunPresentation {
+  const intervals = node.intervals?.length ? node.intervals : [{}];
+  const index = intervals.length - 1;
+  const interval = intervals[index];
+  const activities = activitiesForInterval(node, interval);
+  const start = validInstant(interval.startAbsoluteTime);
+  const end = validInstant(interval.endAbsoluteTime);
+  const lastActivity = [...activities]
+    .reverse()
+    .map((activity) => validInstant(activity.absoluteTime))
+    .find((instant): instant is Date => instant != null);
+  const anchoredNow =
+    lastActivity && node.lastUpdateAge != null && node.lastUpdateAge >= 0
+      ? lastActivity.getTime() + (node.lastUpdateAge + elapsed) * 1000
+      : now;
+  const effectiveNow =
+    Math.abs(now - anchoredNow) > 30 * 24 * 60 * 60 * 1000 ? anchoredNow : now;
+  let runDuration = "Time unavailable";
+  if (start && end && end >= start)
+    runDuration = duration((end.getTime() - start.getTime()) / 1000);
+  else if (start && interval.end == null && effectiveNow >= start.getTime())
+    runDuration = duration((effectiveNow - start.getTime()) / 1000);
+  else if (
+    interval.start != null &&
+    interval.end != null &&
+    interval.end >= interval.start
+  )
+    runDuration = duration(interval.end - interval.start);
+  else if (
+    interval.start != null &&
+    interval.end == null &&
+    node.lastUpdateAge != null &&
+    node.lastUpdateAge >= 0
+  )
+    runDuration = duration(node.lastUpdateAge + elapsed);
+  else if (interval.start != null && interval.end == null) {
+    const latestRelative = Math.max(
+      interval.start,
+      ...activities.flatMap((activity) =>
+        activity.time == null ? [] : [activity.time],
+      ),
+    );
+    runDuration = duration(latestRelative - interval.start);
+  }
+  return {
+    interval,
+    index,
+    activities,
+    duration: runDuration,
+    summary: humanSummary(activities),
+  };
+}
+
+export function displayName(id: string, laneRoot: string | null): string {
+  const prefixes = laneRoot
+    ? laneRoot.startsWith("wt-")
+      ? [
+          `${laneRoot}-`,
+          ...(laneRoot.slice(3).includes("-") && !id.startsWith("wt-")
+            ? [`${laneRoot.slice(3)}-`]
+            : []),
+        ]
+      : [`${laneRoot}-`]
+    : [];
+  const prefix = prefixes.find(
+    (candidate) => id.startsWith(candidate) && id.length > candidate.length,
+  );
+  const shortened = prefix ? id.slice(prefix.length) : id;
   return shortened.replace(/-(r\d+[a-z]?)$/i, " · $1");
 }
 

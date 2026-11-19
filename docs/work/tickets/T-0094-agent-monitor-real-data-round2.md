@@ -12,7 +12,7 @@
 - Branch / worktree: `feature/008-agent-monitor-ui` / `../tallyhold-feature-008-agent-monitor-ui`
 - Worktree path: `../tallyhold-feature-008-agent-monitor-ui`
 - Issue / PR: related #44; no PR requested
-- Updated: 2026-11-19T07:15:17Z
+- Updated: 2026-11-19T07:55:47Z
 
 ## Scope
 
@@ -27,26 +27,26 @@ paths. Do not reinstall the extension or open a PR.
 
 - [x] A local parser-backed diagnosis explains P3 and the 32-versus-39 count.
 - [x] Decisions d-g are recorded as approved Feature 008 amendments.
-- [ ] Synthetic guards fail for the missing behavior and receive fresh RED approval.
-- [ ] P1-P8 are corrected or a deviation and reason are recorded.
+- [x] Synthetic guards fail for the missing behavior and receive fresh RED approval.
+- [x] P1-P8 are corrected without deviations.
 - [ ] All checks and new guards pass; fixture previews are committed and pushed.
-- [ ] Four ignored real-data previews are regenerated and visually checked.
+- [x] Four ignored real-data previews are regenerated and visually checked.
 
 ## Checkpoint
 
-- Last completed action: pinned and recorded the authorized RED correction at
-  `744771b`.
-- Evidence: the standalone relative/implicit path case passes; the cumulative
-  slice has seven expected production failures and one parser pass; all 130
-  unaffected tests pass. Lint, formatting, and typecheck pass; the production
-  preview still first fails on P1 auto-fit.
-- Worktree state: RED evidence and role-transition tracking are uncommitted;
-  production remains unchanged and private diagnosis remains outside the
-  repository.
-- Remaining work: commit and push RED evidence, then implement P1-P8.
-- Blocker / unblock action: none; Zack authorized this correction.
-- Next action: commit and push RED evidence, then start GREEN with root-based
-  identity presentation.
+- Last completed action: implemented P1-P8, regenerated fixture and private
+  previews, and visually checked all six images.
+- Evidence: 138 extension tests pass with 95.33% statement and 96.94% line
+  coverage; browser layout checks pass at both widths; lint, formatting,
+  typecheck, benchmark, package, and 30 adapter tests pass. The VSIX excludes
+  `.preview-real`; packaging retains the pre-existing missing-LICENSE warning.
+- Worktree state: implementation, fixture previews, tasks, and this checkpoint
+  are ready to commit. Four real-data previews and all generated build,
+  benchmark, coverage, and package outputs remain ignored.
+- Remaining work: commit and push implementation and fixture previews, then
+  record the resulting SHA and stop for Zack.
+- Blocker / unblock action: none.
+- Next action: commit and push the verified GREEN implementation.
 - Handoff recipient: Zack after completed verification.
 
 ## History
@@ -62,3 +62,4 @@ paths. Do not reinstall the extension or open a PR.
 | 2026-11-19T07:05:47Z | Zack / R-0096/coordinator | Authorized the one targeted post-round-2 test correction                | Correct SVG parser guard, rerun evidence, enter GREEN |
 | 2026-11-19T07:12:31Z | R-0096/test-writer | Proved the shared absolute/relative/implicit SVG parser and cumulative RED | Commit correction, rerun at pinned SHA, enter GREEN |
 | 2026-11-19T07:15:17Z | R-0096/test-writer | Recorded exact-revision evidence for `744771b` and handed GREEN to Implementer | Commit and push evidence, implement P1-P8 |
+| 2026-11-19T07:55:47Z | R-0096/coordinator | Verified P1-P8 and visually checked two fixture plus four ignored real-data previews | Commit and push verified GREEN; record SHA |

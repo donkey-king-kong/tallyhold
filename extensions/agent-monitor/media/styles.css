@@ -170,7 +170,7 @@ body {
   gap: 6px;
 }
 
-.navigator-identity-row > button:first-child {
+.navigator-identity-row > button {
   flex: 1 1 100%;
 }
 
@@ -554,7 +554,7 @@ nav input {
   background: var(--monitor-blue);
 }
 
-.navigator-identity-row > button:first-child {
+.navigator-identity-row > button {
   grid-template-columns: 18px minmax(0, 1fr) auto auto auto;
 }
 
@@ -670,7 +670,8 @@ body {
   height: 7px;
   border-radius: 50%;
   background: var(--monitor-green);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--monitor-green) 22%, transparent);
+  box-shadow: 0 0 0 2px
+    color-mix(in srgb, var(--monitor-green) 22%, transparent);
 }
 
 .monitor-header button {
@@ -839,7 +840,7 @@ body {
   white-space: nowrap;
 }
 
-.navigator-identity-row > button:first-child {
+.navigator-identity-row > button {
   display: grid;
   grid-template-columns: 18px minmax(0, 1fr) auto auto;
   align-items: center;
@@ -852,6 +853,13 @@ body {
   border-color: transparent;
   border-radius: 4px;
   background: transparent;
+}
+
+.time-unavailable-label {
+  display: block;
+  margin: 8px 6px 2px;
+  color: var(--monitor-muted);
+  font-size: 11px;
 }
 
 .navigator-agent-name {
@@ -985,10 +993,10 @@ body {
 }
 
 .monitor-graph svg {
-  width: auto;
-  height: auto;
-  min-width: 800px;
-  min-height: 700px;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
   background: transparent;
 }
 
@@ -1066,7 +1074,9 @@ body {
 .graph-nodes > g.is-selected > rect {
   stroke: var(--monitor-blue);
   stroke-width: 2;
-  filter: drop-shadow(0 2px 7px color-mix(in srgb, var(--monitor-blue) 34%, transparent));
+  filter: drop-shadow(
+    0 2px 7px color-mix(in srgb, var(--monitor-blue) 34%, transparent)
+  );
 }
 
 .graph-nodes > g[data-status="working"] {
@@ -1413,7 +1423,7 @@ body {
   .monitor-workspace {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto 520px auto;
+    grid-template-rows: auto 560px auto;
     height: auto;
     min-height: 0;
     overflow: visible;
@@ -1428,8 +1438,9 @@ body {
 
   .monitor-navigator {
     height: auto;
-    max-height: 320px;
-    overflow: auto;
+    max-height: 40vh;
+    overflow-x: hidden;
+    overflow-y: auto;
     border-inline-end: 0;
     border-block-end: 1px solid var(--monitor-border);
     padding: 10px 14px;
@@ -1464,14 +1475,14 @@ body {
   }
 
   .monitor-graph {
-    height: 520px;
+    height: 560px;
     overflow: auto;
     border-block-end: 1px solid var(--monitor-border);
   }
 
   .monitor-graph svg {
-    min-width: 800px;
-    min-height: 600px;
+    min-width: 0;
+    min-height: 0;
   }
 
   .monitor-inspector {
@@ -1516,31 +1527,81 @@ body {
 }
 
 @media (min-width: 960px) {
-  .monitor-workspace[data-navigator-width="240"] { grid-template-columns: 240px 6px minmax(0, 1fr) 360px; }
-  .monitor-workspace[data-navigator-width="250"] { grid-template-columns: 250px 6px minmax(0, 1fr) 360px; }
-  .monitor-workspace[data-navigator-width="260"] { grid-template-columns: 260px 6px minmax(0, 1fr) 360px; }
-  .monitor-workspace[data-navigator-width="270"] { grid-template-columns: 270px 6px minmax(0, 1fr) 360px; }
-  .monitor-workspace[data-navigator-width="280"] { grid-template-columns: 280px 6px minmax(0, 1fr) 360px; }
-  .monitor-workspace[data-navigator-width="290"] { grid-template-columns: 290px 6px minmax(0, 1fr) 360px; }
-  .monitor-workspace[data-navigator-width="300"] { grid-template-columns: 300px 6px minmax(0, 1fr) 360px; }
-  .monitor-workspace[data-navigator-width="310"] { grid-template-columns: 310px 6px minmax(0, 1fr) 360px; }
-  .monitor-workspace[data-navigator-width="320"] { grid-template-columns: 320px 6px minmax(0, 1fr) 360px; }
-  .monitor-workspace[data-navigator-width="330"] { grid-template-columns: 330px 6px minmax(0, 1fr) 360px; }
-  .monitor-workspace[data-navigator-width="340"] { grid-template-columns: 340px 6px minmax(0, 1fr) 360px; }
-  .monitor-workspace[data-navigator-width="350"] { grid-template-columns: 350px 6px minmax(0, 1fr) 360px; }
-  .monitor-workspace[data-navigator-width="360"] { grid-template-columns: 360px 6px minmax(0, 1fr) 360px; }
-  .monitor-workspace[data-navigator-width="370"] { grid-template-columns: 370px 6px minmax(0, 1fr) 360px; }
-  .monitor-workspace[data-navigator-width="380"] { grid-template-columns: 380px 6px minmax(0, 1fr) 360px; }
-  .monitor-workspace[data-navigator-width="390"] { grid-template-columns: 390px 6px minmax(0, 1fr) 360px; }
-  .monitor-workspace[data-navigator-width="400"] { grid-template-columns: 400px 6px minmax(0, 1fr) 360px; }
-  .monitor-workspace[data-navigator-width="410"] { grid-template-columns: 410px 6px minmax(0, 1fr) 360px; }
-  .monitor-workspace[data-navigator-width="420"] { grid-template-columns: 420px 6px minmax(0, 1fr) 360px; }
-  .monitor-workspace[data-navigator-width="430"] { grid-template-columns: 430px 6px minmax(0, 1fr) 360px; }
-  .monitor-workspace[data-navigator-width="440"] { grid-template-columns: 440px 6px minmax(0, 1fr) 360px; }
-  .monitor-workspace[data-navigator-width="450"] { grid-template-columns: 450px 6px minmax(0, 1fr) 360px; }
-  .monitor-workspace[data-navigator-width="460"] { grid-template-columns: 460px 6px minmax(0, 1fr) 360px; }
-  .monitor-workspace[data-navigator-width="470"] { grid-template-columns: 470px 6px minmax(0, 1fr) 360px; }
-  .monitor-workspace[data-navigator-width="480"] { grid-template-columns: 480px 6px minmax(0, 1fr) 360px; }
+  .monitor-workspace[data-navigator-width="240"] {
+    grid-template-columns: 240px 6px minmax(0, 1fr) 360px;
+  }
+  .monitor-workspace[data-navigator-width="250"] {
+    grid-template-columns: 250px 6px minmax(0, 1fr) 360px;
+  }
+  .monitor-workspace[data-navigator-width="260"] {
+    grid-template-columns: 260px 6px minmax(0, 1fr) 360px;
+  }
+  .monitor-workspace[data-navigator-width="270"] {
+    grid-template-columns: 270px 6px minmax(0, 1fr) 360px;
+  }
+  .monitor-workspace[data-navigator-width="280"] {
+    grid-template-columns: 280px 6px minmax(0, 1fr) 360px;
+  }
+  .monitor-workspace[data-navigator-width="290"] {
+    grid-template-columns: 290px 6px minmax(0, 1fr) 360px;
+  }
+  .monitor-workspace[data-navigator-width="300"] {
+    grid-template-columns: 300px 6px minmax(0, 1fr) 360px;
+  }
+  .monitor-workspace[data-navigator-width="310"] {
+    grid-template-columns: 310px 6px minmax(0, 1fr) 360px;
+  }
+  .monitor-workspace[data-navigator-width="320"] {
+    grid-template-columns: 320px 6px minmax(0, 1fr) 360px;
+  }
+  .monitor-workspace[data-navigator-width="330"] {
+    grid-template-columns: 330px 6px minmax(0, 1fr) 360px;
+  }
+  .monitor-workspace[data-navigator-width="340"] {
+    grid-template-columns: 340px 6px minmax(0, 1fr) 360px;
+  }
+  .monitor-workspace[data-navigator-width="350"] {
+    grid-template-columns: 350px 6px minmax(0, 1fr) 360px;
+  }
+  .monitor-workspace[data-navigator-width="360"] {
+    grid-template-columns: 360px 6px minmax(0, 1fr) 360px;
+  }
+  .monitor-workspace[data-navigator-width="370"] {
+    grid-template-columns: 370px 6px minmax(0, 1fr) 360px;
+  }
+  .monitor-workspace[data-navigator-width="380"] {
+    grid-template-columns: 380px 6px minmax(0, 1fr) 360px;
+  }
+  .monitor-workspace[data-navigator-width="390"] {
+    grid-template-columns: 390px 6px minmax(0, 1fr) 360px;
+  }
+  .monitor-workspace[data-navigator-width="400"] {
+    grid-template-columns: 400px 6px minmax(0, 1fr) 360px;
+  }
+  .monitor-workspace[data-navigator-width="410"] {
+    grid-template-columns: 410px 6px minmax(0, 1fr) 360px;
+  }
+  .monitor-workspace[data-navigator-width="420"] {
+    grid-template-columns: 420px 6px minmax(0, 1fr) 360px;
+  }
+  .monitor-workspace[data-navigator-width="430"] {
+    grid-template-columns: 430px 6px minmax(0, 1fr) 360px;
+  }
+  .monitor-workspace[data-navigator-width="440"] {
+    grid-template-columns: 440px 6px minmax(0, 1fr) 360px;
+  }
+  .monitor-workspace[data-navigator-width="450"] {
+    grid-template-columns: 450px 6px minmax(0, 1fr) 360px;
+  }
+  .monitor-workspace[data-navigator-width="460"] {
+    grid-template-columns: 460px 6px minmax(0, 1fr) 360px;
+  }
+  .monitor-workspace[data-navigator-width="470"] {
+    grid-template-columns: 470px 6px minmax(0, 1fr) 360px;
+  }
+  .monitor-workspace[data-navigator-width="480"] {
+    grid-template-columns: 480px 6px minmax(0, 1fr) 360px;
+  }
 }
 
 @media (max-width: 959px) {

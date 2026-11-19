@@ -1,10 +1,9 @@
 import {
   age,
   displayName,
-  duration as formatDuration,
+  latestRunPresentation,
   localTime,
   statusWord,
-  validInstant,
   type ProjectedNode,
 } from "./presentation";
 
@@ -19,6 +18,7 @@ type Place = {
 const NS = "http://www.w3.org/2000/svg";
 const UNASSIGNED_LANE = "unassigned";
 const UNASSIGNED_LABEL = "Unassigned (before shared stream)";
+const LANE_PITCH = 225;
 
 function svg<K extends keyof SVGElementTagNameMap>(
   name: K,
@@ -45,6 +45,19 @@ function labelLines(value: string): string[] {
 function ellipsize(value: string, maximum: number): string {
   if (maximum <= 3 && value.length > maximum) return ".".repeat(maximum);
   return value.length > maximum ? `${value.slice(0, maximum - 3)}...` : value;
+}
+
+function middleEllipsizeName(value: string, maximum: number): string {
+  if (value.length <= maximum) return value;
+  const suffix = value.match(/( · r\d+[a-z]?)$/i)?.[1] ?? "";
+  if (!suffix) return ellipsize(value, maximum);
+  const base = suffix ? value.slice(0, -suffix.length) : value;
+  const available = Math.max(3, maximum - suffix.length);
+  if (base.length <= available) return `${base}${suffix}`;
+  const kept = Math.max(0, available - 3);
+  const left = Math.ceil(kept / 2);
+  const right = Math.floor(kept / 2);
+  return `${base.slice(0, left)}...${right ? base.slice(-right) : ""}${suffix}`;
 }
 
 function slugParts(slug: string): { prefix: string; hash: string | null } {
@@ -75,6 +88,8 @@ function nodeSize(
 export class GraphLayout {
   private readonly places = new Map<string, Place>();
   private readonly laneOrder: string[] = [];
+  private readonly rootIds = new Set<string>();
+  private readonly metadataRootIds = new Set<string>();
   private readonly displayLane = new Map<string, string | null>();
   private readonly laneByNode = new Map<string, string | null>();
   private readonly nodesById = new Map<string, ProjectedNode>();
@@ -84,6 +99,8 @@ export class GraphLayout {
     this.displayLane.clear();
     this.laneByNode.clear();
     this.laneOrder.length = 0;
+    this.rootIds.clear();
+    this.metadataRootIds.clear();
     this.nodesById.clear();
   }
 
@@ -105,13 +122,27 @@ export class GraphLayout {
           ownsPrefixedIdentity ||
           ownsReportedChild) &&
         !this.laneOrder.includes(node.id)
-      )
+      ) {
         this.laneOrder.push(node.id);
+        this.rootIds.add(node.id);
+      }
+    }
+    for (const rootId of this.rootIds) {
+      const root = byId.get(rootId);
+      const slug = rootId.slice(3);
+      if (
+        root?.task === "Worktree activity" ||
+        (root?.parentId === "orchestrator" &&
+          (/^wt-.+-[0-9a-f]{8}$/.test(rootId) ||
+            slug.includes("-") ||
+            root.task?.startsWith("Coordinate ")))
+      )
+        this.metadataRootIds.add(rootId);
     }
 
     const laneFor = (node: ProjectedNode): string | null => {
       if (node.id === "orchestrator") return null;
-      if (this.laneOrder.includes(node.id)) return node.id;
+      if (this.rootIds.has(node.id)) return node.id;
       const prefixed = [...this.laneOrder]
         .sort((left, right) => right.length - left.length)
         .find((rootId) => node.id.startsWith(`${rootId}-`));
@@ -128,16 +159,37 @@ export class GraphLayout {
       return UNASSIGNED_LANE;
     };
 
+    const populatedRoots = this.laneOrder.filter((rootId) =>
+      nodes.some(
+        (node) =>
+          node.id !== rootId &&
+          !this.rootIds.has(node.id) &&
+          laneFor(node) === rootId,
+      ),
+    );
+    this.laneOrder.splice(0, this.laneOrder.length, ...populatedRoots);
     const assigned = nodes.map((node) => ({ node, lane: laneFor(node) }));
     if (
       assigned.some(
         ({ node, lane }) =>
-          node.id !== "orchestrator" && lane === UNASSIGNED_LANE,
+          node.id !== "orchestrator" &&
+          !this.rootIds.has(node.id) &&
+          lane === UNASSIGNED_LANE,
       )
     )
       this.laneOrder.unshift(UNASSIGNED_LANE);
 
     const slotCounts = new Map<string, number>();
+    const cardsPerLane = new Map<string, number>();
+    for (const { node, lane } of assigned) {
+      if (
+        node.id === "orchestrator" ||
+        this.rootIds.has(node.id) ||
+        lane == null
+      )
+        continue;
+      cardsPerLane.set(lane, (cardsPerLane.get(lane) ?? 0) + 1);
+    }
     const allocationOrder = [...nodes].sort((left, right) => {
       const leftIsRoot = this.laneOrder.includes(left.id) ? 1 : 0;
       const rightIsRoot = this.laneOrder.includes(right.id) ? 1 : 0;
@@ -145,25 +197,33 @@ export class GraphLayout {
     });
     for (const node of allocationOrder) {
       const lane = laneFor(node);
+      if (this.rootIds.has(node.id) && !this.laneOrder.includes(node.id))
+        continue;
       const slug = lane && lane !== UNASSIGNED_LANE ? lane.slice(3) : null;
       const size = nodeSize(node, lane ? (slug ?? UNASSIGNED_LANE) : null);
-      const registration = isRegistrationNode(node, this.laneOrder);
+      const registration = isRegistrationNode(node, [...this.metadataRootIds]);
       const metadataOnly =
         registration || (this.laneOrder.includes(node.id) && !node.status);
       let x: number;
       let y: number;
       if (node.id === "orchestrator") {
-        const lanesWidth = Math.max(220, this.laneOrder.length * 250 - 30);
+        const lanesWidth = Math.max(
+          220,
+          this.laneOrder.length * LANE_PITCH - 5,
+        );
         x = 80 + lanesWidth / 2 - size.width / 2;
         y = 20;
       } else {
         const laneIndex = Math.max(0, this.laneOrder.indexOf(lane ?? ""));
-        x = 80 + laneIndex * 250;
+        x = 80 + laneIndex * LANE_PITCH;
         y = metadataOnly
           ? 150
           : (slotCounts.get(lane ?? UNASSIGNED_LANE) ?? 260);
-        if (!metadataOnly)
-          slotCounts.set(lane ?? UNASSIGNED_LANE, y + size.height + 22);
+        if (!metadataOnly) {
+          const gap =
+            (cardsPerLane.get(lane ?? UNASSIGNED_LANE) ?? 0) >= 5 ? 0 : 22;
+          slotCounts.set(lane ?? UNASSIGNED_LANE, y + size.height + gap);
+        }
       }
       this.places.set(`${node.id}\0${0}`, {
         x,
@@ -210,17 +270,55 @@ export class GraphLayout {
     const places = nodes
       .map((node) => this.place(node.id))
       .filter((place): place is Place => Boolean(place));
-    const sourcePlaces = nodes.flatMap((node) =>
-      node.position
-        ? [{ ...node.position, ...nodeSize(node, this.lane(node.id)) }]
-        : [],
-    );
+    const sourcePlaces =
+      this.rootIds.size === 0
+        ? nodes.flatMap((node) =>
+            node.position
+              ? [{ ...node.position, ...nodeSize(node, this.lane(node.id)) }]
+              : [],
+          )
+        : [];
     const bounds = [...places, ...sourcePlaces];
     const minX = Math.min(0, ...bounds.map((place) => place.x));
     const minY = Math.min(0, ...bounds.map((place) => place.y));
     const maxX = Math.max(0, ...bounds.map((place) => place.x + place.width));
     const maxY = Math.max(0, ...bounds.map((place) => place.y + place.height));
     return `${minX} ${minY} ${Math.max(800, maxX - minX)} ${Math.max(600, maxY - minY)}`;
+  }
+
+  fit(
+    nodes: ProjectedNode[],
+    viewportWidth: number,
+    viewportHeight: number,
+  ): string {
+    if (!nodes.length) return "0 0 800 600";
+    const places = nodes
+      .map((node) => this.place(node.id))
+      .filter((place): place is Place => Boolean(place));
+    const sourcePlaces =
+      this.rootIds.size === 0
+        ? nodes.flatMap((node) =>
+            node.position
+              ? [{ ...node.position, ...nodeSize(node, this.lane(node.id)) }]
+              : [],
+          )
+        : [];
+    const bounds = [...places, ...sourcePlaces];
+    if (!bounds.length) return "0 0 800 600";
+    const padding = 0;
+    const minX = Math.min(...bounds.map((place) => place.x));
+    const minY = Math.min(...bounds.map((place) => place.y));
+    const maxX = Math.max(...bounds.map((place) => place.x + place.width));
+    const maxY = Math.max(...bounds.map((place) => place.y + place.height));
+    const paneWidth = Math.max(1, viewportWidth || 800);
+    const paneHeight = Math.max(1, viewportHeight || 600);
+    const ratio = paneWidth / paneHeight;
+    let width = Math.max(paneWidth, maxX - minX + padding * 2);
+    let height = Math.max(paneHeight, maxY - minY + padding * 2);
+    if (width / height < ratio) width = height * ratio;
+    else height = width / ratio;
+    const x = (minX + maxX) / 2 - width / 2;
+    return `${x} ${minY - padding} ${width} ${height}`;
   }
 
   contentBounds(): { right: number; bottom: number } {
@@ -234,13 +332,17 @@ export class GraphLayout {
   laneRoots(): string[] {
     return [...this.laneOrder];
   }
+
+  registrationRoots(): string[] {
+    return [...this.metadataRootIds];
+  }
 }
 
 export function isRegistrationNode(
   node: ProjectedNode,
   laneRoots: string[],
 ): boolean {
-  return laneRoots.includes(node.id) && node.task === "Worktree activity";
+  return laneRoots.includes(node.id);
 }
 
 function icon(group: SVGGElement, status: string, x: number, y: number): void {
@@ -365,6 +467,7 @@ export function drawGraph(
   const edgeLayer = svg("g");
   edgeLayer.setAttribute("class", "graph-edges");
   const valid = validEdges(nodes, edges);
+  const registrationRoots = layout.registrationRoots();
   const laneRoots = layout
     .laneRoots()
     .filter((rootId) =>
@@ -374,7 +477,7 @@ export function drawGraph(
     ? layout.place("orchestrator")
     : undefined;
   if (orchestrator && laneRoots.length) {
-    const centers = laneRoots.map((_, index) => 80 + index * 250 + 110);
+    const centers = laneRoots.map((_, index) => 80 + index * LANE_PITCH + 110);
     const busY = 120;
     const bus = svg("g");
     bus.dataset.connectorBus = "";
@@ -419,13 +522,14 @@ export function drawGraph(
       .filter(
         (node) =>
           node.id !== "orchestrator" &&
+          node.id !== rootId &&
           layout.laneKey(node.id) === rootId &&
-          !isRegistrationNode(node, layout.laneRoots()),
+          !isRegistrationNode(node, registrationRoots),
       )
       .map((node) => ({ node, place: layout.place(node.id)! }))
       .filter(({ place }) => Boolean(place));
     if (!cards.length) continue;
-    const railX = 80 + laneRoots.indexOf(rootId) * 250;
+    const railX = 80 + laneRoots.indexOf(rootId) * LANE_PITCH;
     const railTop = 244;
     const railBottom = Math.max(
       ...cards.map(({ place }) => place.y + place.height / 2),
@@ -439,8 +543,20 @@ export function drawGraph(
     rail.setAttribute("fill", "currentColor");
     rail.setAttribute("stroke", "none");
     edgeLayer.append(rail);
-    for (const { place } of cards) {
+    for (const { node, place } of cards) {
       const tick = svg("line");
+      const attributed = valid.find(
+        (edge) => edge.parentId === rootId && edge.childId === node.id,
+      );
+      const rootUsesTicks =
+        registrationRoots.includes(rootId) ||
+        !nodes.find((candidate) => candidate.id === rootId)?.parentId;
+      if (attributed && rootUsesTicks) {
+        tick.dataset.edge = `${attributed.parentId}:${attributed.childId}`;
+        tick.dataset.parentId = attributed.parentId;
+        tick.dataset.childId = attributed.childId;
+      }
+      tick.dataset.laneTick = rootId;
       tick.setAttribute("x1", String(railX));
       tick.setAttribute("x2", String(place.x + 12));
       tick.setAttribute("y1", String(place.y + place.height / 2));
@@ -451,13 +567,26 @@ export function drawGraph(
   }
   for (const edge of valid) {
     if (!ids.has(edge.parentId) || !ids.has(edge.childId)) continue;
+    if (
+      edge.parentId === "orchestrator" &&
+      layout.laneRoots().includes(edge.childId) &&
+      registrationRoots.length
+    )
+      continue;
+    if (registrationRoots.includes(edge.childId)) continue;
+    const lane = layout.laneKey(edge.childId);
+    const laneRoot = lane
+      ? nodes.find((candidate) => candidate.id === lane)
+      : undefined;
+    if (
+      lane &&
+      edge.parentId === lane &&
+      (registrationRoots.includes(edge.parentId) || !laneRoot?.parentId)
+    )
+      continue;
     const parent = layout.place(edge.parentId)!;
     const child = layout.place(edge.childId)!;
     const route = attributedRoute(edge, parent, child);
-    const lane = layout.laneKey(edge.childId);
-    const childNode = nodes.find((node) => node.id === edge.childId);
-    if (lane && childNode && !isRegistrationNode(childNode, layout.laneRoots()))
-      route.dataset.laneTick = lane;
     edgeLayer.append(route);
   }
   svgRoot.append(edgeLayer);
@@ -466,7 +595,7 @@ export function drawGraph(
   for (const [laneIndex, rootId] of layout.laneRoots().entries()) {
     const node = nodes.find((item) => item.id === rootId);
     const place = layout.place(rootId) ?? {
-      x: 80 + laneIndex * 250,
+      x: 80 + laneIndex * LANE_PITCH,
       y: 150,
       width: 220,
       height: 64,
@@ -478,7 +607,7 @@ export function drawGraph(
       (item) =>
         item.id !== "orchestrator" &&
         layout.laneKey(item.id) === rootId &&
-        !isRegistrationNode(item, layout.laneRoots()),
+        !isRegistrationNode(item, registrationRoots),
     );
     const priority = ["Working", "Waiting", "Failed", "Blocked", "Completed"];
     const laneStatus =
@@ -525,7 +654,11 @@ export function drawGraph(
       rootId === UNASSIGNED_LANE ? UNASSIGNED_LABEL : rootId.slice(3);
     const { prefix, hash } = slugParts(slug);
     label.textContent =
-      rootId === UNASSIGNED_LANE ? "Unassigned" : ellipsize(prefix, 20);
+      rootId === UNASSIGNED_LANE
+        ? "UNASSIGNED"
+        : rootId === "wt-main"
+          ? "MAIN CHECKOUT"
+          : "WORKTREE";
     header.append(label);
     const fullLabel = svg("title");
     fullLabel.textContent =
@@ -584,11 +717,11 @@ export function drawGraph(
   const nodeLayer = svg("g");
   nodeLayer.setAttribute("class", "graph-nodes");
   for (const node of visible) {
-    if (isRegistrationNode(node, layout.laneRoots())) continue;
+    if (isRegistrationNode(node, registrationRoots)) continue;
     if (layout.laneRoots().includes(node.id) && !node.status) continue;
     const place = layout.place(node.id);
     if (!place) continue;
-    const latestIndex = Math.max(0, (node.intervals?.length ?? 1) - 1);
+    const latest = latestRunPresentation(node, Date.now(), elapsed);
     const group = svg("g");
     group.dataset.nodeId = node.id;
     group.dataset.nodeCard = node.id;
@@ -620,30 +753,10 @@ export function drawGraph(
     label.setAttribute("x", String(place.x + 38));
     label.setAttribute("y", String(place.y + 25));
     label.setAttribute("class", "agent-name");
-    const display = displayName(node.id, place.lane);
+    const display = displayName(node.id, layout.laneKey(node.id));
     const runCount = Math.max(1, node.intervals?.length ?? 0);
-    const latestInterval = node.intervals?.[latestIndex];
-    const start = validInstant(latestInterval?.startAbsoluteTime);
-    const end = validInstant(latestInterval?.endAbsoluteTime);
-    const latestActivities = (node.activities ?? []).filter((activity) => {
-      const instant = validInstant(activity.absoluteTime);
-      return (
-        !start || !instant || (instant >= start && (!end || instant <= end))
-      );
-    });
-    const lastActivity = [...latestActivities]
-      .reverse()
-      .find((activity) => validInstant(activity.absoluteTime));
-    const last = validInstant(lastActivity?.absoluteTime);
-    const durationText =
-      start && (end ?? last) && (end ?? last)! >= start
-        ? formatDuration(
-            ((end ?? last)!.getTime() - start.getTime()) / 1000,
-          ).replace(/ 0s$/, "")
-        : node.lastUpdateAge == null
-          ? "—"
-          : age(node.lastUpdateAge + elapsed);
-    const badgeText = runCount > 1 ? `×${runCount} runs` : "";
+    const durationText = latest.duration;
+    const badgeText = runCount > 1 ? `×${runCount}` : "";
     const reservedRowOne =
       durationText.length * 7 + (badgeText ? badgeText.length * 7 + 10 : 0);
     const nameCharacters = Math.max(
@@ -651,7 +764,7 @@ export function drawGraph(
       Math.floor((place.width - 66 - reservedRowOne) / 7),
     );
     const lines = place.lane
-      ? [ellipsize(display, nameCharacters)]
+      ? [middleEllipsizeName(display, nameCharacters)]
       : labelLines(display);
     lines.forEach((value, lineIndex) => {
       const span = svg("tspan");
@@ -688,10 +801,6 @@ export function drawGraph(
       badge.textContent = badgeText;
       label.append(badge);
     }
-    const latestSummary =
-      [...latestActivities].reverse().find((item) => item.summary)?.summary ??
-      node.task ??
-      "No reported summary";
     const state = svg("tspan");
     state.setAttribute("x", String(place.x + 12));
     state.setAttribute("y", String(place.y + place.height - 12));
@@ -716,7 +825,7 @@ export function drawGraph(
     summary.setAttribute("x", String(summaryX));
     summary.setAttribute("y", String(place.y + place.height - 12));
     summary.setAttribute("class", "agent-summary-text");
-    summary.textContent = ellipsize(latestSummary, summaryCharacters);
+    summary.textContent = ellipsize(latest.summary, summaryCharacters);
     label.append(summary);
     if (node.relationship === "unresolved") {
       const mark = svg("path");

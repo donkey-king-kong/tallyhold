@@ -123,11 +123,11 @@ previews at `7ccf2b8`. Track B uses
 - [x] **RED:** Add synthetic presentation, DOM, and production-bundle guards
   for P1-P8. Prove focused failures and unaffected checks, commit and push RED
   evidence, then obtain fresh independent RED approval before GREEN.
-- [ ] **GREEN:** Implement root-based registration and display names,
+- [x] **GREEN:** Implement root-based registration and display names,
   human-only summaries, latest-run durations, reconciled identity counts, one
   connector bus, lane-kind labels, suffix-preserving truncation, bounded
   auto-fit camera behavior, and narrow navigator scrolling.
-- [ ] **Verification and handoff:** Run all extension and adapter checks,
+- [x] **Verification and handoff:** Run all extension and adapter checks,
   regenerate committed fixture previews and four ignored real-data previews,
   inspect every image against P1-P8, commit and push, then stop for Zack
   without reinstalling or opening a PR.
