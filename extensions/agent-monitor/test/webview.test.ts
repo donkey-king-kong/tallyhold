@@ -2722,7 +2722,7 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
       [
         syntheticNode("orchestrator"),
         syntheticNode(rootId, {
-          task: "Coordinate alpha",
+          task: "Worktree activity",
           parentId: "orchestrator",
           relationship: "resolved",
         }),
