@@ -73,6 +73,96 @@ area, lane/card density, spacing, or visible lane/card population.
 
 VERDICT: CHANGES_REQUESTED
 
+## Real-data smoke correction review, round 1
+
+- Round: 1
+- Base: `937ac4f`
+- Pushed RED head: `b728a9325ac98e8afaac5edf763055e9322e0318`
+- Executable RED revision: `a0d0804c7d4b0b13db7bf2f1bc46e34786ac98c5`
+- Head relation: from the executable revision to the pushed head, only
+  `red-test-run.md` changes within the permitted feature/test evidence.
+- Commit comment:
+  <https://github.com/donkey-king-kong/tallyhold/commit/b728a9325ac98e8afaac5edf763055e9322e0318#commitcomment-210770284>
+
+### Coverage mapping
+
+The unchanged Feature 008 suite maps AC1-AC15 and plan verification items 1-15
+as recorded in [red-test-run.md](red-test-run.md). AC16 and the real-stream
+plan amendment are partially mapped by:
+
+| Requirement | Named coverage |
+| --- | --- |
+| Identity deduplication, badges, latest-default inspection | `webview.test.ts: collapses five runs to one card and row with latest run selected`; production-bundle repeated-run checks in `capture-preview.ts` |
+| Unassigned lane and registration exclusion | `webview.test.ts: renders legacy identities in an orthogonal unassigned lane and hides registration roots`; production-bundle lane/population checks |
+| Orthogonal connectors | strengthened `webview.test.ts: all resolved links draw one connector including cross lane and late parent`; production-bundle geometry check |
+| Card copy separation and type size | `webview.test.ts: reserves separate card grid cells for long copy duration and quiet age`; production-bundle collision checks |
+| Compact range slots, resizer, footer count | `webview.test.ts: compacts recent lane slots exposes a bounded resizer and labels footer range`; production-bundle resizer and overflow checks |
+| Parser-backed local preview command | `packaging.test.ts: provides an ignored real-log preview command through the parser pipeline` |
+
+Uncovered or insufficiently covered observable decisions:
+
+1. Registration reports must feed the lane header status and since-time.
+2. Registration roots must be absent from search results.
+3. Active-only filtering must compact lane slots; only range compaction is
+   asserted.
+4. The pointer-operated navigator resizer and clamping at both 240px and 480px
+   are not exercised.
+5. The latest interval must drive card status, summary, and duration, and
+   selecting an older run must rescope inspector activity; the test checks only
+   the latest default and latest activity.
+6. The real-preview test does not execute the command with an explicit local
+   JSONL path or prove that arbitrary input records are neither copied nor
+   embedded.
+
+### Checklist
+
+1. **Acceptance and plan coverage: findings.** AC1-AC15 retain named coverage,
+   and AC16 has focused guards, but the six observable decisions listed above
+   remain uncovered or only partially asserted.
+2. **Limits, ordering, concurrency, and security decisions: findings.** The
+   300px default and ARIA limits are asserted, but actual lower/upper clamping
+   and pointer resizing are not. Source order and far-left lane order are
+   covered. The real-preview privacy/path contract is checked only through
+   source-string presence and one hard-coded filename exclusion, so a dead or
+   copying script could pass.
+3. **RED validity: findings.** The recorded focused run has six ordinary
+   missing-behavior failures, the corrected unaffected suite has 125 passes,
+   the production bundle reaches its layout assertion, and lint, format, and
+   typecheck pass. However, `webview.test.ts:2118-2120` generates malformed
+   ISO hours `T010` and `T011` for the last two runs. That latent fixture defect
+   can produce chronology/setup failures once earlier assertions turn green.
+4. **Behavioral assertions and adversarial value: findings.**
+   `capture-preview.ts:524-531` declares any SVG path whose bounding box has
+   both width and height diagonal. A valid orthogonal path such as
+   `M 0 0 H 10 V 10` therefore fails even though every segment satisfies the
+   approved contract. Conversely, the packaging test at
+   `packaging.test.ts:218-237` can pass with inert strings and does not prove
+   the real-preview behavior.
+5. **Infrastructure and isolation: none.** Evidence uses synthetic fixtures,
+   local Vitest/Playwright, and offline adapter tests. No secrets, external
+   network, real stream, or paid infrastructure is used.
+6. **Existing suite and weakening: finding.** The unaffected suite and adapter
+   suite pass, and no test file was deleted. But the cumulative diff weakens
+   `webview.test.ts:985-1034`: it removes assertions that each attributed
+   connector starts at the actual parent port and ends at the actual child
+   port, replacing them with orthogonality checks. A connector with correct
+   data attributes but unrelated geometry can now pass, regressing AC6's
+   "joins the correct parent and child" guard.
+
+### Required corrections
+
+1. Restore connector endpoint-to-parent/child geometry assertions while adding
+   orthogonality assertions.
+2. Parse path commands/segments for orthogonality instead of using whole-path
+   bounding boxes, so multi-segment horizontal/vertical paths remain valid.
+3. Fix the malformed run timestamps and rerun the focused RED and unaffected
+   suites.
+4. Add focused assertions for the six uncovered observable decisions, using an
+   executable temporary synthetic JSONL invocation for the real-preview
+   contract rather than source-string checks alone.
+
+VERDICT: CHANGES_REQUESTED
+
 ## Preview round 2 correction review, round 2
 
 - Round: 2
