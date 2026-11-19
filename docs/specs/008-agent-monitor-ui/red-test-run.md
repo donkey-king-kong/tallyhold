@@ -416,3 +416,34 @@ also excludes two legacy roots. The observed `Older runs · 39 agents` was 26
 older execution intervals plus 13 orchestrator intervals, whereas the footer
 counted 32 non-orchestrator identities. RED review must assess the sanitized
 public seams only.
+
+### Round-1 review corrections
+
+Fresh RED review round 1 returned `CHANGES_REQUESTED` in `red-review.md`.
+Test commit `cf00f04` corrects all three findings without changing production:
+
+- replaces stale active-filter camera preservation with a required automatic
+  fit, and replaces stale `×5 runs` / report-bounded `30m` expectations with
+  compact `×5` / elapsed-so-far `1h 0m`;
+- moves a manually zoomed and panned browser camera through an unrelated agent
+  selection, then requires both active-filter transitions to reset to fitted,
+  top-anchored, horizontally centered content;
+- uses two lanes with human-task and metadata-task roots, rejects ordinary
+  attributed routes into either registration root, parses every `M/L/H/V/Z`
+  path plus line into horizontal segments, and rejects overlaps within 4px.
+
+At exact executable revision `cf00f04`:
+
+| Command | Exit | Result |
+| --- | ---: | --- |
+| `npx vitest run test/webview.test.ts -t 'preserves the camera after append\|collapses five runs\|treats current\|uses latest\|reconciles recent\|draws no overlapping\|caps the narrow'` | 1 (expected) | All seven focused cases failed for missing behavior; 52 were skipped. First failures are retained camera, verbose badge, task-dependent root card, raw tool event, recent identity undercount, registration-root route, and fixed narrow height. |
+| `npx vitest run -t '^(?!.*(?:preserves the camera after append and filtering\|collapses five runs to one card\|treats current and legacy lane roots\|uses latest-run duration\|reconciles recent older\|draws no overlapping near-duplicate\|caps the narrow navigator)).*$'` | 0 | 130 unaffected tests passed across five files; exactly seven focused RED cases were skipped. |
+| `npm run test:preview-layout` | 1 (expected) | The production bundle rendered and first failed on unfitted wide All-runs content. Later executable assertions cover manual-camera persistence, active-filter reset, all horizontal segments, and registration routes. |
+| `npm run lint` | 0 | ESLint passed. |
+| `npm run typecheck` | 0 | TypeScript passed. |
+| `npx prettier --check test/webview.test.ts scripts/capture-preview.ts` | 0 | Corrected RED files use repository formatting. |
+
+The first quality-wrapper attempt started below the repository root and failed
+before running npm because the Agent Flow adapter path was unavailable there.
+The unchanged npm checks were rerun from their required directories and passed;
+the wrapper mistake is not product evidence.
