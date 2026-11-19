@@ -224,7 +224,8 @@ describe("independent extension contract (AC1, AC15-16)", () => {
       resolve("scripts/capture-real-preview.ts"),
       "utf8",
     ).catch(() => "");
-    expect(manifest.scripts?.["preview:real"]).toMatch(
+    expect(manifest.scripts).toHaveProperty("preview:real", expect.any(String));
+    expect(manifest.scripts?.["preview:real"] ?? "").toMatch(
       /capture-real-preview.*--/,
     );
     expect(repositoryIgnore).toContain(".preview-real/");

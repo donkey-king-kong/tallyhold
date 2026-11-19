@@ -2072,7 +2072,8 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
     const worktree = graph.querySelector<SVGGElement>(
       `[data-lane-header="${rootId}"]`,
     );
-    expect(unassigned?.textContent).toContain(
+    expect(unassigned).not.toBeNull();
+    expect(unassigned?.textContent ?? "").toContain(
       "Unassigned (before shared stream)",
     );
     expect(
