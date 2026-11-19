@@ -40,6 +40,7 @@
     "format:check": "prettier --check \"{scripts,src}/**/*.ts\" \"docs/**/*.md\" \"*.{js,json,md}\"",
     "lint": "eslint scripts src test",
     "package": "npm run build && vsce package --no-dependencies",
+    "preview:real": "npm run build:webview && esbuild scripts/capture-real-preview.ts --bundle --platform=node --format=esm --external:playwright --outfile=.preview/capture-real-preview.mjs && node .preview/capture-real-preview.mjs",
     "preview:screenshots": "npm run test:preview-layout",
     "test": "vitest run && npm run test:preview-layout",
     "test:coverage": "vitest run --coverage --coverage.thresholds.lines=80 --coverage.thresholds.functions=80 --coverage.thresholds.statements=80 && npm run test:preview-layout",

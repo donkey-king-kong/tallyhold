@@ -1,4 +1,5 @@
 .benchmark/
 .preview/
+.preview-real/
 media/webview.js
 *.vsix

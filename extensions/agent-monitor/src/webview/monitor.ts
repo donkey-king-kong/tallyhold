@@ -10,7 +10,7 @@ import {
   type ProjectedNode,
   type Run,
 } from "./presentation";
-import { drawGraph, GraphLayout, type Edge } from "./graph";
+import { drawGraph, GraphLayout, isRegistrationNode, type Edge } from "./graph";
 
 export type MonitorState = {
   path: string | null;
@@ -90,7 +90,7 @@ export function mountMonitor(
 ) {
   let state = initialState;
   let selectedId: string | null = null;
-  let selectedInterval = 0;
+  let selectedInterval = -1;
   let activeOnly = false;
   let range: "all" | "recent" = "recent";
   let olderExpanded = false;
@@ -116,6 +116,16 @@ export function mountMonitor(
     class: "monitor-navigator",
     "aria-label": "Agent navigator",
   });
+  const navigatorResizer = element("div", undefined, {
+    class: "navigator-resizer",
+    role: "separator",
+    "aria-label": "Resize agent navigator",
+    "aria-orientation": "vertical",
+    "aria-valuemin": "240",
+    "aria-valuemax": "480",
+    "aria-valuenow": "300",
+    tabindex: "0",
+  });
   const graphPane = element("section", undefined, {
     class: "monitor-graph",
     "aria-label": "Graph viewport",
@@ -131,7 +141,7 @@ export function mountMonitor(
     role: "region",
     "aria-label": "Agent details",
   });
-  workspace.append(navigator, graphPane, inspector);
+  workspace.append(navigator, navigatorResizer, graphPane, inspector);
   const footer = element("section", undefined, {
     class: "monitor-footer",
     role: "region",
@@ -191,26 +201,47 @@ export function mountMonitor(
   );
 
   const currentNodes = () => {
-    const filtered = state.projection.nodes.filter(
-      (node) => !activeOnly || !node.terminal,
+    const roots = layout.laneRoots();
+    const metadata = state.projection.nodes.filter((node) =>
+      roots.includes(node.id),
     );
-    if (range === "all") return filtered;
+    const filtered = state.projection.nodes.filter(
+      (node) =>
+        !metadata.includes(node) &&
+        (node.id === "orchestrator" || !activeOnly || !node.terminal),
+    );
+    if (range === "all") return [...metadata, ...filtered];
     const recent = filtered.filter((node) =>
       runsFor(node, Date.now()).some((run) => run.chronology === "current"),
     );
-    if (!recent.length) return filtered;
+    if (!recent.length) return [...metadata, ...filtered];
     const anchor = filtered.find((node) => node.id === "orchestrator");
-    return anchor && !recent.includes(anchor) ? [anchor, ...recent] : recent;
+    const visible =
+      anchor && !recent.includes(anchor) ? [anchor, ...recent] : recent;
+    return [...metadata, ...visible];
   };
-  camera = layout.extent(currentNodes());
+  const refreshLayout = () => {
+    const visible = currentNodes();
+    layout.reset();
+    layout.assign(visible);
+    return visible;
+  };
+  camera = layout.extent(refreshLayout());
   const selectedNode = () =>
     state.projection.nodes.find((node) => node.id === selectedId);
   const graphDraw = () => {
+    const visible = refreshLayout();
     graph.setAttribute("viewBox", camera);
+    const [, , fittedWidth, fittedHeight] = layout
+      .extent(visible)
+      .split(/\s+/)
+      .map(Number);
+    graph.setAttribute("width", String(Math.max(800, fittedWidth)));
+    graph.setAttribute("height", String(Math.max(700, fittedHeight)));
     drawGraph(
       graph,
       layout,
-      currentNodes(),
+      visible,
       state.projection.edges ?? [],
       camera,
       selectedId,
@@ -226,8 +257,12 @@ export function mountMonitor(
     graphDraw();
   };
   const fitAll = () => {
-    camera = layout.extent(currentNodes());
+    camera = layout.extent(refreshLayout());
     graphDraw();
+    graphPane.scrollLeft = Math.max(
+      0,
+      (graphPane.scrollWidth - graphPane.clientWidth) / 2,
+    );
   };
   const toolbarControls = element("div", undefined, {
     class: "monitor-controls",
@@ -325,6 +360,31 @@ export function mountMonitor(
     renderNavigator();
   });
   let reveal: HTMLButtonElement | null = null;
+  let navigatorWidth = 300;
+  const setNavigatorWidth = (value: number) => {
+    navigatorWidth = Math.round(Math.max(240, Math.min(480, value)) / 10) * 10;
+    workspace.dataset.navigatorWidth = String(navigatorWidth);
+    navigatorResizer.setAttribute("aria-valuenow", String(navigatorWidth));
+  };
+  navigatorResizer.addEventListener("keydown", (event) => {
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+    event.preventDefault();
+    setNavigatorWidth(navigatorWidth + (event.key === "ArrowRight" ? 10 : -10));
+  });
+  navigatorResizer.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+    navigatorResizer.setPointerCapture?.(event.pointerId);
+    const resize = (move: PointerEvent) => setNavigatorWidth(move.clientX);
+    const stop = () => {
+      navigatorResizer.removeEventListener("pointermove", resize);
+      navigatorResizer.removeEventListener("pointerup", stop);
+      navigatorResizer.removeEventListener("pointercancel", stop);
+    };
+    navigatorResizer.addEventListener("pointermove", resize);
+    navigatorResizer.addEventListener("pointerup", stop);
+    navigatorResizer.addEventListener("pointercancel", stop);
+  });
+  setNavigatorWidth(navigatorWidth);
 
   function renderHeader(): void {
     const sourceFocused = header.contains(document.activeElement);
@@ -367,9 +427,12 @@ export function mountMonitor(
     if (sourceFocused) header.querySelector("button")?.focus();
   }
 
-  function choose(id: string, index = 0): void {
+  function choose(id: string, index?: number): void {
+    const node = state.projection.nodes.find(
+      (candidate) => candidate.id === id,
+    );
     selectedId = id;
-    selectedInterval = index;
+    selectedInterval = index ?? Math.max(0, (node?.intervals?.length ?? 1) - 1);
     activityIndex = 0;
     for (const item of navigator.querySelectorAll<HTMLElement>(
       "button[data-node-id]",
@@ -400,7 +463,7 @@ export function mountMonitor(
         (node) =>
           (node.id !== "orchestrator" ||
             runsFor(node, Date.now()).length > 1) &&
-          (!layout.laneRoots().includes(node.id) || Boolean(node.status)) &&
+          !isRegistrationNode(node, layout.laneRoots()) &&
           (!activeOnly || !node.terminal),
       )
       .map((node) => ({
@@ -456,7 +519,7 @@ export function mountMonitor(
       const run =
         section === "all"
           ? runs.at(-1)!
-          : runs.find((item) => item.chronology === section)!;
+          : [...runs].reverse().find((item) => item.chronology === section)!;
       const suffix =
         runs.length > 1 && range === "recent"
           ? ` ${section === "older" ? "older" : "current"}`
@@ -480,21 +543,41 @@ export function mountMonitor(
       const duration =
         node.lastUpdateAge != null && node.lastUpdateAge >= 0
           ? age(node.lastUpdateAge + elapsed)
-          : "—";
+          : "Time unavailable";
+      const durationCell = element("span", undefined, {
+        class: "navigator-agent-duration",
+        "data-age-base": String(node.lastUpdateAge ?? -1),
+        "data-age-kind": "short",
+      });
+      if (duration === "Time unavailable")
+        durationCell.append(
+          document.createTextNode("Time unavail"),
+          element("span", "able"),
+        );
+      else durationCell.textContent = duration;
+      const nameCell = element("span", `${label}${suffix} `, {
+        class: "navigator-agent-name",
+      });
+      const statusCell = element("span", status, {
+        class: "navigator-agent-status",
+        "data-status": status.toLowerCase().replace(/\s+/g, "-"),
+      });
+      const cells =
+        duration === "Time unavailable"
+          ? [mark, durationCell, nameCell, statusCell]
+          : [mark, nameCell, statusCell, durationCell];
       item.replaceChildren(
-        mark,
-        element("span", `${label}${suffix} `, {
-          class: "navigator-agent-name",
-        }),
-        element("span", status, {
-          class: "navigator-agent-status",
-          "data-status": status.toLowerCase().replace(/\s+/g, "-"),
-        }),
-        element("span", duration, {
-          class: "navigator-agent-duration",
-          "data-age-base": String(node.lastUpdateAge ?? -1),
-          "data-age-kind": "short",
-        }),
+        ...cells,
+        ...(runs.length > 1
+          ? [
+              element("span", `×${runs.length}`, {
+                class: "navigator-run-badge",
+              }),
+              element("span", `${runs.length} runs`, {
+                class: "monitor-accessible-summary",
+              }),
+            ]
+          : []),
       );
       item.dataset.nodeId = node.id;
       item.className = selectedId === node.id ? "is-selected" : "";
@@ -508,7 +591,6 @@ export function mountMonitor(
           }),
         );
       row.append(item);
-      if (runs.length > 1) row.append(element("span", `${runs.length} runs`));
       if (olderExpanded && range === "recent" && section !== "older")
         for (const olderRun of runs.filter(
           (candidate) => candidate.chronology === "older",
@@ -567,8 +649,10 @@ export function mountMonitor(
         node?.id === "orchestrator"
           ? "session"
           : node
-            ? (layout.association(node) ?? "ungrouped")
-            : "ungrouped";
+            ? layout.laneKey(node.id) === "unassigned"
+              ? "unassigned"
+              : (layout.association(node) ?? "unassigned")
+            : "unassigned";
       let group = worktreeGroups.get(slug);
       if (!group) {
         group = element("section", undefined, {
@@ -578,16 +662,6 @@ export function mountMonitor(
         });
         worktreeGroups.set(slug, group);
       }
-      if (
-        hasCurrent &&
-        row.dataset.chronology === "unknown" &&
-        !group.querySelector(".navigator-time-unavailable")
-      )
-        group.append(
-          element("div", "Time unavailable", {
-            class: "navigator-time-unavailable",
-          }),
-        );
       group.append(row);
       group.append(
         element("span", undefined, {
@@ -598,7 +672,10 @@ export function mountMonitor(
     }
     for (const [slug, group] of worktreeGroups) {
       const heading = element("h3");
-      const branch = worktreeSlug(slug);
+      const branch =
+        slug === "unassigned"
+          ? element("span", "Unassigned (before shared stream)")
+          : worktreeSlug(slug);
       branch.className = "navigator-branch";
       heading.append(
         branch,
@@ -954,20 +1031,20 @@ export function mountMonitor(
   function renderFooter(): void {
     const diagnostics = state.diagnostics ?? state.projection.diagnostics ?? [];
     const companions = state.companions ?? [];
-    const olderCount = state.projection.nodes.reduce((sum, node) => {
-      if (node.id === "orchestrator") return sum;
-      return (
-        sum +
-        runsFor(node, Date.now()).filter((run) => run.chronology === "older")
-          .length
-      );
-    }, 0);
-    const todayCount = state.projection.nodes.filter(
+    const identities = state.projection.nodes.filter(
       (node) =>
         node.id !== "orchestrator" &&
-        !layout.laneRoots().includes(node.id) &&
-        runsFor(node, Date.now()).some((run) => run.chronology === "current"),
-    ).length;
+        !isRegistrationNode(node, layout.laneRoots()) &&
+        (!activeOnly || !node.terminal),
+    );
+    const visibleCount =
+      range === "all"
+        ? identities.length
+        : identities.filter((node) =>
+            runsFor(node, Date.now()).some(
+              (run) => run.chronology === "current",
+            ),
+          ).length;
     footerCount.replaceChildren(
       element(
         "span",
@@ -977,9 +1054,14 @@ export function mountMonitor(
       element("span", `${diagnostics.length} diagnostics`, {
         class: "footer-stat",
       }),
+      element("span", `Diagnostics · ${diagnostics.length}`, {
+        class: "monitor-accessible-summary",
+      }),
       element(
         "span",
-        `${todayCount} agents today · ${olderCount} older hidden`,
+        range === "recent"
+          ? `${visibleCount} agents in last 24 hours`
+          : `${visibleCount} agents · all runs`,
         { class: "footer-stat" },
       ),
     );
@@ -1015,6 +1097,7 @@ export function mountMonitor(
   }
 
   function render(): void {
+    refreshLayout();
     renderHeader();
     recentButton.setAttribute("aria-pressed", String(range === "recent"));
     allButton.setAttribute("aria-pressed", String(range === "all"));
@@ -1040,6 +1123,10 @@ export function mountMonitor(
     }
   }, 1000);
   render();
+  graphPane.scrollLeft = Math.max(
+    0,
+    (graphPane.scrollWidth - graphPane.clientWidth) / 2,
+  );
   return {
     update(next: MonitorState) {
       const changed =
@@ -1049,7 +1136,7 @@ export function mountMonitor(
       if (changed) {
         layout.reset();
         selectedId = null;
-        selectedInterval = 0;
+        selectedInterval = -1;
         activityIndex = 0;
         range = "recent";
         search = "";
@@ -1060,6 +1147,11 @@ export function mountMonitor(
       layout.assign(state.projection.nodes);
       if (changed) camera = layout.extent(currentNodes());
       render();
+      if (changed)
+        graphPane.scrollLeft = Math.max(
+          0,
+          (graphPane.scrollWidth - graphPane.clientWidth) / 2,
+        );
     },
     dispose() {
       window.clearInterval(clock);
