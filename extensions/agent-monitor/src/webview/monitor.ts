@@ -65,6 +65,24 @@ function statusMark(status: string): HTMLSpanElement {
   });
 }
 
+function worktreeSlug(slug: string): HTMLSpanElement {
+  const value = element("span", undefined, {
+    "data-worktree-slug": "",
+  });
+  const match = slug.match(/^(.*)-([0-9a-f]{8})$/);
+  if (!match) {
+    value.textContent = slug;
+    return value;
+  }
+  value.append(
+    document.createTextNode(`${match[1]}-`),
+    element("span", match[2], {
+      "data-slug-hash": "",
+    }),
+  );
+  return value;
+}
+
 export function mountMonitor(
   root: HTMLElement,
   initialState: MonitorState,
@@ -465,11 +483,12 @@ export function mountMonitor(
           : "—";
       item.replaceChildren(
         mark,
-        element("span", `${label}${suffix}`, {
+        element("span", `${label}${suffix} `, {
           class: "navigator-agent-name",
         }),
-        element("span", ` ${status} `, {
-          class: "monitor-accessible-summary",
+        element("span", status, {
+          class: "navigator-agent-status",
+          "data-status": status.toLowerCase().replace(/\s+/g, "-"),
         }),
         element("span", duration, {
           class: "navigator-agent-duration",
@@ -512,15 +531,28 @@ export function mountMonitor(
       ),
     );
     if (older.length) {
-      list.append(
-        button(
-          `Older runs · ${older.reduce((sum, group) => sum + group.runs.filter((run) => run.chronology === "older").length, 0)}`,
-          () => {
-            olderExpanded = !olderExpanded;
-            renderNavigator();
-          },
-        ),
+      const olderCount = older.reduce(
+        (sum, group) =>
+          sum + group.runs.filter((run) => run.chronology === "older").length,
+        0,
       );
+      const olderButton = button(
+        `Older runs · ${olderCount} agents before today`,
+        () => {
+          olderExpanded = !olderExpanded;
+          renderNavigator();
+        },
+      );
+      olderButton.className = "older-runs-row";
+      olderButton.replaceChildren(
+        element("span", `Older runs · ${olderCount} agents`, {
+          class: "older-runs-label",
+        }),
+        element("span", "before today", {
+          class: "older-runs-context",
+        }),
+      );
+      list.append(olderButton);
       if (olderExpanded) older.forEach((group) => addIdentity(group, "older"));
     }
     const worktreeGroups = new Map<string, HTMLElement>();
@@ -566,8 +598,10 @@ export function mountMonitor(
     }
     for (const [slug, group] of worktreeGroups) {
       const heading = element("h3");
+      const branch = worktreeSlug(slug);
+      branch.className = "navigator-branch";
       heading.append(
-        element("span", slug, { class: "navigator-branch" }),
+        branch,
         element(
           "span",
           String(group.querySelectorAll(".navigator-identity-row").length),
@@ -657,9 +691,13 @@ export function mountMonitor(
       `Role: ${node.reportedRole ?? (onlyLastReportUnavailable ? "—" : "unavailable")}`,
       { class: "inspector-role monitor-accessible-summary" },
     );
-    const worktree = element("div", `in ${slug ?? "—"}`, {
+    const worktree = element("div", undefined, {
       class: "inspector-worktree",
     });
+    worktree.append(
+      document.createTextNode("in "),
+      slug ? worktreeSlug(slug) : document.createTextNode("—"),
+    );
     worktree.append(
       element("span", `Worktree: ${slug ?? "—"}`, {
         class: "monitor-accessible-summary",
@@ -849,13 +887,13 @@ export function mountMonitor(
         class: "activity-content",
       });
       activityBody.append(
-        element("span", `${activityLabel} · `, {
+        element("span", activityLabel, {
           class: "activity-label",
         }),
         element("span", activityOutcome, { class: "activity-outcome" }),
       );
       row.append(
-        element("time", `${time} · `, { class: "activity-time" }),
+        element("time", time, { class: "activity-time" }),
         element("span", undefined, {
           class: "activity-dot",
           "aria-hidden": "true",

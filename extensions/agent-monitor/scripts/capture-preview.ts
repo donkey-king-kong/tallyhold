@@ -491,6 +491,7 @@ try {
     )
       throw new Error(`${name}: copy ID button is outside the viewport`);
 
+    await page.evaluate(() => window.scrollTo(0, 0));
     await page.screenshot({
       path: resolve(outputRoot, name),
       animations: "disabled",

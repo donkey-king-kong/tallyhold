@@ -748,7 +748,7 @@ body {
 
 .navigator-identity-row > button:first-child {
   display: grid;
-  grid-template-columns: 18px minmax(0, 1fr) auto;
+  grid-template-columns: 18px minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 7px;
   width: 100%;
@@ -777,6 +777,26 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+.navigator-agent-status {
+  font-size: 10px;
+}
+
+.navigator-agent-status[data-status="working"] {
+  color: var(--monitor-blue);
+}
+
+.navigator-agent-status[data-status="waiting"] {
+  color: var(--monitor-amber);
+}
+
+.navigator-agent-status[data-status="failed"] {
+  color: var(--monitor-red);
+}
+
+.navigator-agent-status[data-status="completed"] {
+  color: var(--monitor-muted);
+}
+
 .navigator-list button.is-selected {
   border-color: color-mix(in srgb, var(--monitor-blue) 50%, transparent);
   background: color-mix(
@@ -794,6 +814,10 @@ body {
 }
 
 .older-runs-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   width: 100%;
   padding: 8px 10px;
   border: 1px dashed var(--monitor-border);
@@ -801,7 +825,23 @@ body {
   color: var(--monitor-muted);
   background: transparent;
   font-family: var(--vscode-editor-font-family);
+  font-size: 11px;
   text-align: left;
+}
+
+.older-runs-label {
+  white-space: nowrap;
+}
+
+.older-runs-context {
+  margin-inline-start: auto;
+  white-space: nowrap;
+}
+
+[data-slug-hash] {
+  color: var(--monitor-muted);
+  fill: var(--monitor-muted);
+  font-weight: 400;
 }
 
 .status-mark {
@@ -952,10 +992,36 @@ body {
   font-weight: 600;
 }
 
-.agent-duration,
-.agent-summary {
+.agent-duration {
   fill: var(--monitor-muted);
   font-size: 10px;
+}
+
+.agent-status-word,
+.agent-summary-text {
+  font-size: 10px;
+}
+
+.agent-summary-text {
+  fill: var(--monitor-muted) !important;
+  font-family: var(--vscode-font-family) !important;
+  font-weight: 400;
+}
+
+.graph-nodes > g[data-status="working"] .agent-status-word {
+  fill: var(--monitor-blue);
+}
+
+.graph-nodes > g[data-status="waiting"] .agent-status-word {
+  fill: var(--monitor-amber);
+}
+
+.graph-nodes > g[data-status="failed"] .agent-status-word {
+  fill: var(--monitor-red);
+}
+
+.graph-nodes > g[data-status="completed"] .agent-status-word {
+  fill: var(--monitor-muted);
 }
 
 .quiet-report {
@@ -1236,21 +1302,26 @@ body {
   }
 
   .monitor-toolbar {
-    min-height: 58px;
-    overflow-x: auto;
+    min-height: 0;
+    overflow: visible;
   }
 
   .monitor-controls p {
-    display: none;
+    order: 2;
+    flex: 1 0 100%;
+    margin-block-start: 2px;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
   }
 
   .monitor-workspace {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: 128px 280px 250px;
-    height: 658px;
+    grid-template-rows: auto 520px auto;
+    height: auto;
     min-height: 0;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .monitor-navigator,
@@ -1258,10 +1329,12 @@ body {
   .monitor-inspector {
     width: 100%;
     max-height: none;
-    overflow: auto;
   }
 
   .monitor-navigator {
+    height: auto;
+    max-height: 320px;
+    overflow: auto;
     border-inline-end: 0;
     border-block-end: 1px solid var(--monitor-border);
     padding: 10px 14px;
@@ -1279,26 +1352,36 @@ body {
   }
 
   .navigator-list {
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(220px, 1fr);
-    gap: 12px;
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
+    gap: 0;
     margin-block-start: 8px;
-    overflow-x: auto;
+    overflow: visible;
   }
 
   .navigator-worktree {
-    margin: 0;
+    margin-block-end: 12px;
+  }
+
+  .navigator-agent-name {
+    overflow: visible;
+    text-overflow: clip;
   }
 
   .monitor-graph {
+    height: 520px;
+    overflow: auto;
     border-block-end: 1px solid var(--monitor-border);
   }
 
   .monitor-graph svg {
+    min-width: 800px;
     min-height: 600px;
   }
 
   .monitor-inspector {
+    height: auto;
+    overflow: visible;
     border-inline-start: 0;
     padding: 10px 14px;
   }
@@ -1319,6 +1402,12 @@ body {
   }
 
   .monitor-footer {
-    min-width: 800px;
+    flex-wrap: wrap;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .footer-readonly {
+    margin-inline-start: auto;
   }
 }

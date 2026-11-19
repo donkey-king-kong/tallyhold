@@ -35,6 +35,36 @@
     <main id="app"></main>
     <script src="../media/webview.js"></script>
     <script>
+      (async () => {
+      const adapterSlug = async (branch) => {
+        if (branch === "main") return "main";
+        const normalized =
+          branch
+            .toLowerCase()
+            .replace(/[^a-z0-9_-]+/g, "-")
+            .replace(/^[-_]+|[-_]+$/g, "") || "worktree";
+        const digest = await crypto.subtle.digest(
+          "SHA-256",
+          new TextEncoder().encode(branch),
+        );
+        const hash = Array.from(new Uint8Array(digest))
+          .map((value) => value.toString(16).padStart(2, "0"))
+          .join("")
+          .slice(0, 8);
+        return `${normalized.slice(0, 15)}-${hash}`;
+      };
+      const sourceWorktrees = {
+        shared: await adapterSlug("chore/shared-agent-flow-stream"),
+        transactions: await adapterSlug("feature/007-transactions"),
+        main: await adapterSlug("main"),
+      };
+      const rootIds = Object.fromEntries(
+        Object.entries(sourceWorktrees).map(([key, slug]) => [
+          key,
+          `wt-${slug}`,
+        ]),
+      );
+      const agentId = (root, agent) => `${rootIds[root]}-${agent}`;
       const now = Date.now();
       const instant = (secondsAgo) =>
         new Date(now - secondsAgo * 1000).toISOString();
@@ -55,8 +85,9 @@
       const day = 24 * 60 * 60;
       const roots = [
         {
-          id: "wt-chore-shared-agent-flow-stream",
+          id: rootIds.shared,
           parentId: "orchestrator",
+          sourceWorktree: sourceWorktrees.shared,
           task: "Shared Agent Flow stream",
           relationship: "resolved",
           terminal: false,
@@ -65,8 +96,9 @@
           lastUpdateAge: 12,
         },
         {
-          id: "wt-feature-007-transactions",
+          id: rootIds.transactions,
           parentId: "orchestrator",
+          sourceWorktree: sourceWorktrees.transactions,
           task: "Feature 007 transactions",
           relationship: "resolved",
           terminal: false,
@@ -75,8 +107,9 @@
           lastUpdateAge: 22 * 60,
         },
         {
-          id: "wt-main",
+          id: rootIds.main,
           parentId: "orchestrator",
+          sourceWorktree: sourceWorktrees.main,
           task: "Main checkout",
           relationship: "resolved",
           terminal: true,
@@ -88,6 +121,7 @@
       const activeNodes = [
         {
           id: "orchestrator",
+          sourceWorktree: sourceWorktrees.shared,
           task: "Session anchor",
           status: "completed",
           relationship: "root",
@@ -101,8 +135,9 @@
           reportedRole: "coordinator",
         },
         {
-          id: "wt-chore-shared-agent-flow-stream-planner",
-          parentId: "wt-chore-shared-agent-flow-stream",
+          id: agentId("shared", "planner"),
+          parentId: rootIds.shared,
+          sourceWorktree: sourceWorktrees.shared,
           task: "Plan shared stream",
           status: "completed",
           relationship: "resolved",
@@ -116,8 +151,9 @@
           reportedRole: "planner",
         },
         {
-          id: "wt-chore-shared-agent-flow-stream-test-writer",
-          parentId: "wt-chore-shared-agent-flow-stream",
+          id: agentId("shared", "test-writer"),
+          parentId: rootIds.shared,
+          sourceWorktree: sourceWorktrees.shared,
           task: "Write shared stream RED",
           status: "completed",
           relationship: "resolved",
@@ -131,8 +167,9 @@
           reportedRole: "test-writer",
         },
         {
-          id: "wt-chore-shared-agent-flow-stream-red-reviewer-r1",
-          parentId: "wt-chore-shared-agent-flow-stream",
+          id: agentId("shared", "red-reviewer-r1"),
+          parentId: rootIds.shared,
+          sourceWorktree: sourceWorktrees.shared,
           task: "Review RED round 1",
           status: "failed",
           relationship: "resolved",
@@ -146,8 +183,9 @@
           reportedRole: "red-reviewer",
         },
         {
-          id: "wt-chore-shared-agent-flow-stream-red-reviewer-r1b",
-          parentId: "wt-chore-shared-agent-flow-stream",
+          id: agentId("shared", "red-reviewer-r1b"),
+          parentId: rootIds.shared,
+          sourceWorktree: sourceWorktrees.shared,
           task: "Review corrected RED",
           status: "completed",
           relationship: "resolved",
@@ -161,8 +199,9 @@
           reportedRole: "red-reviewer",
         },
         {
-          id: "wt-chore-shared-agent-flow-stream-test-writer-r2",
-          parentId: "wt-chore-shared-agent-flow-stream",
+          id: agentId("shared", "test-writer-r2"),
+          parentId: rootIds.shared,
+          sourceWorktree: sourceWorktrees.shared,
           task: "Address RED review round 1",
           status: "working",
           relationship: "resolved",
@@ -191,8 +230,9 @@
           reportedRole: "test-writer",
         },
         {
-          id: "wt-feature-007-transactions-spec-writer",
-          parentId: "wt-feature-007-transactions",
+          id: agentId("transactions", "spec-writer"),
+          parentId: rootIds.transactions,
+          sourceWorktree: sourceWorktrees.transactions,
           task: "Draft transactions spec",
           status: "waiting",
           relationship: "resolved",
@@ -206,8 +246,9 @@
           reportedRole: "spec-writer",
         },
         {
-          id: "wt-main-setup",
-          parentId: "wt-main",
+          id: agentId("main", "setup"),
+          parentId: rootIds.main,
+          sourceWorktree: sourceWorktrees.main,
           task: "Update issue",
           status: "completed",
           relationship: "resolved",
@@ -224,8 +265,12 @@
       const olderNodes = Array.from({ length: 18 }, (_, index) => {
         const startedAgo = (index + 2) * day;
         return {
-          id: `wt-chore-shared-agent-flow-stream-older-${String(index + 1).padStart(2, "0")}`,
-          parentId: "wt-chore-shared-agent-flow-stream",
+          id: agentId(
+            "shared",
+            `older-${String(index + 1).padStart(2, "0")}`,
+          ),
+          parentId: rootIds.shared,
+          sourceWorktree: sourceWorktrees.shared,
           task: `Older completed agent ${index + 1}`,
           status: "completed",
           relationship: "resolved",
@@ -269,15 +314,17 @@
           diagnostics: [],
           lastEventAbsoluteTime: instant(7),
         },
+        sourceWorktree: sourceWorktrees.shared,
       });
       const selectPreviewAgent = () => {
         const agent = document.querySelector(
-          'button[data-node-id="wt-chore-shared-agent-flow-stream-test-writer-r2"]',
+          `button[data-node-id="${agentId("shared", "test-writer-r2")}"]`,
         );
         if (agent) agent.click();
         else setTimeout(selectPreviewAgent, 20);
       };
       selectPreviewAgent();
+      })();
     </script>
   </body>
 </html>

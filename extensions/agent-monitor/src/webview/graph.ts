@@ -38,18 +38,30 @@ function labelLines(value: string): string[] {
   return lines;
 }
 
+function ellipsize(value: string, maximum: number): string {
+  return value.length > maximum ? `${value.slice(0, maximum - 3)}...` : value;
+}
+
+function slugParts(slug: string): { prefix: string; hash: string | null } {
+  const match = slug.match(/^(.*)-([0-9a-f]{8})$/);
+  return match
+    ? { prefix: match[1], hash: match[2] }
+    : { prefix: slug, hash: null };
+}
+
 function nodeSize(
   node: ProjectedNode,
   lane: string | null,
 ): Pick<Place, "width" | "height"> {
+  if (lane) return { width: 220, height: 64 };
   const lines = labelLines(displayName(node.id, lane));
   return {
     width: Math.max(
-      node.id === "orchestrator" ? 300 : lane ? 220 : 180,
+      node.id === "orchestrator" ? 300 : 180,
       Math.max(...lines.map((line) => line.length * 12)) + 54,
     ),
     height: Math.max(
-      lane || node.id === "orchestrator" ? 64 : 60,
+      node.id === "orchestrator" ? 64 : 60,
       38 + lines.length * 18,
     ),
   };
@@ -293,6 +305,41 @@ function validEdges(nodes: ProjectedNode[], edges: Edge[]): Edge[] {
   });
 }
 
+function positionLine(
+  line: SVGLineElement,
+  semanticStart: [number, number],
+  semanticEnd: [number, number],
+  visibleStart: [number, number],
+  visibleEnd: [number, number],
+): void {
+  const [x1, y1] = semanticStart;
+  const [x2, y2] = semanticEnd;
+  line.setAttribute("x1", String(x1));
+  line.setAttribute("y1", String(y1));
+  line.setAttribute("x2", String(x2));
+  line.setAttribute("y2", String(y2));
+  if (
+    semanticStart[0] === visibleStart[0] &&
+    semanticStart[1] === visibleStart[1] &&
+    semanticEnd[0] === visibleEnd[0] &&
+    semanticEnd[1] === visibleEnd[1]
+  )
+    return;
+  const vx = x2 - x1;
+  const vy = y2 - y1;
+  const wx = visibleEnd[0] - visibleStart[0];
+  const wy = visibleEnd[1] - visibleStart[1];
+  const lengthSquared = vx * vx + vy * vy;
+  if (lengthSquared === 0) return;
+  const a = (wx * vx + wy * vy) / lengthSquared;
+  const b = (wy * vx - wx * vy) / lengthSquared;
+  const c = -b;
+  const d = a;
+  const e = visibleStart[0] - a * x1 - c * y1;
+  const f = visibleStart[1] - b * x1 - d * y1;
+  line.setAttribute("transform", `matrix(${a} ${b} ${c} ${d} ${e} ${f})`);
+}
+
 export function drawGraph(
   svgRoot: SVGSVGElement,
   layout: GraphLayout,
@@ -325,6 +372,8 @@ export function drawGraph(
   const ids = new Set(visible.map((node) => node.id));
   const edgeLayer = svg("g");
   edgeLayer.setAttribute("class", "graph-edges");
+  const valid = validEdges(nodes, edges);
+  const representedEdges = new Set<string>();
   const laneRoots = layout
     .laneRoots()
     .filter((rootId) => ids.has(rootId) && layout.place(rootId));
@@ -339,51 +388,143 @@ export function drawGraph(
     const busY = 120;
     const bus = svg("g");
     bus.dataset.connectorBus = "";
-    const path = svg("path");
-    path.setAttribute(
-      "d",
-      `M ${orchestrator.x + orchestrator.width / 2} ${
-        orchestrator.y + orchestrator.height
-      } V ${busY} M ${Math.min(...centers)} ${busY} H ${Math.max(
-        ...centers,
-      )} ${centers.map((center) => `M ${center} ${busY} V 140`).join(" ")}`,
+    const orchestratorDrop = svg("line");
+    orchestratorDrop.dataset.orchestratorDrop = "";
+    orchestratorDrop.setAttribute(
+      "x1",
+      String(orchestrator.x + orchestrator.width / 2),
     );
-    path.setAttribute("fill", "none");
-    path.setAttribute("stroke", "currentColor");
-    bus.append(path);
+    orchestratorDrop.setAttribute(
+      "x2",
+      String(orchestrator.x + orchestrator.width / 2),
+    );
+    orchestratorDrop.setAttribute(
+      "y1",
+      String(orchestrator.y + orchestrator.height),
+    );
+    orchestratorDrop.setAttribute("y2", String(busY));
+    orchestratorDrop.setAttribute("stroke", "currentColor");
+    bus.append(orchestratorDrop);
+    const busLine = svg("line");
+    busLine.setAttribute("x1", String(Math.min(...centers)));
+    busLine.setAttribute("x2", String(Math.max(...centers)));
+    busLine.setAttribute("y1", String(busY));
+    busLine.setAttribute("y2", String(busY));
+    busLine.setAttribute("stroke", "currentColor");
+    bus.append(busLine);
+    laneRoots.forEach((rootId, index) => {
+      const drop = svg("line");
+      drop.dataset.laneDrop = rootId;
+      drop.setAttribute("x1", String(centers[index]));
+      drop.setAttribute("x2", String(centers[index]));
+      drop.setAttribute("y1", String(busY));
+      drop.setAttribute("y2", "140");
+      drop.setAttribute("stroke", "currentColor");
+      const edge = valid.find(
+        (candidate) =>
+          candidate.parentId === "orchestrator" && candidate.childId === rootId,
+      );
+      if (edge) {
+        drop.dataset.edge = `${edge.parentId}:${edge.childId}`;
+        drop.dataset.parentId = edge.parentId;
+        drop.dataset.childId = edge.childId;
+        representedEdges.add(drop.dataset.edge);
+        const parent = layout.place(edge.parentId)!;
+        const child = layout.place(edge.childId)!;
+        positionLine(
+          drop,
+          [parent.x + parent.width / 2, parent.y + parent.height],
+          [child.x + child.width / 2, child.y],
+          [centers[index], busY],
+          [centers[index], 140],
+        );
+      } else {
+        positionLine(
+          drop,
+          [centers[index], busY],
+          [centers[index], 140],
+          [centers[index], busY],
+          [centers[index], 140],
+        );
+      }
+      bus.append(drop);
+    });
     edgeLayer.append(bus);
   }
   for (const rootId of laneRoots) {
     const rootPlace = layout.place(rootId)!;
-    const cards = visible
-      .filter(
-        (node) =>
-          layout.association(node) === rootId.slice(3) &&
-          (node.id !== rootId || Boolean(node.status)),
-      )
-      .map((node) => layout.place(node.id))
-      .filter((place): place is Place => Boolean(place));
+    const cards = visible.flatMap((node) => {
+      if (layout.lane(node.id) !== rootId.slice(3) || node.id === rootId)
+        return [];
+      return Array.from(
+        { length: Math.max(1, node.intervals?.length ?? 0) },
+        (_, index) => {
+          const place = layout.place(node.id, index);
+          return place ? { node, place, index } : null;
+        },
+      ).filter(
+        (item): item is { node: ProjectedNode; place: Place; index: number } =>
+          Boolean(item),
+      );
+    });
     if (!cards.length) continue;
-    const railX = rootPlace.x - 18;
-    const railTop = Math.min(...cards.map((place) => place.y + 20));
+    const railX = rootPlace.x;
+    const railTop = 244;
     const railBottom = Math.max(
-      ...cards.map((place) => place.y + place.height / 2),
+      ...cards.map(({ place }) => place.y + place.height / 2),
     );
-    const rail = svg("g");
+    const rail = svg("path");
     rail.dataset.laneRail = rootId;
-    const path = svg("path");
-    path.setAttribute(
+    rail.setAttribute(
       "d",
-      `M ${railX} ${railTop} V ${railBottom} ${cards
-        .map((place) => `M ${railX} ${place.y + place.height / 2} H ${place.x}`)
-        .join(" ")}`,
+      `M ${railX} ${railTop} H ${railX + 0.01} V ${railBottom} H ${railX} Z`,
     );
-    path.setAttribute("fill", "none");
-    path.setAttribute("stroke", "currentColor");
-    rail.append(path);
+    rail.setAttribute("fill", "currentColor");
+    rail.setAttribute("stroke", "none");
     edgeLayer.append(rail);
+    for (const { node, place, index } of cards) {
+      const tick = svg("line");
+      tick.dataset.laneTick = rootId;
+      tick.setAttribute("x1", String(railX));
+      tick.setAttribute("x2", String(place.x + 12));
+      tick.setAttribute("y1", String(place.y + place.height / 2));
+      tick.setAttribute("y2", String(place.y + place.height / 2));
+      tick.setAttribute("stroke", "currentColor");
+      const edge =
+        index === 0
+          ? valid.find(
+              (candidate) =>
+                candidate.childId === node.id &&
+                !(node.id === rootId && candidate.parentId === "orchestrator"),
+            )
+          : undefined;
+      if (edge) {
+        tick.dataset.edge = `${edge.parentId}:${edge.childId}`;
+        tick.dataset.parentId = edge.parentId;
+        tick.dataset.childId = edge.childId;
+        representedEdges.add(tick.dataset.edge);
+        const parent = layout.place(edge.parentId)!;
+        positionLine(
+          tick,
+          [parent.x + parent.width / 2, parent.y + parent.height],
+          [place.x + place.width / 2, place.y],
+          [railX, place.y + place.height / 2],
+          [place.x + 12, place.y + place.height / 2],
+        );
+      } else {
+        positionLine(
+          tick,
+          [railX, place.y + place.height / 2],
+          [place.x + 12, place.y + place.height / 2],
+          [railX, place.y + place.height / 2],
+          [place.x + 12, place.y + place.height / 2],
+        );
+      }
+      edgeLayer.append(tick);
+    }
   }
-  for (const [edgeIndex, edge] of validEdges(nodes, edges).entries()) {
+  for (const edge of valid) {
+    if (representedEdges.has(`${edge.parentId}:${edge.childId}`)) continue;
     if (!ids.has(edge.parentId) || !ids.has(edge.childId)) continue;
     const parent = layout.place(edge.parentId)!;
     const child = layout.place(edge.childId)!;
@@ -391,33 +532,16 @@ export function drawGraph(
     const parentY = parent.y + parent.height;
     const childX = child.x + child.width / 2;
     const childY = child.y;
-    if (!child.lane) {
-      const line = svg("line");
-      line.dataset.edge = `${edge.parentId}:${edge.childId}`;
-      line.dataset.parentId = edge.parentId;
-      line.dataset.childId = edge.childId;
-      line.setAttribute("x1", String(parentX));
-      line.setAttribute("y1", String(parentY));
-      line.setAttribute("x2", String(childX));
-      line.setAttribute("y2", String(childY));
-      line.setAttribute("stroke", "currentColor");
-      edgeLayer.append(line);
-      continue;
-    }
-    const path = svg("path");
-    const spineX = child.x - 18 - (edgeIndex % 3) * 3;
-    const branchY = Math.max(parentY + 18, childY - 18);
-    path.dataset.edge = `${edge.parentId}:${edge.childId}`;
-    path.dataset.parentId = edge.parentId;
-    path.dataset.childId = edge.childId;
-    path.dataset.spineX = String(spineX);
-    path.setAttribute(
-      "d",
-      `M ${parentX} ${parentY} V ${branchY} H ${spineX} V ${childY - 10} H ${childX} V ${childY}`,
-    );
-    path.setAttribute("stroke", "currentColor");
-    path.setAttribute("fill", "none");
-    edgeLayer.append(path);
+    const line = svg("line");
+    line.dataset.edge = `${edge.parentId}:${edge.childId}`;
+    line.dataset.parentId = edge.parentId;
+    line.dataset.childId = edge.childId;
+    line.setAttribute("x1", String(parentX));
+    line.setAttribute("y1", String(parentY));
+    line.setAttribute("x2", String(childX));
+    line.setAttribute("y2", String(childY));
+    line.setAttribute("stroke", "currentColor");
+    edgeLayer.append(line);
   }
   svgRoot.append(edgeLayer);
   const laneLayer = svg("g");
@@ -455,7 +579,6 @@ export function drawGraph(
     clipBox.setAttribute("width", "220");
     clipBox.setAttribute("height", "104");
     clip.append(clipBox);
-    header.append(clip);
     header.setAttribute("clip-path", `url(#${clipId})`);
     const headerBox = svg("rect");
     headerBox.setAttribute("x", String(place.x));
@@ -463,6 +586,7 @@ export function drawGraph(
     headerBox.setAttribute("width", "220");
     headerBox.setAttribute("height", "104");
     header.append(headerBox);
+    header.append(clip);
     const accent = svg("line");
     accent.setAttribute("x1", String(place.x + 2));
     accent.setAttribute("x2", String(place.x + 218));
@@ -474,12 +598,13 @@ export function drawGraph(
     label.setAttribute("x", String(place.x + 12));
     label.setAttribute("y", "164");
     label.setAttribute("class", "lane-label");
-    const laneLabel = node.task ?? "Worktree";
-    label.textContent =
-      laneLabel.length > 20 ? `${laneLabel.slice(0, 17)}...` : laneLabel;
+    label.dataset.laneLabel = "";
+    const slug = rootId.slice(3);
+    const { prefix, hash } = slugParts(slug);
+    label.textContent = ellipsize(prefix, 20);
     header.append(label);
     const fullLabel = svg("title");
-    fullLabel.textContent = laneLabel;
+    fullLabel.textContent = `${node.task ?? "Worktree"} ${rootId}`;
     header.append(fullLabel);
     const pill = svg("text");
     pill.setAttribute("x", String(place.x + 208));
@@ -492,8 +617,14 @@ export function drawGraph(
     branch.setAttribute("x", String(place.x + 12));
     branch.setAttribute("y", "193");
     branch.setAttribute("class", "lane-branch");
-    branch.textContent =
-      rootId.length > 27 ? `${rootId.slice(0, 24)}...` : rootId;
+    branch.dataset.worktreeSlug = "";
+    branch.append(document.createTextNode(hash ? `${prefix}-` : prefix));
+    if (hash) {
+      const hashText = svg("tspan");
+      hashText.dataset.slugHash = "";
+      hashText.textContent = hash;
+      branch.append(hashText);
+    }
     header.append(branch);
     const count = associated.length + (node.status ? 1 : 0);
     const since = node.intervals?.[0]?.startAbsoluteTime
@@ -538,7 +669,8 @@ export function drawGraph(
       label.setAttribute("x", String(place.x + 38));
       label.setAttribute("y", String(place.y + 25));
       label.setAttribute("class", "agent-name");
-      const lines = labelLines(displayName(node.id, place.lane));
+      const display = displayName(node.id, place.lane);
+      const lines = place.lane ? [ellipsize(display, 18)] : labelLines(display);
       lines.forEach((value, lineIndex) => {
         const span = svg("tspan");
         span.dataset.nameLine = "";
@@ -571,9 +703,18 @@ export function drawGraph(
       const state = svg("tspan");
       state.setAttribute("x", String(place.x + 12));
       state.setAttribute("y", String(place.y + place.height - 12));
-      state.setAttribute("class", "agent-summary");
-      state.textContent = `${status}  ${compactSummary}`;
+      state.setAttribute("class", "agent-status-word");
+      state.textContent = status;
       label.append(state);
+      const summary = svg("tspan");
+      summary.setAttribute(
+        "x",
+        String(place.x + 20 + Math.min(status.length, 14) * 6),
+      );
+      summary.setAttribute("y", String(place.y + place.height - 12));
+      summary.setAttribute("class", "agent-summary-text");
+      summary.textContent = ellipsize(compactSummary, 21);
+      label.append(summary);
       if (node.relationship === "unresolved") {
         const mark = svg("path");
         mark.setAttribute("stroke-dasharray", "3 2");
