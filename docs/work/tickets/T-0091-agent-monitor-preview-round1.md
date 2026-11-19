@@ -2,7 +2,7 @@
 
 ## Assignment
 
-- Status: in_progress
+- Status: in_review
 - Owner actor: R-0094/coordinator
 - Role: Implementer after Zack-confirmed corrected RED
 - Run: [R-0094](../runs/R-0094.md), after [R-0093](../runs/R-0093.md)
@@ -12,7 +12,7 @@
 - Branch / worktree: `feature/008-agent-monitor-ui` / `../tallyhold-feature-008-agent-monitor-ui`
 - Worktree path: `../tallyhold-feature-008-agent-monitor-ui`
 - Issue / PR: related #44; no PR requested
-- Updated: 2026-11-19T01:45:14Z
+- Updated: 2026-11-19T01:46:11Z
 
 ## Scope
 
@@ -36,16 +36,16 @@ page flow, and apply the requested timeline/status/older-run polish.
 - [x] Each lane has exactly one rail and one tick per rendered agent card; every card stays within its lane header width.
 - [x] Preview IDs follow the adapter's normalized-prefix plus eight-hex-hash contract, with the hash shown muted and no invented branch name.
 - [x] The 800px preview uses normal document flow through the complete inspector and footer without clipped content or empty trailing space.
-- [ ] Round-2 previews and all required checks are committed and pushed for Zack.
+- [x] Round-2 previews and all required checks are committed and pushed for Zack.
 
 ## Checkpoint
 
-- Last completed action: completed the full verification matrix over the regenerated previews.
+- Last completed action: committed and pushed the verified implementation and regenerated previews as `0f5cfb3`.
 - Evidence: lint, format, typecheck, build, package, 126 tests, 97.88% line coverage, Playwright guards, 30 adapter tests, benchmarks, and the final detector pass.
-- Worktree state: implementation, fixture, styles, guards, previews, and tracking are modified over `b2ce98c`.
-- Remaining work: commit, push, and hand off.
+- Worktree state: implementation is pushed at `0f5cfb3`; this final tracking handoff remains to commit and push.
+- Remaining work: Zack preview review; no reinstall or PR in this assignment.
 - Blocker / unblock action: none.
-- Next action: commit the implementation and previews, then record and push the final handoff.
+- Next action: commit and push this final tracking handoff, then stop for Zack.
 - Handoff recipient: Zack after pushed corrected previews; no reinstall and no PR.
 
 ## History
@@ -80,3 +80,4 @@ page flow, and apply the requested timeline/status/older-run polish.
 | 2026-11-18T11:11:18Z | R-0094/coordinator | Zack explicitly confirmed corrected RED and authorized GREEN | Implement items 1-5 without changing the approved tests |
 | 2026-11-19T01:41:45Z | R-0094/coordinator | Implemented all five corrections; focused DOM and wide/narrow Playwright guards pass, previews regenerated, detector clean | Run the full verification matrix, then commit and push |
 | 2026-11-19T01:45:14Z | R-0094/coordinator | Full verification passes: 126 tests, 97.88% line coverage, browser guards, build/package, 30 adapter tests, benchmarks, and static checks | Commit implementation and previews, then push the handoff |
+| 2026-11-19T01:46:11Z | R-0094/coordinator | Pushed verified implementation and both round-2 previews as `0f5cfb3` | Commit/push final tracking and stop for Zack; no reinstall or PR |
