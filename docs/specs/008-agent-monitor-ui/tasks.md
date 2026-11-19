@@ -120,7 +120,7 @@ previews at `7ccf2b8`. Track B uses
 - [x] **Diagnosis and amendment:** Run the production parser against the shared
   stream, explain registration leaks and count disagreement without committing
   private data, and record the approved spec/plan amendments.
-- [ ] **RED:** Add synthetic presentation, DOM, and production-bundle guards
+- [x] **RED:** Add synthetic presentation, DOM, and production-bundle guards
   for P1-P8. Prove focused failures and unaffected checks, commit and push RED
   evidence, then obtain fresh independent RED approval before GREEN.
 - [ ] **GREEN:** Implement root-based registration and display names,

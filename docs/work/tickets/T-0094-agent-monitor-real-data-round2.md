@@ -4,7 +4,7 @@
 
 - Status: in_progress
 - Owner actor: R-0096/coordinator
-- Role: coordinator / Test writer
+- Role: coordinator / Implementer
 - Run: [R-0096](../runs/R-0096.md), after [R-0095](../runs/R-0095.md)
 - Feature / task: [Feature 008 spec](../../specs/008-agent-monitor-ui/spec.md), [approved plan](../../specs/008-agent-monitor-ui/plan.md), real-data preview round 2
 - Authorization: Zack's hands-on review of four real-data previews and decisions d-g on 2026-11-19
@@ -12,7 +12,7 @@
 - Branch / worktree: `feature/008-agent-monitor-ui` / `../tallyhold-feature-008-agent-monitor-ui`
 - Worktree path: `../tallyhold-feature-008-agent-monitor-ui`
 - Issue / PR: related #44; no PR requested
-- Updated: 2026-11-19T07:12:31Z
+- Updated: 2026-11-19T07:15:17Z
 
 ## Scope
 
@@ -34,18 +34,19 @@ paths. Do not reinstall the extension or open a PR.
 
 ## Checkpoint
 
-- Last completed action: proved Zack's authorized SVG guard correction.
+- Last completed action: pinned and recorded the authorized RED correction at
+  `744771b`.
 - Evidence: the standalone relative/implicit path case passes; the cumulative
   slice has seven expected production failures and one parser pass; all 130
   unaffected tests pass. Lint, formatting, and typecheck pass; the production
   preview still first fails on P1 auto-fit.
-- Worktree state: targeted test infrastructure and authorization tracking are
-  ready to commit; production remains unchanged and private diagnosis remains
-  outside the repository.
-- Remaining work: pin and push the correction, record exact-revision RED
-  evidence, then enter GREEN.
+- Worktree state: RED evidence and role-transition tracking are uncommitted;
+  production remains unchanged and private diagnosis remains outside the
+  repository.
+- Remaining work: commit and push RED evidence, then implement P1-P8.
 - Blocker / unblock action: none; Zack authorized this correction.
-- Next action: commit the test-only correction and rerun evidence at its SHA.
+- Next action: commit and push RED evidence, then start GREEN with root-based
+  identity presentation.
 - Handoff recipient: Zack after completed verification.
 
 ## History
@@ -60,3 +61,4 @@ paths. Do not reinstall the extension or open a PR.
 | 2026-11-19T05:23:09Z | R-0096/coordinator | Final fresh RED round 2 requested one SVG-path guard correction at `ff84be6` | Escalate to Zack; do not enter GREEN                 |
 | 2026-11-19T07:05:47Z | Zack / R-0096/coordinator | Authorized the one targeted post-round-2 test correction                | Correct SVG parser guard, rerun evidence, enter GREEN |
 | 2026-11-19T07:12:31Z | R-0096/test-writer | Proved the shared absolute/relative/implicit SVG parser and cumulative RED | Commit correction, rerun at pinned SHA, enter GREEN |
+| 2026-11-19T07:15:17Z | R-0096/test-writer | Recorded exact-revision evidence for `744771b` and handed GREEN to Implementer | Commit and push evidence, implement P1-P8 |

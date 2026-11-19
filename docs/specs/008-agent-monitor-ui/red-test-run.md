@@ -447,3 +447,27 @@ The first quality-wrapper attempt started below the repository root and failed
 before running npm because the Agent Flow adapter path was unavailable there.
 The unchanged npm checks were rerun from their required directories and passed;
 the wrapper mistake is not product evidence.
+
+### Zack-authorized round-2 correction
+
+After the two-reviewer limit, Zack explicitly authorized the one requested
+test-only correction. Commit `744771b` replaces the duplicated SVG collectors
+with one shared parser for absolute and relative `M/L/H/V/Z`, including
+implicit command repetition, and adds a standalone adversarial relative-path
+case. Production remains unchanged.
+
+At exact executable revision `744771b`:
+
+| Command | Exit | Result |
+| --- | ---: | --- |
+| `npx vitest run test/webview.test.ts -t "detects near-duplicate relative and implicit SVG path segments"` | 0 | The adversarial parser guard passed; 59 unrelated DOM cases were skipped. |
+| `npx vitest run test/webview.test.ts -t "preserves the camera after append\|collapses five runs\|treats current\|uses latest\|reconciles recent\|draws no overlapping\|detects near-duplicate\|caps the narrow"` | 1 (expected) | Seven missing-production-behavior cases failed, the parser guard passed, and 52 cases were skipped. |
+| `npx vitest run -t "^(?!.*(?:preserves the camera after append and filtering\|collapses five runs to one card\|treats current and legacy lane roots\|uses latest-run duration\|reconciles recent older\|draws no overlapping near-duplicate\|detects near-duplicate relative and implicit\|caps the narrow navigator)).*$"` | 0 | All 130 unaffected tests passed; exactly eight focused cases were skipped. |
+| `npm run test:preview-layout` | 1 (expected) | The production bundle rendered and first failed because the wide All-runs graph was not fitted, top-anchored, and centered. |
+| `npm run lint` | 0 | ESLint passed. |
+| `npm run typecheck` | 0 | TypeScript passed. |
+| `npx prettier --check scripts/svg-path-segments.ts scripts/capture-preview.ts test/webview.test.ts && npm run format:check` | 0 | Changed guard files and configured project files passed Prettier. |
+
+This satisfies Zack's targeted correction authorization and resolves the final
+RED-review escalation. GREEN may proceed against these unchanged behavioral
+expectations.
