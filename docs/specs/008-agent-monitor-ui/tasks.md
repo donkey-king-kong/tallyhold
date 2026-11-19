@@ -85,3 +85,27 @@ approved RED cases. Do not weaken tests to force a pass.
   Zack's explicit PR/ship request; use the full gated
   [ship](../../skills/ship.md) procedure then. Do not open a PR during this
   planning handoff.
+
+## Real-data smoke correction
+
+Zack approved the real-data smoke amendment on 2026-11-19. Track B uses
+[T-0093](../../work/tickets/T-0093-agent-monitor-real-data-smoke.md) and
+[R-0095](../../work/runs/R-0095.md) for this correction.
+
+- [ ] **RED:** Extend the synthetic DOM and production-bundle Playwright seams
+  for unassigned legacy identities, registration metadata, one card/row per
+  identity with run badges, contiguous filtered slots, nonintersecting card
+  text/boxes/lanes, orthogonal connectors, and navigator containment. Commit
+  and push failing tests plus exact evidence, then obtain fresh RED approval.
+- [ ] **GREEN:** Implement the approved identity aggregation, unassigned lane,
+  registration exclusion, compact filtered geometry, card grid, resizable
+  navigator, readable graph type, and range-honest footer without weakening
+  RED guards.
+- [ ] **Honest previews:** Add the ignored `preview:real` path through the real
+  parser/presentation pipeline, run it against the main checkout's shared log,
+  and regenerate committed wide/narrow previews from the expanded sanitized
+  fixture.
+- [ ] **Verification and handoff:** Run all existing checks, package, adapter
+  tests, benchmarks, committed preview guards, and the four local real-data
+  captures. Push commits and stop for Zack without reinstalling or opening a
+  PR.

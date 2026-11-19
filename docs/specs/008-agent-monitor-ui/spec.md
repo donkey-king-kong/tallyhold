@@ -4,6 +4,29 @@
 
 Approved — Gate 1, 2026-11-18 (Zack).
 
+## Approved real-data smoke amendment
+
+Zack approved these corrections on 2026-11-19 after hands-on smoke round 1
+against the shared stream:
+
+1. Render one card and navigator row per identity per lane. Collapse repeated
+   intervals into that identity, show the latest run on its card, and show an
+   in-row `×N` run badge. The inspector defaults to the latest run and keeps
+   its run selector and activity scoped to the selected run. An unavailable
+   duration is a muted in-row value, never loose text between rows.
+2. Put identities without a `wt-` worktree prefix in the far-left
+   `Unassigned (before shared stream)` lane and navigator group. It uses the
+   same header, rail, ticks, and one bus drop as worktree lanes. Every visible
+   connector segment is horizontal or vertical; no diagonal connector is
+   allowed.
+3. Treat a worktree registration identity whose ID equals its root ID and
+   whose task is `Worktree activity` as lane metadata, not an agent. It never
+   renders as an agent card or navigator row; its reports feed the lane
+   header's status and since-time.
+4. Range filtering compacts each lane to visible identities with no empty
+   slots. This supersedes preservation of empty presentation slots across a
+   range/filter change; identity order remains deterministic.
+
 ## Problem
 
 Zack's hands-on inspection of a week of real Feature 004 JSONL on 2026-11-18
@@ -148,6 +171,17 @@ shared-stream worktree roots (`wt-<slug>`) provide grouping when present.
     identity/line limits. Webview DOM tests cover the criteria above with
     synthetic fixtures; any additional projection fields only expose already
     reported or verifiably derived facts, not new publisher semantics.
+16. **Real-stream resilience.** Given mixed legacy and namespaced identities,
+   repeated runs, registration heartbeats, long copy, and quiet nonterminal
+   agents, when either range renders, then unassigned identities use their
+   normal far-left lane, registration roots are metadata-only, identities are
+   deduplicated with run badges, visible cards are contiguous, card text does
+   not intersect, and every connector segment is orthogonal. The navigator is
+   resizable from a 300px default within 240px–480px without horizontal
+   overflow or clipped durations. At 100% graph zoom, card names are about
+   13px and status copy about 12px. The footer says either
+   `<N> agents in last 24 hours` or `<N> agents · all runs` according to the
+   active filter.
 
 ## Out of scope
 

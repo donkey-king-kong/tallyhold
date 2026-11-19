@@ -21,12 +21,67 @@
   assistive technology and in the navigator/inspector. At widths below 960px,
   the panes use normal document flow in header, toolbar, navigator, graph,
   inspector, footer order; only the fixed-height graph pans internally.
+- **Approved real-data smoke amendment — 2026-11-19 (Zack).** Collapse
+  repeated intervals to one identity card/row with in-card and in-row run
+  badges; keep inspector run selection latest-first and run-scoped. Place
+  unprefixed legacy identities in a normal far-left
+  `Unassigned (before shared stream)` lane. Treat a root identity with task
+  `Worktree activity` as lane metadata only. Compact filtered lanes to visible
+  cards, superseding empty stable slots. All visible connector segments are
+  orthogonal.
 - This is a local, read-only extension presentation change. No portfolio
   application, publisher/adapter, source reader, database, Alembic migration,
   CI workflow, or multi-session aggregation change. The 004 limits and privacy
   rules remain in force. Any CI/Compose change belongs to Track C.
 
 ## Approach
+
+### Real-stream correction
+
+Build a display-identity collection before navigator and graph rendering. Each
+projected node remains the source-of-truth identity and owns all reported
+intervals, but contributes at most one navigator row and one graph card. Its
+latest interval drives card status, summary, and duration; the card and row
+show `×N runs` when more than one interval exists. Inspector selection stores
+the selected identity plus interval index, defaults to the latest interval,
+and filters activity to that interval's reported bounds.
+
+Registration roots are recognized narrowly: `node.id` equals an observed
+`wt-<slug>` root and `node.task` equals `Worktree activity`. They reserve and
+populate a lane header but are excluded from agent cards, navigator rows,
+search results, and footer agent counts. Other root-like reported agents retain
+normal behavior.
+
+Legacy identities without a reported `wt-` prefix or assigned worktree use one
+synthetic presentation lane keyed `unassigned`, ordered before worktree lanes
+and labelled `Unassigned (before shared stream)`. This is presentation-only;
+it does not invent a parent or mutate projection identity data. The lane has
+the same fixed width, header, rail, ticks, and bus drop as every other lane.
+All connector paths are sequences of horizontal and vertical segments.
+
+Range and active filters build lane slots from visible display identities
+rather than retaining hidden geometry. Stable source order remains the tie
+breaker, but no hidden card reserves a row.
+
+Use a two-row fixed card grid: icon/name/fixed duration, then
+status/flexible summary/fixed quiet-report tag. Both flexible text cells have
+`min-width: 0` and ellipsis; duration and quiet-report cells never shrink.
+Card type at 100% uses approximately 13px mono names and 12px status copy.
+
+The desktop navigator defaults to about 300px and exposes a keyboard/pointer
+resizer constrained to 240px–480px. Navigator rows use constrained grid
+columns, never horizontal scrolling, and keep duration or muted
+`Time unavailable` plus the run badge inside the row. Narrow layout remains
+full-width and does not inherit the desktop resize width.
+
+Add `scripts/capture-real-preview.ts` and `npm run preview:real -- <jsonl>`.
+The script accepts only an explicit local JSONL path, runs it through the
+existing source reader/reconciler and production webview bundle, toggles both
+range filters at 1440×940 and 800×900 DPR 2, and writes four PNGs below the
+gitignored `extensions/agent-monitor/.preview-real/`. It never copies the
+source log or embeds source records in repository artifacts. The committed
+synthetic fixture covers equivalent sanitized cases and remains the normal
+regression input.
 
 ### Boundaries and data
 
