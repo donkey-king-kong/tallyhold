@@ -16,6 +16,10 @@ import {
   syntheticView,
   twoLanes,
 } from "./ui-fixtures";
+import {
+  hasOverlappingHorizontalSegments,
+  horizontalSegmentsFromPathData,
+} from "../scripts/svg-path-segments";
 
 let dispose: (() => void) | undefined;
 let restoreBBox: (() => void) | undefined;
@@ -2761,19 +2765,6 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
       ),
     ).toHaveLength(1);
     const horizontal: Array<{ y: number; left: number; right: number }> = [];
-    const addSegment = (
-      startX: number,
-      startY: number,
-      endX: number,
-      endY: number,
-    ) => {
-      if (startY === endY && startX !== endX)
-        horizontal.push({
-          y: startY,
-          left: Math.min(startX, endX),
-          right: Math.max(startX, endX),
-        });
-    };
     for (const line of graph.querySelectorAll<SVGLineElement>(
       ".graph-edges line",
     )) {
@@ -2781,54 +2772,27 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
       const x2 = Number(line.getAttribute("x2"));
       const y1 = Number(line.getAttribute("y1"));
       const y2 = Number(line.getAttribute("y2"));
-      addSegment(x1, y1, x2, y2);
+      horizontal.push(
+        ...horizontalSegmentsFromPathData(`M ${x1} ${y1} L ${x2} ${y2}`),
+      );
     }
     for (const path of graph.querySelectorAll<SVGPathElement>(
       ".graph-edges path",
     )) {
-      const tokens =
-        path.getAttribute("d")?.match(/[MLHVZ]|-?(?:\d+\.?\d*|\.\d+)/g) ?? [];
-      let x = 0;
-      let y = 0;
-      let startX = 0;
-      let startY = 0;
-      for (let index = 0; index < tokens.length;) {
-        const command = tokens[index++];
-        if (command === "M" || command === "L") {
-          const nextX = Number(tokens[index++]);
-          const nextY = Number(tokens[index++]);
-          if (command === "L") addSegment(x, y, nextX, nextY);
-          x = nextX;
-          y = nextY;
-          if (command === "M") {
-            startX = x;
-            startY = y;
-          }
-        } else if (command === "H") {
-          const nextX = Number(tokens[index++]);
-          addSegment(x, y, nextX, y);
-          x = nextX;
-        } else if (command === "V") {
-          y = Number(tokens[index++]);
-        } else if (command === "Z") {
-          addSegment(x, y, startX, startY);
-          x = startX;
-          y = startY;
-        }
-      }
+      horizontal.push(
+        ...horizontalSegmentsFromPathData(path.getAttribute("d") ?? ""),
+      );
     }
-    const duplicates = horizontal.filter((segment, index) =>
-      horizontal
-        .slice(index + 1)
-        .some(
-          (other) =>
-            Math.abs(segment.y - other.y) <= 4 &&
-            Math.min(segment.right, other.right) -
-              Math.max(segment.left, other.left) >
-              4,
-        ),
-    );
-    expect(duplicates).toEqual([]);
+    expect(hasOverlappingHorizontalSegments(horizontal)).toBe(false);
+  });
+
+  it("detects near-duplicate relative and implicit SVG path segments", () => {
+    expect(
+      hasOverlappingHorizontalSegments([
+        ...horizontalSegmentsFromPathData("m 0 0 h 100 v 3 h -100"),
+        ...horizontalSegmentsFromPathData("M 0 0 100 0"),
+      ]),
+    ).toBe(true);
   });
 
   it("caps the narrow navigator at two-fifths of the viewport", () => {

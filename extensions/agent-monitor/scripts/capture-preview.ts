@@ -3,6 +3,10 @@ import { dirname, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
 import { chromium } from "playwright";
+import {
+  hasOverlappingHorizontalSegments,
+  horizontalSegmentsFromPathData,
+} from "./svg-path-segments";
 
 const extensionRoot = resolve(import.meta.dirname, "..");
 const outputRoot = resolve(
@@ -609,6 +613,45 @@ try {
         (await page.locator("[data-lane-drop]").count()) === 4,
       `${name}: orchestrator bus has duplicate or missing drops`,
     );
+    const connectorGeometry = await page.evaluate(() => {
+      const registrationIds = new Set(
+        Array.from(
+          document.querySelectorAll<SVGGElement>("[data-lane-header]"),
+        ).map((header) => header.dataset.laneHeader ?? ""),
+      );
+      return {
+        lines: Array.from(
+          document.querySelectorAll<SVGLineElement>(".graph-edges line"),
+        ).map((line) => ({
+          x1: Number(line.getAttribute("x1")),
+          y1: Number(line.getAttribute("y1")),
+          x2: Number(line.getAttribute("x2")),
+          y2: Number(line.getAttribute("y2")),
+        })),
+        paths: Array.from(
+          document.querySelectorAll<SVGPathElement>(".graph-edges path"),
+        ).map((path) => path.getAttribute("d") ?? ""),
+        registrationRoutes: Array.from(
+          document.querySelectorAll<SVGPathElement>(
+            ".graph-edges path[data-edge]",
+          ),
+        ).filter((path) => registrationIds.has(path.dataset.childId ?? ""))
+          .length,
+      };
+    });
+    const horizontalSegments = [
+      ...connectorGeometry.lines.flatMap((line) =>
+        horizontalSegmentsFromPathData(
+          `M ${line.x1} ${line.y1} L ${line.x2} ${line.y2}`,
+        ),
+      ),
+      ...connectorGeometry.paths.flatMap(horizontalSegmentsFromPathData),
+    ];
+    requireLayout(
+      !hasOverlappingHorizontalSegments(horizontalSegments) &&
+        connectorGeometry.registrationRoutes === 0,
+      `${name}: graph has overlapping horizontal segments or registration routes`,
+    );
 
     const realDataGeometry = await page.evaluate(() => {
       const intersects = (left: DOMRect, right: DOMRect) =>
@@ -711,88 +754,6 @@ try {
           line.getAttribute("y1") !== line.getAttribute("y2")
         );
       });
-      const horizontalSegments: Array<{
-        y: number;
-        left: number;
-        right: number;
-      }> = [];
-      const addHorizontalSegment = (
-        startX: number,
-        startY: number,
-        endX: number,
-        endY: number,
-      ) => {
-        if (startY === endY && startX !== endX)
-          horizontalSegments.push({
-            y: startY,
-            left: Math.min(startX, endX),
-            right: Math.max(startX, endX),
-          });
-      };
-      for (const line of document.querySelectorAll<SVGLineElement>(
-        ".graph-edges line",
-      )) {
-        const x1 = Number(line.getAttribute("x1"));
-        const x2 = Number(line.getAttribute("x2"));
-        const y1 = Number(line.getAttribute("y1"));
-        const y2 = Number(line.getAttribute("y2"));
-        addHorizontalSegment(x1, y1, x2, y2);
-      }
-      for (const path of document.querySelectorAll<SVGPathElement>(
-        ".graph-edges path",
-      )) {
-        const tokens =
-          path.getAttribute("d")?.match(/[MLHVZ]|-?(?:\d+\.?\d*|\.\d+)/g) ?? [];
-        let x = 0;
-        let y = 0;
-        let startX = 0;
-        let startY = 0;
-        for (let index = 0; index < tokens.length;) {
-          const command = tokens[index++];
-          if (command === "M" || command === "L") {
-            const nextX = Number(tokens[index++]);
-            const nextY = Number(tokens[index++]);
-            if (command === "L") addHorizontalSegment(x, y, nextX, nextY);
-            x = nextX;
-            y = nextY;
-            if (command === "M") {
-              startX = x;
-              startY = y;
-            }
-          } else if (command === "H") {
-            const nextX = Number(tokens[index++]);
-            addHorizontalSegment(x, y, nextX, y);
-            x = nextX;
-          } else if (command === "V") {
-            y = Number(tokens[index++]);
-          } else if (command === "Z") {
-            addHorizontalSegment(x, y, startX, startY);
-            x = startX;
-            y = startY;
-          }
-        }
-      }
-      const duplicateBusSegment = horizontalSegments.some((segment, index) =>
-        horizontalSegments
-          .slice(index + 1)
-          .some(
-            (other) =>
-              Math.abs(segment.y - other.y) <= 4 &&
-              Math.min(segment.right, other.right) -
-                Math.max(segment.left, other.left) >
-                4,
-          ),
-      );
-      const registrationIds = new Set(
-        Array.from(
-          document.querySelectorAll<SVGGElement>("[data-lane-header]"),
-        ).map((header) => header.dataset.laneHeader ?? ""),
-      );
-      const registrationRoute = Array.from(
-        document.querySelectorAll<SVGPathElement>(
-          ".graph-edges path[data-edge]",
-        ),
-      ).some((path) => registrationIds.has(path.dataset.childId ?? ""));
       const laneHasHole = Array.from(
         document.querySelectorAll<SVGGElement>("[data-lane-header]"),
       ).some((header) => {
@@ -819,8 +780,6 @@ try {
         textCollision,
         cardCollision,
         diagonalConnector,
-        duplicateBusSegment,
-        registrationRoute,
         laneHasHole,
         navigatorOverflows: navigator.scrollWidth > navigator.clientWidth + 1,
       };
