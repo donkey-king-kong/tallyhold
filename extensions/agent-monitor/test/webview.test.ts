@@ -649,6 +649,73 @@ function graphNode(root: HTMLElement, id: string) {
   return root.querySelector<SVGGElement>(`svg g[data-node-id="${id}"]`)!;
 }
 
+function connectorGeometry(connector: SVGElement) {
+  if (connector.tagName.toLowerCase() === "line") {
+    const [x1, y1, x2, y2] = ["x1", "y1", "x2", "y2"].map((key) =>
+      Number(connector.getAttribute(key)),
+    );
+    return {
+      start: [x1, y1],
+      end: [x2, y2],
+      orthogonal: x1 === x2 || y1 === y2,
+    };
+  }
+  const tokens =
+    connector.getAttribute("d")?.match(/[a-zA-Z]|-?(?:\d+\.?\d*|\.\d+)/g) ?? [];
+  let index = 0;
+  let command = "";
+  let x = 0;
+  let y = 0;
+  let subpathX = 0;
+  let subpathY = 0;
+  let start: number[] | null = null;
+  let orthogonal = true;
+  const coordinate = () => Number(tokens[index++]);
+  while (index < tokens.length) {
+    if (/^[a-zA-Z]$/.test(tokens[index])) command = tokens[index++];
+    const relative = command === command.toLowerCase();
+    switch (command.toUpperCase()) {
+      case "M": {
+        const nextX = coordinate() + (relative ? x : 0);
+        const nextY = coordinate() + (relative ? y : 0);
+        x = nextX;
+        y = nextY;
+        subpathX = x;
+        subpathY = y;
+        start ??= [x, y];
+        command = relative ? "l" : "L";
+        break;
+      }
+      case "L": {
+        const nextX = coordinate() + (relative ? x : 0);
+        const nextY = coordinate() + (relative ? y : 0);
+        orthogonal &&= nextX === x || nextY === y;
+        x = nextX;
+        y = nextY;
+        break;
+      }
+      case "H": {
+        x = coordinate() + (relative ? x : 0);
+        break;
+      }
+      case "V": {
+        y = coordinate() + (relative ? y : 0);
+        break;
+      }
+      case "Z": {
+        orthogonal &&= subpathX === x || subpathY === y;
+        x = subpathX;
+        y = subpathY;
+        command = "";
+        break;
+      }
+      default:
+        return { start: start ?? [], end: [x, y], orthogonal: false };
+    }
+  }
+  return { start: start ?? [], end: [x, y], orthogonal };
+}
+
 describe("Feature 008 Agent Monitor DOM acceptance", () => {
   it("applies the bundled stylesheet to the workspace without inline layout", () => {
     const { root } = mount008(twoLanes().nodes, twoLanes().edges);
@@ -1022,16 +1089,22 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
         getComputedStyle(matches[0]).stroke;
       expect(stroke).toBeTruthy();
       expect(stroke).not.toMatch(/^(?:none|transparent)$/i);
-      if (matches[0].tagName.toLowerCase() === "line") {
-        const [x1, y1, x2, y2] = ["x1", "y1", "x2", "y2"].map((key) =>
-          Number(matches[0].getAttribute(key)),
-        );
-        expect(x1 === x2 || y1 === y2).toBe(true);
-        expect(matches[0].hasAttribute("transform")).toBe(false);
-      } else {
-        expect(matches[0].getAttribute("d")).toMatch(/^M /);
-        expect(matches[0].getAttribute("d")).not.toMatch(/[CLQAST]/i);
-      }
+      const geometry = connectorGeometry(matches[0]);
+      expect(geometry.orthogonal).toBe(true);
+      expect(matches[0].hasAttribute("transform")).toBe(false);
+      const parent = graphNode(root, edge.parentId).querySelector("rect")!;
+      const child = graphNode(root, edge.childId).querySelector("rect")!;
+      expect(geometry.start).toEqual([
+        Number(parent.getAttribute("x")) +
+          Number(parent.getAttribute("width")) / 2,
+        Number(parent.getAttribute("y")) +
+          Number(parent.getAttribute("height")),
+      ]);
+      expect(geometry.end).toEqual([
+        Number(child.getAttribute("x")) +
+          Number(child.getAttribute("width")) / 2,
+        Number(child.getAttribute("y")),
+      ]);
     }
     const children = Array.from(
       graph.querySelector("svg")?.children ?? graph.children,
@@ -2046,8 +2119,17 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
     const rootId = "wt-alpha";
     const registration = syntheticNode(rootId, {
       task: "Worktree activity",
+      status: "waiting",
       parentId: "orchestrator",
       relationship: "resolved",
+      intervals: [
+        {
+          start: 0,
+          end: null,
+          startAbsoluteTime: "2023-11-20T06:00:00.000Z",
+          endAbsoluteTime: null,
+        },
+      ],
     });
     const child = syntheticNode(`${rootId}-implementer`, {
       parentId: rootId,
@@ -2079,6 +2161,13 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
     expect(
       Number(unassigned?.querySelector("rect")?.getAttribute("x")),
     ).toBeLessThan(Number(worktree?.querySelector("rect")?.getAttribute("x")));
+    expect(worktree?.dataset.status).toBe("waiting");
+    expect(worktree?.querySelector(".lane-status")?.textContent).toBe(
+      "Waiting",
+    );
+    expect(worktree?.querySelector(".lane-meta")?.textContent).toMatch(
+      /^1 agent · since (?!.*unavailable)/,
+    );
     expect(graph.querySelector(`[data-node-card="${rootId}"]`)).toBeNull();
     expect(
       graph.querySelector(`[data-node-card="${legacy.id}"]`),
@@ -2092,6 +2181,13 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
     expect(
       navigator.querySelector('[data-worktree="unassigned"]')?.textContent,
     ).toContain("Unassigned (before shared stream)");
+    fireEvent.input(
+      within(navigator).getByRole("textbox", { name: /find agent/i }),
+      { target: { value: rootId } },
+    );
+    const searchRows = navigator.querySelectorAll(".navigator-identity-row");
+    expect(searchRows).toHaveLength(1);
+    expect(searchRows[0].dataset.identityId).toBe(child.id);
     for (const segment of graph.querySelectorAll<SVGLineElement>(
       ".graph-edges line",
     )) {
@@ -2115,19 +2211,24 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
     const intervals = Array.from({ length: 5 }, (_, index) => ({
       start: index * 100,
       end: index === 4 ? null : index * 100 + 50,
-      startAbsoluteTime: `2023-11-20T0${7 + index}:00:00.000Z`,
+      startAbsoluteTime: `2023-11-20T${String(7 + index).padStart(2, "0")}:00:00.000Z`,
       endAbsoluteTime:
-        index === 4 ? null : `2023-11-20T0${7 + index}:00:50.000Z`,
+        index === 4
+          ? null
+          : `2023-11-20T${String(7 + index).padStart(2, "0")}:00:50.000Z`,
     }));
     const activities = intervals.map((interval, index) => ({
       type: "message",
       time: interval.start,
-      absoluteTime: interval.startAbsoluteTime,
+      absoluteTime:
+        index === 4 ? "2023-11-20T11:30:00.000Z" : interval.startAbsoluteTime,
       summary: `Run ${index + 1} summary`,
     }));
     const repeated = syntheticNode(`${rootId}-test-writer`, {
       parentId: rootId,
       relationship: "resolved",
+      status: "waiting",
+      lastUpdateAge: 600,
       intervals,
       activities,
     });
@@ -2159,6 +2260,14 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
       graph.querySelector(`[data-node-card="${repeated.id}"] .agent-run-badge`)
         ?.textContent,
     ).toBe("×5 runs");
+    const card = graph.querySelector(`[data-node-card="${repeated.id}"]`)!;
+    expect(card.querySelector(".agent-status-word")?.textContent).toBe(
+      "Waiting",
+    );
+    expect(card.querySelector(".agent-summary-text")?.textContent).toContain(
+      "Run 5 summary",
+    );
+    expect(card.querySelector(".agent-duration")?.textContent).toBe("30m");
     const navigator = getByRole(root, "navigation", {
       name: /agent navigator/i,
     });
@@ -2189,6 +2298,16 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
     expect(
       getByRole(root, "region", { name: /activity history/i }).textContent,
     ).not.toContain("Run 1 summary");
+    const selector = within(inspector).getByRole("combobox", {
+      name: /select run/i,
+    });
+    fireEvent.change(selector, { target: { value: "0" } });
+    const olderActivity = getByRole(root, "region", {
+      name: /activity history/i,
+    });
+    expect(olderActivity.textContent).toContain("Run 1 of 5");
+    expect(olderActivity.textContent).toContain("Run 1 summary");
+    expect(olderActivity.textContent).not.toContain("Run 5 summary");
   });
 
   it("reserves separate card grid cells for long copy duration and quiet age", () => {
@@ -2304,5 +2423,49 @@ describe("Feature 008 Agent Monitor DOM acceptance", () => {
     expect(footer.textContent).toMatch(/2 agents in last 24 hours/i);
     fireEvent.click(getByRole(root, "button", { name: /all runs/i }));
     expect(footer.textContent).toMatch(/3 agents · all runs/i);
+  });
+
+  it("compacts lane slots after active-only filtering", () => {
+    const rootId = "wt-alpha";
+    const first = syntheticNode(`${rootId}-first`, {
+      parentId: rootId,
+      relationship: "resolved",
+    });
+    const hidden = syntheticNode(`${rootId}-completed`, {
+      parentId: rootId,
+      relationship: "resolved",
+      status: "completed",
+      terminal: true,
+    });
+    const second = syntheticNode(`${rootId}-second`, {
+      parentId: rootId,
+      relationship: "resolved",
+    });
+    const { root } = mount008(
+      [
+        syntheticNode(rootId, {
+          task: "Worktree activity",
+          status: undefined,
+        }),
+        first,
+        hidden,
+        second,
+      ],
+      [first, hidden, second].map((node) => ({
+        parentId: rootId,
+        childId: node.id,
+      })),
+    );
+    fireEvent.click(
+      getByRole(root, "checkbox", { name: /last reported nonterminal/i }),
+    );
+    expect(root.querySelector(`[data-node-card="${hidden.id}"]`)).toBeNull();
+    expect(
+      [first, second].map((node) =>
+        Number(
+          graphNode(root, node.id).querySelector("rect")?.getAttribute("y"),
+        ),
+      ),
+    ).toEqual([260, 346]);
   });
 });

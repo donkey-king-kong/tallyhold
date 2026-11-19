@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { spawnSync } from "node:child_process";
+import { mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
 
 describe("independent extension contract (AC1, AC15-16)", () => {
   it("contributes an explicitly named command on the approved stable API floor", async () => {
@@ -216,26 +218,80 @@ describe("independent extension contract (AC1, AC15-16)", () => {
   });
 
   it("provides an ignored real-log preview command through the parser pipeline", async () => {
-    const manifest = JSON.parse(
-      await readFile(resolve("package.json"), "utf8"),
+    const temporaryRoot = await mkdtemp(
+      join(tmpdir(), "tallyhold-real-preview-"),
     );
-    const repositoryIgnore = await readFile(resolve(".gitignore"), "utf8");
-    const script = await readFile(
-      resolve("scripts/capture-real-preview.ts"),
-      "utf8",
-    ).catch(() => "");
-    expect(manifest.scripts).toHaveProperty("preview:real", expect.any(String));
-    expect(manifest.scripts?.["preview:real"] ?? "").toMatch(
-      /capture-real-preview.*--/,
-    );
-    expect(repositoryIgnore).toContain(".preview-real/");
-    expect(script).toContain("createSourceController");
-    expect(script).toContain("real-wide-last24h.png");
-    expect(script).toContain("real-wide-all-runs.png");
-    expect(script).toContain("real-narrow-last24h.png");
-    expect(script).toContain("real-narrow-all-runs.png");
-    expect(script).not.toMatch(/agent-flow-events\.jsonl["']/);
-  });
+    const expectedImages = [
+      "real-wide-last24h.png",
+      "real-wide-all-runs.png",
+      "real-narrow-last24h.png",
+      "real-narrow-all-runs.png",
+    ];
+    const runFixture = async (label: string) => {
+      const marker = `private-marker-${label}`;
+      const source = join(temporaryRoot, `${label}.jsonl`);
+      const output = join(temporaryRoot, `${label}-output`);
+      const input =
+        JSON.stringify({
+          time: 0,
+          type: "agent_spawn",
+          sessionId: `preview-${label}`,
+          payload: {
+            name: `agent-${label}`,
+            task: marker,
+            status: "working",
+          },
+        }) + "\n";
+      await writeFile(source, input);
+      const result = spawnSync("npm", ["run", "preview:real", "--", source], {
+        cwd: resolve("."),
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          AGENT_MONITOR_PREVIEW_OUTPUT: output,
+        },
+        timeout: 120_000,
+      });
+      expect(result.error).toBeUndefined();
+      expect(result.status, result.stderr).toBe(0);
+      expect((await readdir(output)).sort()).toEqual(
+        [...expectedImages].sort(),
+      );
+      expect(await readFile(source, "utf8")).toBe(input);
+      const images = await Promise.all(
+        expectedImages.map((name) => readFile(join(output, name))),
+      );
+      expect(images.every((image) => !image.includes(marker))).toBe(true);
+      return images;
+    };
+    try {
+      const first = await runFixture("alpha");
+      const second = await runFixture("beta");
+      expect(first.some((image, index) => !image.equals(second[index]))).toBe(
+        true,
+      );
+      const manifest = JSON.parse(
+        await readFile(resolve("package.json"), "utf8"),
+      );
+      const repositoryIgnore = await readFile(resolve(".gitignore"), "utf8");
+      const script = await readFile(
+        resolve("scripts/capture-real-preview.ts"),
+        "utf8",
+      );
+      expect(manifest.scripts).toHaveProperty(
+        "preview:real",
+        expect.any(String),
+      );
+      expect(manifest.scripts?.["preview:real"] ?? "").toMatch(
+        /capture-real-preview.*--/,
+      );
+      expect(repositoryIgnore).toContain(".preview-real/");
+      expect(script).toContain("createSourceController");
+      expect(script).not.toMatch(/agent-flow-events\.jsonl["']/);
+    } finally {
+      await rm(temporaryRoot, { recursive: true, force: true });
+    }
+  }, 300_000);
 
   it("wires trusted discovery and persisted source restoration into activation", async () => {
     const activation = await readFile(resolve("src/extension.ts"), "utf8");

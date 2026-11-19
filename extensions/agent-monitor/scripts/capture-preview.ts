@@ -104,6 +104,62 @@ try {
         `${name}: navigator does not resize from the keyboard`,
       );
       await resizer.press("ArrowLeft");
+      const dragHandle = await resizer.boundingBox();
+      if (!dragHandle)
+        throw new Error(`${name}: navigator resize handle is not visible`);
+      await page.mouse.move(
+        dragHandle.x + dragHandle.width / 2,
+        dragHandle.y + dragHandle.height / 2,
+      );
+      await page.mouse.down();
+      await page.mouse.move(2_000, dragHandle.y + dragHandle.height / 2);
+      await page.mouse.up();
+      const maximumNavigator = await page
+        .locator(".monitor-navigator")
+        .boundingBox();
+      requireLayout(
+        Boolean(maximumNavigator) &&
+          maximumNavigator!.width >= 479 &&
+          maximumNavigator!.width <= 480 &&
+          (await resizer.getAttribute("aria-valuenow")) === "480",
+        `${name}: pointer resize does not clamp at 480px`,
+      );
+      const maximumHandle = await resizer.boundingBox();
+      await page.mouse.move(
+        maximumHandle!.x + maximumHandle!.width / 2,
+        maximumHandle!.y + maximumHandle!.height / 2,
+      );
+      await page.mouse.down();
+      await page.mouse.move(
+        -2_000,
+        maximumHandle!.y + maximumHandle!.height / 2,
+      );
+      await page.mouse.up();
+      const minimumNavigator = await page
+        .locator(".monitor-navigator")
+        .boundingBox();
+      requireLayout(
+        Boolean(minimumNavigator) &&
+          minimumNavigator!.width >= 240 &&
+          minimumNavigator!.width <= 241 &&
+          (await resizer.getAttribute("aria-valuenow")) === "240",
+        `${name}: pointer resize does not clamp at 240px`,
+      );
+      const minimumHandle = await resizer.boundingBox();
+      await page.mouse.move(
+        minimumHandle!.x + minimumHandle!.width / 2,
+        minimumHandle!.y + minimumHandle!.height / 2,
+      );
+      await page.mouse.down();
+      await page.mouse.move(
+        minimumHandle!.x + minimumHandle!.width / 2 + 60,
+        minimumHandle!.y + minimumHandle!.height / 2,
+      );
+      await page.mouse.up();
+      requireLayout(
+        (await resizer.getAttribute("aria-valuenow")) === "300",
+        `${name}: pointer resize cannot restore the 300px default`,
+      );
     } else {
       requireLayout(
         navigatorBox.y < canvasBox.y && canvasBox.y < inspectorBox.y,
@@ -521,13 +577,66 @@ try {
       const cardCollision = cardRects.some((left, leftIndex) =>
         cardRects.slice(leftIndex + 1).some((right) => intersects(left, right)),
       );
+      const pathIsOrthogonal = (path: SVGPathElement) => {
+        const tokens =
+          path.getAttribute("d")?.match(/[a-zA-Z]|-?(?:\d+\.?\d*|\.\d+)/g) ??
+          [];
+        let index = 0;
+        let command = "";
+        let x = 0;
+        let y = 0;
+        let subpathX = 0;
+        let subpathY = 0;
+        const coordinate = () => Number(tokens[index++]);
+        while (index < tokens.length) {
+          if (/^[a-zA-Z]$/.test(tokens[index])) command = tokens[index++];
+          const relative = command === command.toLowerCase();
+          switch (command.toUpperCase()) {
+            case "M":
+              x = coordinate() + (relative ? x : 0);
+              y = coordinate() + (relative ? y : 0);
+              subpathX = x;
+              subpathY = y;
+              command = relative ? "l" : "L";
+              break;
+            case "L": {
+              const nextX = coordinate() + (relative ? x : 0);
+              const nextY = coordinate() + (relative ? y : 0);
+              if (nextX !== x && nextY !== y) return false;
+              x = nextX;
+              y = nextY;
+              break;
+            }
+            case "H":
+              x = coordinate() + (relative ? x : 0);
+              break;
+            case "V":
+              y = coordinate() + (relative ? y : 0);
+              break;
+            case "Z":
+              if (subpathX !== x && subpathY !== y) return false;
+              x = subpathX;
+              y = subpathY;
+              command = "";
+              break;
+            default:
+              return false;
+          }
+        }
+        return true;
+      };
       const diagonalConnector = Array.from(
         document.querySelectorAll<SVGGraphicsElement>(
           ".graph-edges line, .graph-edges path",
         ),
       ).some((segment) => {
-        const box = segment.getBoundingClientRect();
-        return box.width > 1 && box.height > 1;
+        if (segment.tagName.toLowerCase() === "path")
+          return !pathIsOrthogonal(segment as SVGPathElement);
+        const line = segment as SVGLineElement;
+        return (
+          line.getAttribute("x1") !== line.getAttribute("x2") &&
+          line.getAttribute("y1") !== line.getAttribute("y2")
+        );
       });
       const laneHasHole = Array.from(
         document.querySelectorAll<SVGGElement>("[data-lane-header]"),
