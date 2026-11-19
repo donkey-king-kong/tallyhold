@@ -411,3 +411,83 @@ connector bus, and lane rail.
    executable delta from that revision.
 
 VERDICT: CHANGES_REQUESTED
+
+## Real-data smoke correction review, round 2
+
+- Round: 2
+- Base: `937ac4f`
+- Pushed cumulative RED head:
+  `3274a2874d15c6c90466f43a416eeae75ed95bce`
+- Executable RED revision:
+  `f9a68f88b61399c8a5a4120114351b28dd4f2f6d`
+- Head relation: from the executable revision to the pushed head, only
+  `red-test-run.md` changes within the permitted feature/test evidence.
+- Commit comment:
+  <https://github.com/donkey-king-kong/tallyhold/commit/3274a2874d15c6c90466f43a416eeae75ed95bce#commitcomment-210771699>
+
+### Coverage mapping
+
+AC1-AC15 retain their existing named coverage in core, host, presentation,
+webview, packaging, adapter, and production-browser tests. AC16 is covered by:
+
+| Requirement | Named coverage |
+| --- | --- |
+| Unassigned lane and registration metadata/exclusion | `webview.test.ts: renders legacy identities in an orthogonal unassigned lane and hides registration roots` |
+| Identity/run collapse and scoped inspection | `webview.test.ts: collapses five runs to one card and row with latest run selected` |
+| Card grid and readable type | `webview.test.ts: reserves separate card grid cells for long copy duration and quiet age` |
+| Range compaction, resizer and footer | `webview.test.ts: compacts recent lane slots exposes a bounded resizer and labels footer range` |
+| Active-only compaction | `webview.test.ts: compacts lane slots after active-only filtering` |
+| Orthogonal attributed connectors | strengthened `webview.test.ts: all resolved links draw one connector including cross lane and late parent` |
+| Executable real-preview contract | `packaging.test.ts: provides an ignored real-log preview command through the parser pipeline` |
+| Production geometry and pointer bounds | `scripts/capture-preview.ts` real-data geometry and resizer checks |
+
+No acceptance criterion, numbered verification item, or observable
+real-stream plan decision remains uncovered.
+
+### Round 1 findings addressed
+
+1. **Connector endpoints and orthogonality: addressed.** The unit and browser
+   guards parse line/path geometry by segment, require parent-bottom to
+   child-top endpoints, permit bent orthogonal `M/L/H/V/Z` paths, and reject
+   transforms, curves, and diagonal segments.
+2. **Malformed timestamps: addressed.** Every synthetic run hour is two-digit
+   ISO and the latest run has a valid report time.
+3. **Registration metadata and search: addressed.** The lane header must use
+   the registration's Waiting status and verified since-time while its card,
+   row, count, and search result remain excluded.
+4. **Active-only compaction: addressed.** Filtering a completed middle
+   identity must move the remaining visible cards into contiguous slots.
+5. **Pointer resizer bounds: addressed.** Playwright exercises keyboard
+   resizing, pointer drags to 480px and 240px, and restoration to 300px.
+6. **Latest/older run scope: addressed.** The card uses latest-run
+   status/summary/duration, inspection defaults latest, and selecting the
+   oldest run rescopes activity.
+7. **Executable real preview: addressed.** Two temporary sanitized JSONL
+   inputs must produce four exact, input-dependent PNGs through the npm
+   command and parser pipeline without changing/copying source text or
+   embedding raw markers.
+
+### Checklist
+
+1. **Acceptance and plan coverage: none.** AC1-AC16 and plan verification
+   items 1-15 map to named tests; all real-stream amendment decisions have
+   focused assertions.
+2. **Limits, ordering, concurrency, and security decisions: none.** Resizer
+   clamps/default, deterministic lane/source order, filtered compaction,
+   registration search exclusion, and temporary-input privacy are asserted.
+3. **RED validity: none.** At `f9a68f8`, seven focused tests fail only for
+   missing behavior, the production bundle reaches its layout assertion, 125
+   unaffected tests pass, and lint, format, typecheck, and 30 adapter tests
+   pass.
+4. **Assertions and adversarial value: none.** Detached/diagonal connectors,
+   hidden registration identities, stale run activity, empty filtered slots,
+   unclamped resizing, inert preview strings, fixed output, copied input, and
+   embedded markers are rejected.
+5. **Infrastructure and isolation: none.** All inputs are synthetic,
+   temporary, local, and offline; no secret, real stream, external service,
+   network, or paid resource is used.
+6. **Existing suite and weakening: none.** No test is deleted; endpoint checks
+   are restored and strengthened, and all 125 unaffected tests pass at the
+   executable revision.
+
+VERDICT: APPROVE
