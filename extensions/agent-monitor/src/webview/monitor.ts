@@ -100,6 +100,8 @@ export function mountMonitor(
   let activityIndex = 0;
   const layout = new GraphLayout();
   layout.assign(state.projection.nodes);
+  let allLaneRoots = layout.laneRoots();
+  let allRegistrationRoots = layout.registrationRoots();
   let camera = "0 0 800 600";
 
   const header = element("header", undefined, { class: "monitor-header" });
@@ -202,9 +204,8 @@ export function mountMonitor(
   );
 
   const currentNodes = () => {
-    const roots = layout.laneRoots();
     const metadata = state.projection.nodes.filter((node) =>
-      roots.includes(node.id),
+      allLaneRoots.includes(node.id),
     );
     const filtered = state.projection.nodes.filter(
       (node) =>
@@ -474,7 +475,7 @@ export function mountMonitor(
       .filter(
         (node) =>
           (node.id !== "orchestrator" || state.projection.nodes.length === 1) &&
-          !isRegistrationNode(node, layout.registrationRoots()) &&
+          !isRegistrationNode(node, allRegistrationRoots) &&
           (!activeOnly || !node.terminal),
       )
       .map((node) => ({
@@ -1067,7 +1068,7 @@ export function mountMonitor(
     const identities = state.projection.nodes.filter(
       (node) =>
         node.id !== "orchestrator" &&
-        !isRegistrationNode(node, layout.registrationRoots()) &&
+        !isRegistrationNode(node, allRegistrationRoots) &&
         (!activeOnly || !node.terminal),
     );
     const visibleCount =
@@ -1176,6 +1177,8 @@ export function mountMonitor(
         elapsed = 0;
       }
       layout.assign(state.projection.nodes);
+      allLaneRoots = layout.laneRoots();
+      allRegistrationRoots = layout.registrationRoots();
       if (changed) camera = fittedCamera();
       render();
       if (changed) fitAll();

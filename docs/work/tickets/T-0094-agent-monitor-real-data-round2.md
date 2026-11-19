@@ -2,7 +2,7 @@
 
 ## Assignment
 
-- Status: done
+- Status: in_progress
 - Owner actor: R-0096/coordinator
 - Role: coordinator / Implementer
 - Run: [R-0096](../runs/R-0096.md), after [R-0095](../runs/R-0095.md)
@@ -12,7 +12,7 @@
 - Branch / worktree: `feature/008-agent-monitor-ui` / `../tallyhold-feature-008-agent-monitor-ui`
 - Worktree path: `../tallyhold-feature-008-agent-monitor-ui`
 - Issue / PR: related #44; no PR requested
-- Updated: 2026-11-19T07:57:55Z
+- Updated: 2026-11-19T08:06:19Z
 
 ## Scope
 
@@ -34,19 +34,20 @@ paths. Do not reinstall the extension or open a PR.
 
 ## Checkpoint
 
-- Last completed action: committed and pushed the verified P1-P8 implementation
-  and regenerated fixture previews at `ad1069a`.
-- Evidence: 138 extension tests pass with 95.33% statement and 96.94% line
+- Last completed action: corrected a final real-data count leak found during
+  handoff reconstruction and rechecked all six regenerated previews.
+- Evidence: 138 extension tests pass with 95.34% statement and 96.95% line
   coverage; browser layout checks pass at both widths; lint, formatting,
   typecheck, benchmark, package, and 30 adapter tests pass. The VSIX excludes
   `.preview-real`; packaging retains the pre-existing missing-LICENSE warning.
-- Worktree state: implementation and fixture previews are pushed. Four
-  real-data previews and all generated build, benchmark, coverage, and package
-  outputs remain ignored.
-- Remaining work: none in the authorized scope; stop for Zack's review.
+  The final real-data previews reconcile `9 + 24 = 33` identities.
+- Worktree state: the count correction and final fixture previews are
+  uncommitted. Four real-data previews and all generated build, benchmark,
+  coverage, and package outputs remain ignored.
+- Remaining work: commit and push the final count correction, then record its
+  SHA and stop for Zack's review.
 - Blocker / unblock action: none.
-- Next action: Zack reviews `ad1069a` and the four local real-data previews
-  before deciding whether to authorize reinstall or PR work.
+- Next action: commit and push the final count correction.
 - Handoff recipient: Zack after completed verification.
 
 ## History
@@ -64,3 +65,4 @@ paths. Do not reinstall the extension or open a PR.
 | 2026-11-19T07:15:17Z | R-0096/test-writer | Recorded exact-revision evidence for `744771b` and handed GREEN to Implementer | Commit and push evidence, implement P1-P8 |
 | 2026-11-19T07:55:47Z | R-0096/coordinator | Verified P1-P8 and visually checked two fixture plus four ignored real-data previews | Commit and push verified GREEN; record SHA |
 | 2026-11-19T07:57:55Z | R-0096/coordinator | Pushed verified GREEN and fixture previews at `ad1069a` | Stop for Zack; no reinstall or PR |
+| 2026-11-19T08:06:19Z | R-0096/coordinator | Reopened after final visual audit found filtered legacy roots inflated Older runs by two; corrected `9 + 24 = 33` | Commit and push final count correction |
