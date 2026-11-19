@@ -12,7 +12,7 @@
 - Branch / worktree: `feature/008-agent-monitor-ui` / `../tallyhold-feature-008-agent-monitor-ui`
 - Worktree path: `../tallyhold-feature-008-agent-monitor-ui`
 - Issue / PR: related #44; no PR requested
-- Updated: 2026-11-19T02:09:17Z
+- Updated: 2026-11-19T02:20:59Z
 
 ## Scope
 
@@ -29,7 +29,7 @@ reinstall the VSIX or open a PR.
 ## Acceptance
 
 - [x] Zack's four decisions are recorded as approved Feature 008 spec/plan amendments.
-- [ ] New synthetic DOM and Playwright guards fail on `937ac4f` for missing behavior while unaffected tests pass.
+- [x] New synthetic DOM and Playwright guards fail on `937ac4f` for missing behavior while unaffected tests pass.
 - [ ] A fresh independent RED Reviewer approves the pushed RED handoff before GREEN.
 - [ ] Findings A-H are corrected or the handoff records a deviation and reason.
 - [ ] `npm run preview:real -- <jsonl>` uses the real parser/presentation path and writes four ignored images.
@@ -37,12 +37,12 @@ reinstall the VSIX or open a PR.
 
 ## Checkpoint
 
-- Last completed action: recorded Zack's four approved decisions in the Feature 008 spec, plan, and tasks.
-- Evidence: AC16 and the approved real-data smoke amendment define identity collapse, unassigned lane, registration exclusion, and compact filtering.
-- Worktree state: tracking and approved amendments are modified over synchronized `937ac4f`.
-- Remaining work: amendments, RED guards/evidence/review, GREEN, real preview, verification, and handoff.
+- Last completed action: verified six focused RED failures at `a0d0804`, 125 unaffected tests, 30 adapter tests, and lint/format/typecheck.
+- Evidence: [RED run](../../specs/008-agent-monitor-ui/red-test-run.md) records commands, counts, first failures, and AC16/plan mappings; the browser guard reaches the production bundle and rejects the old navigator width.
+- Worktree state: RED tests are committed through `a0d0804`; evidence and this tracking checkpoint are modified.
+- Remaining work: commit/push RED evidence, independent review, GREEN, real preview, verification, and handoff.
 - Blocker / unblock action: production changes blocked until fresh RED approval.
-- Next action: commit the approved amendment checkpoint, then add synthetic failing guards.
+- Next action: commit and push the RED evidence, verify the remote head, then dispatch fresh RED review round 1.
 - Handoff recipient: fresh RED Reviewer after pushed RED evidence.
 
 ## History
@@ -51,3 +51,5 @@ reinstall the VSIX or open a PR.
 | --- | --- | --- | --- |
 | 2026-11-19T02:06:53Z | R-0095/coordinator | Created from clean synchronized `937ac4f` after real-data smoke failure | Record approved amendments and write RED guards before production edits |
 | 2026-11-19T02:09:17Z | R-0095/coordinator | Recorded Zack's four decisions as approved spec/plan amendments and added ordered correction tasks | Commit the amendment checkpoint, then write RED guards |
+| 2026-11-19T02:14:09Z | R-0095/coordinator | Added sanitized DOM, Playwright, fixture, and CLI contract guards; production remains unchanged | Commit tests, then prove RED and unaffected checks separately |
+| 2026-11-19T02:20:59Z | R-0095/test-writer | Verified six intended RED failures, 125 unaffected passes, browser RED, static checks, and 30 adapter passes at `a0d0804` | Commit/push evidence and tracking, then dispatch fresh RED review |

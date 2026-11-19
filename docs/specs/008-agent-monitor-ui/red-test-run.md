@@ -287,3 +287,45 @@ At exact executable revision `6a41ed1`:
 No production source, stylesheet, preview fixture, generated preview,
 dependency, adapter, or publisher file changed. GREEN remains frozen pending
 Zack's explicit confirmation of this corrected RED.
+
+## Real-data smoke correction
+
+Zack's 2026-11-19 hands-on smoke approved AC16 and the corresponding plan
+amendment. Test commits `0c6a391` and `a0d0804` add sanitized Vitest,
+production-bundle Playwright, fixture, and package-command guards over unchanged
+production revision `937ac4f`. No private JSONL, real screenshot, production
+source, stylesheet, dependency, adapter, or publisher file changed.
+
+At exact executable test revision
+`a0d0804c7d4b0b13db7bf2f1bc46e34786ac98c5`:
+
+| Command | Exit | Result |
+| --- | ---: | --- |
+| `npx vitest run test/webview.test.ts test/packaging.test.ts -t "all resolved links draw one connector\|renders legacy identities\|collapses five runs\|reserves separate card\|compacts recent lane\|provides an ignored real-log"` | 1 (expected) | 6 failed, 61 skipped. Every failure is an ordinary missing-behavior assertion: a diagonal connector, no unassigned lane, five cards for five runs, intersecting card text, a filtered lane hole, and no `preview:real` command. |
+| `npx vitest run -t "^(?!.*(?:all resolved links draw one connector including cross lane and late parent\|renders legacy identities in an orthogonal unassigned lane and hides registration roots\|collapses five runs to one card and row with latest run selected\|reserves separate card grid cells for long copy duration and quiet age\|compacts recent lane slots exposes a bounded resizer and labels footer range\|provides an ignored real-log preview command through the parser pipeline)).*$"` | 0 | 125 passed, 6 skipped across five files. Only the six focused RED guards were excluded. |
+| `npm run test:preview-layout` | 1 (expected) | The production bundle rendered; the first browser guard failed with `preview-wide.png: navigator width is outside the target band`. |
+| `npm run lint` | 0 | ESLint passed. |
+| `npm run format:check` | 0 | Prettier passed. |
+| `npm run typecheck` | 0 | TypeScript passed. |
+| `python3 -m unittest discover -s .trae/agent-flow -p 'test_*.py' -v` (repository root) | 0 | 30 adapter tests passed. |
+
+The first unaffected-suite attempt excluded the five newly named tests but not
+the strengthened orthogonal assertion in the existing connector test. It
+therefore reported 125 passes, one intended RED failure, and five skips. The
+corrected command above classifies that strengthened case with the focused RED
+set and passes all unaffected tests.
+
+### AC16 and plan mapping
+
+| Requirement | Public guard and first missing behavior |
+| --- | --- |
+| One identity card/row with latest-default run-scoped inspection | `webview.test.ts: collapses five runs to one card and row with latest run selected` renders five cards rather than one. |
+| Far-left legacy lane, registration exclusion, and orthogonal connectors | `webview.test.ts: renders legacy identities in an orthogonal unassigned lane and hides registration roots` has no unassigned lane; the strengthened `all resolved links draw one connector including cross lane and late parent` detects a diagonal line. |
+| Nonintersecting two-row card copy and 13px/12px graph type | `webview.test.ts: reserves separate card grid cells for long copy duration and quiet age` detects intersecting text bounds before typography assertions. |
+| Compact visible slots, bounded resizer, and filter-aware footer | `webview.test.ts: compacts recent lane slots exposes a bounded resizer and labels footer range` observes `[346, 432]` instead of contiguous `[260, 346]`. |
+| Honest parser-backed real preview with ignored outputs | `packaging.test.ts: provides an ignored real-log preview command through the parser pipeline` finds no `preview:real` package command; later assertions require the source controller, four filenames, and ignored output. |
+| Real-browser card/lane containment and navigator overflow | `scripts/capture-preview.ts`, exercised by `npm run test:preview-layout`, first rejects the 270px navigator outside the approved 290-310px default band; subsequent guards cover duplicate identities, text/card/lane intersections, orthogonal segments, registration exclusion, contiguous slots, and horizontal navigator overflow. |
+
+All fixtures are synthetic and sanitized. The RED checks read no shared stream,
+make no network request, and do not create the requested real-preview output;
+that local real-log run remains a GREEN verification step.
