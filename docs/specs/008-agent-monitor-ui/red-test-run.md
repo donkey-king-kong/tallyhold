@@ -329,3 +329,42 @@ set and passes all unaffected tests.
 All fixtures are synthetic and sanitized. The RED checks read no shared stream,
 make no network request, and do not create the requested real-preview output;
 that local real-log run remains a GREEN verification step.
+
+### Round-1 review corrections
+
+Fresh round 1 returned `CHANGES_REQUESTED`. Test commit
+`f9a68f88b61399c8a5a4120114351b28dd4f2f6d` makes the required corrections
+without changing production:
+
+- restores parent-bottom to child-top endpoint checks while retaining
+  segment-level orthogonality and rejecting connector transforms;
+- parses each SVG `M`/`L`/`H`/`V`/`Z` segment, so a valid bent orthogonal path
+  is accepted and any diagonal or curved segment is rejected;
+- fixes all five run timestamps to valid two-digit ISO hours;
+- verifies registration status/since metadata, registration exclusion after
+  search, and child-only lane counts;
+- verifies latest-run card status/summary/duration and older-run activity
+  rescoping;
+- adds active-only lane compaction;
+- drags the browser resizer to both 480px and 240px clamps and back to 300px;
+- executes `npm run preview:real -- <temporary-jsonl>` twice against distinct
+  sanitized inputs, using isolated temporary output roots. It requires four
+  exact PNG names, input-dependent images, unchanged source files, and no raw
+  marker bytes in outputs.
+
+At exact executable revision `f9a68f8`:
+
+| Command | Exit | Result |
+| --- | ---: | --- |
+| `npx vitest run test/webview.test.ts test/packaging.test.ts -t "all resolved links draw one connector\|renders legacy identities\|collapses five runs\|reserves separate card\|compacts recent lane\|compacts lane slots after active\|provides an ignored real-log"` | 1 (expected) | 7 failed, 61 skipped. First failures are missing orthogonal connector behavior, unassigned lane, identity collapse, card separation, recent compaction, active-only compaction, and the absent `preview:real` command. |
+| `npx vitest run -t "^(?!.*(?:all resolved links draw one connector including cross lane and late parent\|renders legacy identities in an orthogonal unassigned lane and hides registration roots\|collapses five runs to one card and row with latest run selected\|reserves separate card grid cells for long copy duration and quiet age\|compacts recent lane slots exposes a bounded resizer and labels footer range\|compacts lane slots after active-only filtering\|provides an ignored real-log preview command through the parser pipeline)).*$"` | 0 | 125 passed, 7 skipped across five files. Only the seven focused RED guards were excluded. |
+| `npm run test:preview-layout` | 1 (expected) | Production bundle rendered; first failure remains `preview-wide.png: navigator width is outside the target band`. |
+| `npm run lint` | 0 | ESLint passed. |
+| `npx prettier --check test/webview.test.ts test/packaging.test.ts scripts/capture-preview.ts && npm run format:check` | 0 | Changed tests/guard and configured project files passed Prettier. |
+| `npm run typecheck` | 0 | TypeScript passed. |
+| `python3 -m unittest discover -s .trae/agent-flow -p 'test_*.py' -v` (repository root) | 0 | 30 adapter tests passed. |
+
+The executable preview test reports the missing npm command through a normal
+status assertion. Its temporary paths and npm diagnostic path are omitted from
+this public evidence. It cleans all synthetic JSONL and output files in a
+`finally` block and does not touch `.preview-real/`.

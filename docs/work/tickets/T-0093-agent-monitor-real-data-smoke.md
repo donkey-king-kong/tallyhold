@@ -12,7 +12,7 @@
 - Branch / worktree: `feature/008-agent-monitor-ui` / `../tallyhold-feature-008-agent-monitor-ui`
 - Worktree path: `../tallyhold-feature-008-agent-monitor-ui`
 - Issue / PR: related #44; no PR requested
-- Updated: 2026-11-19T02:29:07Z
+- Updated: 2026-11-19T02:39:17Z
 
 ## Scope
 
@@ -37,12 +37,12 @@ reinstall the VSIX or open a PR.
 
 ## Checkpoint
 
-- Last completed action: fresh Trae RED review round 1 returned `CHANGES_REQUESTED` for six coverage gaps and three test defects.
-- Evidence: [RED review](../../specs/008-agent-monitor-ui/red-review.md); [commit comment](https://github.com/donkey-king-kong/tallyhold/commit/b728a9325ac98e8afaac5edf763055e9322e0318#commitcomment-210770284).
-- Worktree state: reviewer report is modified over synchronized `ae7053d`; production remains unchanged.
-- Remaining work: correct RED findings, rerun evidence, fresh round-2 review, GREEN, real preview, verification, and handoff.
+- Last completed action: corrected every round-1 RED finding in `f9a68f8` and verified seven focused failures, 125 unaffected passes, browser RED, static checks, and 30 adapter passes.
+- Evidence: [RED run](../../specs/008-agent-monitor-ui/red-test-run.md) records exact corrected commands, counts, failures, privacy behavior, and omitted local-path diagnostics.
+- Worktree state: reviewer record `1f8f13c` and corrected tests `f9a68f8` are committed; corrected evidence and tracking are modified.
+- Remaining work: commit/push corrected evidence, fresh round-2 review, GREEN, real preview, verification, and handoff.
 - Blocker / unblock action: production changes blocked until fresh RED approval.
-- Next action: restore endpoint assertions, parse connector segments, fix timestamps, and cover registration metadata/search, active compaction, resizer bounds, run scope, and executable real preview.
+- Next action: commit/push corrected evidence, verify the remote head, then dispatch a different fresh Trae Reviewer for round 2.
 - Handoff recipient: fresh RED Reviewer after pushed RED evidence.
 
 ## History
@@ -55,3 +55,4 @@ reinstall the VSIX or open a PR.
 | 2026-11-19T02:20:59Z | R-0095/test-writer | Verified six intended RED failures, 125 unaffected passes, browser RED, static checks, and 30 adapter passes at `a0d0804` | Commit/push evidence and tracking, then dispatch fresh RED review |
 | 2026-11-19T02:22:16Z | R-0095/coordinator | Pushed and remotely verified RED handoff `b728a93` against base `937ac4f`; round-1 reviewer is pending | Freeze the reviewed snapshot and dispatch a fresh Trae RED Reviewer |
 | 2026-11-19T02:29:07Z | R-0095/coordinator | Fresh Trae round 1 returned `CHANGES_REQUESTED`; comment `210770284` identifies six uncovered decisions, malformed timestamps, invalid path geometry, and weakened endpoint coverage | Test writer makes only required RED corrections and prepares round 2 |
+| 2026-11-19T02:39:17Z | R-0095/test-writer | Corrected all round-1 findings at `f9a68f8`; seven focused tests fail for missing behavior, 125 unaffected and 30 adapter tests pass, and static/browser evidence is pinned | Commit/push evidence and dispatch a different fresh round-2 reviewer |
